@@ -1,0 +1,170 @@
+package com.agile.mvc.entity;
+
+import com.agile.common.annotation.Remark;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+/**
+ * Created by 佟盟
+ */
+@Entity
+@Table(name = "dictionary_data",  catalog = "agile_db")
+@Remark("[系统管理]字典数据表")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class DictionaryDataEntity implements Serializable,Cloneable {
+
+    //序列
+    private static final long serialVersionUID = 1L;
+    @Remark("主键")
+    private String dictionaryDataId;
+    @Remark("字典主表主键")
+    private String dictionaryMainId;
+    @Remark("显示名称")
+    private String key;
+    @Remark("代表值")
+    private String value;
+    @Remark("字典值是否固定")
+    private Boolean isFixed;
+
+    //无参构造器
+    public DictionaryDataEntity(){}
+
+    //有参构造器
+    public DictionaryDataEntity(String dictionaryDataId,String dictionaryMainId,String key,String value,Boolean isFixed){
+        this.dictionaryDataId = dictionaryDataId;
+        this.dictionaryMainId = dictionaryMainId;
+        this.key = key;
+        this.value = value;
+        this.isFixed = isFixed;
+    }
+
+    @Id
+    @Column(name = "dictionary_data_id" , nullable = false )
+    public String getDictionaryDataId() {
+        return dictionaryDataId;
+    }
+
+    public void setDictionaryDataId(String dictionaryDataId) {
+        this.dictionaryDataId = dictionaryDataId;
+    }
+
+    @Basic
+    @Column(name = "dictionary_main_id" , nullable = false )
+    public String getDictionaryMainId() {
+        return dictionaryMainId;
+    }
+
+    public void setDictionaryMainId(String dictionaryMainId) {
+        this.dictionaryMainId = dictionaryMainId;
+    }
+
+    @Basic
+    @Column(name = "key" , nullable = false )
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    @Basic
+    @Column(name = "value" , nullable = false )
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Basic
+    @Column(name = "is_fixed" , nullable = false )
+    public Boolean getIsFixed() {
+        return isFixed;
+    }
+
+    public void setIsFixed(Boolean isFixed) {
+        this.isFixed = isFixed;
+    }
+
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof DictionaryDataEntity)) return false;
+        DictionaryDataEntity that = (DictionaryDataEntity) object;
+        return Objects.equals(getDictionaryDataId(), that.getDictionaryDataId()) &&
+            Objects.equals(getDictionaryMainId(), that.getDictionaryMainId()) &&
+            Objects.equals(getKey(), that.getKey()) &&
+            Objects.equals(getValue(), that.getValue()) &&
+            Objects.equals(getIsFixed(), that.getIsFixed());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getDictionaryDataId(), getDictionaryMainId(), getKey(), getValue(), getIsFixed());
+    }
+
+    @Override
+    public String toString() {
+        return "DictionaryDataEntity{" +
+        "dictionaryDataId='" + dictionaryDataId + '\'' +
+        ",dictionaryMainId='" + dictionaryMainId + '\'' +
+        ",key='" + key + '\'' +
+        ",value='" + value + '\'' +
+        ",isFixed=" + isFixed +
+        '}';
+    }
+
+    private DictionaryDataEntity(Builder builder){
+        this.dictionaryDataId = builder.dictionaryDataId;
+        this.dictionaryMainId = builder.dictionaryMainId;
+        this.key = builder.key;
+        this.value = builder.value;
+        this.isFixed = builder.isFixed;
+    }
+
+    public static class Builder{
+        private String dictionaryDataId;
+        private String dictionaryMainId;
+        private String key;
+        private String value;
+        private Boolean isFixed;
+
+        public Builder setDictionaryDataId(String dictionaryDataId) {
+            this.dictionaryDataId = dictionaryDataId;
+            return this;
+        }
+        public Builder setDictionaryMainId(String dictionaryMainId) {
+            this.dictionaryMainId = dictionaryMainId;
+            return this;
+        }
+        public Builder setKey(String key) {
+            this.key = key;
+            return this;
+        }
+        public Builder setValue(String value) {
+            this.value = value;
+            return this;
+        }
+        public Builder setIsFixed(Boolean isFixed) {
+            this.isFixed = isFixed;
+            return this;
+        }
+        public DictionaryDataEntity build(){
+            return new DictionaryDataEntity(this);
+        }
+    }
+
+    public static Builder builder(){
+        return new Builder();
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+}

@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>agile</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0</version>
+    <name>agile</name>
+    <description>Agile API平台</description>
+    <url>http://localhost:8081/repository/maven-releases/</url>
+    <!--资源库-->
+    <repositories>
+        <repository>
+            <id>privateMaven</id>
+            <url>http://localhost:8081/repository/maven-public/</url>
+        </repository>
+    </repositories>
+
+    <parent>
+        <groupId>com.agileframework</groupId>
+        <artifactId>agile-parent</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <distributionManagement>
+        <repository>
+            <id>agile</id>
+            <url>http://localhost:8081/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+</project>
