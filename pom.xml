@@ -6,7 +6,7 @@
     <version>1.0</version>
     <name>Agile工程</name>
     <description>Agile API平台</description>
-    <url>http://localhost:8081/repository/maven-releases/</url>
+    <url>http://192.168.0.55:7777/repository/maven-public/</url>
     <!--资源库-->
     <repositories>
         <repository>
@@ -24,7 +24,7 @@
     <distributionManagement>
         <repository>
             <id>agile</id>
-            <url>http://localhost:8081/repository/maven-releases/</url>
+            <url>http://192.168.0.55:7777/repository/maven-public/</url>
         </repository>
     </distributionManagement>
 </project>

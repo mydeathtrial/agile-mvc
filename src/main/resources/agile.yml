@@ -11,9 +11,9 @@ agile:
   cache:
     proxy: redis
   druid:
-    data_base_ip: 127.0.0.1
+    data_base_ip: 192.168.200.106
     data_base_name: agile_db
-    data_base_password: 123456
+    data_base_password: guosen1023
     data_base_post: 3306
     data_base_url_param: serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true
     data_base_username: root
@@ -48,8 +48,8 @@ agile:
       char: String
       datetime: Date
       date: Date
-      bolb: Blob
-      clob: Clob
+      bolb: byte[]
+      clob: byte[]
       decimal: Double
       double: Double
       float: Float
@@ -64,21 +64,22 @@ agile:
       real: Double
       smallint: Short
       smallmoney: Double
-      text: Clob
+      text: String
       timestamp: Timestamp
       tinyint: Boolean
       varchar: String
       varchar2: String
+      tinytext: String
     entity_prefix: ''
     entity_suffix: Entity
-    entity_url: D:/workspace/agile/src/main/java/com/agile/mvc/entity/
+    entity_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
     es_entity_prefix: ''
     es_entity_suffix: Entity
-    es_entity_url: D:/workspace/agile/src/main/java/com/agile/mvc/entity/
+    es_entity_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
     service_prefix: ''
     service_suffix: Service
-    service_url: D:/workspace/agile/src/main/java/com/agile/mvc/service/
-    table_name: 'log%'
+    service_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service
+    table_name: 'event_alarm%'
   jpa:
     current_session_context_class: thread
     format_sql: true

@@ -757,7 +757,7 @@
     <distributionManagement>
         <repository>
             <id>agile</id>
-            <url>http://localhost:8081/repository/maven-releases/</url>
+            <url>http://192.168.0.55:7777/repository/maven-public/</url>
         </repository>
     </distributionManagement>
 </project>
