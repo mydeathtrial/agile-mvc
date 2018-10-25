@@ -54,7 +54,7 @@ public class ${entityClassName} implements Serializable,Cloneable {
         return ${property.propertyName};
     }
 
-    public void ${property.setMethod}(<#if property.propertyType == "Integer" >int <#elseif property.propertyType == "Long" >long <#else>${property.propertyType} </#if>${property.propertyName}) {
+    public void ${property.setMethod}(${property.propertyType} ${property.propertyName}) {
         this.${property.propertyName} = ${property.propertyName};
     }
 
@@ -100,7 +100,7 @@ public class ${entityClassName} implements Serializable,Cloneable {
         </#list>
 
         <#list columnList as property>
-        public Builder ${property.setMethod}(<#if property.propertyType == "Integer" >int <#elseif property.propertyType == "Long" >long <#else>${property.propertyType} </#if>${property.propertyName}) {
+        public Builder ${property.setMethod}(${property.propertyType} ${property.propertyName}) {
             this.${property.propertyName} = ${property.propertyName};
             return this;
         }

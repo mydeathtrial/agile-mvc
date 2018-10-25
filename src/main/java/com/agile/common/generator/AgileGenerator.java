@@ -92,8 +92,6 @@ public class AgileGenerator {
             switch (propertyType){
                 case "Timestamp":importList.add("java.sql.Timestamp;");break;
                 case "Date":importList.add("java.util.Date;");break;
-                case "Clob":importList.add("java.sql.Clob;");break;
-                case "Blob":importList.add("java.sql.Blob;");break;
             }
 
             columnList.add(param);
