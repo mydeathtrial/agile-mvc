@@ -2,7 +2,6 @@ package com.agile.common.container;
 
 import com.agile.common.config.LoggerFactoryConfig;
 import com.agile.common.kaptcha.KaptchaServlet;
-import com.agile.common.listener.CacheListener;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
@@ -155,12 +154,5 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         }
         servletContext.addListener(IntrospectorCleanupListener.class);
 
-        /*
-          初始化缓存监听
-         */
-        if(logger.isDebugEnabled()){
-            logger.debug("初始化缓存监听");
-        }
-        servletContext.addListener(CacheListener.class);
     }
 }

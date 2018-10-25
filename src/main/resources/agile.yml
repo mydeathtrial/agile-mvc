@@ -154,26 +154,14 @@ agile:
     include_format: txt,excel
     max_upload_size: 204800
   elasticsearch:
-    cluster-name: idss-es
-    cluster-nodes: 192.168.200.94:39290,192.168.200.95:39290,192.168.200.96:39290
-    column_type:
-      string: text
-      text: text
-      integer: Integer
-      long: Long
-      date: Date
-      float: Float
-      double: Double
-      boolean: Boolean
-      object: Object
-      auto: Auto
-      nested: Nested
-      ipv4: Ip
-      attachment: Attachment
-      keyword: keyword
-spring:
-  data:
-    elasticsearch:
-      cluster-name: argus
-      cluster-nodes: 192.168.200.94:39290
-      cluster-hosts: 192.168.200.94:39290
+    enable: false
+    cluster_name: argus
+    cluster_nodes: 192.168.200.94:39390,192.168.200.95:39390
+    cluster_hosts: 192.168.200.94:39390
+    pool_size: 5
+    index_date_formate: yyyyMMdd
+    time_field: create_time
+    id_field: id
+    raw_msg_field: raw_msg
+    scroll_time_value: 60000
+    scroll_set_size: 30000

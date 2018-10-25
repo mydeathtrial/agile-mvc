@@ -2,6 +2,8 @@ package com.agile.common.util;
 
 import org.apache.commons.lang.time.DateUtils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -41,5 +43,20 @@ public class DateUtil extends DateUtils {
      */
     public static Date getCurrentDate(){
         return new Date(System.currentTimeMillis());
+    }
+
+    /**
+     * 字符串转日期
+     * @param date 日期字符串
+     * @param format 格式
+     */
+    public static Date toDateByFormat(String date,String format) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.parse(date);
+    }
+
+    public static String toFormatByDate(Date date,String format){
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        return dateFormat.format(date);
     }
 }

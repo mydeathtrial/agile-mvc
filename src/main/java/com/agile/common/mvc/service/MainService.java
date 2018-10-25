@@ -3,7 +3,6 @@ package com.agile.common.mvc.service;
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchRequestMethodException;
-import com.agile.common.mvc.model.dao.ESDao;
 import com.agile.common.security.SecurityUser;
 import com.agile.common.util.APIUtil;
 import com.agile.common.util.ArrayUtil;
@@ -27,9 +26,6 @@ public class MainService implements ServiceInterface {
 
     @Autowired
     public Dao dao;
-
-    @Autowired
-    public ESDao esDao;
 
     //输入
     private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();

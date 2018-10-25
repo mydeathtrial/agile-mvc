@@ -24,7 +24,7 @@ public class ESUtil {
     private static Client getClient() {
         if(client==null){
             try {
-                client = new ESConfig().client();
+                client = new ESConfig().esClient();
             } catch (Exception e) {
                 e.printStackTrace();
             }

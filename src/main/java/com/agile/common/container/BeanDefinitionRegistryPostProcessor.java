@@ -25,11 +25,13 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
     private String[] rediss = new String[]{"redisConfig","redisCacheManager","redisTemplate","jedisConnectionFactory","redisPool","redisRegionFactory","org.springframework.boot.autoconfigure.data.redis.LettuceConnectionConfiguration","org.springframework.boot.autoconfigure.data.redis.JedisConnectionConfiguration","org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration","stringRedisTemplate","spring.redis-org.springframework.boot.autoconfigure.data.redis.RedisProperties","org.springframework.boot.actuate.autoconfigure.redis.RedisHealthIndicatorConfiguration","redisHealthIndicator","org.springframework.boot.actuate.autoconfigure.redis.RedisHealthIndicatorAutoConfiguration","org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration","org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration","redisCustomConversions","redisReferenceResolver","redisConverter","redisKeyValueAdapter","redisKeyValueTemplate"};
     private String[] ehcaches = new String[]{"ehCacheConfig","ehCacheCacheManager","ehCacheManagerFactoryBean"};
     private String[] tasks = new String[]{"agileTaskService","taskFactory"};
+    private String[] es = new String[]{"esClient"};
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
         isUse("agile.task.enable",tasks,beanDefinitionRegistry);
         isUse("agile.security.enable",securitys,beanDefinitionRegistry);
         isUse("agile.activiti.enable",activitis,beanDefinitionRegistry);
+        isUse("agile.elasticsearch.enable",es,beanDefinitionRegistry);
         this.cacheManagerProcessor(beanDefinitionRegistry);
         this.annotationProcessor();
     }

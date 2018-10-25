@@ -4,7 +4,7 @@
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
     <version>1.0</version>
-    <name>agile</name>
+    <name>Agile工程</name>
     <description>Agile API平台</description>
     <url>http://localhost:8081/repository/maven-releases/</url>
     <!--资源库-->
