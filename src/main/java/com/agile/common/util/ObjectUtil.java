@@ -45,7 +45,17 @@ public class ObjectUtil extends ObjectUtils {
                 Field sourceProperty = source.getClass().getDeclaredField(propertyName);
                 sourceProperty.setAccessible(true);
                 Object value = sourceProperty.get(source);
-                Field targetProperty = target.getClass().getDeclaredField(propertyName);
+                Field targetProperty;
+                try {
+                    targetProperty = target.getClass().getDeclaredField(propertyName);
+                }catch (NoSuchFieldException e){
+                    try {
+                        targetProperty = target.getClass().getField(propertyName);
+                    }catch (NoSuchFieldException e1){
+                        sourceProperty.set(target,value);
+                        continue;
+                    }
+                }
                 targetProperty.setAccessible(true);
                 targetProperty.set(target,value);
             }catch (Exception ignored){}
