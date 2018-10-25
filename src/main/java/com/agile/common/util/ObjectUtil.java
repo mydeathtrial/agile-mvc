@@ -42,10 +42,12 @@ public class ObjectUtil extends ObjectUtils {
             }
 
             try {
-                Field property = source.getClass().getDeclaredField(propertyName);
-                property.setAccessible(true);
-                Object value = property.get(source);
-                property.set(target,value);
+                Field sourceProperty = source.getClass().getDeclaredField(propertyName);
+                sourceProperty.setAccessible(true);
+                Object value = sourceProperty.get(source);
+                Field targetProperty = target.getClass().getDeclaredField(propertyName);
+                targetProperty.setAccessible(true);
+                targetProperty.set(target,value);
             }catch (Exception ignored){}
         }
     }

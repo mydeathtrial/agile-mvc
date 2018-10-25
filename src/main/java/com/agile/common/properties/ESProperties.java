@@ -11,10 +11,10 @@ public class ESProperties {
     private static String clusterNodes;
     private static String clusterHosts;
     private static int poolSize;
-    private static String indexDateFormate;
+    private static String indexDateFormat;
     private static String timeField;
     private static String idField;
-    private static String rawMsgField;
+    private static String rawMsgFiled;
     private static int scrollTimeValue;
     private static int scrollSetSize;
 
@@ -42,12 +42,12 @@ public class ESProperties {
         ESProperties.clusterHosts = clusterHosts;
     }
 
-    public static String getIndexDateFormate() {
-        return indexDateFormate;
+    public static String getIndexDateFormat() {
+        return indexDateFormat;
     }
 
-    public static void setIndexDateFormate(String indexDateFormate) {
-        ESProperties.indexDateFormate = indexDateFormate;
+    public static void setIndexDateFormat(String indexDateFormat) {
+        ESProperties.indexDateFormat = indexDateFormat;
     }
 
     public static String getTimeField() {
@@ -66,12 +66,12 @@ public class ESProperties {
         ESProperties.idField = idField;
     }
 
-    public static String getRawMsgField() {
-        return rawMsgField;
+    public static String getRawMsgFiled() {
+        return rawMsgFiled;
     }
 
-    public static void setRawMsgField(String rawMsgField) {
-        ESProperties.rawMsgField = rawMsgField;
+    public static void setRawMsgFiled(String rawMsgFiled) {
+        ESProperties.rawMsgFiled = rawMsgFiled;
     }
 
     public static int getPoolSize() {

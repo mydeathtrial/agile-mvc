@@ -154,14 +154,14 @@ agile:
     include_format: txt,excel
     max_upload_size: 204800
   elasticsearch:
-    enable: false
+    enable: true
     cluster_name: argus
     cluster_nodes: 192.168.200.94:39390,192.168.200.95:39390
     cluster_hosts: 192.168.200.94:39390
     pool_size: 5
-    index_date_formate: yyyyMMdd
+    index_date_format: yyyyMMdd
     time_field: create_time
     id_field: id
-    raw_msg_field: raw_msg
+    raw_msg_filed: raw_msg
     scroll_time_value: 60000
     scroll_set_size: 30000
