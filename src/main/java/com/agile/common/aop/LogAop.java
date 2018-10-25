@@ -1,5 +1,6 @@
 package com.agile.common.aop;
 
+import com.agile.common.annotation.AnnotationRuntimeProcessor;
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
@@ -39,6 +40,16 @@ public class LogAop {
      */
     @Pointcut(value = "execution(* com.agile.common.mvc.service.ServiceInterface.executeMethod(..))")
     public void servicePointCut() {
+    }
+
+    @Before(value = "servicePointCut()")
+    public void paramValidator(JoinPoint joinPoint){
+        MainService service = (MainService)joinPoint.getTarget();
+        String methid = joinPoint.getArgs()[0].toString();
+
+        Map<String, Object> inParam = service.getInParam();
+        //处理参数验证注解
+//        AnnotationRuntimeProcessor.paramHandler(method,inParam);
     }
 
     /**
@@ -81,7 +92,9 @@ public class LogAop {
                 Class<?> serviceClass = service.getClass();
                 Log logger = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, serviceClass);
                 if(logger.isInfoEnabled()){
-                    logger.info(String.format(logTemplate,ip,url,serviceClass.getSimpleName(),methodName,JSONUtil.toJSONString(inParam),JSONUtil.toJSONString(outParam)));
+                    String outStr = JSONUtil.toJSONString(outParam);
+                    String print = (outStr != null && outStr.length() > 100) ? outStr.substring(0, 100) + "...}":outStr;
+                    logger.info(String.format(logTemplate,ip,url,serviceClass.getSimpleName(),methodName,JSONUtil.toJSONString(inParam),print));
                 }
             }catch (Exception e){
                 e.printStackTrace();
