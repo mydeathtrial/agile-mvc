@@ -402,6 +402,7 @@ public class Dao {
             Example<T> example = Example.of(object);
             return this.getRepository(object.getClass()).findAll(example,sort);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -421,6 +422,7 @@ public class Dao {
             Example<T> example = Example.of(object);
             return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page,size,sort));
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -483,6 +485,9 @@ public class Dao {
         pageable = PageRequest.of(page,size,sort);
 
         Query countQuery = entityManager.createNativeQuery(countSql);
+        for (int i = 0 ; i < parameters.length ; i++ ){
+            countQuery.setParameter(i+1,parameters[i]);
+        }
         int count = Integer.parseInt(countQuery.getSingleResult().toString());
 
         //取查询结果集
@@ -537,6 +542,7 @@ public class Dao {
         try {
             return getRepository(tableClass).findAllById(ids);
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -549,6 +555,7 @@ public class Dao {
         try {
             return getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -561,6 +568,7 @@ public class Dao {
         try {
             return getRepository(tableClass).findAll(PageRequest.of(page,size));
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -573,6 +581,7 @@ public class Dao {
         try {
             return getRepository(tableClass).findAll();
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
