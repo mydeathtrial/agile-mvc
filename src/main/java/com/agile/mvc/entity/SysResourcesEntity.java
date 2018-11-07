@@ -18,23 +18,23 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysResourcesId;
+    private String sysResourcesId ;
     @Remark("资源类型")
-    private String type;
+    private String type ;
     @Remark("资源名称")
-    private String name;
+    private String name ;
     @Remark("资源描述")
-    private String desc;
+    private String desc ;
     @Remark("资源路径")
-    private String path;
+    private String path ;
     @Remark("优先级")
-    private String priority;
+    private String priority ;
     @Remark("是否可用")
-    private Boolean enable;
+    private Boolean enable ;
     @Remark("是否系统权限")
-    private Boolean issys;
+    private Boolean issys ;
     @Remark("模块")
-    private String moduleId;
+    private String moduleId ;
 
     //无参构造器
     public SysResourcesEntity(){}
@@ -53,7 +53,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_resources_id" , nullable = false )
+    @Column(name = "sys_resources_id" , nullable = false  )
     public String getSysResourcesId() {
         return sysResourcesId;
     }
@@ -63,7 +63,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "type" )
+    @Column(name = "type"  )
     public String getType() {
         return type;
     }
@@ -73,7 +73,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" )
+    @Column(name = "name"  )
     public String getName() {
         return name;
     }
@@ -83,7 +83,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "desc" )
+    @Column(name = "desc"  )
     public String getDesc() {
         return desc;
     }
@@ -93,7 +93,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "path" )
+    @Column(name = "path"  )
     public String getPath() {
         return path;
     }
@@ -103,7 +103,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "priority" )
+    @Column(name = "priority"  )
     public String getPriority() {
         return priority;
     }
@@ -113,7 +113,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "enable" )
+    @Column(name = "enable"  )
     public Boolean getEnable() {
         return enable;
     }
@@ -123,7 +123,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "issys" )
+    @Column(name = "issys"  )
     public Boolean getIssys() {
         return issys;
     }
@@ -133,7 +133,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "module_id" )
+    @Column(name = "module_id"  )
     public String getModuleId() {
         return moduleId;
     }
@@ -248,7 +248,12 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysResourcesEntity clone() {
+        try {
+            return (SysResourcesEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

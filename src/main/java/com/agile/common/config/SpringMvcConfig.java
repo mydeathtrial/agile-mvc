@@ -7,12 +7,15 @@ import com.agile.common.viewResolver.JumpViewResolver;
 import com.agile.common.viewResolver.XmlViewResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.i18n.CookieLocaleResolver;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +29,10 @@ import java.util.Map;
 @EnableWebMvc
 public class SpringMvcConfig implements WebMvcConfigurer {
 
+    private static Map<String, MediaType> map = new HashMap<>();
+    static {
+        map.put("plain",MediaType.TEXT_PLAIN);
+    }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.setOrder(-1).addResourceHandler("/static/**","/favicon.ico")
@@ -66,24 +73,6 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-        Map<String, MediaType> map = new HashMap<>();
-        map.put("atom",MediaType.APPLICATION_ATOM_XML);
-        map.put("form",MediaType.APPLICATION_FORM_URLENCODED);
-        map.put("json",MediaType.APPLICATION_JSON);
-        map.put("octet-stream",MediaType.APPLICATION_OCTET_STREAM);
-        map.put("event-stream",MediaType.TEXT_EVENT_STREAM);
-        map.put("pdf",MediaType.APPLICATION_PDF);
-        map.put("xhtml",MediaType.APPLICATION_XHTML_XML);
-        map.put("gif",MediaType.IMAGE_GIF);
-        map.put("jpeg",MediaType.IMAGE_JPEG);
-        map.put("png",MediaType.IMAGE_PNG);
-        map.put("multipart",MediaType.MULTIPART_FORM_DATA);
-        map.put("html",MediaType.TEXT_PLAIN);
-        map.put("js",MediaType.TEXT_PLAIN);
-        map.put("css",MediaType.TEXT_PLAIN);
-        map.put("plain",MediaType.TEXT_PLAIN);
-        map.put("markdown",MediaType.TEXT_MARKDOWN);
-
         configurer.ignoreAcceptHeader(false)
                 .favorPathExtension(true)
                 .favorParameter(false)
@@ -94,5 +83,17 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     @Bean
     ThreadPoolTaskScheduler threadPoolTaskScheduler(){
         return new ThreadPoolTaskScheduler();
+    }
+
+    @Bean
+    ResourceBundleMessageSource resourceBundleMessageSource(){
+        ResourceBundleMessageSource resourceBundleMessageSource = new ResourceBundleMessageSource();
+        resourceBundleMessageSource.setDefaultEncoding("UTF-8");
+        resourceBundleMessageSource.setBasename("com.agile.conf.message");
+        return resourceBundleMessageSource;
+    }
+
+    public static Map<String, MediaType> getMap() {
+        return map;
     }
 }

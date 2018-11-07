@@ -18,19 +18,19 @@ public class LogValueEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String logValueId;
+    private String logValueId ;
     @Remark("日志相关表标识")
-    private String logTableId;
+    private String logTableId ;
     @Remark("字段")
-    private String columnName;
+    private String columnName ;
     @Remark("字段类型")
-    private String columnType;
+    private String columnType ;
     @Remark("新值")
-    private String newValue;
+    private String newValue ;
     @Remark("旧值")
-    private String oldValue;
+    private String oldValue ;
     @Remark("字段含义")
-    private String columnInfo;
+    private String columnInfo ;
 
     //无参构造器
     public LogValueEntity(){}
@@ -47,7 +47,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "log_value_id" , nullable = false )
+    @Column(name = "log_value_id" , nullable = false  )
     public String getLogValueId() {
         return logValueId;
     }
@@ -57,7 +57,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "log_table_id" , nullable = false )
+    @Column(name = "log_table_id" , nullable = false  )
     public String getLogTableId() {
         return logTableId;
     }
@@ -67,7 +67,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "column_name" , nullable = false )
+    @Column(name = "column_name" , nullable = false  )
     public String getColumnName() {
         return columnName;
     }
@@ -77,7 +77,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "column_type" , nullable = false )
+    @Column(name = "column_type" , nullable = false  )
     public String getColumnType() {
         return columnType;
     }
@@ -87,7 +87,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "new_value" )
+    @Column(name = "new_value"  )
     public String getNewValue() {
         return newValue;
     }
@@ -97,7 +97,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "old_value" )
+    @Column(name = "old_value"  )
     public String getOldValue() {
         return oldValue;
     }
@@ -107,7 +107,7 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "column_info" )
+    @Column(name = "column_info"  )
     public String getColumnInfo() {
         return columnInfo;
     }
@@ -160,13 +160,13 @@ public class LogValueEntity implements Serializable,Cloneable {
     }
 
     public static class Builder{
-        private String logValueId;
-        private String logTableId;
-        private String columnName;
-        private String columnType;
-        private String newValue;
-        private String oldValue;
-        private String columnInfo;
+        private String logValueId ;
+        private String logTableId ;
+        private String columnName ;
+        private String columnType ;
+        private String newValue ;
+        private String oldValue ;
+        private String columnInfo ;
 
         public Builder setLogValueId(String logValueId) {
             this.logValueId = logValueId;

@@ -1,6 +1,7 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
+import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
@@ -199,16 +200,57 @@ public class FileUtil extends FileUtils {
         return downloadFile(new File(filePath));
     }
 
-    public static void downloadFile(ExcelFile excelFile,HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public static void downloadFile(String fileName,String contentType,InputStream stream,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+        setContentDisposition(fileName,request,response);
+        response.setContentType(contentType==null?MediaType.APPLICATION_OCTET_STREAM.toString():contentType);
+        try {
+            byte[] b = new byte[100];
+            int len;
+            while ((len = stream.read(b)) > 0)
+                response.getOutputStream().write(b, 0, len);
+            stream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void downloadFile(String fileName,String contentType,File file,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException, FileNotFoundException {
+        downloadFile(fileName,contentType,new FileInputStream(file),request,response);
+    }
+
+    private static void setContentDisposition(String fileName,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         String contentDisposition;
-        String fileName = (excelFile).getFileName();
         if (request.getHeader("User-Agent").toLowerCase().indexOf("firefox") > 0) {
             contentDisposition = String.format("attachment; filename=\"%s\"",new String(fileName.getBytes(), Charset.forName("ISO8859-1")));
         } else {
             contentDisposition = String.format("attachment; filename=\"%s\"", URLEncoder.encode(fileName, "UTF-8"));
         }
         response.setHeader("Content-Disposition", contentDisposition);
+    }
+
+    public static void downloadFile(File file,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException, FileNotFoundException {
+        downloadFile(file.getName(),null,file,request,response);
+    }
+
+    public static void downloadFile(ExcelFile excelFile,HttpServletRequest request, HttpServletResponse response) throws IOException {
+        setContentDisposition(excelFile.getFileName(),request,response);
         response.setContentType("application/vnd.ms-excel");
         ((excelFile).getWorkbook()).write(response.getOutputStream());
+    }
+
+    public static boolean downloadFile(Object value, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if(value==null)return false;
+        if(value instanceof ExcelFile){
+            downloadFile((ExcelFile) value,request,response);
+            return true;
+        }else if(ResponseFile.class.isAssignableFrom(value.getClass())){
+            ResponseFile temp = (ResponseFile) value;
+            downloadFile(temp.getFileName(),temp.getContentType(),temp.getInputStream(),request,response);
+            return true;
+        }else if(File.class.isAssignableFrom(value.getClass())){
+            downloadFile((File)value,request,response);
+            return true;
+        }
+        return false;
     }
 }

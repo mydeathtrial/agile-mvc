@@ -1,16 +1,13 @@
 package com.agile.common.container;
 
 import com.agile.common.annotation.AnnotationProcessor;
-import com.agile.common.util.APIUtil;
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.*;
 import com.agile.common.mvc.model.dao.Dao;
-import com.agile.common.util.PropertiesUtil;
-import com.agile.mvc.entity.SysTaskTargetEntity;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.data.util.ProxyUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,9 +32,6 @@ public class BeanPostProcessor implements org.springframework.beans.factory.conf
     @Override
     @Transactional
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if(PropertiesUtil.getProperty("agile.task.enable",boolean.class)){
-            initSysTaskTarget(bean);
-        }
         methodAnnotationProcessor(bean,beanName);
         classAnnotationProcessor(bean);
         return bean;
@@ -45,6 +39,7 @@ public class BeanPostProcessor implements org.springframework.beans.factory.conf
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        initRequestMapping(bean,beanName);
         return bean;
     }
 
@@ -95,42 +90,25 @@ public class BeanPostProcessor implements org.springframework.beans.factory.conf
     /**
      * 检测任务
      */
-    void initSysTaskTarget(Object bean){
-        Class<?> clazz = bean.getClass();
-        Service service = clazz.getAnnotation(Service.class);
+    private void initRequestMapping(Object bean,String beanName){
+        Class<?> realClass = ProxyUtils.getUserClass(bean);
+        if(realClass == null)return;
+        Service service = realClass.getAnnotation(Service.class);
         if(service == null)return;
+        //service缓存
+        APIUtil.addServiceCache(beanName,bean);
+        if(service.value().length()>0){
+            APIUtil.addServiceCache(service.value(),bean);
+            APIUtil.addServiceCache(StringUtil.toLowerName(bean.getClass().getSimpleName()),bean);
+        }
 
-        Method[] methods =  clazz.getMethods();
+        //method缓存
+        Method[] methods =  realClass.getMethods();
         for(int i = 0; i < methods.length; i++){
             Method method = methods[i];
-            String methodName = method.getName();
-
-            addApiCache(bean.getClass().getName(),methodName,method);
-
-//            String[] excludeMethod = {"save","delete","update","query"};
-//            if(ArrayUtil.contains(excludeMethod,methodName))continue;
-            String id = clazz.getName() + "." + methodName;
-            SysTaskTargetEntity entity = dao.findOne(SysTaskTargetEntity.class, id);
-            if(!ObjectUtil.isEmpty(entity))continue;
-            SysTaskTargetEntity sysTaskTargetEntity = new SysTaskTargetEntity();
-            sysTaskTargetEntity.setSysTaskTargetId(id);
-            sysTaskTargetEntity.setTargetPackage(clazz.getPackage().getName());
-            sysTaskTargetEntity.setTargetClass(clazz.getSimpleName());
-            sysTaskTargetEntity.setTargetMethod(methodName);
-            sysTaskTargetEntity.setName(id);
-            dao.update(sysTaskTargetEntity);
+            method.setAccessible(true);
+            APIUtil.addMappingInfoCache(bean,method,realClass);
         }
-    }
-
-    /**
-     * 初始化API Hash表
-     * @param className bean名
-     * @param methodName 方法名
-     * @param method 方法
-     */
-    private void addApiCache(String className,String methodName,Method method){
-        method.setAccessible(true);
-        APIUtil.addApiCache(String.format("%s.%s",className,methodName),method);
     }
 
     @Override

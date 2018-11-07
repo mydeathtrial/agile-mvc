@@ -121,7 +121,7 @@ public final class StringUtil extends StringUtils {
     public static boolean containMatchedString(String regex,String text){
         Pattern pattern=Pattern.compile(regex,Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(text);
-        return matcher.matches();
+        return matcher.find();
     }
 
     /**

@@ -2,6 +2,8 @@ package com.agile.common.annotation;
 
 import com.agile.common.util.*;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +20,16 @@ public class AnnotationProcessor {
     public static Class[] afterClassAnnotations = {};
     public static Class[] methodAnnotations = {Init.class};
 
-    void Init(Init init, Object bean,Method method){
+    @Transactional
+    public void Init(Init init, Object bean,Method method){
         method.setAccessible(true);
         if(!ObjectUtil.isEmpty(init)){
             try {
                 method.invoke(bean);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException e) {
                 e.printStackTrace();
+            } catch (InvocationTargetException e){
+                e.getTargetException().printStackTrace();
             }
         }
     }

@@ -27,11 +27,10 @@ public class XmlView extends AbstractView {
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         for (Object value:model.values()) {
-            if(value instanceof ExcelFile){
-                FileUtil.downloadFile((ExcelFile) value,request,response);
-                return;
-            }
+            boolean isFile = FileUtil.downloadFile(value, request, response);
+            if(isFile)return;
         }
+
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
         model.entrySet().removeIf(o -> o.getValue() instanceof BindingResult);
 

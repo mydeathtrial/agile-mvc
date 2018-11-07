@@ -1,12 +1,18 @@
 package com.agile.common.util;
 
+import net.sf.json.JSONObject;
 import org.jetbrains.annotations.Contract;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by 佟盟 on 2017/2/23
@@ -119,4 +125,40 @@ public class ServletUtil {
             return getLinuxLocalIp();
         }
     }
+
+    /**
+     * 处理body参数
+     * @param request 请求request
+     */
+    public static Map<String,Object> getBody(HttpServletRequest request) {
+
+        try {
+            BufferedReader br = request.getReader();
+
+            String cache;
+            StringBuilder jsonStr = new StringBuilder();
+            while((cache = br.readLine()) != null){
+                jsonStr.append(cache);
+            }
+            JSONObject json = null;
+            try{
+                json = JSONUtil.toJSON(jsonStr.toString());
+            }catch (Exception e){
+                return null;
+            }
+            if(json!=null){
+                Map<String,Object> map = new HashMap<>();
+                Iterator<String> keys = json.keys();
+                while (keys.hasNext()){
+                    String keyName = keys.next();
+                    Object value = json.get(keyName);
+                    map.put(keyName,value);
+                }
+                return map;
+            }
+        }catch (Exception ignored){
+        }
+        return null;
+    }
+
 }

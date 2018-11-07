@@ -18,15 +18,15 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysAuthorityId;
+    private String sysAuthorityId ;
     @Remark("权限标识")
-    private String mark;
+    private String mark ;
     @Remark("权限名称")
-    private String name;
+    private String name ;
     @Remark("权限说明")
-    private String desc;
+    private String desc ;
     @Remark("是否可用")
-    private Boolean enable;
+    private Boolean enable ;
 
     //无参构造器
     public SysAuthoritiesEntity(){}
@@ -41,7 +41,7 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_authority_id" , nullable = false )
+    @Column(name = "sys_authority_id" , nullable = false  )
     public String getSysAuthorityId() {
         return sysAuthorityId;
     }
@@ -51,7 +51,7 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "mark" )
+    @Column(name = "mark"  )
     public String getMark() {
         return mark;
     }
@@ -61,7 +61,7 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" , nullable = false )
+    @Column(name = "name" , nullable = false  )
     public String getName() {
         return name;
     }
@@ -71,7 +71,7 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "desc" )
+    @Column(name = "desc"  )
     public String getDesc() {
         return desc;
     }
@@ -81,7 +81,7 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "enable" )
+    @Column(name = "enable"  )
     public Boolean getEnable() {
         return enable;
     }
@@ -164,7 +164,12 @@ public class SysAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysAuthoritiesEntity clone() {
+        try {
+            return (SysAuthoritiesEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

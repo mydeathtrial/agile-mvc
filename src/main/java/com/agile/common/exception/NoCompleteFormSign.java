@@ -13,4 +13,8 @@ public class NoCompleteFormSign extends AuthenticationException {
     public NoCompleteFormSign(String msg) {
         super(msg);
     }
+
+    public NoCompleteFormSign() {
+        super(null);
+    }
 }

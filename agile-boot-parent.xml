@@ -6,14 +6,14 @@
 
     <artifactId>agile-boot-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0</version>
+    <version>1.0.2</version>
     <name>agile-boot-parent</name>
     <description>Agile SpringBoot工程父级POM支持</description>
 
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-parent</artifactId>
-        <version>1.0</version>
+        <version>1.0.2</version>
         <relativePath/>
     </parent>
 
@@ -33,7 +33,15 @@
         <dependency>
             <groupId>com.agileframework</groupId>
             <artifactId>agile</artifactId>
-            <version>1.0</version>
+            <version>[1.0,)</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.idss</groupId>
+            <artifactId>argus-common</artifactId>
+            <version>[1.0,)</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--元数据配置检查-->
@@ -41,18 +49,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
 
         <!-- mvc支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- 启动支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
@@ -65,12 +76,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- spring data jpa支持 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>hibernate-core</artifactId>
@@ -83,6 +96,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

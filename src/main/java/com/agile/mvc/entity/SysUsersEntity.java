@@ -5,9 +5,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenerationTime;
 import java.util.Date;
-import java.util.Date;
-import java.sql.Timestamp;
+import org.hibernate.annotations.Generated;
 
 /**
  * Created by 佟盟
@@ -21,37 +21,37 @@ public class SysUsersEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysUsersId;
+    private String sysUsersId ;
     @Remark("账号")
-    private String saltKey;
+    private String saltKey ;
     @Remark("密码")
-    private String saltValue;
+    private String saltValue ;
     @Remark("用户姓名")
-    private String name;
+    private String name ;
     @Remark("所属机构ID")
-    private String vQzjgid;
+    private String vQzjgid ;
     @Remark("所属机构名称")
-    private String vQzjgmc;
+    private String vQzjgmc ;
     @Remark("地区编号")
-    private String areaId;
+    private String areaId ;
     @Remark("过期时间")
-    private Date expiredTime;
+    private Date expiredTime ;
     @Remark("用户是否锁定")
-    private Boolean isLocked;
+    private Boolean isLocked ;
     @Remark("同时在线策略")
-    private String onLineStrategy;
+    private String onLineStrategy ;
     @Remark("创建时间")
-    private Date createTime;
+    private Date createTime ;
     @Remark("修改时间")
-    private Timestamp updateTime;
+    private Date updateTime ;
     @Remark("是否可用")
-    private Boolean enabled;
+    private Boolean enabled ;
 
     //无参构造器
     public SysUsersEntity(){}
 
     //有参构造器
-    public SysUsersEntity(String sysUsersId,String saltKey,String saltValue,String name,String vQzjgid,String vQzjgmc,String areaId,Date expiredTime,Boolean isLocked,String onLineStrategy,Date createTime,Timestamp updateTime,Boolean enabled){
+    public SysUsersEntity(String sysUsersId,String saltKey,String saltValue,String name,String vQzjgid,String vQzjgmc,String areaId,Date expiredTime,Boolean isLocked,String onLineStrategy,Date createTime,Date updateTime,Boolean enabled){
         this.sysUsersId = sysUsersId;
         this.saltKey = saltKey;
         this.saltValue = saltValue;
@@ -68,7 +68,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_users_id" , nullable = false )
+    @Column(name = "sys_users_id" , nullable = false  )
     public String getSysUsersId() {
         return sysUsersId;
     }
@@ -78,7 +78,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "salt_key" , nullable = false )
+    @Column(name = "salt_key" , nullable = false  )
     public String getSaltKey() {
         return saltKey;
     }
@@ -88,7 +88,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "salt_value" , nullable = false )
+    @Column(name = "salt_value" , nullable = false  )
     public String getSaltValue() {
         return saltValue;
     }
@@ -98,7 +98,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" )
+    @Column(name = "name"  )
     public String getName() {
         return name;
     }
@@ -108,7 +108,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "v_qzjgid" )
+    @Column(name = "v_qzjgid"  )
     public String getVQzjgid() {
         return vQzjgid;
     }
@@ -118,7 +118,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "v_qzjgmc" )
+    @Column(name = "v_qzjgmc"  )
     public String getVQzjgmc() {
         return vQzjgmc;
     }
@@ -128,7 +128,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "area_id" )
+    @Column(name = "area_id"  )
     public String getAreaId() {
         return areaId;
     }
@@ -138,7 +138,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "expired_time" )
+    @Column(name = "expired_time"  )
     public Date getExpiredTime() {
         return expiredTime;
     }
@@ -148,7 +148,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "is_locked" )
+    @Column(name = "is_locked"  )
     public Boolean getIsLocked() {
         return isLocked;
     }
@@ -158,7 +158,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "on_line_strategy" )
+    @Column(name = "on_line_strategy"  )
     public String getOnLineStrategy() {
         return onLineStrategy;
     }
@@ -168,7 +168,8 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "create_time" )
+    @Generated(GenerationTime.INSERT)
+    @Column(name = "create_time"  )
     public Date getCreateTime() {
         return createTime;
     }
@@ -178,17 +179,19 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "update_time" )
-    public Timestamp getUpdateTime() {
+    @Temporal(TemporalType.TIMESTAMP)
+    @Generated(GenerationTime.ALWAYS)
+    @Column(name = "update_time"  )
+    public Date getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Timestamp updateTime) {
+    public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
 
     @Basic
-    @Column(name = "enabled" )
+    @Column(name = "enabled"  )
     public Boolean getEnabled() {
         return enabled;
     }
@@ -270,7 +273,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
         private Boolean isLocked;
         private String onLineStrategy;
         private Date createTime;
-        private Timestamp updateTime;
+        private Date updateTime;
         private Boolean enabled;
 
         public Builder setSysUsersId(String sysUsersId) {
@@ -317,7 +320,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
             this.createTime = createTime;
             return this;
         }
-        public Builder setUpdateTime(Timestamp updateTime) {
+        public Builder setUpdateTime(Date updateTime) {
             this.updateTime = updateTime;
             return this;
         }
@@ -335,7 +338,12 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysUsersEntity clone() {
+        try {
+            return (SysUsersEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

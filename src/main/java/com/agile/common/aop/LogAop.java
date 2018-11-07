@@ -1,6 +1,5 @@
 package com.agile.common.aop;
 
-import com.agile.common.annotation.AnnotationRuntimeProcessor;
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
@@ -9,9 +8,13 @@ import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -42,16 +45,6 @@ public class LogAop {
     public void servicePointCut() {
     }
 
-    @Before(value = "servicePointCut()")
-    public void paramValidator(JoinPoint joinPoint){
-        MainService service = (MainService)joinPoint.getTarget();
-        String methid = joinPoint.getArgs()[0].toString();
-
-        Map<String, Object> inParam = service.getInParam();
-        //处理参数验证注解
-//        AnnotationRuntimeProcessor.paramHandler(method,inParam);
-    }
-
     /**
      * 后置通知
      * @param joinPoint 切入点
@@ -76,7 +69,7 @@ public class LogAop {
         Map<String, Object> inParam;
         Map<String, Object> outParam;
         HttpServletRequest request;
-        LogThread(MainService service, String methodName, String ip, StringBuffer url,Map<String, Object> inParam,Map<String, Object> outParam,HttpServletRequest request) {
+        LogThread(MainService service, String methodName, String ip, StringBuffer url, Map<String, Object> inParam, Map<String, Object> outParam, HttpServletRequest request) {
             this.service = service;
             this.methodName = methodName;
             this.ip = ip;
@@ -94,7 +87,7 @@ public class LogAop {
                 if(logger.isInfoEnabled()){
                     String outStr = JSONUtil.toJSONString(outParam);
                     String print = (outStr != null && outStr.length() > 100) ? outStr.substring(0, 100) + "...}":outStr;
-                    logger.info(String.format(logTemplate,ip,url,serviceClass.getSimpleName(),methodName,JSONUtil.toJSONString(inParam),print));
+                    logger.info(String.format(logTemplate,ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toJSONString(inParam),print));
                 }
             }catch (Exception e){
                 e.printStackTrace();

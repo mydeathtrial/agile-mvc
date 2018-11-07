@@ -1,6 +1,8 @@
 package com.agile.common.mvc.controller;
 
+import com.agile.common.annotation.Mapping;
 import com.agile.common.base.*;
+import com.agile.common.exception.NoSuchRequestMethodException;
 import com.agile.common.exception.NoSuchRequestServiceException;
 import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.mvc.service.ServiceInterface;
@@ -8,10 +10,15 @@ import com.agile.common.util.*;
 import com.agile.common.view.ForwardView;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.util.UriUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -23,6 +30,9 @@ public class MainController {
 
     //服务缓存变量
     private static ThreadLocal<ServiceInterface> service = new ThreadLocal<>();
+
+    //方法缓存变量
+    private static ThreadLocal<Method> method = new ThreadLocal<>();
 
     //request缓存变量
     private static ThreadLocal<HttpServletRequest> request = new ThreadLocal<>();
@@ -90,27 +100,31 @@ public class MainController {
      * @param method 方法名
      * @return 响应试图数据
      */
-    @RequestMapping(value = "/api/{service}/{method}")
+    @RequestMapping(value = {"/api/{service}/{method}","/api/{service}/{method}/**"})
     public Object processor(
             HttpServletRequest currentRequest,
             HttpServletResponse currentResponse,
             @PathVariable String service,
             @PathVariable String method
     ) throws Throwable {
+
         //清理缓存
         clear();
 
-        //初始化参数
-        service =  StringUtil.toLowerName(service);//设置服务名
-        method = StringUtil.toLowerName(method);//设置方法名
-        initService(service);
+        //设置当前request
         request.set(currentRequest);
+
+        //处理目标API
+        if(!initMethodByRequestMapping()){
+            initService(StringUtil.toLowerName(service));
+            initMethod(StringUtil.toLowerName(method));
+        }
 
         //处理入参
         handleInParam();
 
         //调用目标方法
-        Object returnData = getService().executeMethod(method,getService(),currentRequest,currentResponse);
+        Object returnData = getService().executeMethod(getService(),getMethod(),currentRequest,currentResponse);
 
         //获取出参
         Map<String, Object> outParam = getService().getOutParam();
@@ -123,14 +137,17 @@ public class MainController {
             return jump(Constant.RegularAbout.REDIRECT);
         }
 
-        //处理响应视图
-        ModelAndView modelAndView = new ModelAndView();//响应视图对象
-
-        if(returnData instanceof RETURN){
-            modelAndView.addObject(Constant.ResponseAbout.HEAD, new Head((RETURN)returnData));
+        ModelAndView modelAndView;
+        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
+        if(returnData instanceof RETURN && abstractResponseFormat!=null){
+            modelAndView = FactoryUtil.getBean(AbstractResponseFormat.class).buildResponse(new Head((RETURN)returnData),outParam);
+        }else{
+            modelAndView = new ModelAndView();
+            if(returnData instanceof RETURN){
+                modelAndView.addObject(Constant.ResponseAbout.HEAD, new Head((RETURN)returnData));
+            }
+            modelAndView.addAllObjects(outParam);
         }
-
-        modelAndView.addAllObjects(outParam);
 
         //清理缓存
         clear();
@@ -185,15 +202,84 @@ public class MainController {
         return url.toString();
     }
 
+    private boolean includeMethod(Mapping requestMapping, RequestMethod requestMethod){
+        if(requestMapping!=null && requestMapping.method().length>0 && ArrayUtil.contains(requestMapping.method(),requestMethod)){
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 根据requestMapping信息初始化目标method信息
+     * @return 成功/失败
+     */
+    private boolean initMethodByRequestMapping(){
+        HttpServletRequest currentRequest = request.get();
+        HandlerMethod info = APIUtil.getApiCache(currentRequest);
+        if(info!=null){
+            Object bean = info.getBean();
+            Method method = info.getMethod();
+            try {
+                initServiceByObject(bean);
+            } catch (NoSuchRequestServiceException e) {
+                return false;
+            }
+            initMethodByObject(method);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 根据服务名在Spring上下文中获取服务bean
+     */
+    private void initServiceByObject(Object o)throws NoSuchRequestServiceException {
+        try {
+            service.set((ServiceInterface) o);
+        }catch (Exception e){
+            throw new NoSuchRequestServiceException();
+        }
+    }
+
     /**
      * 根据服务名在Spring上下文中获取服务bean
      * @param serviceName   服务名
      */
     private void initService(String serviceName)throws NoSuchRequestServiceException {
         try {
-            service.set((ServiceInterface) FactoryUtil.getBean(serviceName));
+            Object o = APIUtil.getServiceCache(serviceName);
+            if(o==null){
+                o = FactoryUtil.getBean(serviceName);
+            }
+            service.set((ServiceInterface) o);
         }catch (Exception e){
             throw new NoSuchRequestServiceException();
+        }
+    }
+
+    /**
+     * 根据服务名在Spring上下文中获取服务bean
+     */
+    private void initMethodByObject(Method o) {
+        method.set(o);
+    }
+
+    /**
+     * 根据方法名初始化目标方法
+     * @param methodName 方法名
+     */
+    private void initMethod(String methodName) throws NoSuchRequestMethodException {
+        try {
+            Method methodCache = getService().getClass().getMethod(methodName);
+            Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
+            if(requestMapping!=null){
+                if(!includeMethod(requestMapping,RequestMethod.valueOf(request.get().getMethod()))){
+                    throw new NoSuchRequestMethodException();
+                }
+            }
+            methodCache.setAccessible(true);
+            method.set(methodCache);
+        }catch (Exception e){
+            throw new NoSuchRequestMethodException();
         }
     }
 
@@ -204,6 +290,7 @@ public class MainController {
         getService().initInParam();
         HttpServletRequest currentRequest = request.get();
         Map<String,Object> inParam = new HashMap<>();
+
         Map<String, String[]> parameterMap = currentRequest.getParameterMap();
         if (parameterMap.size()>0){
             for (Map.Entry<String,String[]> map:parameterMap.entrySet() ) {
@@ -222,6 +309,11 @@ public class MainController {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(currentRequest.getSession().getServletContext());
         if (multipartResolver.isMultipart(currentRequest)){
             inParam.putAll(FileUtil.getFileFormRequest(currentRequest));
+        }else{
+            Map<String, Object> bodyParam = ServletUtil.getBody(currentRequest);
+            if(bodyParam!=null){
+                inParam.putAll(bodyParam);
+            }
         }
 
         Enumeration<String> attributeNames = currentRequest.getAttributeNames();
@@ -232,11 +324,49 @@ public class MainController {
                 inParam.put(key.replace(PREFIX,""),currentRequest.getAttribute(key));
             }
         }
+
+        //处理Mapping参数
+        String uri = currentRequest.getRequestURI();
+        String extension = UriUtils.extractFileExtension(uri);
+        uri = uri.replaceAll("."+extension,"");
+        HandlerMethod info = APIUtil.getApiCache(currentRequest);
+
+        if(info!=null){
+            Object bean = info.getBean();
+            Method method = info.getMethod();
+            RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(method, bean.getClass());
+            if(requestMappingInfo!=null){
+                Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
+                for (String mapping:mappingCache){
+                    String[] uris = StringUtil.split(uri,Constant.RegularAbout.SLASH);
+                    String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);
+                    int i = 0;
+                    for(String targetParam:targetParams){
+                        if(StringUtil.containMatchedString(Constant.RegularAbout.URL_PARAM, targetParam)){
+                            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM, targetParam, 0);
+                            String value = uris[i];
+                            inParam.put(key,value);
+                        }
+                        i++;
+                    }
+                }
+            }
+        }
         //将处理过的所有请求参数传入调用服务对象
         getService().setInParam(inParam);
     }
 
+    /**
+     * 获取当前线程下Service缓存
+     */
     private ServiceInterface getService() {
         return service.get();
+    }
+
+    /**
+     * 获取当前线程下方法缓存
+     */
+    private Method getMethod(){
+        return method.get();
     }
 }

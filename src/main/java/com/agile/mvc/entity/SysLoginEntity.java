@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import java.util.Date;
-import java.util.Date;
 
 /**
  * Created by 佟盟
@@ -20,17 +19,17 @@ public class SysLoginEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String sysLoginId;
+    private String sysLoginId ;
     @Remark("账号主键")
-    private String sysUserId;
+    private String sysUserId ;
     @Remark("登陆时间")
-    private Date loginTime;
+    private Date loginTime ;
     @Remark("退出时间")
-    private Date logoutTime;
+    private Date logoutTime ;
     @Remark("登陆IP地址")
-    private String loginIp;
+    private String loginIp ;
     @Remark("口令")
-    private String token;
+    private String token ;
 
     //无参构造器
     public SysLoginEntity(){}
@@ -46,7 +45,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_login_id" , nullable = false )
+    @Column(name = "sys_login_id" , nullable = false  )
     public String getSysLoginId() {
         return sysLoginId;
     }
@@ -56,7 +55,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "sys_user_id" )
+    @Column(name = "sys_user_id"  )
     public String getSysUserId() {
         return sysUserId;
     }
@@ -66,7 +65,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "login_time" )
+    @Column(name = "login_time"  )
     public Date getLoginTime() {
         return loginTime;
     }
@@ -76,7 +75,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "logout_time" )
+    @Column(name = "logout_time"  )
     public Date getLogoutTime() {
         return logoutTime;
     }
@@ -86,7 +85,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "login_ip" )
+    @Column(name = "login_ip"  )
     public String getLoginIp() {
         return loginIp;
     }
@@ -96,7 +95,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "token" )
+    @Column(name = "token"  )
     public String getToken() {
         return token;
     }
@@ -187,7 +186,12 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysLoginEntity clone() {
+        try {
+            return (SysLoginEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

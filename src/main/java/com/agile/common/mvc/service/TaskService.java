@@ -2,15 +2,15 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.annotation.Init;
 import com.agile.common.base.RETURN;
+import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.PropertiesUtil;
+import com.agile.common.util.*;
 import com.agile.mvc.entity.SysTaskEntity;
 import com.agile.mvc.entity.SysTaskTargetEntity;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.util.ProxyUtils;
 import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.TriggerContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -30,12 +30,14 @@ import java.util.concurrent.ScheduledFuture;
 public class TaskService extends BusinessService<SysTaskEntity>{
     private Log log = LoggerFactory.createLogger("task",TaskService.class);
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
+    private final ApplicationContext applicationContext;
 
     private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
 
     @Autowired
-    public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
+    public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
+        this.applicationContext = applicationContext;
     }
 
     /**
@@ -185,8 +187,9 @@ public class TaskService extends BusinessService<SysTaskEntity>{
      * spring容器初始化时初始化全部定时任务
      */
     @Init
-    public void init(){
+    public void init() throws NoSuchIDException {
         if(PropertiesUtil.getProperty("agile.task.enable",boolean.class)){
+            initTaskTarget();
             //获取持久层定时任务数据集
             List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
             for (int i = 0 ; i < list.size();i++ ) {
@@ -195,6 +198,42 @@ public class TaskService extends BusinessService<SysTaskEntity>{
             }
         }
 
+    }
+
+    /**
+     * 初始化全部任务目标方法
+     */
+    private void initTaskTarget() throws NoSuchIDException {
+        String[] beans = applicationContext.getBeanNamesForAnnotation(Service.class);
+        List<SysTaskTargetEntity> list = dao.findAll(SysTaskTargetEntity.class);
+        Map<String,SysTaskTargetEntity> mapCache = new HashMap<>();
+        for(SysTaskTargetEntity entity:list){
+            mapCache.put(entity.getSysTaskTargetId(),entity);
+        }
+        for (String beanName:beans) {
+            Object bean = applicationContext.getBean(beanName);
+            if(bean==null)continue;
+            Class<?> clazz = ProxyUtils.getUserClass(bean.getClass());
+            Method[] methods =  clazz.getDeclaredMethods();
+            for(int i = 0; i < methods.length; i++){
+                Method method = methods[i];
+                if(method.getParameterCount()>0)continue;
+                String methodName = method.getName();
+
+                String id = clazz.getName() + "." + methodName;
+                SysTaskTargetEntity newData = SysTaskTargetEntity.builder().setSysTaskTargetId(id)
+                        .setTargetPackage(clazz.getPackage().getName())
+                        .setTargetClass(clazz.getSimpleName())
+                        .setTargetMethod(methodName)
+                        .setName(id).build();
+                SysTaskTargetEntity oldData = mapCache.get(id);
+                if(oldData == null){
+                    dao.save(newData);
+                }else if(!ObjectUtil.compareValue(newData,oldData,"name")){
+                    dao.update(newData);
+                }
+            }
+        }
     }
 
     /**
@@ -247,7 +286,7 @@ public class TaskService extends BusinessService<SysTaskEntity>{
      * 删除定时任务
      * @return 是否成功
      */
-    public RETURN removeTask(){
+    public RETURN removeTask() throws NoSuchIDException {
         String id = this.getInParam("id",String.class);
         if(this.removeTask(id)){
             this.dao.deleteById(SysTaskEntity.class,id);
@@ -338,7 +377,7 @@ public class TaskService extends BusinessService<SysTaskEntity>{
         }
     }
 
-    public RETURN query(){
+    public RETURN query() throws NoSuchIDException {
         int page = this.getInParam("page",Integer.class,0);
         int size = this.getInParam("size",Integer.class,10);
         this.setOutParam("queryList",dao.findAll(SysTaskEntity.class,page,size));

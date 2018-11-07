@@ -17,7 +17,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisPoolConfig;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +24,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by 佟盟 on 2018/5/10
  */
-@Component
 public class RedisRegionFactory extends RegionFactoryTemplate {
     private static final Log log = LoggerFactory.createLogger("redis",RedisRegionFactory.class);
     private static final AtomicInteger REFERENCE_COUNT = new AtomicInteger();

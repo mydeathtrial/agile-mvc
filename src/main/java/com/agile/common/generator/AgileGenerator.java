@@ -1,9 +1,12 @@
 package com.agile.common.generator;
 
+import com.agile.common.base.Constant;
 import com.agile.common.util.*;
 import freemarker.template.TemplateException;
 
 import java.io.IOException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -19,7 +22,7 @@ public class AgileGenerator {
         List<HashMap<String, String>> columnList = new ArrayList<>();
 
         //导入集
-        List<String> importList = new ArrayList<>();
+        Set<String> importList = new HashSet<>();
 
         //表名
         String tableName = table.get("TABLE_NAME").toString();
@@ -39,12 +42,20 @@ public class AgileGenerator {
             //字段类型
             String columnType = MapUtil.getString(column,"TYPE_NAME");
 
+            if("TIMESTAMP".equals(columnType) || "DATE".equals(columnType) || "TIME".equals(columnType)){
+                param.put("isTimeStamp",String.format("@Temporal(TemporalType.%s)",columnType));
+            }
+
             //属性名
             String propertyName = StringUtil.toLowerName(columnName);
 
             //属性名
-            String propertyType = PropertiesUtil.getProperty("agile.generator.column_type." + columnType.toLowerCase());
+            String propertyType = PropertiesUtil.getProperty("agile.generator.column_type." + columnType.split(" ")[0].toLowerCase());
 
+            if(propertyType==null){
+                System.out.println(String.format("字段类型[%s]没有配置映射",columnType.toLowerCase()));
+                System.exit(0);
+            }
             //处理主键
             try {
                 if (Boolean.valueOf(column.get("IS_PRIMARY_KEY").toString())) {
@@ -77,21 +88,49 @@ public class AgileGenerator {
             param.put("ordinalPosition", MapUtil.getString(column,"ORDINAL_POSITION"));
 
             //备注
-            param.put("remarks", Objects.requireNonNull(MapUtil.getString(column, "REMARKS")).replaceAll("\r\n[ ]+"," "));
+            param.put("remarks", Objects.requireNonNull(MapUtil.getString(column, "REMARKS")).replaceAll("[\\s]+"," "));
+
+            String def = MapUtil.getString(column, "COLUMN_DEF");
+
+            if("updateTime".equals(propertyName) || "updateDate".equals(propertyName)){
+                param.put("isUpdate","@Generated(GenerationTime.ALWAYS)");
+                importList.add("org.hibernate.annotations.Generated");
+                importList.add("org.hibernate.annotations.GenerationTime");
+            }else if("creatDate".equals(propertyName) || "creatTime".equals(propertyName) || "createTime".equals(propertyName) || "createDate".equals(propertyName)){
+                param.put("isCreat","@Generated(GenerationTime.INSERT)");
+                importList.add("org.hibernate.annotations.Generated");
+                importList.add("org.hibernate.annotations.GenerationTime");
+            }else{
+                if(def!=null && !"null".equals(def.toLowerCase())){
+                    switch (ClassUtil.toWrapperNameFromName(propertyType)){
+                        case "Double":param.put("defValue",NumberUtil.isNumber(def)?Double.valueOf(def).toString():null);break;
+                        case "String":param.put("defValue",String.format("\"%s\"",def.replaceAll(Constant.RegularAbout.UP_COMMA,"")));break;
+                        case "Char":param.put("defValue",String.format("\"%s\"",def));break;
+                        case "Date":param.put("defValue","CURRENT_TIMESTAMP".equals(def)?"new Date()":null);break;
+                        case "Time":param.put("defValue","CURRENT_TIMESTAMP".equals(def)?"new Time(System.currentTimeMillis())":null);break;
+                        case "Timestamp":param.put("defValue","CURRENT_TIMESTAMP".equals(def)?"new Timestamp(System.currentTimeMillis())":null);break;
+                        default:param.put("defValue",def);
+                    }
+                }
+            }
+
+            param.put("def",StringUtil.isEmpty(def)?null:columnType + " default " + def);
 
             param.put("columnName", columnName);
             param.put("columnType", columnType);
             param.put("propertyName", propertyName);
             param.put("propertyType", propertyType);
-            param.put("propertyTypeOfSwagger", ClassUtil.toSwaggerTypeFromName(propertyType));
             param.put("isPrimaryKey", isPrimaryKey);
             param.put("getMethod", "get" + StringUtil.toUpperName(columnName));
             param.put("setMethod", "set" + StringUtil.toUpperName(columnName));
 
             //API导入
             switch (propertyType){
-                case "Timestamp":importList.add("java.sql.Timestamp;");break;
-                case "Date":importList.add("java.util.Date;");break;
+                case "Timestamp":importList.add("java.sql.Timestamp");break;
+                case "Clob":importList.add("java.sql.Clob");break;
+                case "Blob":importList.add("java.sql.Blob");break;
+                case "Time":importList.add("java.sql.Time");break;
+                case "Date":importList.add("java.util.Date");break;
             }
 
             columnList.add(param);
@@ -154,31 +193,34 @@ public class AgileGenerator {
         return packPath;
     }
 
+    public static List<Map<String, Object>> getTableInfo(){
+        String dbIndexKey = "agile.generator.db_index";
+        String tableName = "agile.generator.table_name";
+        String druidKey = "agile.druid";
+
+        //获取表信息
+        Integer dbIndex = null;
+        if(PropertiesUtil.properties.containsKey(dbIndexKey)){
+            dbIndex = PropertiesUtil.getProperty(dbIndexKey, int.class);
+        }
+        String dbType,ip,port,dbName,username,password;
+        if(dbIndex != null){
+            druidKey += String.format("[%s]",dbIndex);
+        }
+
+        dbType = String.format("%s.type",druidKey);
+        ip = String.format("%s.data_base_ip",druidKey);
+        port = String.format("%s.data_base_post",druidKey);
+        dbName = String.format("%s.data_base_name",druidKey);
+        username = String.format("%s.data_base_username",druidKey);
+        password = String.format("%s.data_base_password",druidKey);
+
+        return DataBaseUtil.listTables(PropertiesUtil.getProperty(dbType), PropertiesUtil.getProperty(ip), PropertiesUtil.getProperty(port), PropertiesUtil.getProperty(dbName), PropertiesUtil.getProperty(username), PropertiesUtil.getProperty(password), PropertiesUtil.getProperty(tableName));
+    }
+
     public static void main(String[] args) {
         try {
-            String dbIndexKey = "agile.generator.db_index";
-            String tableName = "agile.generator.table_name";
-            String druidKey = "agile.druid";
-
-            //获取表信息
-            Integer dbIndex = null;
-            if(PropertiesUtil.properties.containsKey(dbIndexKey)){
-                dbIndex = PropertiesUtil.getProperty(dbIndexKey, int.class);
-            }
-            String dbType,ip,port,dbName,username,password;
-            if(dbIndex != null){
-                druidKey += String.format("[%s]",dbIndex);
-            }
-
-            dbType = String.format("%s.type",druidKey);
-            ip = String.format("%s.data_base_ip",druidKey);
-            port = String.format("%s.data_base_post",druidKey);
-            dbName = String.format("%s.data_base_name",druidKey);
-            username = String.format("%s.data_base_username",druidKey);
-            password = String.format("%s.data_base_password",druidKey);
-
-            List<Map<String, Object>> tables = DataBaseUtil.listTables(PropertiesUtil.getProperty(dbType), PropertiesUtil.getProperty(ip), PropertiesUtil.getProperty(port), PropertiesUtil.getProperty(dbName), PropertiesUtil.getProperty(username), PropertiesUtil.getProperty(password), PropertiesUtil.getProperty(tableName));
-            for (Map<String, Object> table:tables){
+            for (Map<String, Object> table:getTableInfo()){
                 generateAllFile(tableHandle(table));
             }
         } catch (Exception e) {
@@ -186,6 +228,5 @@ public class AgileGenerator {
         }
         System.exit(0);
     }
-
 
 }

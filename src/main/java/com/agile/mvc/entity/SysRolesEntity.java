@@ -18,13 +18,13 @@ public class SysRolesEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("角色唯一标识")
-    private String sysRolesId;
+    private String sysRolesId ;
     @Remark("角色名称")
-    private String roleName;
+    private String roleName ;
     @Remark("角色说明")
-    private String roleDesc;
+    private String roleDesc ;
     @Remark("是否可用")
-    private Boolean enable;
+    private Boolean enable ;
 
     //无参构造器
     public SysRolesEntity(){}
@@ -38,7 +38,7 @@ public class SysRolesEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_roles_id" , nullable = false )
+    @Column(name = "sys_roles_id" , nullable = false  )
     public String getSysRolesId() {
         return sysRolesId;
     }
@@ -48,7 +48,7 @@ public class SysRolesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "role_name" )
+    @Column(name = "role_name"  )
     public String getRoleName() {
         return roleName;
     }
@@ -58,7 +58,7 @@ public class SysRolesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "role_desc" )
+    @Column(name = "role_desc"  )
     public String getRoleDesc() {
         return roleDesc;
     }
@@ -68,7 +68,7 @@ public class SysRolesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "enable" )
+    @Column(name = "enable"  )
     public Boolean getEnable() {
         return enable;
     }
@@ -143,7 +143,12 @@ public class SysRolesEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysRolesEntity clone() {
+        try {
+            return (SysRolesEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

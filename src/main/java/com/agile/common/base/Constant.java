@@ -1,5 +1,7 @@
 package com.agile.common.base;
 
+import com.agile.common.util.StringUtil;
+
 /**
  * Created by 佟盟 on 2017/9/2
  */
@@ -47,6 +49,8 @@ public class Constant {
         public final static String COLON = ":";
         public final static String SPOT = ".";
         public final static String COMMA = ",";
+        public final static String UP_COMMA = "'";
+        public final static String UP_DOUBLE_COMMA = "\"";
         public final static String QUESTION_MARK = "?";
         public final static String SLASH = "/";
         public final static String BACKSLASH = "\\";
@@ -58,5 +62,6 @@ public class Constant {
         public final static String HTTPS = "https";
         public final static String FORWARD = "forward";
         public final static String REDIRECT = "redirect";
+        public final static String URL_PARAM = "(?<=\\{)[\\w]+(?=[:\\}])";
     }
 }

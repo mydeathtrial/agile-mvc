@@ -18,21 +18,21 @@ public class SysModulesEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysModulesId;
+    private String sysModulesId ;
     @Remark("模块名称")
-    private String name;
+    private String name ;
     @Remark("模块说明")
-    private String desc;
+    private String desc ;
     @Remark("模块上级")
-    private String parentId;
+    private String parentId ;
     @Remark("模块地址")
-    private String url;
+    private String url ;
     @Remark("级别")
-    private String level;
+    private String level ;
     @Remark("是否可用")
-    private Boolean enable;
+    private Boolean enable ;
     @Remark("优先级")
-    private Integer order;
+    private Integer order ;
 
     //无参构造器
     public SysModulesEntity(){}
@@ -50,7 +50,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_modules_id" , nullable = false )
+    @Column(name = "sys_modules_id" , nullable = false  )
     public String getSysModulesId() {
         return sysModulesId;
     }
@@ -60,7 +60,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" , nullable = false )
+    @Column(name = "name" , nullable = false  )
     public String getName() {
         return name;
     }
@@ -70,7 +70,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "desc" )
+    @Column(name = "desc"  )
     public String getDesc() {
         return desc;
     }
@@ -80,7 +80,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "parent_id" )
+    @Column(name = "parent_id"  )
     public String getParentId() {
         return parentId;
     }
@@ -90,7 +90,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "url" )
+    @Column(name = "url"  )
     public String getUrl() {
         return url;
     }
@@ -100,7 +100,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "level" )
+    @Column(name = "level"  )
     public String getLevel() {
         return level;
     }
@@ -110,7 +110,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "enable" )
+    @Column(name = "enable"  )
     public Boolean getEnable() {
         return enable;
     }
@@ -120,12 +120,12 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "order" )
+    @Column(name = "order"  )
     public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(int order) {
+    public void setOrder(Integer order) {
         this.order = order;
     }
 
@@ -213,7 +213,7 @@ public class SysModulesEntity implements Serializable,Cloneable {
             this.enable = enable;
             return this;
         }
-        public Builder setOrder(int order) {
+        public Builder setOrder(Integer order) {
             this.order = order;
             return this;
         }
@@ -227,7 +227,12 @@ public class SysModulesEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysModulesEntity clone() {
+        try {
+            return (SysModulesEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

@@ -18,11 +18,11 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String dictionaryMainId;
+    private String dictionaryMainId ;
     @Remark("字典编码")
-    private String code;
+    private String code ;
     @Remark("字典名称")
-    private String name;
+    private String name ;
 
     //无参构造器
     public DictionaryMainEntity(){}
@@ -35,7 +35,7 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "dictionary_main_id" , nullable = false )
+    @Column(name = "dictionary_main_id" , nullable = false  )
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
@@ -45,7 +45,7 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "code" , nullable = false )
+    @Column(name = "code" , nullable = false  )
     public String getCode() {
         return code;
     }
@@ -55,7 +55,7 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" , nullable = false )
+    @Column(name = "name" , nullable = false  )
     public String getName() {
         return name;
     }
@@ -96,9 +96,9 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     public static class Builder{
-        private String dictionaryMainId;
-        private String code;
-        private String name;
+        private String dictionaryMainId ;
+        private String code ;
+        private String name ;
 
         public Builder setDictionaryMainId(String dictionaryMainId) {
             this.dictionaryMainId = dictionaryMainId;
@@ -122,7 +122,12 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public DictionaryMainEntity clone() {
+        try {
+            return (DictionaryMainEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

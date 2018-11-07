@@ -18,17 +18,17 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysTaskTargetId;
+    private String sysTaskTargetId ;
     @Remark("方法含义名")
-    private String name;
+    private String name ;
     @Remark("包名")
-    private String targetPackage;
+    private String targetPackage ;
     @Remark("类名")
-    private String targetClass;
+    private String targetClass ;
     @Remark("方法名")
-    private String targetMethod;
+    private String targetMethod ;
     @Remark("备注")
-    private String remarks;
+    private String remarks ;
 
     //无参构造器
     public SysTaskTargetEntity(){}
@@ -44,7 +44,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_task_target_id" , nullable = false )
+    @Column(name = "sys_task_target_id" , nullable = false  )
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
@@ -54,7 +54,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" )
+    @Column(name = "name"  )
     public String getName() {
         return name;
     }
@@ -64,7 +64,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "target_package" , nullable = false )
+    @Column(name = "target_package" , nullable = false  )
     public String getTargetPackage() {
         return targetPackage;
     }
@@ -74,7 +74,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "target_class" , nullable = false )
+    @Column(name = "target_class" , nullable = false  )
     public String getTargetClass() {
         return targetClass;
     }
@@ -84,7 +84,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "target_method" , nullable = false )
+    @Column(name = "target_method" , nullable = false  )
     public String getTargetMethod() {
         return targetMethod;
     }
@@ -94,7 +94,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "remarks" )
+    @Column(name = "remarks"  )
     public String getRemarks() {
         return remarks;
     }
@@ -185,7 +185,12 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysTaskTargetEntity clone() {
+        try {
+            return (SysTaskTargetEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

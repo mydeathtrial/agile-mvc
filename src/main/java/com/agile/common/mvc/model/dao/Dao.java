@@ -3,18 +3,20 @@ package com.agile.common.mvc.model.dao;
 import com.agile.common.config.SpringConfig;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.ArrayUtil;
+import com.agile.common.util.MapUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
+import org.apache.commons.logging.Log;
+import org.apache.logging.log4j.Level;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Component;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
 import javax.persistence.PersistenceContext;
@@ -30,6 +32,7 @@ import java.util.*;
 @Lazy
 @Component
 public class Dao {
+    private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG,Level.ERROR);
     private static Map<String,Object> map = new HashMap<>();
 
     public static void main(String[] args) {
@@ -42,23 +45,17 @@ public class Dao {
     @PersistenceContext
     private EntityManager entityManager ;
 
-    @Autowired
-    private LocalContainerEntityManagerFactoryBean entityManagerFactory;
-
     private <T,ID extends Serializable> JpaRepository getRepository(Class<T> tableClass) throws NoSuchIDException {
         Field field = getIdField(tableClass);
-        if(ObjectUtil.isEmpty(field)){
-            throw new NoSuchIDException();
-        }else {
-            @SuppressWarnings("unchecked")
-            Class<ID> idClass = (Class<ID>) field.getType();
-            JpaRepository repository = (JpaRepository) map.get(tableClass.getName());
-            if(ObjectUtil.isEmpty(repository)){
-                repository = new SimpleJpaRepository<T,ID>(tableClass,entityManager);
-                map.put(tableClass.getName(),repository);
-            }
-            return repository;
+
+        @SuppressWarnings("unchecked")
+        Class<ID> idClass = (Class<ID>) field.getType();
+        JpaRepository repository = (JpaRepository) map.get(tableClass.getName());
+        if(ObjectUtil.isEmpty(repository)){
+            repository = new SimpleJpaRepository<T,ID>(tableClass,entityManager);
+            map.put(tableClass.getName(),repository);
         }
+        return repository;
     }
 
     /**
@@ -73,28 +70,21 @@ public class Dao {
      * @param o ORM对象
      */
     public void save(Object o){
-        try {
-            entityManager.persist(o);
-        }catch (Exception e){
-            throw e;
-        }
+        entityManager.persist(o);
     }
 
     /**
      * 保存
      * @param list ORM对象列表
      */
-    public <T> boolean save(Iterable<T> list){
+    public <T> boolean save(Iterable<T> list) throws NoSuchIDException {
         boolean isTrue = false;
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
             T obj = iterator.next();
-            try {
-                getRepository(obj.getClass()).saveAll(list);
-                isTrue = true;
-            } catch (NoSuchIDException e) {
-                e.printStackTrace();
-            }
+            getRepository(obj.getClass()).saveAll(list);
+            isTrue = true;
+
         }
         return isTrue;
     }
@@ -103,23 +93,20 @@ public class Dao {
      * 保存并刷新
      */
     @SuppressWarnings("unchecked")
-    public <T>T saveAndReturn(T o,boolean isFlush){
-        try {
-            if(isFlush){
-                return (T)getRepository(o.getClass()).saveAndFlush(o);
-            }else {
-                return (T)getRepository(o.getClass()).save(o);
-            }
-        } catch (Exception e) {
-            return null;
+    public <T>T saveAndReturn(T o,boolean isFlush) throws NoSuchIDException {
+        if(isFlush){
+            return (T)getRepository(o.getClass()).saveAndFlush(o);
+        }else {
+            return (T)getRepository(o.getClass()).save(o);
         }
+
     }
 
     /**
      * 保存
      */
     @SuppressWarnings("unchecked")
-    public <T>T saveAndReturn(T o){
+    public <T>T saveAndReturn(T o) throws NoSuchIDException {
         return saveAndReturn(o,Boolean.FALSE);
     }
 
@@ -128,15 +115,11 @@ public class Dao {
      * @param list 要保存的ORM对象
      */
     @SuppressWarnings("unchecked")
-    public <T> List<T> saveAndReturn(Iterable<T> list){
+    public <T> List<T> saveAndReturn(Iterable<T> list) throws NoSuchIDException {
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
             T obj = iterator.next();
-            try {
-                getRepository(obj.getClass()).saveAll(list);
-            } catch (NoSuchIDException e) {
-                e.printStackTrace();
-            }
+            getRepository(obj.getClass()).saveAll(list);
         }
         return null;
     }
@@ -147,25 +130,16 @@ public class Dao {
      * @param id 数据主键
      */
     @SuppressWarnings("unchecked")
-    public <T>Object existsById(Class<T> tableClass,Object id){
-        try {
-            return getRepository(tableClass).existsById(id);
-        } catch (Exception e) {
-            return null;
-        }
+    public <T>Object existsById(Class<T> tableClass,Object id) throws NoSuchIDException {
+        return getRepository(tableClass).existsById(id);
     }
 
     /**
      * 刷新数据库中表
      * @param tableClass ORM对象类型
      */
-    @SuppressWarnings("unchecked")
-    public void flush(Class<?> tableClass){
-        try {
-            getRepository(tableClass).flush();
-        } catch (NoSuchIDException e) {
-            e.printStackTrace();
-        }
+    public void flush(Class<?> tableClass) throws NoSuchIDException {
+        getRepository(tableClass).flush();
     }
 
     /**
@@ -189,31 +163,30 @@ public class Dao {
      * 更新或新增
      * @param o ORM对象
      */
-    public boolean update(Object o){
-        boolean isTrue = false;
-        try {
-            entityManager.merge(o);
-            isTrue = true;
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return isTrue;
+    public void update(Object o){
+        entityManager.merge(o);
+    }
+
+    /**
+     * 更新或新增非空字段
+     * @param o ORM对象
+     */
+    public void updateOfNotNull(Object o) throws NoSuchIDException, IllegalAccessException {
+        Class<?> clazz = o.getClass();
+        Field idField = getIdField(clazz);
+        idField.setAccessible(true);
+        Object old = findOne(clazz, idField.get(o));
+        ObjectUtil.copyPropertiesOfNotNull(o,old);
+        entityManager.merge(old);
     }
 
     /**
      * 删除
      * @param o ORM对象
      */
-    public boolean delete(Object o){
-        boolean isTrue = false;
-        try {
-            List list = this.findAll(o);
-            deleteInBatch(list);
-            isTrue = true;
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return isTrue;
+    public void delete(Object o) throws NoSuchIDException {
+        List list = this.findAll(o);
+        deleteInBatch(list);
     }
 
     /**
@@ -222,12 +195,8 @@ public class Dao {
      * @param id 删除的主键标识
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteById(Class<T> tableClass,Object id){
-        try {
-            getRepository(tableClass).deleteById(id);
-        } catch (NoSuchIDException e) {
-            e.printStackTrace();
-        }
+    public <T>void deleteById(Class<T> tableClass,Object id) throws NoSuchIDException {
+        getRepository(tableClass).deleteById(id);
     }
 
     /**
@@ -235,12 +204,8 @@ public class Dao {
      * @param tableClass ORM对象类型
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteAll(Class<T> tableClass){
-        try {
-            getRepository(tableClass).deleteAll();
-        } catch (NoSuchIDException e) {
-            e.printStackTrace();
-        }
+    public <T>void deleteAll(Class<T> tableClass) throws NoSuchIDException {
+        getRepository(tableClass).deleteAll();
     }
 
     /**
@@ -248,12 +213,8 @@ public class Dao {
      * @param tableClass ORM对象类型
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteAllInBatch(Class<T> tableClass){
-        try {
-            getRepository(tableClass).deleteAllInBatch();
-        } catch (NoSuchIDException e) {
-            e.printStackTrace();
-        }
+    public <T>void deleteAllInBatch(Class<T> tableClass) throws NoSuchIDException {
+        getRepository(tableClass).deleteAllInBatch();
     }
 
     /**
@@ -261,23 +222,18 @@ public class Dao {
      * @param tableClass ORM类型
      * @param ids 主键数组
      */
-    private <T,ID>List createObjectList(Class<T> tableClass,ID[] ids){
+    private <T,ID>List createObjectList(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
         ArrayList list = new ArrayList();
-        Field idField = getIdField(tableClass);
-        if(ObjectUtil.isEmpty(idField)){
-            new NoSuchIDException().printStackTrace();
-            return null;
-        }
+        Field idField =  getIdField(tableClass);
         for (int i = 0 ; i < ids.length;i++){
             try {
                 Object instance = tableClass.newInstance();
                 idField.setAccessible(true);
-                idField.set(instance,ObjectUtil.cast(idField.getType(),ids[i]));
+                idField.set(instance, ObjectUtil.cast(idField.getType(),ids[i]));
                 list.add(instance);
             } catch (IllegalAccessException | InstantiationException e) {
-                e.printStackTrace();
+                logger.error("主键数组转换ORM对象列表失败",e);
             }
-
         }
         return list;
     }
@@ -286,20 +242,20 @@ public class Dao {
      * 获取ORM中的主键字段
      * @param clazz ORM类
      */
-    public Field getIdField(Class clazz){
+    public Field getIdField(Class clazz) throws NoSuchIDException {
         Method[] methods =  clazz.getDeclaredMethods();
         for (int i = 0 ; i < methods.length;i++){
             Method method = methods[i];
             method.setAccessible(true);
             Id id = method.getAnnotation(Id.class);
-            if(ObjectUtil.isEmpty(id))continue;
+            if(!ObjectUtil.isEmpty(id))
             try {
                 return clazz.getDeclaredField(StringUtil.toLowerName(method.getName().replaceFirst("get","")));
-            } catch (NoSuchFieldException e) {
-                e.printStackTrace();
+            }catch (Exception e){
+                throw new NoSuchIDException();
             }
         }
-        return null;
+        throw new NoSuchIDException();
     }
 
     /**
@@ -307,15 +263,12 @@ public class Dao {
      * @param tableClass ORM对象类型
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>void deleteAll(Class<T> tableClass,ID[] ids){
+    public <T,ID>void deleteAll(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
         if(ArrayUtil.isEmpty(ids) || ids.length<1)return;
         List list = createObjectList(tableClass,ids);
         if(!ObjectUtil.isEmpty(list) && list.size()>0){
-            try {
-                getRepository(tableClass).deleteAll(list);
-            } catch (NoSuchIDException e) {
-                e.printStackTrace();
-            }
+            getRepository(tableClass).deleteAll(list);
+
         }
     }
 
@@ -324,15 +277,11 @@ public class Dao {
      * @param tableClass ORM对象类型
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>void deleteInBatch(Class<T> tableClass,ID[] ids){
+    public <T,ID>void deleteInBatch(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
         if(ArrayUtil.isEmpty(ids) || ids.length<1)return;
         List list = createObjectList(tableClass, ids);
         if(!ObjectUtil.isEmpty(list) && list.size()>0){
-            try {
-                getRepository(tableClass).deleteInBatch(list);
-            } catch (NoSuchIDException e) {
-                e.printStackTrace();
-            }
+            getRepository(tableClass).deleteInBatch(list);
         }
     }
 
@@ -341,15 +290,11 @@ public class Dao {
      * @param list 需要删除的对象列表
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteInBatch(Iterable<T> list){
+    public <T>void deleteInBatch(Iterable<T> list) throws NoSuchIDException {
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
             T obj = iterator.next();
-            try {
-                getRepository(obj.getClass()).deleteInBatch(list);
-            } catch (NoSuchIDException e) {
-                e.printStackTrace();
-            }
+            getRepository(obj.getClass()).deleteInBatch(list);
         }
     }
 
@@ -363,13 +308,10 @@ public class Dao {
     /**
      * 按照例子查询单条
      */
-    public <T>T findOne(T object){
-        try {
-            Example<T> example = Example.of(object);
-            return (T) this.getRepository(object.getClass()).findOne(example).get();
-        } catch (Exception e) {
-            return null;
-        }
+    @SuppressWarnings("unchecked")
+    public <T>T findOne(T object) throws NoSuchIDException {
+        Example<T> example = Example.of(object);
+        return (T) this.getRepository(object.getClass()).findOne(example).get();
     }
 
     /**
@@ -379,10 +321,7 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T>T findOne(String sql, Class<T> clazz,Object... parameters){
-        Query query = entityManager.createNativeQuery(sql, clazz);
-        for (int i = 0 ; i < parameters.length ; i++ ){
-            query.setParameter(i+1,parameters[i]);
-        }
+        Query query = creatClassQuery(sql,clazz,parameters);
         Object o = query.getSingleResult();
         return (T)o;
     }
@@ -390,41 +329,31 @@ public class Dao {
     /**
      * 按照例子查询多条
      */
-    public <T> List findAll(T object){
+    public <T> List findAll(T object) throws NoSuchIDException {
         return findAll(object,Sort.unsorted());
     }
 
     /**
      * 按照例子查询多条/排序
      */
-    public <T> List findAll(T object, Sort sort){
-        try {
-            Example<T> example = Example.of(object);
-            return this.getRepository(object.getClass()).findAll(example,sort);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public <T> List findAll(T object, Sort sort) throws NoSuchIDException {
+        Example<T> example = Example.of(object);
+        return this.getRepository(object.getClass()).findAll(example,sort);
     }
 
     /**
      * 按照例子查询多条分页
      */
-    public <T> Page findAll(T object, int page, int size){
+    public <T> Page findAll(T object, int page, int size) throws NoSuchIDException {
         return findAll(object,page,size,Sort.unsorted());
     }
 
     /**
      * 按照例子查询多条分页
      */
-    public <T> Page findAll(T object, int page, int size,Sort sort){
-        try {
-            Example<T> example = Example.of(object);
-            return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page,size,sort));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public <T> Page findAll(T object, int page, int size,Sort sort) throws NoSuchIDException {
+        Example<T> example = Example.of(object);
+        return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page,size,sort));
     }
 
     /**
@@ -434,13 +363,22 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T>List<T> findAll(String sql, Class<T> clazz,Object... parameters){
-        Query query = entityManager.createNativeQuery(sql, clazz);
-        for (int i = 0 ; i < parameters.length ; i++ ){
-            query.setParameter(i+1,parameters[i]);
+        try {
+            Query query = creatClassQuery(sql,clazz,parameters);
+            List list = query.getResultList();
+            if(list == null || list.size()==0 || list.get(0)==null)return null;
+            return query.getResultList();
+        }catch (Exception e){
+            List<Map<String, Object>> list = findAllBySQL(sql, parameters);
+            if(list!=null && list.size()>0){
+                List<T> result = new ArrayList<>();
+                for (Map<String, Object> entity:list){
+                    result.add(ObjectUtil.getObjectFromMap(clazz,entity));
+                }
+                return result;
+            }
         }
-        List list = query.getResultList();
-        if(list == null || list.size()==0 || list.get(0)==null)return null;
-        return query.getResultList();
+        return null;
     }
 
     /**
@@ -458,23 +396,20 @@ public class Dao {
         PageRequest pageable;
 
         //sql格式化
-        sql = sql.trim().toLowerCase().replaceAll("[\t\r\n\\s]"," ");
+        sql = sql.trim().replaceAll("[\t\r\n\\s]"," ");
 
         //取排序
-        String[] orders = StringUtil.getMatchedString("(order by)(\\s)([\\S]+)(\\s)?(desc|asc)?",sql);
+        String[] orders = StringUtil.getMatchedString("(order by)(\\s)([\\S]+)(\\s)?(desc|asc)?",sql.toLowerCase());
         if(!ObjectUtil.isEmpty(orders)){
             String order = ArrayUtil.getLast(orders).toString();
             String[] sortMsg = StringUtil.getGroupString("(order by)(\\s)([\\S]+)(\\s)?(desc|asc)?", order);
             if(!ObjectUtil.isEmpty(sortMsg) && sortMsg.length>2){
                 Sort.Direction direction;
                 if(sortMsg.length>4 && !StringUtil.isEmpty(sortMsg[4])){
-                    switch (sortMsg[4]){
-                        case "desc":
-                            direction = Sort.Direction.DESC;
-                            break;
-                        default:
-                            direction = Sort.Direction.ASC;
-                            break;
+                    if ("desc".equals(sortMsg[4])) {
+                        direction = Sort.Direction.DESC;
+                    } else {
+                        direction = Sort.Direction.ASC;
                     }
                 }else {
                     direction = Sort.Direction.ASC;
@@ -484,18 +419,12 @@ public class Dao {
         }
         pageable = PageRequest.of(page,size,sort);
 
-        Query countQuery = entityManager.createNativeQuery(countSql);
-        for (int i = 0 ; i < parameters.length ; i++ ){
-            countQuery.setParameter(i+1,parameters[i]);
-        }
+        Query countQuery = creatQuery(countSql,parameters);
         int count = Integer.parseInt(countQuery.getSingleResult().toString());
 
         //取查询结果集
         if(count>0){
-            Query query = entityManager.createNativeQuery(sql);
-            for (int i = 0 ; i < parameters.length ; i++ ){
-                query.setParameter(i+1,parameters[i]);
-            }
+            Query query = creatQuery(sql,parameters);
             query.setFirstResult(page*size);
             query.setMaxResults(size);
             ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
@@ -506,16 +435,30 @@ public class Dao {
         return pageDate;
     }
 
+    private Query creatQuery(String sql, Object... parameters){
+        Query query = entityManager.createNativeQuery(sql);
+        for (int i = 0 ; i < parameters.length ; i++ ){
+            query.setParameter(i+1,parameters[i]);
+        }
+        return query;
+    }
+
+
+    private Query creatClassQuery(String sql,Class clazz, Object... parameters){
+        Query query = entityManager.createNativeQuery(sql,clazz);
+        for (int i = 0 ; i < parameters.length ; i++ ){
+            query.setParameter(i+1,parameters[i]);
+        }
+        return query;
+    }
+
     /**
      * 查询列表
      * @param sql sql
      */
     @SuppressWarnings("unchecked")
-    public List<Map<String,Object>> findAll(String sql,Object... parameters){
-        Query query = entityManager.createNativeQuery(sql);
-        for (int i = 0 ; i < parameters.length ; i++ ){
-            query.setParameter(i+1,parameters[i]);
-        }
+    public List<Map<String,Object>> findAllBySQL(String sql,Object... parameters){
+        Query query = creatQuery(sql,parameters);
         ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         return query.getResultList();
     }
@@ -527,75 +470,56 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public Object findParameter(String sql,Object... parameters){
-        Query query = entityManager.createNativeQuery(sql);
-        for (int i = 0 ; i < parameters.length ; i++ ){
-            query.setParameter(i+1,parameters[i]);
-        }
+        Query query = creatQuery(sql,parameters);
         return query.getSingleResult();
     }
 
     /**
-     * 查询列表
+     * 更新sql
+     * @param sql sql
      */
-    @SuppressWarnings("unchecked")
-    public <T,ID>List<T> findAll(Class<T> tableClass,Iterable<ID> ids){
-        try {
-            return getRepository(tableClass).findAllById(ids);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public int updateBySQL(String sql,Object... parameters){
+        Query query = creatQuery(sql,parameters);
+        return query.executeUpdate();
     }
 
     /**
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>List<T> findAll(Class<T> tableClass,ID[] ids){
-        try {
-            return getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public <T,ID>List<T> findAll(Class<T> tableClass,Iterable<ID> ids) throws NoSuchIDException {
+        return getRepository(tableClass).findAllById(ids);
     }
 
     /**
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T> Page<T> findAll(Class<T> tableClass, int page, int size){
-        try {
-            return getRepository(tableClass).findAll(PageRequest.of(page,size));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public <T,ID>List<T> findAll(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
+        return getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
     }
 
     /**
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T>List<T> findAll(Class<T> tableClass){
-        try {
-            return getRepository(tableClass).findAll();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public <T> Page<T> findAll(Class<T> tableClass, int page, int size) throws NoSuchIDException {
+        return getRepository(tableClass).findAll(PageRequest.of(page,size));
+    }
+
+    /**
+     * 查询列表
+     */
+    @SuppressWarnings("unchecked")
+    public <T>List<T> findAll(Class<T> tableClass) throws NoSuchIDException {
+        return getRepository(tableClass).findAll();
     }
 
     /**
      * 查询表总数
      */
     @SuppressWarnings("unchecked")
-    public long count(Class tableClass){
-        try {
-            return getRepository(tableClass).count();
-        } catch (NoSuchIDException e) {
-            e.printStackTrace();
-        }
-        return 0;
+    public long count(Class tableClass) throws NoSuchIDException {
+        return getRepository(tableClass).count();
     }
 }

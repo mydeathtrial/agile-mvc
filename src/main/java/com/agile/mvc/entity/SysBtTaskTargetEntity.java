@@ -18,13 +18,13 @@ public class SysBtTaskTargetEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String sysBtTaskTargetId;
+    private String sysBtTaskTargetId ;
     @Remark("定时任务标志")
-    private String sysTaskId;
+    private String sysTaskId ;
     @Remark("目标方法主键")
-    private String sysTaskTargetId;
+    private String sysTaskTargetId ;
     @Remark("优先级")
-    private Boolean order;
+    private Boolean order ;
 
     //无参构造器
     public SysBtTaskTargetEntity(){}
@@ -38,7 +38,7 @@ public class SysBtTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_bt_task_target_id" , nullable = false )
+    @Column(name = "sys_bt_task_target_id" , nullable = false  )
     public String getSysBtTaskTargetId() {
         return sysBtTaskTargetId;
     }
@@ -48,7 +48,7 @@ public class SysBtTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "sys_task_id" , nullable = false )
+    @Column(name = "sys_task_id" , nullable = false  )
     public String getSysTaskId() {
         return sysTaskId;
     }
@@ -58,7 +58,7 @@ public class SysBtTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "sys_task_target_id" , nullable = false )
+    @Column(name = "sys_task_target_id" , nullable = false  )
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
@@ -68,7 +68,7 @@ public class SysBtTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "order" , nullable = false )
+    @Column(name = "order" , nullable = false  )
     public Boolean getOrder() {
         return order;
     }
@@ -143,7 +143,12 @@ public class SysBtTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysBtTaskTargetEntity clone() {
+        try {
+            return (SysBtTaskTargetEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

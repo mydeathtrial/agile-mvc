@@ -2,6 +2,7 @@ package com.agile.common.mvc.service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 public interface ServiceInterface {
@@ -14,7 +15,7 @@ public interface ServiceInterface {
 	//提取响应参数
 	Map<String, Object> getInParam();
 	//调用请求方法
-	Object executeMethod(String methodName, Object object, HttpServletRequest currentRequest,HttpServletResponse currentResponse) throws Throwable;
+	Object executeMethod(Object object, Method method, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable;
 	//初始化入参
 	void initInParam();
 	//初始化出参

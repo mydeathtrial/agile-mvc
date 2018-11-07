@@ -134,4 +134,24 @@ public class MapUtil extends MapUtils {
         return null;
     }
 
+    public static Map<String,String> sort(Map<String,Object> map){
+        List<Map.Entry<String,Object>> list = new ArrayList<>(map.entrySet());
+        list.sort(Comparator.comparing(Map.Entry::getKey));
+        Map linkedHashMap = new LinkedHashMap();
+        for (Map.Entry entry : list) {
+            linkedHashMap.put(entry.getKey(), entry.getValue());
+        }
+        return linkedHashMap;
+    }
+
+    public static Map<String,String> sortByValue(Map<String,String> map){
+        List<Map.Entry<String,String>> list = new LinkedList<>(map.entrySet());
+        list.sort(Comparator.comparing(Map.Entry::getValue));
+        Map linkedHashMap = new LinkedHashMap();
+        for (Map.Entry entry : list) {
+            linkedHashMap.put(entry.getKey(), entry.getValue());
+        }
+        return linkedHashMap;
+    }
+
 }

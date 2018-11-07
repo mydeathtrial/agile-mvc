@@ -8,7 +8,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Date;
-import java.util.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by 佟盟 on 2017/1/9
@@ -16,6 +21,23 @@ import java.util.*;
 public class ObjectUtil extends ObjectUtils {
     public enum ContainOrExclude{
         INCLUDE,EXCLUDE
+    }
+
+    public static void copyPropertiesOfNotNull(Object source, Object target){
+        if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) return;
+        Field[] sourceFields = source.getClass().getDeclaredFields();
+        List<String> arguments = new ArrayList<>();
+        for (Field field:sourceFields) {
+            field.setAccessible(true);
+            try {
+                if(field.get(source) != null){
+                    arguments.add(field.getName());
+                }
+            }catch (Exception ignored){
+            }
+        }
+
+        copyProperties(source,target, arguments.toArray(new String[]{}), ContainOrExclude.INCLUDE);
     }
 
     /**
@@ -98,13 +120,13 @@ public class ObjectUtil extends ObjectUtils {
      * @param target 目标对象
      * @return 是否相同
      */
-    public static boolean compareValue(Object source, Object target) {
+    public static boolean compareValue(Object source, Object target,String... excludeProperty) {
         if(isEmpty(source)){
             return isEmpty(target);
         }else{
             if(isEmpty(target))return false;
             try {
-                List<Map<String, Object>> list = getDifferenceProperties(source, target);
+                List<Map<String, Object>> list = getDifferenceProperties(source, target,excludeProperty);
                 if(list != null && list.size()>0)return false;
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -120,7 +142,7 @@ public class ObjectUtil extends ObjectUtils {
      * @return 值不相同的属性列表
      * @throws IllegalAccessException 调用过程异常
      */
-    public static List<Map<String,Object>> getDifferenceProperties(Object source,Object target) throws IllegalAccessException {
+    public static List<Map<String,Object>> getDifferenceProperties(Object source,Object target,String... excludeProperty) throws IllegalAccessException {
         if(((!compareClass(source, target) || compare(source, target)) || isEmpty(source)) != isEmpty(target))return null;
         List<Map<String,Object>> result = new ArrayList<>();
         Object sourceObject = isEmpty(source)?target:source;
@@ -130,6 +152,7 @@ public class ObjectUtil extends ObjectUtils {
         for(int i = 0 ; i < fields.length ; i++){
             Field field = fields[i];
             field.setAccessible(true);
+            if(excludeProperty!=null && ArrayUtil.contains(excludeProperty,field.getName()))continue;
             Object sourceValue = field.get(sourceObject);
             Object targetValue = field.get(targetObject);
             if (compare(sourceValue,targetValue)) {
@@ -288,8 +311,25 @@ public class ObjectUtil extends ObjectUtils {
         if(clazz == String.class){
             temp = valueStr;
         }
-        if(clazz == Date.class){
-            temp = Date.valueOf(valueStr);
+        if(clazz == java.util.Date.class){
+            String format = "yyyy-MM-dd";
+            if(StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2}",valueStr)){
+                format = "yyyy-MM-dd";
+            }else if(StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}",valueStr)){
+                format = "yyyy-MM-dd HH:mm:ss";
+            }else if(StringUtil.containMatchedString("[\\d]+",valueStr)){
+                temp = new java.util.Date(Long.parseLong(valueStr));
+            }
+            if(temp == null){
+                try {
+                    temp = DateUtil.toDateByFormat(valueStr,format);
+                } catch (ParseException e) {
+                    return null;
+                }
+            }
+        }
+        if(clazz == java.sql.Date.class){
+            temp = java.sql.Date.valueOf(valueStr);
         }
         if(clazz == Long.class|| clazz == long.class ){
             temp = Long.parseLong(valueStr);

@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 <#list importList as import>
-import ${import}
+import ${import};
 </#list>
 
 /**
@@ -22,7 +22,7 @@ public class ${entityClassName} implements Serializable,Cloneable {
     private static final long serialVersionUID = 1L;
 <#list columnList as property>
     @Remark("${property.remarks}")
-    private ${property.propertyType} ${property.propertyName};
+    private ${property.propertyType} ${property.propertyName} <#if property.defValue??>= ${property.defValue} </#if>;
 </#list>
 
     //无参构造器
@@ -49,7 +49,16 @@ public class ${entityClassName} implements Serializable,Cloneable {
     <#if property.columnType == "blob" || property.columnType == "clob" >
     @Lob
     </#if>
-    @Column(name = "${property.columnName}" <#if property.nullable == "false">, nullable = ${property.nullable} </#if>)
+    <#if (property.isTimeStamp)??>
+    ${property.isTimeStamp}
+    </#if>
+    <#if property.isUpdate??>
+    ${property.isUpdate}
+    </#if>
+    <#if property.isCreat??>
+    ${property.isCreat}
+    </#if>
+    @Column(name = "${property.columnName}" <#if property.nullable == "false">, nullable = ${property.nullable} </#if> <#if property.def??>, columnDefinition = "${property.def}" </#if>)
     public ${property.propertyType} ${property.getMethod}() {
         return ${property.propertyName};
     }
@@ -96,7 +105,7 @@ public class ${entityClassName} implements Serializable,Cloneable {
 
     public static class Builder{
         <#list columnList as property>
-        private ${property.propertyType} ${property.propertyName};
+        private ${property.propertyType} ${property.propertyName} <#if property.defValue??>= ${property.defValue} </#if>;
         </#list>
 
         <#list columnList as property>

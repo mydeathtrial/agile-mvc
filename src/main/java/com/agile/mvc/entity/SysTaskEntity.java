@@ -5,8 +5,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.GenerationTime;
 import java.util.Date;
-import java.util.Date;
+import org.hibernate.annotations.Generated;
 
 /**
  * Created by 佟盟
@@ -20,19 +21,19 @@ public class SysTaskEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String sysTaskId;
+    private String sysTaskId ;
     @Remark("定时任务名")
-    private String name;
+    private String name ;
     @Remark("状态")
-    private Boolean state;
+    private Boolean state ;
     @Remark("定时表达式")
-    private String cron;
+    private String cron ;
     @Remark("是否同步")
-    private Boolean sync;
+    private Boolean sync ;
     @Remark("更新时间")
-    private Date updateTime;
+    private Date updateTime ;
     @Remark("创建时间")
-    private Date createTime;
+    private Date createTime ;
 
     //无参构造器
     public SysTaskEntity(){}
@@ -49,7 +50,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_task_id" , nullable = false )
+    @Column(name = "sys_task_id" , nullable = false  )
     public String getSysTaskId() {
         return sysTaskId;
     }
@@ -59,7 +60,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" )
+    @Column(name = "name"  )
     public String getName() {
         return name;
     }
@@ -69,7 +70,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "state" )
+    @Column(name = "state"  )
     public Boolean getState() {
         return state;
     }
@@ -79,7 +80,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "cron" )
+    @Column(name = "cron"  )
     public String getCron() {
         return cron;
     }
@@ -89,7 +90,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "sync" )
+    @Column(name = "sync"  )
     public Boolean getSync() {
         return sync;
     }
@@ -99,7 +100,8 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "update_time" )
+    @Generated(GenerationTime.ALWAYS)
+    @Column(name = "update_time"  )
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -109,7 +111,8 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "create_time" )
+    @Generated(GenerationTime.INSERT)
+    @Column(name = "create_time"  )
     public Date getCreateTime() {
         return createTime;
     }
@@ -208,7 +211,12 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysTaskEntity clone() {
+        try {
+            return (SysTaskEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

@@ -12,6 +12,15 @@ public class JPAConfigProperty {
     private String useSecondLevelCache = "true";
     private String useStructuredEntries = "false";
     private String useQueryCache = "true";
+    private String useSqlComments = "true";
+
+    public String getUseSqlComments() {
+        return useSqlComments;
+    }
+
+    public void setUseSqlComments(String useSqlComments) {
+        this.useSqlComments = useSqlComments;
+    }
 
     public String getHbm2ddl() {
         return hbm2ddl;

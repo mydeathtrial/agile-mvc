@@ -9,6 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -76,19 +77,19 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
      */
     private void annotationProcessor(){
         for(int i = 0; i < AnnotationProcessor.beforeClassAnnotations.length; i++){
-            this.annotationPricessor(AnnotationProcessor.beforeClassAnnotations[i]);
+            this.annotationProcessor(AnnotationProcessor.beforeClassAnnotations[i]);
         }
     }
 
     /**
      * 2：处理自定义注解
      */
-    private <T extends Annotation> void annotationPricessor(Class<T> clazz){
+    private void annotationProcessor(Class<? extends Annotation> clazz){
         Map<String, Object> beans = applicationContext.getBeansWithAnnotation(clazz);
         for(Map.Entry<String, Object> map: beans.entrySet()){
             Object bean = map.getValue();
             Class<?> targetClass = bean.getClass();
-            T annotation = targetClass.getAnnotation(clazz);
+            Annotation annotation = targetClass.getAnnotation(clazz);
             try {
                 Method method = AnnotationProcessor.class.getDeclaredMethod(clazz.getSimpleName(), clazz, Object.class);
                 method.setAccessible(true);

@@ -2,12 +2,11 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
-import com.agile.common.exception.NoSuchRequestMethodException;
+import com.agile.common.base.AbstractResponseFormat;
+import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
-import com.agile.common.util.APIUtil;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.mvc.model.dao.Dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -30,32 +29,27 @@ public class MainService implements ServiceInterface {
     private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
 
     //输出
-    private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(HashMap::new);
+    private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
 
     /**
      * 根据对象及方法名通过反射执行该对象的指定方法
-     * @param methodName 服务内部的具体方法名
      * @param object 服务子类对象，为解决Hystrix组件无法识别服务子类问题（识别成了父类）
      * @return 返回执行结果
      */
     @Transactional
-    public Object executeMethod(String methodName, Object object, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
+    public Object executeMethod(Object object, Method method,HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
 
         initOutParam();
         try {
-            Method method = APIUtil.getApiCache(String.format("%s.%s",this.getClass().getName(),methodName));
-            if(method == null){
-                method = this.getClass().getMethod(methodName);
-                method.setAccessible(true);
-            }
-
             Object returnData = method.invoke(object);
-            if(!ObjectUtil.isEmpty(returnData) && !(returnData instanceof RETURN)){
+            if(returnData instanceof AbstractResponseFormat){
+                setOutParam(((AbstractResponseFormat) returnData).buildResponse());
+            }else if(returnData instanceof RETURN){
+                return returnData;
+            }else{
                 setOutParam(Constant.ResponseAbout.RESULT, returnData);
             }
             return returnData;
-        }catch (NoSuchMethodException e){
-            throw new NoSuchRequestMethodException(String.format("\r[服务类:%s]\r[方法:%s]\r[原因:该API不存在]",methodName,this.getClass().getName()));
         }catch (InvocationTargetException e){
             throw e.getTargetException();
         }
@@ -78,6 +72,35 @@ public class MainService implements ServiceInterface {
         return inParam.get().get(key);
     }
 
+    /**
+     * 服务中调用该方法获取映射对象
+     * @param clazz 参数映射类型
+     * @return 入参映射对象
+     */
+    protected <T>T getInParam(Class<T> clazz) {
+        return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
+    }
+
+    /**
+     * 服务中调用该方法获取映射对象
+     * @param clazz 参数映射类型
+     * @param prefix 筛选参数前缀
+     * @return 入参映射对象
+     */
+    protected <T>T getInParam(Class<T> clazz,String prefix) {
+        return ObjectUtil.getObjectFromMap(clazz, this.getInParam(),prefix);
+    }
+
+    /**
+     * 服务中调用该方法获取映射对象
+     * @param clazz 参数映射类型
+     * @param prefix 筛选参数前缀
+     * @param suffix 筛选参数后缀
+     * @return 入参映射对象
+     */
+    protected <T>T getInParam(Class<T> clazz, String prefix, String suffix) {
+        return ObjectUtil.getObjectFromMap(clazz, this.getInParam(),prefix,suffix);
+    }
 
     /**
      * 服务中调用该方法获取入参
@@ -174,6 +197,13 @@ public class MainService implements ServiceInterface {
      */
     public void setOutParam(String key, Object value) {
         outParam.get().put(key,value);
+    }
+
+    /**
+     * 服务中调用该方法设置响应参数
+     */
+    public void setOutParam(Map map) {
+        outParam.get().putAll(map);
     }
 
     /**

@@ -18,11 +18,11 @@ public class SysBtUsersRolesEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysBtUsersRolesId;
+    private String sysBtUsersRolesId ;
     @Remark("角色唯一标识")
-    private String roleId;
+    private String roleId ;
     @Remark("用户唯一标识")
-    private String userId;
+    private String userId ;
 
     //无参构造器
     public SysBtUsersRolesEntity(){}
@@ -35,7 +35,7 @@ public class SysBtUsersRolesEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_bt_users_roles_id" , nullable = false )
+    @Column(name = "sys_bt_users_roles_id" , nullable = false  )
     public String getSysBtUsersRolesId() {
         return sysBtUsersRolesId;
     }
@@ -45,7 +45,7 @@ public class SysBtUsersRolesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "role_id" , nullable = false )
+    @Column(name = "role_id" , nullable = false  )
     public String getRoleId() {
         return roleId;
     }
@@ -55,7 +55,7 @@ public class SysBtUsersRolesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "user_id" , nullable = false )
+    @Column(name = "user_id" , nullable = false  )
     public String getUserId() {
         return userId;
     }
@@ -122,7 +122,12 @@ public class SysBtUsersRolesEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public SysBtUsersRolesEntity clone() {
+        try {
+            return (SysBtUsersRolesEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

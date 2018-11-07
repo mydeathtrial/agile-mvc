@@ -1,5 +1,6 @@
 package com.agile.common.security;
 
+import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.ObjectUtil;
@@ -33,7 +34,12 @@ public class SecurityUserDetailsService implements UserDetailsService {
     }
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SysUsersEntity user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
+        SysUsersEntity user = null;
+        try {
+            user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
+        } catch (NoSuchIDException e) {
+            e.printStackTrace();
+        }
         if(ObjectUtil.isEmpty(user))throw new UsernameNotFoundException(null);
         String sql = "SELECT\n" +
                 "\tsys_authorities.SYS_AUTHORITY_ID,\n" +
@@ -61,14 +67,14 @@ public class SecurityUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateLoginInfo(String token){
+    public void updateLoginInfo(String token) throws NoSuchIDException {
         SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().setToken(token).build());
         sysLoginEntity.setLogoutTime(DateUtil.getCurrentDate());
         dao.update(sysLoginEntity);
     }
 
     @Transactional
-    public void updateLoginInfo(String oldToken, String newToken){
+    public void updateLoginInfo(String oldToken, String newToken) throws NoSuchIDException {
         SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().setToken(oldToken).build());
         sysLoginEntity.setToken(newToken);
         dao.update(sysLoginEntity);

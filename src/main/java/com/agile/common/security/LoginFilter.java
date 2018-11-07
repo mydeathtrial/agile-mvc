@@ -57,10 +57,10 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         String password = request.getParameter(PASSWORD);
 
         if(StringUtil.isEmpty(username)){
-            throw new NoCompleteFormSign(null);
+            throw new NoCompleteFormSign();
         }
         if(StringUtil.isEmpty(password)){
-            throw new NoCompleteFormSign(null);
+            throw new NoCompleteFormSign();
         }
 
         //验证验证码

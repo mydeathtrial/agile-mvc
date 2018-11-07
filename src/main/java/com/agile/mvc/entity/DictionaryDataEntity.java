@@ -18,15 +18,15 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String dictionaryDataId;
+    private String dictionaryDataId ;
     @Remark("字典主表主键")
-    private String dictionaryMainId;
+    private String dictionaryMainId ;
     @Remark("显示名称")
-    private String key;
+    private String key ;
     @Remark("代表值")
-    private String value;
+    private String value ;
     @Remark("字典值是否固定")
-    private Boolean isFixed;
+    private Boolean isFixed ;
 
     //无参构造器
     public DictionaryDataEntity(){}
@@ -41,7 +41,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "dictionary_data_id" , nullable = false )
+    @Column(name = "dictionary_data_id" , nullable = false  )
     public String getDictionaryDataId() {
         return dictionaryDataId;
     }
@@ -51,7 +51,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "dictionary_main_id" , nullable = false )
+    @Column(name = "dictionary_main_id" , nullable = false  )
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
@@ -61,7 +61,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "key" , nullable = false )
+    @Column(name = "key" , nullable = false  )
     public String getKey() {
         return key;
     }
@@ -71,7 +71,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "value" , nullable = false )
+    @Column(name = "value" , nullable = false  )
     public String getValue() {
         return value;
     }
@@ -81,7 +81,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "is_fixed" , nullable = false )
+    @Column(name = "is_fixed" , nullable = false  )
     public Boolean getIsFixed() {
         return isFixed;
     }
@@ -128,11 +128,11 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     public static class Builder{
-        private String dictionaryDataId;
-        private String dictionaryMainId;
-        private String key;
-        private String value;
-        private Boolean isFixed;
+        private String dictionaryDataId ;
+        private String dictionaryMainId ;
+        private String key ;
+        private String value ;
+        private Boolean isFixed ;
 
         public Builder setDictionaryDataId(String dictionaryDataId) {
             this.dictionaryDataId = dictionaryDataId;
@@ -164,7 +164,12 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public DictionaryDataEntity clone() {
+        try {
+            return (DictionaryDataEntity)super.clone();
+        }catch (CloneNotSupportedException e){
+            return null;
+        }
+
     }
 }

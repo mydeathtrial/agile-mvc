@@ -3,29 +3,59 @@ package com.agile.common.util;
 import com.agile.common.annotation.Remark;
 import com.agile.common.base.RETURN;
 import com.agile.common.base.swagger.*;
+import com.agile.common.container.MappingHandlerMapping;
 import com.agile.common.mvc.service.BusinessService;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import javax.persistence.Column;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
  * Created by 佟盟 on 2018/8/23
  */
 public class APIUtil {
-    private static Map<String, Method> apiCache = new HashMap<>();
+    private static Map<String, Object> serviceCache = new HashMap<>();
     private static Map<String, Defination> definitions = new HashMap<>();
-    public static Method getApiCache(String key){
-        return apiCache.get(key);
+    private static MappingHandlerMapping mappingHandlerMapping;
+
+    public static HandlerMethod getApiCache(HttpServletRequest request) {
+        if(mappingHandlerMapping == null)return null;
+        try {
+            HandlerExecutionChain handlerExecutionChain = getMappingHandlerMapping().getHandler(request);
+            if(handlerExecutionChain!=null){
+                return ((HandlerMethod) (handlerExecutionChain.getHandler()));
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
     }
 
-    public static void addApiCache(String key,Method method){
-        apiCache.put(key, method);
+    public static void addMappingInfoCache(Object bean,Method method,Class clazz) {
+        RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(method, clazz);
+        if(requestMappingInfo!=null){
+            getMappingHandlerMapping().registerHandlerMethod(bean,method,requestMappingInfo);
+        }
+    }
+
+    public static MappingHandlerMapping getMappingHandlerMapping() {
+        if(mappingHandlerMapping == null){
+            mappingHandlerMapping = new MappingHandlerMapping();
+            mappingHandlerMapping.afterPropertiesSet();
+        }
+        return mappingHandlerMapping;
+    }
+
+    public static Object getServiceCache(String key){
+        return serviceCache.get(key);
+    }
+    public static void addServiceCache(String key, Object o){
+        serviceCache.put(key, o);
     }
 
     public static SwaggerInfo getApi(){

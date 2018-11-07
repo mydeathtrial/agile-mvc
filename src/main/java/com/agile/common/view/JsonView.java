@@ -1,6 +1,5 @@
 package com.agile.common.view;
 
-import com.agile.common.base.poi.ExcelFile;
 import com.agile.common.util.FileUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,10 +27,8 @@ public class JsonView extends MappingJackson2JsonView {
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         for (Object value:model.values()) {
-            if(value instanceof ExcelFile){
-                FileUtil.downloadFile((ExcelFile) value,request,response);
-                return;
-            }
+            boolean isFile = FileUtil.downloadFile(value, request, response);
+            if(isFile)return;
         }
         super.renderMergedOutputModel(model, request, response);
     }

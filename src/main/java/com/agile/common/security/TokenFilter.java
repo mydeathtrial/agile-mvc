@@ -2,6 +2,7 @@ package com.agile.common.security;
 
 import com.agile.common.config.SecurityConfig;
 import com.agile.common.exception.NoSignInException;
+import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.*;
@@ -104,7 +105,7 @@ public class TokenFilter extends OncePerRequestFilter {
         failureHandler.onAuthenticationFailure(req, res, e);
     }
 
-    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse,String oldSalt,String saltValue){
+    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse,String oldSalt,String saltValue) throws NoSuchIDException {
         String cacheKey = authentication.getName();
         String saltKey = cacheKey+"_SALT";
         String newSalt = RandomStringUtil.getRandom(8, RandomStringUtil.Random.LETTER_UPPER);

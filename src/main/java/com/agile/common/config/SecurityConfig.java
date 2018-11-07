@@ -20,6 +20,8 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -90,10 +92,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     @Bean
     public ReloadableResourceBundleMessageSource reloadableResourceBundleMessageSource(){
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasename("classpath:org/springframework/security/messages_zh_CN");
+        messageSource.setBasename("classpath:com/agile/conf/language");
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
         messageSource.setUseCodeAsDefaultMessage(true);
         messageSource.setCacheSeconds(10);
         return messageSource;
     }
+
 }

@@ -18,17 +18,17 @@ public class LogTableEntity implements Serializable,Cloneable {
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String logTableId;
+    private String logTableId ;
     @Remark("日志标识")
-    private String logMainId;
+    private String logMainId ;
     @Remark("数据库")
-    private String tableSchema;
+    private String tableSchema ;
     @Remark("表名")
-    private String tableName;
+    private String tableName ;
     @Remark("操作类型")
-    private String operationType;
+    private String operationType ;
     @Remark("操作顺序")
-    private Integer operationOrder;
+    private Integer operationOrder ;
 
     //无参构造器
     public LogTableEntity(){}
@@ -44,7 +44,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "log_table_id" , nullable = false )
+    @Column(name = "log_table_id" , nullable = false  )
     public String getLogTableId() {
         return logTableId;
     }
@@ -54,7 +54,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "log_main_id" , nullable = false )
+    @Column(name = "log_main_id" , nullable = false  )
     public String getLogMainId() {
         return logMainId;
     }
@@ -64,7 +64,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "table_schema" , nullable = false )
+    @Column(name = "table_schema" , nullable = false  )
     public String getTableSchema() {
         return tableSchema;
     }
@@ -74,7 +74,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "table_name" , nullable = false )
+    @Column(name = "table_name" , nullable = false  )
     public String getTableName() {
         return tableName;
     }
@@ -84,7 +84,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "operation_type" , nullable = false )
+    @Column(name = "operation_type" , nullable = false  )
     public String getOperationType() {
         return operationType;
     }
@@ -94,12 +94,12 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "operation_order" , nullable = false )
+    @Column(name = "operation_order" , nullable = false  )
     public Integer getOperationOrder() {
         return operationOrder;
     }
 
-    public void setOperationOrder(int operationOrder) {
+    public void setOperationOrder(Integer operationOrder) {
         this.operationOrder = operationOrder;
     }
 
@@ -144,12 +144,12 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     public static class Builder{
-        private String logTableId;
-        private String logMainId;
-        private String tableSchema;
-        private String tableName;
-        private String operationType;
-        private Integer operationOrder;
+        private String logTableId ;
+        private String logMainId ;
+        private String tableSchema ;
+        private String tableName ;
+        private String operationType ;
+        private Integer operationOrder ;
 
         public Builder setLogTableId(String logTableId) {
             this.logTableId = logTableId;
@@ -171,7 +171,7 @@ public class LogTableEntity implements Serializable,Cloneable {
             this.operationType = operationType;
             return this;
         }
-        public Builder setOperationOrder(int operationOrder) {
+        public Builder setOperationOrder(Integer operationOrder) {
             this.operationOrder = operationOrder;
             return this;
         }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
+import java.lang.annotation.Annotation;
 
 /**
  * Created by mydeathtrial on 2017/3/10
@@ -38,7 +39,11 @@ public final class FactoryUtil {
      * @return bean对象
      */
     public static Object getBean(String beanName) throws BeansException{
-        return factoryUtil.applicationContext.getBean(beanName.substring(0,1).toLowerCase()+beanName.substring(1));
+        try {
+            return factoryUtil.applicationContext.getBean(beanName.substring(0,1).toLowerCase()+beanName.substring(1));
+        }catch (Exception e){
+            return null;
+        }
     }
 
     /**
@@ -47,7 +52,11 @@ public final class FactoryUtil {
      * @return bean对象
      */
     public static <T> T getBean(Class<T> clazz){
-        return factoryUtil.applicationContext.getBean(clazz);
+        try {
+            return factoryUtil.applicationContext.getBean(clazz);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     /**
@@ -56,7 +65,24 @@ public final class FactoryUtil {
      * @return bean对象
      */
     public static String[] getBeanNamesForType(Class<?> var1){
-        return factoryUtil.applicationContext.getBeanNamesForType(var1);
+        try {
+            return factoryUtil.applicationContext.getBeanNamesForType(var1);
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    /**
+     * 根据类型查询bean对象
+     * @param var1 bean类型
+     * @return bean对象
+     */
+    public static String[] getBeanNamesForAnnotation(Class<? extends Annotation> var1){
+        try {
+            return factoryUtil.applicationContext.getBeanNamesForAnnotation(var1);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     public static ApplicationContext getApplicationContext() {
