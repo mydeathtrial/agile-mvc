@@ -7,6 +7,8 @@ import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.PropertiesUtil;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,6 +82,19 @@ public class MainService implements ServiceInterface {
      */
     protected <T>T getInParam(Class<T> clazz) {
         return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
+    }
+
+    /**
+     * 服务中调用该方法获取映射对象
+     * @param clazz 参数映射类型
+     * @return 入参映射对象
+     */
+    protected <T> List<T> getInParamByBody(Class<T> clazz) {
+        try {
+            return PropertiesUtil.getObjectFormJson(clazz, (JSONObject) getInParam(Constant.ResponseAbout.BODY));
+        }catch (Exception e){
+            return null;
+        }
     }
 
     /**

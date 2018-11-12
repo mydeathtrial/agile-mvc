@@ -2,12 +2,10 @@ package com.agile.common.mvc.model.dao;
 
 import com.agile.common.config.SpringConfig;
 import com.agile.common.exception.NoSuchIDException;
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.MapUtil;
-import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -24,6 +22,7 @@ import javax.persistence.Query;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.util.*;
 
 /**
@@ -52,7 +51,7 @@ public class Dao {
         Class<ID> idClass = (Class<ID>) field.getType();
         JpaRepository repository = (JpaRepository) map.get(tableClass.getName());
         if(ObjectUtil.isEmpty(repository)){
-            repository = new SimpleJpaRepository<T,ID>(tableClass,entityManager);
+            repository = new SimpleJpaRepository<T,ID>(tableClass,getEntityManager());
             map.put(tableClass.getName(),repository);
         }
         return repository;
@@ -70,7 +69,7 @@ public class Dao {
      * @param o ORM对象
      */
     public void save(Object o){
-        entityManager.persist(o);
+        getEntityManager().persist(o);
     }
 
     /**
@@ -87,6 +86,14 @@ public class Dao {
 
         }
         return isTrue;
+    }
+
+    /**
+     * 获取数据库连接
+     * @return Connection
+     */
+    public Connection getConnection(){
+        return getEntityManager().unwrap(SessionImplementor.class).connection();
     }
 
     /**
@@ -147,7 +154,7 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public void flush(){
-        entityManager.flush();
+        getEntityManager().flush();
     }
 
 
@@ -156,28 +163,28 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public void refresh(Object o){
-        entityManager.refresh(o);
+        getEntityManager().refresh(o);
     }
 
     /**
      * 更新或新增
      * @param o ORM对象
      */
-    public void update(Object o){
-        entityManager.merge(o);
+    public <T>T update(T o){
+        return getEntityManager().merge(o);
     }
 
     /**
      * 更新或新增非空字段
      * @param o ORM对象
      */
-    public void updateOfNotNull(Object o) throws NoSuchIDException, IllegalAccessException {
+    public <T>T updateOfNotNull(T o) throws NoSuchIDException, IllegalAccessException {
         Class<?> clazz = o.getClass();
         Field idField = getIdField(clazz);
         idField.setAccessible(true);
-        Object old = findOne(clazz, idField.get(o));
+        T old = (T)findOne(clazz, idField.get(o));
         ObjectUtil.copyPropertiesOfNotNull(o,old);
-        entityManager.merge(old);
+        return getEntityManager().merge(old);
     }
 
     /**
@@ -302,7 +309,7 @@ public class Dao {
      * 查询单条
      */
     public <T>T findOne(Class<T> clazz,Object id){
-        return entityManager.find(clazz,id);
+        return getEntityManager().find(clazz,id);
     }
 
     /**
@@ -364,16 +371,23 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T>List<T> findAll(String sql, Class<T> clazz,Object... parameters){
         try {
+            getIdField(clazz);
             Query query = creatClassQuery(sql,clazz,parameters);
             List list = query.getResultList();
             if(list == null || list.size()==0 || list.get(0)==null)return null;
             return query.getResultList();
-        }catch (Exception e){
+        }catch (NoSuchIDException e){
             List<Map<String, Object>> list = findAllBySQL(sql, parameters);
             if(list!=null && list.size()>0){
-                List<T> result = new ArrayList<>();
-                for (Map<String, Object> entity:list){
-                    result.add(ObjectUtil.getObjectFromMap(clazz,entity));
+                List<T> result = new LinkedList<>();
+                if(ClassUtil.isCustomClass(clazz)){
+                    for (Map<String, Object> entity:list){
+                        result.add(ObjectUtil.cast(clazz,ArrayUtil.getLast(entity.values().toArray())));
+                    }
+                }else{
+                    for (Map<String, Object> entity:list){
+                        result.add(ObjectUtil.getObjectFromMap(clazz,entity));
+                    }
                 }
                 return result;
             }
@@ -436,7 +450,7 @@ public class Dao {
     }
 
     private Query creatQuery(String sql, Object... parameters){
-        Query query = entityManager.createNativeQuery(sql);
+        Query query = getEntityManager().createNativeQuery(sql);
         for (int i = 0 ; i < parameters.length ; i++ ){
             query.setParameter(i+1,parameters[i]);
         }
@@ -445,7 +459,7 @@ public class Dao {
 
 
     private Query creatClassQuery(String sql,Class clazz, Object... parameters){
-        Query query = entityManager.createNativeQuery(sql,clazz);
+        Query query = getEntityManager().createNativeQuery(sql,clazz);
         for (int i = 0 ; i < parameters.length ; i++ ){
             query.setParameter(i+1,parameters[i]);
         }
@@ -487,7 +501,7 @@ public class Dao {
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>List<T> findAll(Class<T> tableClass,Iterable<ID> ids) throws NoSuchIDException {
+    public <T,ID>List<T> findAllById(Class<T> tableClass,Iterable<ID> ids) throws NoSuchIDException {
         return getRepository(tableClass).findAllById(ids);
     }
 
@@ -495,7 +509,7 @@ public class Dao {
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>List<T> findAll(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
+    public <T,ID>List<T> findAllByArrayId(Class<T> tableClass,ID... ids) throws NoSuchIDException {
         return getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
     }
 

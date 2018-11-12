@@ -29,7 +29,7 @@ public class AgileGenerator {
 
         data.put("tableComment", table.get("REMARKS"));
 
-        List<Map<String, Object>> columns = DataBaseUtil.listColumns(PropertiesUtil.getProperty("agile.druid.type"), PropertiesUtil.getProperty("agile.druid.data_base_ip"), PropertiesUtil.getProperty("agile.druid.data_base_post"), PropertiesUtil.getProperty("agile.druid.data_base_name"), PropertiesUtil.getProperty("agile.druid.data_base_username"), PropertiesUtil.getProperty("agile.druid.data_base_password"), tableName);
+        List<Map<String, Object>> columns = DataBaseUtil.listColumns(PropertiesUtil.getProperty("agile.druid.type"), PropertiesUtil.getProperty("agile.druid.data_base_ip"), PropertiesUtil.getProperty("agile.druid.data_base_port"), PropertiesUtil.getProperty("agile.druid.data_base_name"), PropertiesUtil.getProperty("agile.druid.data_base_username"), PropertiesUtil.getProperty("agile.druid.data_base_password"), tableName);
 
         for (Map<String, Object> column:columns){
             //参数容器
@@ -181,7 +181,7 @@ public class AgileGenerator {
      * @param url 生成目标文件存储路径
      * @return 包名
      */
-    private static String getPackPath(String url){
+    public static String getPackPath(String url){
         String javaPath = "src/main/java";
         if(!url.contains(javaPath))return null;
         int endIndex = 0;
@@ -210,7 +210,7 @@ public class AgileGenerator {
 
         dbType = String.format("%s.type",druidKey);
         ip = String.format("%s.data_base_ip",druidKey);
-        port = String.format("%s.data_base_post",druidKey);
+        port = String.format("%s.data_base_port",druidKey);
         dbName = String.format("%s.data_base_name",druidKey);
         username = String.format("%s.data_base_username",druidKey);
         password = String.format("%s.data_base_password",druidKey);

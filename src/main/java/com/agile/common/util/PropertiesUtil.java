@@ -218,6 +218,21 @@ public class PropertiesUtil {
     }
 
     /**
+     * 从json数据中，取出指定clazz类型对象数据集
+     * @param clazz 指定对象类型
+     * @param <T> 泛型
+     * @return List泛型集合
+     */
+    public static <T>List<T> getObjectFormJson(Class<T> clazz,JSONObject json){
+        List<T> list = new ArrayList<>();
+            try {
+                list.add((T) JSONObject.toBean(json,clazz,getClassMap(clazz)));
+            }catch (Exception ignored){
+            }
+        return list;
+    }
+
+    /**
      * 从classpath目录下，取指定文件后缀名位jsonFileName的json文件数据，获取其中的clazz对象集
      * @param clazz 指定对象类型
      * @param fileSuffixName json文件后缀名

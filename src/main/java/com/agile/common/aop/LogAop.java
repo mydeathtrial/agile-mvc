@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,6 +32,8 @@ public class LogAop {
 
     @Autowired
     HttpServletRequest request;
+
+    private static int maxLenth = 5000;
 
     //日志线程池
     private static ThreadPoolExecutor pool = PoolFactory.pool(5, 30, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(),new ThreadPoolExecutor.DiscardPolicy());
@@ -54,7 +57,7 @@ public class LogAop {
         MainService service = (MainService)joinPoint.getTarget();
         Map<String, Object> inParam = service.getInParam();
         Map<String, Object> outParam = service.getOutParam();
-        LogThread thread = new LogThread(service, joinPoint.getArgs()[0].toString(), ServletUtil.getCustomerIPAddr(request), request.getRequestURL(),inParam,outParam,request);
+        LogThread thread = new LogThread(service, ((Method)(joinPoint.getArgs()[1])).getName(), ServletUtil.getCustomerIPAddr(request), request.getRequestURL(),inParam,outParam,request);
         pool.execute(thread);
     }
 
@@ -86,7 +89,7 @@ public class LogAop {
                 Log logger = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, serviceClass);
                 if(logger.isInfoEnabled()){
                     String outStr = JSONUtil.toJSONString(outParam);
-                    String print = (outStr != null && outStr.length() > 100) ? outStr.substring(0, 100) + "...}":outStr;
+                    String print = (outStr != null && outStr.length() > maxLenth) ? outStr.substring(0, maxLenth) + "...}":outStr;
                     logger.info(String.format(logTemplate,ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toJSONString(inParam),print));
                 }
             }catch (Exception e){

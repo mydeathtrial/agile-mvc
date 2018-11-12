@@ -14,7 +14,7 @@ agile:
     data_base_ip: 127.0.0.1
     data_base_name: agile_db
     data_base_password: 123456
-    data_base_post: 3306
+    data_base_port: 3306
     data_base_url_param: serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true
     data_base_username: root
     exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
@@ -76,14 +76,17 @@ agile:
       character: String
     entity_prefix: ''
     entity_suffix: Entity
-    entity_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity1
+    entity_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
     es_entity_prefix: ''
     es_entity_suffix: Entity
     es_entity_url: D:/workspace/agile/src/main/java/com/agile/mvc/entity/
     service_prefix: ''
     service_suffix: Service
     service_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service
-    table_name: 'da_trend_task_data'
+    test_prefix: ''
+    test_suffix: ServiceTest
+    test_url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
+    table_name: 'dictionary_data'
   jpa:
     current_session_context_class: thread
     format_sql: true
@@ -111,7 +114,7 @@ agile:
     trigger_type: size
     trigger_value: 1M
     package:
-  #      org.elasticsearch: debug,info,error
+#      org.hibernate: debug,info,error
   redis:
     host: 127.0.0.1
     max_idle: 300
@@ -122,7 +125,7 @@ agile:
     test_on_borrow: true
     test_on_return: false
   security:
-    enable: true
+    enable: false
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*
     login_out_url: /logout
     login_url: /login

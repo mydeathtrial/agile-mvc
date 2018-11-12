@@ -38,7 +38,7 @@ public class LoggerFactory {
     private LoggerFactory() {}
     private static void createLogger(String baseName, String packagePath, Level... levels) {
         //创建输出格式
-        Layout layout = PatternLayout.newBuilder().withConfiguration(config).withPattern("%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n").build();
+        Layout layout = PatternLayout.newBuilder().withConfiguration(config).withPattern("%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}").build();
         baseName = StringUtil.camelToUnderline(baseName);
         AppenderRef[] refs = new AppenderRef[levels.length*2];
         String[] appenders = new String[levels.length*2];

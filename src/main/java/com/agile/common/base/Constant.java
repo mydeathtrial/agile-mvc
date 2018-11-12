@@ -1,7 +1,5 @@
 package com.agile.common.base;
 
-import com.agile.common.util.StringUtil;
-
 /**
  * Created by 佟盟 on 2017/9/2
  */
@@ -21,6 +19,7 @@ public class Constant {
         public final static String URL = "url";
         public final static String RETURN = "return";
         public final static String RESULT = "result";
+        public final static String BODY = "body";
     }
 
     /**

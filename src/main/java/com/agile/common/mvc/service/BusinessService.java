@@ -55,7 +55,7 @@ public class BusinessService<T> extends MainService {
             return RETURN.SUCCESS;
         }else if(require && !ObjectUtil.isEmpty(entity)){
             List<String> list = getIds();
-            List<T> entityList = dao.findAll(entityClass, list);
+            List<T> entityList = dao.findAllById(entityClass, list);
             Iterator<T> it = entityList.iterator();
             while (it.hasNext()){
                 T o = it.next();
@@ -108,12 +108,12 @@ public class BusinessService<T> extends MainService {
         boolean require = this.containsKey("id");
         if (require && ObjectUtil.isEmpty(entity)){
             List<String> list = getIds();
-            setOutParam(Constant.ResponseAbout.RESULT,dao.findAll(entityClass,list));
+            setOutParam(Constant.ResponseAbout.RESULT,dao.findAllById(entityClass,list));
         }else if(!require && !ObjectUtil.isEmpty(entity)){
             setOutParam(Constant.ResponseAbout.RESULT,dao.findAll(entity,getSort()));
         }else if(require && !ObjectUtil.isEmpty(entity)){
             List<String> list = getIds();
-            List<T> entityList = dao.findAll(entityClass, list);
+            List<T> entityList = dao.findAllById(entityClass, list);
             Iterator<T> it = entityList.iterator();
             while (it.hasNext()){
                 T o = it.next();

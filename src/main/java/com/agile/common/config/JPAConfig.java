@@ -51,6 +51,9 @@ public class JPAConfig {
             case "oracle":
                 jpaVendorAdapter.setDatabasePlatform( "org.hibernate.dialect.Oracle12cDialect");
                 break;
+            case "mariadb":
+                jpaVendorAdapter.setDatabasePlatform( "org.hibernate.dialect.MariaDBDialect");
+                break;
             default:
                 try {
                     throw new NonSupportDBException();

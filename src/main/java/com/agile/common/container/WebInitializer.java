@@ -4,6 +4,7 @@ import com.agile.common.config.LoggerFactoryConfig;
 import com.agile.common.kaptcha.KaptchaServlet;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.PrintUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
@@ -38,11 +39,10 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
 
     private void printBanner() {
         for (String line : BANNER) {
-            System.out.println(line);
+            PrintUtil.write(line,PrintUtil.CYAN);
         }
 
-        System.out.println(AGILE);
-        System.out.println();
+        PrintUtil.write("\n" + AGILE + "\n",PrintUtil.CYAN);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
 
         Log logger = com.agile.common.factory.LoggerFactory.createLogger("container", WebInitializer.class,Level.DEBUG,Level.ERROR);
 
-        DataBaseUtil.tryLink(PropertiesUtil.getProperty("agile.druid.type"), PropertiesUtil.getProperty("agile.druid.data_base_ip"), PropertiesUtil.getProperty("agile.druid.data_base_post"), PropertiesUtil.getProperty("agile.druid.data_base_name"), PropertiesUtil.getProperty("agile.druid.data_base_username"), PropertiesUtil.getProperty("agile.druid.data_base_password"));
+        DataBaseUtil.tryLink(PropertiesUtil.getProperty("agile.druid.type"), PropertiesUtil.getProperty("agile.druid.data_base_ip"), PropertiesUtil.getProperty("agile.druid.data_base_port"), PropertiesUtil.getProperty("agile.druid.data_base_name"), PropertiesUtil.getProperty("agile.druid.data_base_username"), PropertiesUtil.getProperty("agile.druid.data_base_password"));
 
         servletContext.setRequestCharacterEncoding(PropertiesUtil.getProperty("agile.servlet.character","utf-8"));
         servletContext.setResponseCharacterEncoding(PropertiesUtil.getProperty("agile.servlet.character","utf-8"));

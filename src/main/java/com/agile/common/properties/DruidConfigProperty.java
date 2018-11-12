@@ -7,7 +7,7 @@ public class DruidConfigProperty {
     private String type = "MYSQL";
     private String dataBaseName = "agile_db";
     private String dataBaseIp = "127.0.0.1";
-    private String dataBasePost = "3306";
+    private String dataBasePort = "3306";
     private String dataBaseUsername = "root";
     private String dataBasePassword = "123456";
     private String dataBaseUrlParam = "serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL";
@@ -51,12 +51,12 @@ public class DruidConfigProperty {
         this.dataBaseIp = dataBaseIp;
     }
 
-    public String getDataBasePost() {
-        return dataBasePost;
+    public String getDataBasePort() {
+        return dataBasePort;
     }
 
-    public void setDataBasePost(String dataBasePost) {
-        this.dataBasePost = dataBasePost;
+    public void setDataBasePort(String dataBasePort) {
+        this.dataBasePort = dataBasePort;
     }
 
     public String getDataBaseUsername() {

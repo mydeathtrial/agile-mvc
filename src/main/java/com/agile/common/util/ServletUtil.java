@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.base.Constant;
 import net.sf.json.JSONObject;
 import org.jetbrains.annotations.Contract;
 import javax.servlet.http.HttpServletRequest;
@@ -140,7 +141,7 @@ public class ServletUtil {
             while((cache = br.readLine()) != null){
                 jsonStr.append(cache);
             }
-            JSONObject json = null;
+            JSONObject json;
             try{
                 json = JSONUtil.toJSON(jsonStr.toString());
             }catch (Exception e){
@@ -148,9 +149,10 @@ public class ServletUtil {
             }
             if(json!=null){
                 Map<String,Object> map = new HashMap<>();
-                Iterator<String> keys = json.keys();
+                map.put(Constant.ResponseAbout.BODY,json);
+                Iterator keys = json.keys();
                 while (keys.hasNext()){
-                    String keyName = keys.next();
+                    String keyName = keys.next().toString();
                     Object value = json.get(keyName);
                     map.put(keyName,value);
                 }

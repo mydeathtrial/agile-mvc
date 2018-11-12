@@ -14,7 +14,7 @@ agile:
     data_base_ip: 127.0.0.1
     data_base_name: agile_db
     data_base_password: 123456
-    data_base_post: 3306
+    data_base_port: 3306
     data_base_url_param: serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true
     data_base_username: root
     exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'

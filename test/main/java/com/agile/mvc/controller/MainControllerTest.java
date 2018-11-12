@@ -44,6 +44,9 @@ public class MainControllerTest {
     @Before
     public void setUp() {
         handlerMapping = FactoryUtil.getBean(RequestMappingHandlerMapping.class);
+        if(handlerMapping==null){
+            handlerMapping = (RequestMappingHandlerMapping) FactoryUtil.getBean("requestMappingHandlerMapping");
+        }
         handlerAdapter = FactoryUtil.getBean(RequestMappingHandlerAdapter.class);
         request = new MockHttpServletRequest();
     }
