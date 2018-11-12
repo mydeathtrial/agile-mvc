@@ -39,10 +39,10 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
 
     private void printBanner() {
         for (String line : BANNER) {
-            PrintUtil.write(line,PrintUtil.CYAN);
+            PrintUtil.writeln(line,PrintUtil.CYAN);
         }
 
-        PrintUtil.write("\n" + AGILE + "\n",PrintUtil.CYAN);
+        PrintUtil.writeln("\n" + AGILE + "\n",PrintUtil.CYAN);
     }
 
     @Override

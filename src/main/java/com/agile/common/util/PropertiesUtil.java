@@ -58,8 +58,8 @@ public class PropertiesUtil {
                             mergeYml(classPathResource + file.getName());
                         }else if(fileName.endsWith("json")){
                             mergeJson(file);
-                        }else if(fileName.endsWith("py")){
-                            mergePy(file);
+                        }else if(fileName.endsWith("py") || fileName.endsWith("jrxml") || fileName.endsWith("datx")){
+                            mergeFilePath(file);
                         }
                     }else if(file.isDirectory()){
                         readDir(classPathResource + file.getName() + "/");
@@ -149,7 +149,7 @@ public class PropertiesUtil {
     }
 
 
-    private static void mergePy(File file) {
+    private static void mergeFilePath(File file) {
         try {
             properties.put(file.getName(),file.getPath());
         }catch (Exception ignored){}
@@ -207,14 +207,24 @@ public class PropertiesUtil {
         return properties.get(key) instanceof JSONObject ? (JSONObject) properties.get(key) :null;
     }
 
+
+    /**
+     * 根据文件名取classpath目录下的json数据
+     * @param fileName 不带后缀文件名
+     * @return JSONObject数据
+     */
+    public static String getFilePath(String fileName){
+        return getProperty(fileName);
+    }
+
     /**
      * 从classpath目录下的所有json文件中，取出指定clazz类型对象数据集
      * @param clazz 指定对象类型
      * @param <T> 泛型
      * @return List泛型集合
      */
-    public static <T>List<T> getObjectFormJson(Class<T> clazz){
-        return getObjectFormJson(clazz,"");
+    public static <T>List<T> getObjectFromJson(Class<T> clazz){
+        return getObjectFromJson(clazz,"");
     }
 
     /**
@@ -223,7 +233,7 @@ public class PropertiesUtil {
      * @param <T> 泛型
      * @return List泛型集合
      */
-    public static <T>List<T> getObjectFormJson(Class<T> clazz,JSONObject json){
+    public static <T>List<T> getObjectFromJson(Class<T> clazz, JSONObject json){
         List<T> list = new ArrayList<>();
             try {
                 list.add((T) JSONObject.toBean(json,clazz,getClassMap(clazz)));
@@ -239,7 +249,7 @@ public class PropertiesUtil {
      * @param <T> 泛型
      * @return List泛型集合
      */
-    public static <T>List<T> getObjectFormJson(Class<T> clazz,String fileSuffixName){
+    public static <T>List<T> getObjectFromJson(Class<T> clazz, String fileSuffixName){
         List<T> list = new ArrayList<>();
         Enumeration<Object> it = properties.keys();
         while (it.hasMoreElements()){

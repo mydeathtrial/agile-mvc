@@ -66,10 +66,16 @@ public class PrintUtil {
     /**
      * 打印并换行
      */
-    public static void write(String txt, int... codes) {
+    public static void writeln(String txt, int... codes) {
         System.out.println(FMT(txt, codes));
     }
 
+    /**
+     * 打印并换行
+     */
+    public static void write(String txt, int... codes) {
+        System.out.print(FMT(txt, codes));
+    }
     /**
      * 默认打印红色文字
      */

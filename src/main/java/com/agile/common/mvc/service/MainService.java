@@ -91,7 +91,7 @@ public class MainService implements ServiceInterface {
      */
     protected <T> List<T> getInParamByBody(Class<T> clazz) {
         try {
-            return PropertiesUtil.getObjectFormJson(clazz, (JSONObject) getInParam(Constant.ResponseAbout.BODY));
+            return PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(Constant.ResponseAbout.BODY));
         }catch (Exception e){
             return null;
         }

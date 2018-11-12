@@ -12,12 +12,16 @@ import java.util.Date;
  * Created by 佟盟 on 2018/11/9
  */
 @Component
-public class ContainerListener implements ApplicationListener<ContextRefreshedEvent> {
+public class ContainerListener implements ApplicationListener<ContextRefreshedEvent>{
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         long current = contextRefreshedEvent.getTimestamp();
-        String currentTime = DateUtil.convertToString(new Date(current), "yyyy-MM-dd hh:mm:ss");
-        PrintUtil.write(String.format("\n :: 敏捷开发框架 Agile Framework :: 已成功启动 启动时间时间:%s\n",currentTime),PrintUtil.CYAN);
+        String currentTime = DateUtil.convertToString(new Date(current), "yyyy年MM月dd日 hh:mm:ss");
+        PrintUtil.writeln("\n :: 敏捷开发框架 Agile Framework :: ",PrintUtil.CYAN);
+        PrintUtil.write(" :: 启动状态 :: ",PrintUtil.CYAN);
+        PrintUtil.writeln("已成功启动",PrintUtil.YELLOW);
+        PrintUtil.write(" :: 启动时间 :: ",PrintUtil.CYAN);
+        PrintUtil.writeln(currentTime ,PrintUtil.YELLOW);
     }
 }
