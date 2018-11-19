@@ -1,8 +1,18 @@
 package com.agile.common.mvc.model.dao;
 
+import com.agile.common.base.Constant;
 import com.agile.common.config.SpringConfig;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.*;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
+import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
+import com.alibaba.druid.sql.parser.SQLParserUtils;
+import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.util.JdbcUtils;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -262,6 +272,14 @@ public class Dao {
                 throw new NoSuchIDException();
             }
         }
+        Field[] fields = clazz.getDeclaredFields();
+        for(int i = 0 ; i < fields.length ; i++){
+            Field field = fields[i];
+            field.setAccessible(true);
+            Id id = field.getAnnotation(Id.class);
+            if(!ObjectUtil.isEmpty(id))
+            return field;
+        }
         throw new NoSuchIDException();
     }
 
@@ -322,6 +340,39 @@ public class Dao {
     }
 
     /**
+     * 根据给定参数动态生成sql语句
+     * @param sql 原sql模板
+     * @param parameters Map格式参数集合
+     * @return 生成的sql结果
+     */
+    public String parserSQL(String sql,Map<String,Object> parameters){
+        sql = sql.replaceAll("\\{","\\'{").replaceAll("}","\\}'");
+
+        // 新建 MySQL Parser
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
+
+        // 使用Parser解析生成AST，这里SQLStatement就是AST
+        SQLStatement statement = parser.parseStatement();
+
+        // 使用visitor来访问AST
+        MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
+        statement.accept(visitor);
+
+        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
+
+        List<SQLObject> conditions = sqlSelectQueryBlock.getWhere().getChildren();
+        for (SQLObject c:conditions) {
+            sqlSelectQueryBlock.removeCondition(c.toString());
+            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,((SQLBinaryOpExpr) c).getRight().toString(),0);
+            if(parameters.get(key)!=null){
+                String format = c.toString().replace(String.format("{%s}", key), "%s");
+                sqlSelectQueryBlock.addCondition(String.format(format,parameters.get(key)));
+            }
+        }
+        System.out.println(sqlSelectQueryBlock.toString());
+        return sqlSelectQueryBlock.toString();
+    }
+    /**
      * 查询列表
      * @param sql sql
      * @param clazz 返回ORM类型列表
@@ -329,8 +380,20 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T>T findOne(String sql, Class<T> clazz,Object... parameters){
         Query query = creatClassQuery(sql,clazz,parameters);
+        if(query.getResultList().size()==0){
+            return null;
+        }
         Object o = query.getSingleResult();
         return (T)o;
+    }
+
+    /**
+     * 查询列表
+     * @param sql sql
+     * @param clazz 返回ORM类型列表
+     */
+    public <T>T findOne(String sql, Class<T> clazz,Map<String,Object> parameters){
+        return findOne(parserSQL(sql,parameters),clazz);
     }
 
     /**
@@ -395,12 +458,16 @@ public class Dao {
         return null;
     }
 
+    public <T>List<T> findAll(String sql, Class<T> clazz,Map<String,Object> parameters){
+        return findAll(parserSQL(sql,parameters),clazz);
+    }
+
     /**
      * 查询列表
      * @param sql sql
      */
     @SuppressWarnings("unchecked")
-    public Page findAllBySQL(String sql, String countSql,int page, int size, Object... parameters){
+    public Page findPageBySQL(String sql, String countSql,int page, int size, Object... parameters){
         if(size<=0){
             new IllegalArgumentException().printStackTrace();
             return null;
@@ -449,6 +516,10 @@ public class Dao {
         return pageDate;
     }
 
+    public Page findPageBySQL(String sql, String countSql,int page, int size, Map<String,Object> parameters){
+        return findPageBySQL(parserSQL(sql,parameters),parserSQL(countSql,parameters),page,size);
+    }
+
     private Query creatQuery(String sql, Object... parameters){
         Query query = getEntityManager().createNativeQuery(sql);
         for (int i = 0 ; i < parameters.length ; i++ ){
@@ -456,7 +527,6 @@ public class Dao {
         }
         return query;
     }
-
 
     private Query creatClassQuery(String sql,Class clazz, Object... parameters){
         Query query = getEntityManager().createNativeQuery(sql,clazz);
@@ -477,6 +547,10 @@ public class Dao {
         return query.getResultList();
     }
 
+    public List<Map<String,Object>> findAllBySQL(String sql,Map<String,Object> parameters){
+        return findAllBySQL(parserSQL(sql,parameters));
+    }
+
     /**
      * 查询属性
      * sql查询结果必须只包含一个字段
@@ -488,6 +562,10 @@ public class Dao {
         return query.getSingleResult();
     }
 
+    public Object findParameter(String sql,Map<String,Object> parameters){
+        return findParameter(parserSQL(sql,parameters));
+    }
+
     /**
      * 更新sql
      * @param sql sql
@@ -497,6 +575,9 @@ public class Dao {
         return query.executeUpdate();
     }
 
+    public int updateBySQL(String sql,Map<String,Object> parameters){
+        return updateBySQL(parserSQL(sql,parameters));
+    }
     /**
      * 查询列表
      */

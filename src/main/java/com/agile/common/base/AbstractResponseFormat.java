@@ -28,6 +28,7 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String,Object
                     if(Constant.ResponseAbout.RESULT.equals(param)){
                         field.set(this,result);
                     }else{
+                        if(head==null)continue;
                         Field f = Head.class.getDeclaredField(remark.value());
                         f.setAccessible(true);
                         try {

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2.16</version>
+    <version>1.0.2.30</version>
     <name>Agile工程</name>
     <description>Agile API平台</description>
     <url>http://192.168.0.55:7777/repository/maven-public/</url>
@@ -21,6 +21,18 @@
         <version>1.0.3</version>
     </parent>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

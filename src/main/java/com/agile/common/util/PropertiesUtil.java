@@ -70,15 +70,24 @@ public class PropertiesUtil {
     }
 
     static {
+        readDir("/");
         readDir(classPath);
         merge(classPath + "agile.properties");
         merge(classPath + "agile.yml");
+        merge("agile.properties");
+        merge("agile.yml");
         merge(classPath + "application.properties");
         merge(classPath + "application.yml");
+        merge("application.properties");
+        merge("application.yml");
         merge(classPath + "bootstrap.properties");
         merge(classPath + "bootstrap.yml");
+        merge("bootstrap.properties");
+        merge("bootstrap.yml");
         merge(classPath + "agile-reset.properties");
         merge(classPath + "agile-reset.yml");
+        merge("agile-reset.properties");
+        merge("agile-reset.yml");
     }
 
     public static void merge(String fileName){
@@ -117,14 +126,14 @@ public class PropertiesUtil {
 
     public static void mergeProperties(File file){
         try {
-            if(ObjectUtil.isEmpty(file) || !file.getName().endsWith("properties"))return;
+            if(ObjectUtil.isEmpty(file) || !file.getName().endsWith(".properties"))return;
             merge(new BufferedInputStream(new FileInputStream(file)));
         }catch (Exception ignored){}
     }
 
     public static void mergeYml(String classPathResource){
         try {
-            if(classPathResource == null || !classPathResource.endsWith("yml"))return;
+            if(classPathResource == null || !classPathResource.endsWith(".yml"))return;
             YamlPropertiesFactoryBean yml = new YamlPropertiesFactoryBean();
             ClassPathResource resource = new ClassPathResource(classPathResource);
             if(!resource.exists())return;
@@ -135,7 +144,7 @@ public class PropertiesUtil {
 
     public static void mergeJson(File file){
         try {
-            if(ObjectUtil.isEmpty(file) || !file.getName().endsWith("json"))return;
+            if(ObjectUtil.isEmpty(file) || !file.getName().endsWith(".json"))return;
             String data = FileUtils.readFileToString(file,"UTF-8");
             properties.put(file.getName(),JSONUtil.toJSON(data));
         }catch (Exception ignored){}
@@ -143,6 +152,7 @@ public class PropertiesUtil {
 
     private static void mergeJson(String fileName, InputStream in) {
         try {
+            if(ObjectUtil.isEmpty(fileName) || !fileName.endsWith(".json"))return;
             String data = IOUtils.toString(in, "UTF-8");
             properties.put(fileName,JSONUtil.toJSON(data));
         }catch (Exception ignored){}
@@ -185,7 +195,9 @@ public class PropertiesUtil {
         }
         String message = null;
         try {
-            message =  FactoryUtil.getBean(ResourceBundleMessageSource.class).getMessage(key,params, locale);
+            ResourceBundleMessageSource resourceBundleMessageSource = FactoryUtil.getBean(ResourceBundleMessageSource.class);
+            if(resourceBundleMessageSource!=null)
+                message =  resourceBundleMessageSource.getMessage(key,params, locale);
         }catch (Exception ignored){}
 
         if(message==null){
@@ -205,6 +217,30 @@ public class PropertiesUtil {
     public static JSONObject getJson(String fileName){
         String key = String.format("%s.json",fileName);
         return properties.get(key) instanceof JSONObject ? (JSONObject) properties.get(key) :null;
+    }
+
+    /**
+     * 根据文件名取classpath目录下的json数据
+     * @param fileNameSuffix 文件
+     * @return JSONObject数据
+     */
+    public static List<JSONObject> getJsonBySuffix(String fileNameSuffix){
+        List<JSONObject> list = new ArrayList<>();
+        fileNameSuffix = String.format("%s.json",fileNameSuffix);
+        Enumeration<Object> keys = properties.keys();
+        while (keys.hasMoreElements()){
+            String key = String.valueOf(keys.nextElement());
+            if(key.endsWith(fileNameSuffix)){
+                JSONObject node = properties.get(key) instanceof JSONObject ? (JSONObject) properties.get(key) :null;
+                if(node!=null)
+                    list.add(node);
+            }
+        }
+
+        if(list.size()>0){
+            return list;
+        }
+        return null;
     }
 
 
@@ -235,11 +271,16 @@ public class PropertiesUtil {
      */
     public static <T>List<T> getObjectFromJson(Class<T> clazz, JSONObject json){
         List<T> list = new ArrayList<>();
-            try {
-                list.add((T) JSONObject.toBean(json,clazz,getClassMap(clazz)));
-            }catch (Exception ignored){
-            }
-        return list;
+        try {
+            T node = (T) JSONObject.toBean(json,clazz,getClassMap(clazz));
+            if(node!=null)
+                list.add(node);
+        }catch (Exception ignored){
+        }
+        if(list.size()>0){
+            return list;
+        }
+        return null;
     }
 
     /**
@@ -255,9 +296,11 @@ public class PropertiesUtil {
         while (it.hasMoreElements()){
             String key = String.valueOf(it.nextElement());
             if(key.endsWith(String.format("%s.json",fileSuffixName))){
-                JSONObject json = getJson(key);
+                JSONObject json = getJson(key.substring(0,key.length()-5));
                 try {
-                    list.add((T) JSONObject.toBean(json,clazz,getClassMap(clazz)));
+                    T node = (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
+                    if(node!=null)
+                    list.add(node);
                 }catch (Exception ignored){
                 }
             }
@@ -281,7 +324,7 @@ public class PropertiesUtil {
                 if(ArrayUtil.isEmpty(typeArguments) || typeArguments.length>1)continue;
                 map.put(field.getName(),(Class)typeArguments[0]);
                 if(!ClassUtil.isCustomClass((Class)typeArguments[0]))
-                map.putAll(getClassMap((Class)typeArguments[0]));
+                    map.putAll(getClassMap((Class)typeArguments[0]));
             }else if(!ClassUtil.isCustomClass(field.getType())){
                 map.putAll(getClassMap(field.getType()));
             }

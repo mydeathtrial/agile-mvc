@@ -34,7 +34,8 @@ import java.util.Properties;
 public class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
-    private static String path = System.getProperty("webapp.root")==null?"":System.getProperty("webapp.root");
+    private static String path = PropertiesUtil.getProperty("agile.log.package_uri",System.getProperty("webapp.root","")+"/logs/");
+
     private LoggerFactory() {}
     private static void createLogger(String baseName, String packagePath, Level... levels) {
         //创建输出格式
@@ -78,7 +79,7 @@ public class LoggerFactory {
                 policy = SizeBasedTriggeringPolicy.createPolicy(PropertiesUtil.getProperty(valueKey,"1M"));
             }
 
-            Appender appender = RollingFileAppender.newBuilder().withName(name).withFileName(String.format(path + "logs\\"+baseName+"\\%s.log", fileName)).withFilePattern(path + "logs/%d{yyyy-MM-dd}/"+baseName+"/"+fileName+".log")
+            Appender appender = RollingFileAppender.newBuilder().withName(name).withFileName(String.format(path+baseName+"/%s.log", fileName)).withFilePattern(path + "logs/%d{yyyy-MM-dd}/"+baseName+"/"+fileName+".log")
                     .withAppend(true)
                     .withLocking(false)
                     .withIgnoreExceptions(true)

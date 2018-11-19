@@ -19,7 +19,7 @@ public class SecurityUser extends SysUsersEntity implements UserDetails {
 
     private List<SysAuthoritiesEntity> sysAuthoritiesEntities;
 
-    SecurityUser(SysUsersEntity user, List<SysAuthoritiesEntity> sysAuthoritiesEntities) {
+    public SecurityUser(SysUsersEntity user, List<SysAuthoritiesEntity> sysAuthoritiesEntities) {
         if(user != null)
         {
             ObjectUtil.copyProperties(user,this);

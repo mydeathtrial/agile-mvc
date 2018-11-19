@@ -1,12 +1,16 @@
 package com.agile.common.mvc.controller;
 
 import com.agile.common.annotation.Mapping;
+import com.agile.common.annotation.Validate;
+import com.agile.common.annotation.Validates;
+import com.agile.common.validate.ValidateType;
 import com.agile.common.base.*;
 import com.agile.common.exception.NoSuchRequestMethodException;
 import com.agile.common.exception.NoSuchRequestServiceException;
 import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.util.*;
+import com.agile.common.validate.ValidateMsg;
 import com.agile.common.view.ForwardView;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +22,10 @@ import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -123,6 +131,13 @@ public class MainController {
         //处理入参
         handleInParam();
 
+        //入参验证
+        List<ValidateMsg> validateMsgs = handleInParamValidate();
+        if(validateMsgs !=null && validateMsgs.size()>0){
+            assert RETURN.PARAMETER_ERROR != null;
+            return getResponseFormatData(new Head(RETURN.PARAMETER_ERROR),validateMsgs.toArray());
+        }
+
         //调用目标方法
         Object returnData = getService().executeMethod(getService(),getMethod(),currentRequest,currentResponse);
 
@@ -137,17 +152,8 @@ public class MainController {
             return jump(Constant.RegularAbout.REDIRECT);
         }
 
-        ModelAndView modelAndView;
-        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
-        if(returnData instanceof RETURN && abstractResponseFormat!=null){
-            modelAndView = FactoryUtil.getBean(AbstractResponseFormat.class).buildResponse(new Head((RETURN)returnData),outParam);
-        }else{
-            modelAndView = new ModelAndView();
-            if(returnData instanceof RETURN){
-                modelAndView.addObject(Constant.ResponseAbout.HEAD, new Head((RETURN)returnData));
-            }
-            modelAndView.addAllObjects(outParam);
-        }
+        //获取格式化后的报文
+        ModelAndView modelAndView = getResponseFormatData(returnData instanceof RETURN ?new Head((RETURN) returnData):null,getService().getOutParam());
 
         //清理缓存
         clear();
@@ -155,6 +161,118 @@ public class MainController {
         return modelAndView;
     }
 
+    /**
+     * 格式化响应报文
+     * @param head 头信息
+     * @param result 体信息
+     * @return 格式化后的ModelAndView
+     */
+    private ModelAndView getResponseFormatData(Head head,Object result){
+        ModelAndView modelAndView;
+        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
+        if( abstractResponseFormat!=null){
+            modelAndView = abstractResponseFormat.buildResponse(head,result);
+        }else{
+            modelAndView = new ModelAndView();
+            if(head!=null)
+            modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
+            if(Map.class.isAssignableFrom(result.getClass())){
+                modelAndView.addAllObjects((Map)result);
+            }else{
+                modelAndView.addObject(Constant.ResponseAbout.RESULT,result);
+            }
+        }
+        return modelAndView;
+    }
+
+    /**
+     * 入参验证
+     * @return 验证信息集
+     */
+    private List<ValidateMsg> handleInParamValidate() throws InstantiationException, IllegalAccessException {
+        List<ValidateMsg> list = null;
+        Validates vs = getMethod().getAnnotation(Validates.class);
+        if(vs != null){
+            list = handleValidateAnnotation(vs);
+        }
+        Validate v = getMethod().getAnnotation(Validate.class);
+        if(v != null){
+            List<ValidateMsg> rs = handleValidateAnnotation(v);
+            if(rs!=null){
+                if(list!=null)
+                list.addAll(rs);
+                list = rs;
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 根据参数验证注解取验证信息集
+     * @param v Validate注解
+     * @return 验证信息集
+     */
+    private List<ValidateMsg> handleValidateAnnotation(Validate v) throws IllegalAccessException, InstantiationException {
+        if(v==null || v.value().equals(""))return null;
+        String key = v.value();
+        Object value = getService().getInParam().get(key);
+        List<ValidateMsg> list = null;
+
+        if(v.beanClass() != Class.class){
+            Object bean = getService().getInParam(key, v.beanClass());
+            if(bean==null){
+                bean = v.beanClass().newInstance();
+            }else{
+                getService().setInParam(key,bean);
+            }
+            ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+            Validator validator = validatorFactory.getValidator();
+            Set<ConstraintViolation<Object>> set = validator.validate(bean,v.validateGroups());
+            if(set != null && set.size()>0){
+                list = new ArrayList<>();
+            }else{
+                return null;
+            }
+            for (ConstraintViolation<Object> m:set) {
+                ValidateMsg r = new ValidateMsg(m.getMessage(),false,String.format("%s.%s",key,m.getPropertyPath()),m.getInvalidValue());
+                list.add(r);
+            }
+            return list;
+        }
+
+        ValidateType validateType = v.validateType();
+        if(value!= null && value.getClass().isArray()){
+            List<ValidateMsg> rs = validateType.validateArray(key, (String[]) value,v);
+            if(rs != null)
+            list = rs;
+        }else{
+            ValidateMsg r = validateType.validateParam(key,value,v);
+            if(r != null){
+                list = new ArrayList<>();
+                list.add(r);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 根据参数验证集注解取验证信息集
+     * @param vs Validates注解
+     * @return 验证信息集
+     */
+    private List<ValidateMsg> handleValidateAnnotation(Validates vs) throws InstantiationException, IllegalAccessException {
+        List<ValidateMsg> list = null;
+        for (Validate v:vs.value()) {
+            List<ValidateMsg> r = handleValidateAnnotation(v);
+            if(r != null){
+                if(list == null){
+                    list = new ArrayList<>();
+                }
+                list.addAll(r);
+            }
+        }
+        return list;
+    }
     /**
      * 由于线程池的使用与threadLocal冲突,前后需要清理缓存
      */
@@ -294,7 +412,12 @@ public class MainController {
         Map<String, String[]> parameterMap = currentRequest.getParameterMap();
         if (parameterMap.size()>0){
             for (Map.Entry<String,String[]> map:parameterMap.entrySet() ) {
-                inParam.put(map.getKey(),map.getValue());
+                String[] v = map.getValue();
+                if(v.length==1){
+                    inParam.put(map.getKey(),v[0]);
+                }else{
+                    inParam.put(map.getKey(),v);
+                }
             }
         }
 
@@ -328,6 +451,7 @@ public class MainController {
         //处理Mapping参数
         String uri = currentRequest.getRequestURI();
         String extension = UriUtils.extractFileExtension(uri);
+        if("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension))
         uri = uri.replaceAll("."+extension,"");
         HandlerMethod info = APIUtil.getApiCache(currentRequest);
 
@@ -342,7 +466,7 @@ public class MainController {
                     String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);
                     int i = 0;
                     for(String targetParam:targetParams){
-                        if(StringUtil.containMatchedString(Constant.RegularAbout.URL_PARAM, targetParam)){
+                        if(StringUtil.findMatchedString(Constant.RegularAbout.URL_PARAM, targetParam)){
                             String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM, targetParam, 0);
                             String value = uris[i];
                             inParam.put(key,value);

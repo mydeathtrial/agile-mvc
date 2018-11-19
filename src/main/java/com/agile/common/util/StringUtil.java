@@ -113,12 +113,24 @@ public final class StringUtil extends StringUtils {
     }
 
     /**
-     * 获取字符串中匹配正则表达式的部分
+     * 全部匹配
      * @param regex 正则表达式
      * @param text 正文
      * @return 匹配的字符串
      */
     public static boolean containMatchedString(String regex,String text){
+        Pattern pattern=Pattern.compile(regex,Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(text);
+        return matcher.matches();
+    }
+
+    /**
+     * 部分匹配
+     * @param regex 正则表达式
+     * @param text 正文
+     * @return 匹配的字符串
+     */
+    public static boolean findMatchedString(String regex,String text){
         Pattern pattern=Pattern.compile(regex,Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(text);
         return matcher.find();

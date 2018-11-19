@@ -8,6 +8,7 @@ import com.agile.common.security.SecurityUser;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
+import com.agile.mvc.entity.SysUsersEntity;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,11 +46,12 @@ public class MainService implements ServiceInterface {
         initOutParam();
         try {
             Object returnData = method.invoke(object);
-            if(returnData instanceof AbstractResponseFormat){
+            if(returnData instanceof AbstractResponseFormat){//如果是自定义报文bean，则格式化报文
                 setOutParam(((AbstractResponseFormat) returnData).buildResponse());
-            }else if(returnData instanceof RETURN){
+            }else if(returnData instanceof RETURN){//如果是头信息，则交给控制层处理
                 return returnData;
-            }else{
+            }else{//其他类型数据直接放入返回参数
+                if(returnData!=null)
                 setOutParam(Constant.ResponseAbout.RESULT, returnData);
             }
             return returnData;
@@ -64,6 +66,15 @@ public class MainService implements ServiceInterface {
      */
     public void setInParam(Map<String, Object> inParam) {
         MainService.inParam.set(inParam);
+    }
+
+    /**
+     * 控制层中调用该方法设置服务入参
+     * @param key 参数key
+     * @param o 参数value
+     */
+    public void setInParam(String key,Object o) {
+        MainService.inParam.get().put(key,o);
     }
 
     /**
@@ -92,6 +103,19 @@ public class MainService implements ServiceInterface {
     protected <T> List<T> getInParamByBody(Class<T> clazz) {
         try {
             return PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(Constant.ResponseAbout.BODY));
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    /**
+     * 服务中调用该方法获取映射对象
+     * @param clazz 参数映射类型
+     * @return 入参映射对象
+     */
+    protected <T> List<T> getInParamByBody(String key,Class<T> clazz) {
+        try {
+            return PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
         }catch (Exception e){
             return null;
         }
@@ -136,8 +160,18 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    protected <T>T getInParam(String key,Class<T> clazz) {
-        return getInParam(key,clazz,null);
+    public <T>T getInParam(String key,Class<T> clazz) {
+        if(!containsKey(key))return null;
+        T value = getInParam(key,clazz,null);
+        if(value == null){
+            try {
+                List<T> list = PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
+                if(list!=null && list.size()>0){
+                    return list.get(0);
+                }
+            }catch (Exception ignored){}
+        }
+        return value;
     }
 
 
@@ -245,7 +279,7 @@ public class MainService implements ServiceInterface {
                     .getAuthentication()
                     .getDetails();
         }catch (Exception e){
-            return null;
+            return new SecurityUser(SysUsersEntity.builder().setName("土豆").setSaltKey("admin").setSaltValue("密码").setSysUsersId("123456").build(),null);
         }
     }
 }

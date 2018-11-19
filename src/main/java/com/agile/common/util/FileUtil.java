@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
@@ -89,7 +90,7 @@ public class FileUtil extends FileUtils {
     public static String getFormat(MultipartFile file){
         try {
             InputStream in = file.getInputStream();
-            return getFormat(in,file.getName());
+            return getFormat(in,file.getOriginalFilename());
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -110,27 +111,27 @@ public class FileUtil extends FileUtils {
 
     private static String getFormat(InputStream inputStream,String fileName){
         try {
-            byte[] header = new byte[20];
-            inputStream.read(header);
-            String headerString = Objects.requireNonNull(StringUtil.coverToHex(header));
-            for(Map.Entry<String,Object> map:FILE_FORMAT_MAP.entrySet()){
-                if(headerString.contains(map.getKey())){
-                    Object value = map.getValue();
-                    String[] names = fileName.split("[.]");
-                    String suffix = names.length>1?ArrayUtil.getLast(names).toString().toUpperCase():null;
-                    if(ObjectUtil.isEmpty(value)){
-                        return suffix;
+            String extension = StringUtils.getFilenameExtension(fileName);
+            if(StringUtil.isEmpty(extension)){
+                byte[] header = new byte[20];
+                int i = inputStream.read(header);
+                if(i<=0)return null;
+                String headerHex = StringUtil.coverToHex(header);
+                if(StringUtil.isEmpty(headerHex))return null;
+                for(Map.Entry<String,Object> map:FILE_FORMAT_MAP.entrySet()){
+                    if(headerHex.contains(map.getKey())){
+                        Object value = map.getValue();
+                        if(value.getClass().isArray()){
+                            String[] values = (String[]) value;
+                            return ArrayUtil.toString(values);
+                        }
+                        return map.getValue().toString();
                     }
-                    if(value.getClass().isArray()){
-                        String[] values = (String[]) value;
-
-                        if(ArrayUtil.indexOf(values,suffix)>-1)return suffix.toUpperCase();
-                        return null;
-                    }
-                    return map.getValue().toString();
                 }
+                return null;
+            }else{
+                return extension;
             }
-            return null;
         }catch (Exception e){
             return null;
         }
