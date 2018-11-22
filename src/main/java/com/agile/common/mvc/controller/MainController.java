@@ -153,6 +153,11 @@ public class MainController {
         }
 
         //获取格式化后的报文
+        if(AbstractResponseFormat.class.isAssignableFrom(returnData.getClass())){
+            ModelAndView modelAndView = new ModelAndView();
+            modelAndView.addAllObjects((AbstractResponseFormat) returnData);
+            return modelAndView;
+        }
         ModelAndView modelAndView = getResponseFormatData(returnData instanceof RETURN ?new Head((RETURN) returnData):null,getService().getOutParam());
 
         //清理缓存
@@ -168,12 +173,11 @@ public class MainController {
      * @return 格式化后的ModelAndView
      */
     private ModelAndView getResponseFormatData(Head head,Object result){
-        ModelAndView modelAndView;
+        ModelAndView modelAndView = new ModelAndView();
         AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
-        if( abstractResponseFormat!=null){
+        if(abstractResponseFormat!=null){
             modelAndView = abstractResponseFormat.buildResponse(head,result);
         }else{
-            modelAndView = new ModelAndView();
             if(head!=null)
             modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
             if(Map.class.isAssignableFrom(result.getClass())){

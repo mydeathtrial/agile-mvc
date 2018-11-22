@@ -1,24 +1,28 @@
 package com.agile.common.mvc.model.dao;
 
 import com.agile.common.base.Constant;
-import com.agile.common.config.SpringConfig;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.*;
+import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcUtils;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,13 +48,6 @@ public class Dao {
     private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG,Level.ERROR);
     private static Map<String,Object> map = new HashMap<>();
 
-    public static void main(String[] args) {
-        AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-        ctx.register(SpringConfig.class);
-        ctx.refresh();
-        ctx.getBean("dao");
-        ctx.close();
-    }
     @PersistenceContext
     private EntityManager entityManager ;
 
@@ -136,9 +133,10 @@ public class Dao {
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
             T obj = iterator.next();
-            getRepository(obj.getClass()).saveAll(list);
+            List result = getRepository(obj.getClass()).saveAll(list);
+            if(result!=null)return result;
         }
-        return null;
+        return new ArrayList<>();
     }
 
     /**
@@ -345,7 +343,27 @@ public class Dao {
      * @param parameters Map格式参数集合
      * @return 生成的sql结果
      */
-    public String parserSQL(String sql,Map<String,Object> parameters){
+    public static String parserCountSQL(String sql,Map<String,Object> parameters){
+        sql = parserSQL( sql, parameters);
+        // 新建 MySQL Parser
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
+        // 使用Parser解析生成AST，这里SQLStatement就是AST
+        SQLStatement statement = parser.parseStatement();
+        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
+        List<SQLSelectItem> items = sqlSelectQueryBlock.getSelectList();
+        items.removeAll(items);
+        items.add(new SQLSelectItem(SQLUtils.toSQLExpr("count(1)")));
+        return sqlSelectQueryBlock.toString();
+    }
+
+    /**
+     * 根据给定参数动态生成sql语句
+     * @param sql 原sql模板
+     * @param parameters Map格式参数集合
+     * @return 生成的sql结果
+     */
+    public static String parserSQL(String sql,Map<String,Object> parameters){
+        if(!sql.contains("{"))return sql;
         sql = sql.replaceAll("\\{","\\'{").replaceAll("}","\\}'");
 
         // 新建 MySQL Parser
@@ -360,18 +378,29 @@ public class Dao {
 
         SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
 
-        List<SQLObject> conditions = sqlSelectQueryBlock.getWhere().getChildren();
+        SQLExpr where = sqlSelectQueryBlock.getWhere();
+        if(where == null)return sql;
+        List<SQLObject> conditions = where.getChildren();
         for (SQLObject c:conditions) {
-            sqlSelectQueryBlock.removeCondition(c.toString());
-            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,((SQLBinaryOpExpr) c).getRight().toString(),0);
-            if(parameters.get(key)!=null){
-                String format = c.toString().replace(String.format("{%s}", key), "%s");
-                sqlSelectQueryBlock.addCondition(String.format(format,parameters.get(key)));
+            List<SQLExpr> items = SQLBinaryOpExpr.split((SQLBinaryOpExpr) c);
+            for (SQLExpr item:items) {
+                String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);
+                if(key!=null){
+                    Object value = parameters.get(key);
+                    if(parameters.get(key) == null || StringUtil.isEmpty(String.valueOf(value))){
+                        SQLUtils.replaceInParent(item,null);
+                    }else{
+                        String format = item.toString().replace(String.format("{%s}", key), "{%s}");
+                        SQLUtils.replaceInParent(item,SQLUtils.toSQLExpr(format.replaceAll("\\{%s\\}",parameters.get(key).toString())));
+                    }
+                }
             }
         }
+
         System.out.println(sqlSelectQueryBlock.toString());
         return sqlSelectQueryBlock.toString();
     }
+
     /**
      * 查询列表
      * @param sql sql
@@ -400,7 +429,9 @@ public class Dao {
      * 按照例子查询多条
      */
     public <T> List findAll(T object) throws NoSuchIDException {
-        return findAll(object,Sort.unsorted());
+        List result = findAll(object, Sort.unsorted());
+        if(result!=null)return result;
+        return new ArrayList();
     }
 
     /**
@@ -408,7 +439,9 @@ public class Dao {
      */
     public <T> List findAll(T object, Sort sort) throws NoSuchIDException {
         Example<T> example = Example.of(object);
-        return this.getRepository(object.getClass()).findAll(example,sort);
+        List result = this.getRepository(object.getClass()).findAll(example,sort);
+        if(result!=null)return result;
+        return new ArrayList();
     }
 
     /**
@@ -438,28 +471,36 @@ public class Dao {
             Query query = creatClassQuery(sql,clazz,parameters);
             List list = query.getResultList();
             if(list == null || list.size()==0 || list.get(0)==null)return null;
-            return query.getResultList();
+            List result = query.getResultList();
+            if(result!=null)return result;
         }catch (NoSuchIDException e){
             List<Map<String, Object>> list = findAllBySQL(sql, parameters);
             if(list!=null && list.size()>0){
                 List<T> result = new LinkedList<>();
                 if(ClassUtil.isCustomClass(clazz)){
                     for (Map<String, Object> entity:list){
-                        result.add(ObjectUtil.cast(clazz,ArrayUtil.getLast(entity.values().toArray())));
+                        T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));
+                        if(node!=null)
+                        result.add(node);
                     }
                 }else{
                     for (Map<String, Object> entity:list){
-                        result.add(ObjectUtil.getObjectFromMap(clazz,entity));
+                        T node = ObjectUtil.getObjectFromMap(clazz,entity);
+                        if(node!=null){
+                            result.add(node);
+                        }
                     }
                 }
                 return result;
             }
         }
-        return null;
+        return new ArrayList<>();
     }
 
     public <T>List<T> findAll(String sql, Class<T> clazz,Map<String,Object> parameters){
-        return findAll(parserSQL(sql,parameters),clazz);
+        List result = findAll(parserSQL(sql,parameters),clazz);
+        if(result!=null)return result;
+        return new ArrayList<>();
     }
 
     /**
@@ -473,32 +514,47 @@ public class Dao {
             return null;
         }
         PageImpl pageDate = null;
-        Sort sort = null;
         PageRequest pageable;
 
         //sql格式化
         sql = sql.trim().replaceAll("[\t\r\n\\s]"," ");
 
-        //取排序
-        String[] orders = StringUtil.getMatchedString("(order by)(\\s)([\\S]+)(\\s)?(desc|asc)?",sql.toLowerCase());
-        if(!ObjectUtil.isEmpty(orders)){
-            String order = ArrayUtil.getLast(orders).toString();
-            String[] sortMsg = StringUtil.getGroupString("(order by)(\\s)([\\S]+)(\\s)?(desc|asc)?", order);
-            if(!ObjectUtil.isEmpty(sortMsg) && sortMsg.length>2){
-                Sort.Direction direction;
-                if(sortMsg.length>4 && !StringUtil.isEmpty(sortMsg[4])){
-                    if ("desc".equals(sortMsg[4])) {
-                        direction = Sort.Direction.DESC;
-                    } else {
-                        direction = Sort.Direction.ASC;
+        // 新建 MySQL Parser
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
+        // 使用Parser解析生成AST，这里SQLStatement就是AST
+        SQLStatement statement = parser.parseStatement();
+        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
+
+        List<Sort.Order> orderList = null;
+        SQLOrderBy orderBy = sqlSelectQueryBlock.getOrderBy();
+        if(orderBy!=null){
+            List<SQLSelectOrderByItem> items = orderBy.getItems();
+            if(items!=null){
+                orderList = new ArrayList<>();
+                for (SQLSelectOrderByItem item:items) {
+                    String column = item.getExpr().toString();
+                    if(item.getType() == null){
+                        orderList.add(Sort.Order.by(column));
+                    }else{
+                        Sort.Direction des = Sort.Direction.fromString(item.getType().name_lcase);
+                        switch (des){
+                            case ASC:
+                                orderList.add(Sort.Order.asc(column));
+                                break;
+                            case DESC:
+                                orderList.add(Sort.Order.desc(column));
+                                break;
+                        }
                     }
-                }else {
-                    direction = Sort.Direction.ASC;
                 }
-                sort = new Sort(direction,sortMsg[2].replaceAll("[\\s`]",""));
             }
         }
-        pageable = PageRequest.of(page,size,sort);
+
+        if(orderList!=null && orderList.size()>0){
+            pageable = PageRequest.of(page,size,Sort.by(orderList));
+        }else{
+            pageable = PageRequest.of(page,size,Sort.unsorted());
+        }
 
         Query countQuery = creatQuery(countSql,parameters);
         int count = Integer.parseInt(countQuery.getSingleResult().toString());
@@ -518,6 +574,10 @@ public class Dao {
 
     public Page findPageBySQL(String sql, String countSql,int page, int size, Map<String,Object> parameters){
         return findPageBySQL(parserSQL(sql,parameters),parserSQL(countSql,parameters),page,size);
+    }
+
+    public Page findPageBySQL(String sql,int page, int size, Map<String,Object> parameters){
+        return findPageBySQL(parserSQL(sql,parameters),parserCountSQL(sql,parameters),page,size);
     }
 
     private Query creatQuery(String sql, Object... parameters){
@@ -544,11 +604,15 @@ public class Dao {
     public List<Map<String,Object>> findAllBySQL(String sql,Object... parameters){
         Query query = creatQuery(sql,parameters);
         ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        return query.getResultList();
+        List result = query.getResultList();
+        if(result!=null)return result;
+        return new ArrayList<>();
     }
 
     public List<Map<String,Object>> findAllBySQL(String sql,Map<String,Object> parameters){
-        return findAllBySQL(parserSQL(sql,parameters));
+        List result = findAllBySQL(parserSQL(sql,parameters));
+        if(result!=null)return result;
+        return new ArrayList<>();
     }
 
     /**
@@ -583,7 +647,9 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T,ID>List<T> findAllById(Class<T> tableClass,Iterable<ID> ids) throws NoSuchIDException {
-        return getRepository(tableClass).findAllById(ids);
+        List result = getRepository(tableClass).findAllById(ids);
+        if(result!=null)return result;
+        return new ArrayList<>();
     }
 
     /**
@@ -591,7 +657,9 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T,ID>List<T> findAllByArrayId(Class<T> tableClass,ID... ids) throws NoSuchIDException {
-        return getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
+        List result = getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
+        if(result!=null)return result;
+        return new ArrayList<>();
     }
 
     /**
@@ -607,7 +675,9 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T>List<T> findAll(Class<T> tableClass) throws NoSuchIDException {
-        return getRepository(tableClass).findAll();
+        List result = getRepository(tableClass).findAll();
+        if(result!=null)return result;
+        return new ArrayList<>();
     }
 
     /**

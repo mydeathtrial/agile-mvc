@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.jolokia.http.AgentServlet;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -21,34 +22,17 @@ import org.springframework.web.util.IntrospectorCleanupListener;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
+import java.lang.reflect.Field;
 
 /**
  * Created by 佟盟 on 2017/9/27
  */
 public class WebInitializer implements WebApplicationInitializer,ServletContextInitializer {
 
-    private static final String[] BANNER = { "",
-            "   __ _ _    __         _ _          __ _ _",
-            "  / / / /   /  \\   __ _(_) |   ____  \\ \\ \\ \\",
-            " / / / /   / /\\ \\ / _` | | |  ' __ '  \\ \\ \\ \\",
-            "( ( ( (   / ____ \\ (_| | | |_' ____ '  ) ) ) )",
-            " \\ \\ \\ \\ / /    \\ \\__, |_|___|'____|  / / / /",
-            "  \\_\\_\\_\\=========|___/==============/_/_/_/" };
-
-    private static final String AGILE = String.format(" :: 敏捷开发框架 Agile Framework :: version:%s",PropertiesUtil.getProperty("agile.version"));
-
-    private void printBanner() {
-        for (String line : BANNER) {
-            PrintUtil.writeln(line,PrintUtil.CYAN);
-        }
-
-        PrintUtil.writeln("\n" + AGILE + "\n",PrintUtil.CYAN);
-    }
-
     @Override
     public void onStartup(ServletContext servletContext) {
 
-        printBanner();
+        new AgileBanner().printBanner(null,null,System.out);
 
         System.setProperty("webapp.root",servletContext.getRealPath("/"));
 

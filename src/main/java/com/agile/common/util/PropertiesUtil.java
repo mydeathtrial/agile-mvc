@@ -70,24 +70,32 @@ public class PropertiesUtil {
     }
 
     static {
+        mergeEnv();
         readDir("/");
         readDir(classPath);
-        merge(classPath + "agile.properties");
-        merge(classPath + "agile.yml");
-        merge("agile.properties");
-        merge("agile.yml");
-        merge(classPath + "application.properties");
-        merge(classPath + "application.yml");
-        merge("application.properties");
-        merge("application.yml");
-        merge(classPath + "bootstrap.properties");
-        merge(classPath + "bootstrap.yml");
-        merge("bootstrap.properties");
-        merge("bootstrap.yml");
-        merge(classPath + "agile-reset.properties");
-        merge(classPath + "agile-reset.yml");
-        merge("agile-reset.properties");
-        merge("agile-reset.yml");
+        mergeOrder("agile");
+        mergeOrder("application");
+        mergeOrder("bootstrap");
+        mergeOrder("agile-reset");
+        coverEL();
+    }
+
+    private static void coverEL(){
+        for (Map.Entry<Object,Object> v:properties.entrySet()) {
+            if(StringUtil.isString(v.getValue())){
+                properties.setProperty(String.valueOf(v.getKey()),StringUtil.parse("${env.","}",String.valueOf(v.getValue()),PropertiesUtil.properties));
+                properties.setProperty(String.valueOf(v.getKey()),StringUtil.parse("${","}",String.valueOf(v.getValue()),PropertiesUtil.properties));
+            }
+        }
+    }
+    private static void mergeEnv(){
+        merge(System.getProperties());
+        merge(System.getenv());
+    }
+    private static void mergeOrder(String fileName){
+        merge(classPath + fileName + ".properties");
+        merge(classPath + fileName + ".yml");
+        merge(fileName + ".properties");
     }
 
     public static void merge(String fileName){
@@ -118,6 +126,14 @@ public class PropertiesUtil {
 
     public static void merge(Properties p){
         for (Map.Entry<Object, Object> entry: p.entrySet()) {
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            properties.setProperty(key.toString(), value.toString());
+        }
+    }
+
+    public static void merge(Map<String,String> p){
+        for (Map.Entry<String, String> entry: p.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
             properties.setProperty(key.toString(), value.toString());
