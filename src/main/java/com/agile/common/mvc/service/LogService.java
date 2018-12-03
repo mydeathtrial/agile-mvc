@@ -1,9 +1,11 @@
 package com.agile.common.mvc.service;
 
 import com.agile.common.util.ObjectUtil;
+import com.agile.mvc.entity.LogMainEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.persistence.Table;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -15,17 +17,18 @@ import java.util.Map;
  * Created by mydeathtrial on 2017/3/21
  */
 public class LogService {
-    public static void createLog(String type, Object oldObject, Object newObject, String targetType, String targetCode){
+    public static void createLog(String businessCode, Object oldObject, Object newObject, String targetType, String targetCode){
         try {
-            if (((ObjectUtil.compareClass(oldObject, newObject) && !ObjectUtil.compareValue(oldObject, newObject)) || ObjectUtil.isEmpty(oldObject)) != ObjectUtil.isEmpty(newObject)){
+            if ((ObjectUtil.compareClass(oldObject, newObject) && !ObjectUtil.compareValue(oldObject, newObject) || ObjectUtil.isEmpty(oldObject)) != ObjectUtil.isEmpty(newObject) && oldObject.getClass().getAnnotation(Table.class)!=null){
 
                 HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
                 Thread thread = Thread.currentThread();
                 Object logId = request.getAttribute(String.valueOf(thread.getId()));
                 if(ObjectUtil.isEmpty(logId)){
-//                    TSysLogEntity logEntity = new TSysLogEntity();
-//                    logEntity.setBusinessCode("ZYSM02");
-//                    logEntity.setObjectType(targetType);
+//                    LogMainEntity logEntity = new LogMainEntity();
+//                    logEntity.setBusinessCode(businessCode);
+//
+//                    logEntity.(targetType);
 //                    logEntity.setObjectCode(targetCode);
 //                    logEntity.setStaffId(1);
 //                    logEntity.setCreateTime(new Timestamp(System.currentTimeMillis()));

@@ -35,11 +35,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUsersEntity user = null;
-        try {
-            user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
-        } catch (NoSuchIDException e) {
-            e.printStackTrace();
-        }
+        user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
         if(ObjectUtil.isEmpty(user))throw new UsernameNotFoundException(null);
         String sql = "SELECT\n" +
                 "\tsys_authorities.SYS_AUTHORITY_ID,\n" +

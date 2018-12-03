@@ -1,7 +1,6 @@
 package com.agile.common.properties;
 
 import com.agile.common.annotation.Properties;
-import org.springframework.stereotype.Component;
 
 /**
  * Created by 佟盟 on 2018/1/11

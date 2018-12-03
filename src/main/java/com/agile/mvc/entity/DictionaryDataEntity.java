@@ -4,6 +4,8 @@ import com.agile.common.annotation.Remark;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
+
+import io.swagger.annotations.ApiModel;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
@@ -13,6 +15,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "dictionary_data",  catalog = "agile_db")
 @Remark("[系统管理]字典数据表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+//@ApiModel
 public class DictionaryDataEntity implements Serializable,Cloneable {
 
     //序列

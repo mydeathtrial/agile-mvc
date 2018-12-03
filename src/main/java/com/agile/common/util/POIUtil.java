@@ -130,7 +130,7 @@ public class POIUtil {
             String currentCellData = null;
             if(rowData instanceof Map){
                 currentCellData = ObjectUtil.cast(String.class,((Map) rowData).get(cell.getKey()));
-            }else if(rowData instanceof java.util.List){
+            }else if(rowData instanceof List){
                 Object o = ((List) rowData).get(currentColumnIndex);
                 if(o instanceof Cell){
                     currentCellData = ((Cell) o).getShowName();

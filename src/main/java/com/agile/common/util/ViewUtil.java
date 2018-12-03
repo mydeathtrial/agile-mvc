@@ -99,7 +99,7 @@ public class ViewUtil {
         viewUtil.viewResolvers = null;
         Map<String, ViewResolver> matchingBeans = BeanFactoryUtils.beansOfTypeIncludingAncestors(context, ViewResolver.class, true, false);
         if (!matchingBeans.isEmpty()) {
-            viewUtil.viewResolvers = new ArrayList(matchingBeans.values());
+            viewUtil.viewResolvers = new LinkedList<>(matchingBeans.values());
             AnnotationAwareOrderComparator.sort(viewUtil.viewResolvers);
         }
 

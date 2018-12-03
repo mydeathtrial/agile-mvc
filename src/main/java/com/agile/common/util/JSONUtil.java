@@ -5,9 +5,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-
 /**
  * Created by mydeathtrial on 2017/5/9
  */
@@ -40,4 +37,28 @@ public class JSONUtil{
         return JSONObject.fromObject(object);
     }
 
+    /**
+     * JSONObject转java对象
+     */
+    public static <T>T toBean(Class<T> clazz,JSONObject json){
+        T o = toBeanByNetSf(clazz, json);
+        if(o == null){
+            o = toBeanByAli(clazz, json);
+        }
+        return o;
+    }
+
+    public static <T>T toBeanByNetSf(Class<T> clazz,JSONObject json){
+        try {
+            return (T) JSONObject.toBean(json, clazz, PropertiesUtil.getClassMap(clazz));
+        }catch (Exception ignored){}
+        return null;
+    }
+
+    public static <T>T toBeanByAli(Class<T> clazz,JSONObject json){
+        try {
+            return com.alibaba.fastjson.JSONObject.toJavaObject(com.alibaba.fastjson.JSONObject.parseObject(json.toString()), clazz);
+        }catch (Exception ignored){}
+        return null;
+    }
 }

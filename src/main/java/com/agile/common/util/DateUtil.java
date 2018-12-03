@@ -379,9 +379,9 @@ public class DateUtil extends DateUtils {
         cal1.setTime(date1);
         Calendar cal2 = Calendar.getInstance();
         cal2.setTime(date2);
-        return (cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
+        return cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
                 && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1
-                .get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR));
+                .get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
     }
 
     /**
@@ -441,7 +441,7 @@ public class DateUtil extends DateUtils {
      *
      * @param targetYmd Date类型日期target
      * @param baseYmd   Date类型日期base
-     * @return 比较结果（0：相同，>0：base日期小于target日期，<0：base日期大于target日期）
+     * @return 比较结果（0：相同，&gt;0：base日期小于target日期，&lt;0：base日期大于target日期）
      */
     public static int compareDate(Date targetYmd, Date baseYmd) {
         return targetYmd.compareTo(baseYmd);
@@ -593,10 +593,7 @@ public class DateUtil extends DateUtils {
         long hh = (endTime - startTime) / 1000 / 60 / 60;
         //获取天
         long dd = (endTime - startTime) / 1000 / 60 / 60 / 24;
-        //获取月
-        long MM = endDate.get(Calendar.MONTH) - startDate.get(Calendar.MONTH);
-        //获取年
-        long yy = endDate.get(Calendar.YEAR) - startDate.get(Calendar.YEAR);
+
         if (min <= 120) {
             return min + ":" + "m";
         } else if (hh <= 48) {
@@ -614,6 +611,6 @@ public class DateUtil extends DateUtils {
      */
     public static String getTimeScale(long startTime, long endTime) {
         long t1 = endTime - startTime;
-        return t1 <= 60 * 1000 * 60 * 2 ? "m" : (t1 <= 60 * 1000 * 60 * 48 ? "h" : "d");
+        return t1 <= 60 * 1000 * 60 * 2 ? "m" : t1 <= 60 * 1000 * 60 * 48 ? "h" : "d";
     }
 }

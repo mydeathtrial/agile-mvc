@@ -5,11 +5,11 @@ package com.agile.common.properties;
  */
 public class DruidConfigProperty {
     private String type = "MYSQL";
-    private String dataBaseName = "agile_db";
-    private String dataBaseIp = "127.0.0.1";
+    private String dataBaseName;
+    private String dataBaseIp;
     private String dataBasePort = "3306";
     private String dataBaseUsername = "root";
-    private String dataBasePassword = "123456";
+    private String dataBasePassword;
     private String dataBaseUrlParam = "serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL";
     private int initSize = 1;
     private int minIdle = 1;

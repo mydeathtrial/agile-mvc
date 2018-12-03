@@ -5,9 +5,7 @@ import com.agile.common.base.RETURN;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.PropertiesUtil;
+import com.agile.common.util.*;
 import com.agile.mvc.entity.SysUsersEntity;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +24,7 @@ import java.util.Map;
 public class MainService implements ServiceInterface {
 
     @Autowired
-    public Dao dao;
+    protected Dao dao;
 
     //输入
     private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
@@ -92,33 +89,15 @@ public class MainService implements ServiceInterface {
      * @return 入参映射对象
      */
     protected <T>T getInParam(Class<T> clazz) {
-        return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
-    }
-
-    /**
-     * 服务中调用该方法获取映射对象
-     * @param clazz 参数映射类型
-     * @return 入参映射对象
-     */
-    protected <T> List<T> getInParamByBody(Class<T> clazz) {
-        try {
-            return PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(Constant.ResponseAbout.BODY));
-        }catch (Exception e){
-            return null;
+        T o = null;
+        Object json = getInParam(Constant.ResponseAbout.BODY);
+        if(json != null){
+            o = JSONUtil.toBean(clazz, (JSONObject) json);
         }
-    }
-
-    /**
-     * 服务中调用该方法获取映射对象
-     * @param clazz 参数映射类型
-     * @return 入参映射对象
-     */
-    protected <T> List<T> getInParamByBody(String key,Class<T> clazz) {
-        try {
-            return PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
-        }catch (Exception e){
-            return null;
+        if(o == null){
+            o = ObjectUtil.getObjectFromMap(clazz, this.getInParam());
         }
+        return o;
     }
 
     /**
@@ -162,15 +141,18 @@ public class MainService implements ServiceInterface {
      */
     public <T>T getInParam(String key,Class<T> clazz) {
         if(!containsKey(key))return null;
-        T value = getInParam(key,clazz,null);
-        if(value == null){
-            try {
-                List<T> list = PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
-                if(list!=null && list.size()>0){
-                    return list.get(0);
-                }
-            }catch (Exception ignored){}
+        Object v = getInParam(key);
+        T value;
+        if(v instanceof JSONObject){
+            value = PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
+        }else{
+            if(ClassUtil.isCustomClass(clazz)){
+                value = getInParam(key,clazz,null);
+            }else{
+                value = ObjectUtil.cast(clazz,v);
+            }
         }
+
         return value;
     }
 

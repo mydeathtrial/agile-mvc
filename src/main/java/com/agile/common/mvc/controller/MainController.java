@@ -19,7 +19,6 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.util.UriUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
@@ -47,15 +46,11 @@ public class MainController {
 
     /**
      * 非法请求处理器
+     * @throws UnlawfulRequestException 非法路径请求
      */
     @RequestMapping(value = {"/","/*","/*/*/*/**"})
     public void processor() throws UnlawfulRequestException {
         throw new UnlawfulRequestException();
-    }
-
-    @RequestMapping(value = {"/swaggerInfo"})
-    public Object getSwaggerInfo(){
-        return APIUtil.getApi();
     }
 
     @RequestMapping(value = {"/{resource}"},method = RequestMethod.GET)
@@ -106,9 +101,12 @@ public class MainController {
      * agile框架处理器
      * @param service 服务名
      * @param method 方法名
+     * @param currentRequest request信息
+     * @param currentResponse response信息
+     * @throws Throwable 所有异常
      * @return 响应试图数据
      */
-    @RequestMapping(value = {"/api/{service}/{method}","/api/{service}/{method}/**"})
+    @RequestMapping(value = {"/api/{service}/{method}","/api/{service}/{method}/**","/{service}/{method}"})
     public Object processor(
             HttpServletRequest currentRequest,
             HttpServletResponse currentResponse,
@@ -153,7 +151,7 @@ public class MainController {
         }
 
         //获取格式化后的报文
-        if(AbstractResponseFormat.class.isAssignableFrom(returnData.getClass())){
+        if(returnData instanceof AbstractResponseFormat){
             ModelAndView modelAndView = new ModelAndView();
             modelAndView.addAllObjects((AbstractResponseFormat) returnData);
             return modelAndView;
@@ -192,6 +190,8 @@ public class MainController {
     /**
      * 入参验证
      * @return 验证信息集
+     * @throws InstantiationException 异常
+     * @throws IllegalAccessException 异常
      */
     private List<ValidateMsg> handleInParamValidate() throws InstantiationException, IllegalAccessException {
         List<ValidateMsg> list = null;
@@ -215,6 +215,8 @@ public class MainController {
      * 根据参数验证注解取验证信息集
      * @param v Validate注解
      * @return 验证信息集
+     * @throws IllegalAccessException 异常
+     * @throws InstantiationException 异常
      */
     private List<ValidateMsg> handleValidateAnnotation(Validate v) throws IllegalAccessException, InstantiationException {
         if(v==null || v.value().equals(""))return null;
@@ -263,6 +265,8 @@ public class MainController {
      * 根据参数验证集注解取验证信息集
      * @param vs Validates注解
      * @return 验证信息集
+     * @throws InstantiationException 异常
+     * @throws IllegalAccessException 异常
      */
     private List<ValidateMsg> handleValidateAnnotation(Validates vs) throws InstantiationException, IllegalAccessException {
         List<ValidateMsg> list = null;
@@ -288,6 +292,7 @@ public class MainController {
     /**
      * 转发
      * @param jumpMethod 跳转方式
+     * @return 视图
      */
     private ModelAndView jump(String jumpMethod){
         Map<String, Object> outParam = getService().getOutParam();
@@ -353,6 +358,7 @@ public class MainController {
 
     /**
      * 根据服务名在Spring上下文中获取服务bean
+     * @param o 对象
      */
     private void initServiceByObject(Object o)throws NoSuchRequestServiceException {
         try {
@@ -380,6 +386,7 @@ public class MainController {
 
     /**
      * 根据服务名在Spring上下文中获取服务bean
+     * @param o 方法
      */
     private void initMethodByObject(Method o) {
         method.set(o);
@@ -393,10 +400,8 @@ public class MainController {
         try {
             Method methodCache = getService().getClass().getMethod(methodName);
             Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
-            if(requestMapping!=null){
-                if(!includeMethod(requestMapping,RequestMethod.valueOf(request.get().getMethod()))){
-                    throw new NoSuchRequestMethodException();
-                }
+            if(requestMapping!=null && !includeMethod(requestMapping,RequestMethod.valueOf(request.get().getMethod()))){
+                throw new NoSuchRequestMethodException();
             }
             methodCache.setAccessible(true);
             method.set(methodCache);

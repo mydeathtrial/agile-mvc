@@ -164,7 +164,7 @@ public class FileUtil extends FileUtils {
     /**
      * 检验文件格式
      */
-    private static boolean checkFileFormat(File file){
+    public static boolean checkFileFormat(File file){
         String format = PropertiesUtil.getProperty("agile.upload.include_format");
         if(format.isEmpty())return true;
         String[] formats = format.split(Constant.RegularAbout.COMMA, -1);

@@ -12,6 +12,7 @@ public final class RETURN {
     public final static RETURN EXPRESSION = getMessage("agile.response.expression");
     public final static RETURN UNKNOWN_STATE = getMessage("agile.response.unknown_state");
     public final static RETURN PARAMETER_ERROR = getMessage("agile.response.param_error");
+    public final static RETURN XML_SERIALIZER_ERROR = getMessage("agile.response.xml_serializer_error");
 
     //响应状态码
     private String code;

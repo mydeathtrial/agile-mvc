@@ -1,5 +1,7 @@
 package com.agile.common.view;
 
+import com.agile.common.base.Head;
+import com.agile.common.base.RETURN;
 import com.agile.common.base.poi.ExcelFile;
 import com.agile.common.util.FileUtil;
 import com.agile.common.util.JSONUtil;
@@ -44,7 +46,8 @@ public class XmlView extends AbstractView {
         try {
             xml = xmlSerializer.write(JSONUtil.toJSON(model));
         }catch (Exception e){
-            xml = xmlSerializer.write(JSONUtil.toJSON("{\"error\":\"内容包含特殊字符，无法完成xml序列化，请尝试json序列化\"}"));
+            assert RETURN.XML_SERIALIZER_ERROR != null;
+            xml = xmlSerializer.write(JSONUtil.toJSON(new Head(RETURN.XML_SERIALIZER_ERROR)));
         }
         byteArrayOutputStream.write(xml.getBytes(response.getCharacterEncoding()));
         this.setResponseContentType(request, response);

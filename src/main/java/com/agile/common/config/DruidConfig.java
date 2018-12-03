@@ -17,8 +17,7 @@ public class DruidConfig {
 
     private DruidConfigProperty druidConfigProperty;
 
-    @PostConstruct
-    private void init(){
+    public DruidConfig() {
         this.druidConfigProperty = DBConfigProperties.getDruid().get(index);
     }
 

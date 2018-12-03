@@ -5,8 +5,6 @@ import com.agile.common.util.*;
 import freemarker.template.TemplateException;
 
 import java.io.IOException;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -158,6 +156,8 @@ public class AgileGenerator {
     /**
      * 生成文件
      * @param data 数据源
+     * @throws IOException IO异常
+     * @throws  TemplateException 模板异常
      */
     private static void generateAllFile(Map<String, Object> data) throws IOException, TemplateException {
 

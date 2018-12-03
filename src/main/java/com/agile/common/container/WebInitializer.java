@@ -1,10 +1,11 @@
 package com.agile.common.container;
 
+import com.agile.common.config.ConfigProcessor;
 import com.agile.common.config.LoggerFactoryConfig;
+import com.agile.common.filter.CORSFilter;
 import com.agile.common.kaptcha.KaptchaServlet;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.PrintUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
@@ -12,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.jolokia.http.AgentServlet;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -22,7 +22,6 @@ import org.springframework.web.util.IntrospectorCleanupListener;
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
-import java.lang.reflect.Field;
 
 /**
  * Created by 佟盟 on 2017/9/27
@@ -73,6 +72,19 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         druidWebStatFilter.addMappingForUrlPatterns(null, false, "/*");
 
         /*
+          CORS过滤器
+         */
+        if(logger.isDebugEnabled()){
+            logger.debug("初始化CORS过滤器");
+        }
+        FilterRegistration.Dynamic corsFilter = servletContext.addFilter("CORSFilter", CORSFilter.class);
+        corsFilter.setInitParameter("allowOrigin",PropertiesUtil.getProperty("agile.servlet.allow_origin"));
+        corsFilter.setInitParameter("allowMethods",PropertiesUtil.getProperty("agile.servlet.allow_methods"));
+        corsFilter.setInitParameter("allowCredentials",PropertiesUtil.getProperty("agile.servlet.allow_credentials"));
+        corsFilter.setInitParameter("allowHeaders",PropertiesUtil.getProperty("agile.servlet.allow_headers"));
+        corsFilter.addMappingForUrlPatterns(null, false, "/*");
+
+        /*
           Security过滤器
          */
         if(Boolean.valueOf(PropertiesUtil.getProperty("agile.security.enable"))){
@@ -111,23 +123,25 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         /*
           SpringDispatcherServlet
          */
+        ServletRegistration springDispatcherServlet;
         if(servletContext.getServletRegistrations().containsKey("dispatcherServlet")){
             if(logger.isDebugEnabled()){
-                logger.debug("当前环境识别为spring boot启动，自定义spring容器禁用");
+                logger.debug("当前环境识别为spring boot启动");
             }
+            springDispatcherServlet = servletContext.getServletRegistrations().get("dispatcherServlet");
         }else{
             if(logger.isDebugEnabled()){
                 logger.debug("初始化SpringDispatcherServlet");
             }
-            ServletRegistration.Dynamic springDispatcherServlet = servletContext.addServlet("SpringDispatcherServlet", DispatcherServlet.class);
-            springDispatcherServlet.setInitParameter("contextClass","org.springframework.web.context.support.AnnotationConfigWebApplicationContext");
-            springDispatcherServlet.setInitParameter("contextConfigLocation","com.agile.common.config.SpringConfig");
-            springDispatcherServlet.setInitParameter("dispatchOptionsRequest","true");
-            springDispatcherServlet.setLoadOnStartup(1);
-            springDispatcherServlet.addMapping("/*");
+            springDispatcherServlet = servletContext.addServlet("SpringDispatcherServlet", DispatcherServlet.class);
         }
+        springDispatcherServlet.setInitParameter("contextClass","org.springframework.web.context.support.AnnotationConfigWebApplicationContext");
+//        springDispatcherServlet.setInitParameter("contextConfigLocation", ConfigProcessor.contextConfigLocation());
+        springDispatcherServlet.setInitParameter("contextConfigLocation", "com.agile.common.config.SpringConfig");
+        springDispatcherServlet.setInitParameter("dispatchOptionsRequest","true");
+        springDispatcherServlet.addMapping("/*");
 
-        javax.servlet.ServletRegistration.Dynamic jolokiaAgent = servletContext.addServlet("jolokia-agent", AgentServlet.class);
+        ServletRegistration.Dynamic jolokiaAgent = servletContext.addServlet("jolokia-agent", AgentServlet.class);
         jolokiaAgent.addMapping("/jolokia/*");
 
         /*

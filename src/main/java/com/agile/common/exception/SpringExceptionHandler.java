@@ -72,7 +72,7 @@ public class SpringExceptionHandler {
         String msgStr = String.format("【异常定位:[类:%s]调用[方法:%s]时在第%s行代码处发生错误!】",exclass,method,lineNumber);
 
         if(!StringUtil.isEmpty(e.getMessage())){
-            msgStr+=(String.format(" | 【详情:%s】", e.getMessage()));
+            msgStr += String.format(" | 【详情:%s】", e.getMessage());
         }
         logger.error(msgStr);
         return msgStr;

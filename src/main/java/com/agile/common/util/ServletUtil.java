@@ -61,7 +61,6 @@ public class ServletUtil {
     /**
      * 获取Linux下的IP地址
      * @return IP地址
-     * @throws SocketException 套接字异常
      */
     private static String getLinuxLocalIp() {
         String ip = "";

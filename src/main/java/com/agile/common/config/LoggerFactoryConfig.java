@@ -17,9 +17,13 @@ import java.net.URI;
 /**
  * Created by 佟盟 on 2017/11/2
  */
-@Order(0)
+@Order(1)
 @Plugin(name = "LoggerFactoryConfig", category = ConfigurationFactory.CATEGORY)
 public class LoggerFactoryConfig extends ConfigurationFactory {
+
+    static {
+        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
+    }
 
     private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder){
         builder.setConfigurationName(name);
@@ -32,7 +36,7 @@ public class LoggerFactoryConfig extends ConfigurationFactory {
         consoleConfig.add(builder.newLayout("PatternLayout").addAttribute("pattern", " "));
         builder.add(consoleConfig);
 
-        builder.add(builder.newRootLogger(Level.OFF).add(builder.newAppenderRef("Stdout")));
+        builder.add(builder.newAsyncRootLogger(Level.OFF).add(builder.newAppenderRef("Stdout")));
         return builder.build();
 
     }

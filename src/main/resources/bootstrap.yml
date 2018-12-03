@@ -2,3 +2,18 @@ logging:
   level:
     root: OFF
     com.idss.common.datafactory.utils: OFF
+info:
+  project: argus-2.1
+  description: 一个奇怪的项目
+management:
+  endpoints:
+    web:
+      exposure:
+        #加载所有的端点，默认只加载了info、health
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+    #可以关闭指定的端点
+    shutdown:
+      enabled: true

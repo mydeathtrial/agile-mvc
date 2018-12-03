@@ -46,6 +46,7 @@ public class Constant {
      */
     public static class RegularAbout {
         public final static String NULL = "";
+        public final static String SEMICOLON = ";";
         public final static String COLON = ":";
         public final static String SPOT = ".";
         public final static String COMMA = ",";

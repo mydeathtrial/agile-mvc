@@ -250,7 +250,6 @@ public final class StringUtil extends StringUtils {
         if (args == null || args.size() <= 0) {
             return text;
         }
-        int argsIndex = 0;
 
         if (text == null || text.isEmpty()) {
             return "";
@@ -299,7 +298,6 @@ public final class StringUtil extends StringUtils {
                     String value = String.valueOf(args.get(expression.toString()));
                     builder.append(value);
                     offset = end + closeToken.length();
-                    argsIndex++;
                 }
             }
             start = text.indexOf(openToken, offset);

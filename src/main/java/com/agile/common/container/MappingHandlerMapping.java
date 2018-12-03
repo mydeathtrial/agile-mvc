@@ -3,7 +3,7 @@ package com.agile.common.container;
 import com.agile.common.annotation.Mapping;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -28,6 +28,11 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         return builder.options(this.config).build();
     }
 
+    private RequestMappingInfo createMappingInfo(String beanName,String methodName){
+        RequestMappingInfo.Builder builder = RequestMappingInfo.paths(this.resolveEmbeddedValuesInPatterns(new String[]{String.format("/api/%s/%s",beanName,methodName)})).methods(RequestMethod.GET,RequestMethod.POST).params().headers().consumes().produces().mappingName("");
+        return builder.options(this.config).build();
+    }
+
     @Nullable
     private RequestMappingInfo createMappingInfo(AnnotatedElement element) {
         Mapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, Mapping.class);
@@ -44,6 +49,9 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
             }
         }
 
+        if(info == null && method.getParameters().length==0){
+            info = createMappingInfo(handlerType.getSimpleName(),method.getName());
+        }
         return info;
     }
 

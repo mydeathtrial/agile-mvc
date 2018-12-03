@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledFuture;
 /**
  * Created by 佟盟 on 2018/2/2
  */
-@Service("agileTaskService")
 public class TaskService extends BusinessService<SysTaskEntity>{
     private Log log = LoggerFactory.createLogger("task",TaskService.class);
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -34,7 +33,6 @@ public class TaskService extends BusinessService<SysTaskEntity>{
 
     private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
 
-    @Autowired
     public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
         this.applicationContext = applicationContext;
@@ -188,16 +186,13 @@ public class TaskService extends BusinessService<SysTaskEntity>{
      */
     @Init
     public void init() throws NoSuchIDException {
-        if(PropertiesUtil.getProperty("agile.task.enable",boolean.class)){
-            initTaskTarget();
-            //获取持久层定时任务数据集
-            List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
-            for (int i = 0 ; i < list.size();i++ ) {
-                SysTaskEntity sysTaskEntity = list.get(i);
-                addTask(sysTaskEntity);
-            }
-        }
-
+//        initTaskTarget();
+//        //获取持久层定时任务数据集
+//        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
+//        for (int i = 0 ; i < list.size();i++ ) {
+//            SysTaskEntity sysTaskEntity = list.get(i);
+//            addTask(sysTaskEntity);
+//        }
     }
 
     /**
@@ -263,6 +258,7 @@ public class TaskService extends BusinessService<SysTaskEntity>{
             //定时任务装入缓冲区
             taskInfoMap.put(sysTaskEntity.getSysTaskId(), new TaskInfo(sysTaskEntity,trigger,job,scheduledFuture));
         }catch (Exception e){
+            e.printStackTrace();
             return false;
         }
         return true;

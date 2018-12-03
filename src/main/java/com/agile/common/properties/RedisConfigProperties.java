@@ -1,7 +1,6 @@
 package com.agile.common.properties;
 
 import com.agile.common.annotation.Properties;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 

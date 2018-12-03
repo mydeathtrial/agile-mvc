@@ -10,15 +10,13 @@ import java.util.concurrent.ScheduledFuture;
 /**
  * Created by 佟盟 on 2017/11/29
  */
-@Component
 public class TaskFactory {
     private static TaskFactory taskFactory;
-    @Autowired
     ThreadPoolTaskScheduler threadPoolTaskScheduler;
 
-    @PostConstruct
-    void init(){
+    public TaskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
         taskFactory = this;
+        this.threadPoolTaskScheduler = threadPoolTaskScheduler;
     }
 
     public static void insert(Runnable task, String cron){

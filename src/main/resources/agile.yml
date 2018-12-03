@@ -114,7 +114,12 @@ agile:
     trigger_type: size
     trigger_value: 1M
     package:
+#      org: debug,info,error
+#      org.springframework: debug,info,error
 #      org.hibernate: debug,info,error
+#      io.sringfox: debug,info,error
+#      redis: debug,info,error
+#      com.alibaba: debug,info,error
   redis:
     host: 127.0.0.1
     max_idle: 300
@@ -159,3 +164,9 @@ agile:
     raw_msg_filed: raw_msg
     scroll_time_value: 60000
     scroll_set_size: 30000
+  swagger:
+    enable: true
+    title: Agile 平台API文档
+    description: 这是个不错的文档
+    terms_of_service_url: http://www.baidu.com
+    version: ${project.version}

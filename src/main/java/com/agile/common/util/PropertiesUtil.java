@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.*;
@@ -18,7 +19,7 @@ import java.util.*;
 /**
  * Created by mydeathtrial on 2017/3/11
  */
-public class PropertiesUtil {
+public class PropertiesUtil extends PropertiesLoaderUtils {
 
     private static final String classPath = "/com/agile/conf/";
     public static Properties properties = new Properties();
@@ -96,6 +97,7 @@ public class PropertiesUtil {
         merge(classPath + fileName + ".properties");
         merge(classPath + fileName + ".yml");
         merge(fileName + ".properties");
+        merge(fileName + ".yml");
     }
 
     public static void merge(String fileName){
@@ -285,16 +287,10 @@ public class PropertiesUtil {
      * @param <T> 泛型
      * @return List泛型集合
      */
-    public static <T>List<T> getObjectFromJson(Class<T> clazz, JSONObject json){
-        List<T> list = new ArrayList<>();
+    public static <T>T getObjectFromJson(Class<T> clazz, JSONObject json){
         try {
-            T node = (T) JSONObject.toBean(json,clazz,getClassMap(clazz));
-            if(node!=null)
-                list.add(node);
+            return (T) JSONObject.toBean(json,clazz,getClassMap(clazz));
         }catch (Exception ignored){
-        }
-        if(list.size()>0){
-            return list;
         }
         return null;
     }
@@ -327,9 +323,9 @@ public class PropertiesUtil {
     /**
      * 取出类中包含的集合类型属性信息，用于jsonObject转javaBean使用
      * @param clazz 指定对象类型
-     * @return Map<属性名，属性类型>
+     * @return Map 属性名，属性类型
      */
-    private static Map getClassMap(Class clazz){
+    public static Map getClassMap(Class clazz){
         Map<String, Class<?>> map= new HashMap<>();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field:fields){

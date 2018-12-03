@@ -16,7 +16,6 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
-import com.alibaba.druid.stat.TableStat;
 import com.alibaba.druid.util.JdbcUtils;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
@@ -51,11 +50,8 @@ public class Dao {
     @PersistenceContext
     private EntityManager entityManager ;
 
-    private <T,ID extends Serializable> JpaRepository getRepository(Class<T> tableClass) throws NoSuchIDException {
-        Field field = getIdField(tableClass);
-
+    private <T,ID extends Serializable> JpaRepository getRepository(Class<T> tableClass) {
         @SuppressWarnings("unchecked")
-        Class<ID> idClass = (Class<ID>) field.getType();
         JpaRepository repository = (JpaRepository) map.get(tableClass.getName());
         if(ObjectUtil.isEmpty(repository)){
             repository = new SimpleJpaRepository<T,ID>(tableClass,getEntityManager());
@@ -66,6 +62,7 @@ public class Dao {
 
     /**
      * 获取EntityManager，操作jpa api的入口
+     * @return EntityManager
      */
     public EntityManager getEntityManager() {
         return entityManager;
@@ -82,8 +79,10 @@ public class Dao {
     /**
      * 保存
      * @param list ORM对象列表
+     * @param <T> 操作对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @return 是否保存成功
      */
-    public <T> boolean save(Iterable<T> list) throws NoSuchIDException {
+    public <T> boolean save(Iterable<T> list) {
         boolean isTrue = false;
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
@@ -105,9 +104,12 @@ public class Dao {
 
     /**
      * 保存并刷新
+     * @param o 要保存的对象
+     * @param isFlush 是否刷新
+     * @return 保存后的对象
      */
     @SuppressWarnings("unchecked")
-    public <T>T saveAndReturn(T o,boolean isFlush) throws NoSuchIDException {
+    public <T>T saveAndReturn(T o,boolean isFlush) {
         if(isFlush){
             return (T)getRepository(o.getClass()).saveAndFlush(o);
         }else {
@@ -118,18 +120,22 @@ public class Dao {
 
     /**
      * 保存
+     * @param o 要保存的对象
+     * @return 保存后的对象
      */
     @SuppressWarnings("unchecked")
-    public <T>T saveAndReturn(T o) throws NoSuchIDException {
+    public <T>T saveAndReturn(T o) {
         return saveAndReturn(o,Boolean.FALSE);
     }
 
     /**
      * 批量保存
      * @param list 要保存的ORM对象
+     * @param <T> 操作对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @return 保存后的数据集
      */
     @SuppressWarnings("unchecked")
-    public <T> List<T> saveAndReturn(Iterable<T> list) throws NoSuchIDException {
+    public <T> List<T> saveAndReturn(Iterable<T> list) {
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
             T obj = iterator.next();
@@ -143,9 +149,10 @@ public class Dao {
      * 判断数据是否存在
      * @param tableClass ORM对象类型
      * @param id 数据主键
+     * @return 是否存在
      */
     @SuppressWarnings("unchecked")
-    public <T>Object existsById(Class<T> tableClass,Object id) throws NoSuchIDException {
+    public boolean existsById(Class tableClass,Object id) {
         return getRepository(tableClass).existsById(id);
     }
 
@@ -153,7 +160,7 @@ public class Dao {
      * 刷新数据库中表
      * @param tableClass ORM对象类型
      */
-    public void flush(Class<?> tableClass) throws NoSuchIDException {
+    public void flush(Class<?> tableClass) {
         getRepository(tableClass).flush();
     }
 
@@ -168,6 +175,7 @@ public class Dao {
 
     /**
      * 刷新数据库数据到实体类当中
+     * @param o ORM对象
      */
     @SuppressWarnings("unchecked")
     public void refresh(Object o){
@@ -177,6 +185,8 @@ public class Dao {
     /**
      * 更新或新增
      * @param o ORM对象
+     * @param <T> 更新对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @return 返回更新后的数据
      */
     public <T>T update(T o){
         return getEntityManager().merge(o);
@@ -185,6 +195,8 @@ public class Dao {
     /**
      * 更新或新增非空字段
      * @param o ORM对象
+     * @param <T> 更新对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @return 返回更新后的数据
      */
     public <T>T updateOfNotNull(T o) throws NoSuchIDException, IllegalAccessException {
         Class<?> clazz = o.getClass();
@@ -199,7 +211,7 @@ public class Dao {
      * 删除
      * @param o ORM对象
      */
-    public void delete(Object o) throws NoSuchIDException {
+    public void delete(Object o) {
         List list = this.findAll(o);
         deleteInBatch(list);
     }
@@ -208,27 +220,30 @@ public class Dao {
      * 删除
      * @param tableClass ORM对象类型
      * @param id 删除的主键标识
+     * @param <T> 删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteById(Class<T> tableClass,Object id) throws NoSuchIDException {
+    public <T>void deleteById(Class<T> tableClass,Object id) {
         getRepository(tableClass).deleteById(id);
     }
 
     /**
      * 删除全部(逐一删除)
      * @param tableClass ORM对象类型
+     * @param <T> 删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteAll(Class<T> tableClass) throws NoSuchIDException {
+    public <T>void deleteAll(Class<T> tableClass) {
         getRepository(tableClass).deleteAll();
     }
 
     /**
      * 删除全部(一次性删除)
      * @param tableClass ORM对象类型
+     * @param <T> 删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteAllInBatch(Class<T> tableClass) throws NoSuchIDException {
+    public <T>void deleteAllInBatch(Class<T> tableClass) {
         getRepository(tableClass).deleteAllInBatch();
     }
 
@@ -236,6 +251,7 @@ public class Dao {
      * 主键数组转换ORM对象列表
      * @param tableClass ORM类型
      * @param ids 主键数组
+     * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
     private <T,ID>List createObjectList(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
         ArrayList list = new ArrayList();
@@ -255,7 +271,9 @@ public class Dao {
 
     /**
      * 获取ORM中的主键字段
-     * @param clazz ORM类
+     * @param clazz 表的java映射实体类型
+     * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
+     * @return 主键属性
      */
     public Field getIdField(Class clazz) throws NoSuchIDException {
         Method[] methods =  clazz.getDeclaredMethods();
@@ -283,7 +301,11 @@ public class Dao {
 
     /**
      * 部分删除
-     * @param tableClass ORM对象类型
+     * @param tableClass 删除的表的java映射实体类型
+     * @param <T> 删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param ids 主键数组
+     * @param <ID> 主键类型
+     * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
     @SuppressWarnings("unchecked")
     public <T,ID>void deleteAll(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
@@ -296,8 +318,12 @@ public class Dao {
     }
 
     /**
-     * 部分删除(一次性删除)
-     * @param tableClass ORM对象类型
+     * 部分删除，删除对象集(一次性删除)
+     * @param tableClass 删除的表的java映射实体类型
+     * @param <T> 删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param ids 主键数组
+     * @param <ID> 主键类型
+     * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
     @SuppressWarnings("unchecked")
     public <T,ID>void deleteInBatch(Class<T> tableClass,ID[] ids) throws NoSuchIDException {
@@ -309,11 +335,12 @@ public class Dao {
     }
 
     /**
-     * 部分删除(一次性删除)
+     * 部分删除，删除对象集(一次性删除)
      * @param list 需要删除的对象列表
+     * @param <T> 删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
      */
     @SuppressWarnings("unchecked")
-    public <T>void deleteInBatch(Iterable<T> list) throws NoSuchIDException {
+    public <T>void deleteInBatch(Iterable<T> list) {
         Iterator<T> iterator = list.iterator();
         if(iterator.hasNext()){
             T obj = iterator.next();
@@ -330,17 +357,20 @@ public class Dao {
 
     /**
      * 按照例子查询单条
+     * @param <T> 查询的表的映射实体类型
+     * @param object 查询一句的例子对象
+     * @return 返回查询结果
      */
     @SuppressWarnings("unchecked")
-    public <T>T findOne(T object) throws NoSuchIDException {
+    public <T>T findOne(T object) {
         Example<T> example = Example.of(object);
         return (T) this.getRepository(object.getClass()).findOne(example).get();
     }
 
     /**
-     * 根据给定参数动态生成sql语句
+     * 根据给定参数动态生成完成参数占位的查询条数sql语句
      * @param sql 原sql模板
-     * @param parameters Map格式参数集合
+     * @param parameters map格式的sql语句中的参数集合，使用{paramName}方式占位
      * @return 生成的sql结果
      */
     public static String parserCountSQL(String sql,Map<String,Object> parameters){
@@ -357,9 +387,9 @@ public class Dao {
     }
 
     /**
-     * 根据给定参数动态生成sql语句
-     * @param sql 原sql模板
-     * @param parameters Map格式参数集合
+     * 根据给定参数动态生成完成参数占位的sql语句
+     * @param sql 原sql
+     * @param parameters map格式的sql语句中的参数集合，使用{paramName}方式占位
      * @return 生成的sql结果
      */
     public static String parserSQL(String sql,Map<String,Object> parameters){
@@ -402,9 +432,12 @@ public class Dao {
     }
 
     /**
-     * 查询列表
+     * 根据sql查询出单条数据，并映射成指定clazz类型
+     * @param <T> 查询的表的映射实体类型
      * @param sql sql
-     * @param clazz 返回ORM类型列表
+     * @param clazz 查询结果映射成的类型
+     * @param parameters 对象数组格式的sql语句中的参数集合，使用?方式占位
+     * @return 查询的结果
      */
     @SuppressWarnings("unchecked")
     public <T>T findOne(String sql, Class<T> clazz,Object... parameters){
@@ -417,9 +450,12 @@ public class Dao {
     }
 
     /**
-     * 查询列表
+     * 根据sql查询出单条数据，并映射成指定clazz类型
+     * @param <T> 查询的表的映射实体类型
      * @param sql sql
-     * @param clazz 返回ORM类型列表
+     * @param clazz 查询结果映射成的类型
+     * @param parameters map格式的sql语句中的参数集合，使用{paramName}方式占位
+     * @return 查询的结果
      */
     public <T>T findOne(String sql, Class<T> clazz,Map<String,Object> parameters){
         return findOne(parserSQL(sql,parameters),clazz);
@@ -427,8 +463,11 @@ public class Dao {
 
     /**
      * 按照例子查询多条
+     * @param <T> 查询的表的映射实体类型
+     * @param object 例子对象
+     * @return 查询结果数据集合
      */
-    public <T> List findAll(T object) throws NoSuchIDException {
+    public <T> List findAll(T object) {
         List result = findAll(object, Sort.unsorted());
         if(result!=null)return result;
         return new ArrayList();
@@ -436,8 +475,12 @@ public class Dao {
 
     /**
      * 按照例子查询多条/排序
+     * @param <T> 查询的表的映射实体类型
+     * @param object 例子对象
+     * @param sort 排序对象
+     * @return 查询结果数据集合
      */
-    public <T> List findAll(T object, Sort sort) throws NoSuchIDException {
+    public <T> List findAll(T object, Sort sort) {
         Example<T> example = Example.of(object);
         List result = this.getRepository(object.getClass()).findAll(example,sort);
         if(result!=null)return result;
@@ -446,31 +489,43 @@ public class Dao {
 
     /**
      * 按照例子查询多条分页
+     * @param <T> 查询的表的映射实体类型
+     * @param object 例子对象
+     * @param page 第几页
+     * @param size 每页条数
+     * @return 分页对象
      */
-    public <T> Page findAll(T object, int page, int size) throws NoSuchIDException {
+    public <T> Page findAll(T object, int page, int size) {
         return findAll(object,page,size,Sort.unsorted());
     }
 
     /**
      * 按照例子查询多条分页
+     * @param object 例子对象
+     * @param <T> 查询的表的映射实体类型
+     * @param page 第几页
+     * @param size 每页条数
+     * @param sort 排序对象
+     * @return 分页信息
      */
-    public <T> Page findAll(T object, int page, int size,Sort sort) throws NoSuchIDException {
+    public <T> Page findAll(T object, int page, int size,Sort sort) {
         Example<T> example = Example.of(object);
         return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page,size,sort));
     }
 
     /**
-     * 查询列表
+     * 根据sql语句查询指定类型clazz列表
      * @param sql sql
      * @param clazz 返回ORM类型列表
+     * @param <T> 指定返回类型列表集的类型
+     * @param parameters sql语句中的参数
+     * @return 结果集
      */
     @SuppressWarnings("unchecked")
     public <T>List<T> findAll(String sql, Class<T> clazz,Object... parameters){
         try {
             getIdField(clazz);
             Query query = creatClassQuery(sql,clazz,parameters);
-            List list = query.getResultList();
-            if(list == null || list.size()==0 || list.get(0)==null)return null;
             List result = query.getResultList();
             if(result!=null)return result;
         }catch (NoSuchIDException e){
@@ -646,7 +701,7 @@ public class Dao {
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>List<T> findAllById(Class<T> tableClass,Iterable<ID> ids) throws NoSuchIDException {
+    public <T,ID>List<T> findAllById(Class<T> tableClass,Iterable<ID> ids) {
         List result = getRepository(tableClass).findAllById(ids);
         if(result!=null)return result;
         return new ArrayList<>();
@@ -656,7 +711,7 @@ public class Dao {
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T,ID>List<T> findAllByArrayId(Class<T> tableClass,ID... ids) throws NoSuchIDException {
+    public <T,ID>List<T> findAllByArrayId(Class<T> tableClass,ID... ids) {
         List result = getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
         if(result!=null)return result;
         return new ArrayList<>();
@@ -666,7 +721,7 @@ public class Dao {
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T> Page<T> findAll(Class<T> tableClass, int page, int size) throws NoSuchIDException {
+    public <T> Page<T> findAll(Class<T> tableClass, int page, int size) {
         return getRepository(tableClass).findAll(PageRequest.of(page,size));
     }
 
@@ -674,7 +729,7 @@ public class Dao {
      * 查询列表
      */
     @SuppressWarnings("unchecked")
-    public <T>List<T> findAll(Class<T> tableClass) throws NoSuchIDException {
+    public <T>List<T> findAll(Class<T> tableClass) {
         List result = getRepository(tableClass).findAll();
         if(result!=null)return result;
         return new ArrayList<>();
@@ -684,7 +739,7 @@ public class Dao {
      * 查询表总数
      */
     @SuppressWarnings("unchecked")
-    public long count(Class tableClass) throws NoSuchIDException {
+    public long count(Class tableClass) {
         return getRepository(tableClass).count();
     }
 }

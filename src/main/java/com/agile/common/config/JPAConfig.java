@@ -32,8 +32,7 @@ public class JPAConfig {
     private DruidConfigProperty druidConfigProperty;
     private JPAConfigProperty jpaConfigProperty;
 
-    @PostConstruct
-    private void init(){
+    public JPAConfig() {
         this.druidConfigProperty = DBConfigProperties.getDruid().get(index);
         this.jpaConfigProperty = DBConfigProperties.getJpa().get(index);
     }

@@ -18,9 +18,11 @@ import org.apache.logging.log4j.core.appender.rolling.DefaultRolloverStrategy;
 import org.apache.logging.log4j.core.appender.rolling.SizeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.appender.rolling.TimeBasedTriggeringPolicy;
 import org.apache.logging.log4j.core.appender.rolling.TriggeringPolicy;
+import org.apache.logging.log4j.core.async.AsyncLoggerConfig;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.builder.impl.DefaultConfigurationBuilder;
 import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
@@ -54,8 +56,7 @@ public class LoggerFactory {
                 refs[i*2+1] = AppenderRef.createAppenderRef(appenders[i*2+1], null, null);
             }
         }
-
-        LoggerConfig loggerConfig = LoggerConfig.createLogger(Boolean.FALSE, Level.ALL,  packagePath,"true", refs, null, config, null);
+        LoggerConfig loggerConfig = AsyncLoggerConfig.createLogger(Boolean.FALSE, Level.ALL,  packagePath,"true", refs, null, config, null);
         for (int i = 0 ; i < levels.length;i ++) {
             if(ObjectUtil.isEmpty(appenders[i]))break;
             Filter filter = LevelRangeFilter.createFilter(levels[i], levels[i], Filter.Result.ACCEPT, Filter.Result.DENY);
@@ -63,7 +64,6 @@ public class LoggerFactory {
             loggerConfig.addAppender(config.getAppender(appenders[i*2+1]), levels[i], filter);
         }
         config.addLogger(packagePath,loggerConfig);
-
         ctx.updateLoggers();
     }
     private static String createFileAppender(String baseName,String fileName,Layout layout){

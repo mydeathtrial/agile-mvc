@@ -9,11 +9,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by 佟盟 on 2017/1/9
@@ -25,7 +21,7 @@ public class ObjectUtil extends ObjectUtils {
 
     public static void copyPropertiesOfNotNull(Object source, Object target){
         if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) return;
-        Field[] sourceFields = source.getClass().getDeclaredFields();
+        Set<Field> sourceFields = getAllField(source.getClass());
         List<String> arguments = new ArrayList<>();
         for (Field field:sourceFields) {
             field.setAccessible(true);
@@ -50,9 +46,10 @@ public class ObjectUtil extends ObjectUtils {
     public static void copyProperties(Object source, Object target, String[] arguments, ContainOrExclude containOrExclude) {
         if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) return;
 
-        Field[] sourceFields = source.getClass().getDeclaredFields();
-        for (int i = 0 ;i < sourceFields.length ; i++){
-            String propertyName = sourceFields[i].getName();
+        Set<Field> sourceFields = ObjectUtil.getAllField(source.getClass());
+        for (Field field :sourceFields){
+            field.setAccessible(true);
+            String propertyName = field.getName();
 
             if(!ObjectUtil.isEmpty(arguments)){
                 switch (containOrExclude){
@@ -64,20 +61,11 @@ public class ObjectUtil extends ObjectUtils {
             }
 
             try {
-                Field sourceProperty = source.getClass().getDeclaredField(propertyName);
-                sourceProperty.setAccessible(true);
-                Object value = sourceProperty.get(source);
+                Object value = field.get(source);
                 Field targetProperty;
-                try {
-                    targetProperty = target.getClass().getDeclaredField(propertyName);
-                }catch (NoSuchFieldException e){
-                    try {
-                        targetProperty = target.getClass().getField(propertyName);
-                    }catch (NoSuchFieldException e1){
-                        sourceProperty.set(target,value);
-                        continue;
-                    }
-                }
+                targetProperty = getField(target.getClass(),propertyName);
+                if(targetProperty == null)continue;
+
                 targetProperty.setAccessible(true);
                 targetProperty.set(target,value);
             }catch (Exception ignored){}
@@ -111,7 +99,7 @@ public class ObjectUtil extends ObjectUtils {
      * @return 是否相同
      */
     public static boolean compare(Object source, Object target) {
-        return isEmpty(source)?isEmpty(target):(source.equals(target));
+        return isEmpty(source) && isEmpty(target) || source.equals(target);
     }
 
     /**
@@ -143,14 +131,13 @@ public class ObjectUtil extends ObjectUtils {
      * @throws IllegalAccessException 调用过程异常
      */
     public static List<Map<String,Object>> getDifferenceProperties(Object source,Object target,String... excludeProperty) throws IllegalAccessException {
-        if(((!compareClass(source, target) || compare(source, target)) || isEmpty(source)) != isEmpty(target))return null;
+        if((!compareClass(source, target) || compare(source, target) || isEmpty(source)) != isEmpty(target))return null;
         List<Map<String,Object>> result = new ArrayList<>();
         Object sourceObject = isEmpty(source)?target:source;
         Object targetObject = isEmpty(source)?source:target;
         Class sourceClass = sourceObject.getClass();
-        Field[] fields = sourceClass.getDeclaredFields();
-        for(int i = 0 ; i < fields.length ; i++){
-            Field field = fields[i];
+        Set<Field> fields = getAllField(sourceClass);
+        for(Field field : fields){
             field.setAccessible(true);
             if(excludeProperty!=null && ArrayUtil.contains(excludeProperty,field.getName()))continue;
             Object sourceValue = field.get(sourceObject);
@@ -203,32 +190,33 @@ public class ObjectUtil extends ObjectUtils {
             if(ObjectUtil.isEmpty(map))return null;
             T object = clazz.newInstance();
             boolean notNull = true;
-            Field[] fields = clazz.getDeclaredFields();
-            for (int i = 0 ; i < fields.length ; i++) {
-                Field field = fields[i];
+            Set<Field> fields = getAllField(clazz);
+            for (Field field : fields) {
                 String propertyName = prefix + field.getName() + suffix;
-                if(map.containsKey(propertyName)){
+                String camelToUnderlineKey = StringUtil.camelToUnderline(propertyName);
+                String key = map.containsKey(propertyName)?propertyName:map.containsKey(camelToUnderlineKey)?camelToUnderlineKey:null;
+                if (key!=null) {
                     try {
                         field.setAccessible(true);
                         Class<?> type = field.getType();
-                        Object value = map.get(propertyName);
+                        Object value = map.get(key);
                         Object targetValue;
-                        if(!type.isArray() && value.getClass().isArray()){
-                            targetValue = cast(field.getType(), ((String[])value)[0]);
-                        }else if(type.isArray() && value.getClass().isArray()){
+                        if (!type.isArray() && value.getClass().isArray()) {
+                            targetValue = cast(field.getType(), ((String[]) value)[0]);
+                        } else if (type.isArray() && value.getClass().isArray()) {
                             targetValue = value;
-                        }else{
-                            targetValue = cast(type,value);
+                        } else {
+                            targetValue = cast(type, value);
                         }
-                        if(targetValue!=null){
-                            if(notNull){
+                        if (targetValue != null) {
+                            if (notNull) {
                                 notNull = false;
                             }
-                            field.set(object,targetValue);
+                            field.set(object, targetValue);
                         }
 
-                    }catch (Exception ignored){}
-
+                    } catch (Exception ignored) {
+                    }
                 }
             }
             if(notNull)return null;
@@ -237,10 +225,53 @@ public class ObjectUtil extends ObjectUtils {
             e.printStackTrace();
             return null;
         }
+    }
 
+    public static Field getField(Class clazz,String fieldName){
+        Set<Field> fields = getAllField(clazz);
+        for (Field field:fields) {
+            if(field.getName().equals(fieldName))return field;
+        }
+        return null;
     }
 
     /**
+     * 获取所有类型属性集
+     * @param clazz
+     * @return
+     */
+    public static Set<Field> getAllField(Class clazz){
+        Set<Field> fields = new HashSet<>();
+        try {
+            Field[] selfFields = clazz.getDeclaredFields();
+            Field[] extendFields = clazz.getFields();
+            Class superClass = clazz.getSuperclass();
+            if(superClass!=null){
+                fields.addAll(getAllField(superClass));
+            }
+            fields.addAll(Arrays.asList(selfFields));
+            fields.addAll(Arrays.asList(extendFields));
+        }catch (Exception ignored){}
+        return fields;
+    }
+
+    public static Set<Method> getAllMethod(Class clazz){
+        Set<Method> fields = new HashSet<>();
+        try {
+            Method[] selfFields = clazz.getDeclaredMethods();
+            Method[] extendFields = clazz.getMethods();
+            Class superClass = clazz.getSuperclass();
+            if(superClass!=null){
+                fields.addAll(getAllMethod(superClass));
+            }
+            fields.addAll(Arrays.asList(selfFields));
+            fields.addAll(Arrays.asList(extendFields));
+        }catch (Exception ignored){}
+        return fields;
+    }
+
+    /**
+     * 判断对象非空属性是否存值（排除主键）
      * 判断对象非空属性是否存值（排除主键）
      */
     public static boolean isValidity(Object object){
@@ -254,8 +285,8 @@ public class ObjectUtil extends ObjectUtils {
             try {
                 if(isEmpty(method.getAnnotation(Id.class))){
                     Column columInfo = method.getAnnotation(Column.class);
-                    if(!isEmpty(columInfo) && !columInfo.nullable()){
-                        if(isEmpty(method.invoke(object)))result = false;
+                    if(!isEmpty(columInfo) && !columInfo.nullable() && isEmpty(method.invoke(object))){
+                        result = false;
                     }
                 }
             }catch (Exception e){
@@ -328,8 +359,8 @@ public class ObjectUtil extends ObjectUtils {
                 }
             }
         }
-        if(clazz == java.sql.Date.class){
-            temp = java.sql.Date.valueOf(valueStr);
+        if(clazz == Date.class){
+            temp = Date.valueOf(valueStr);
         }
         if(clazz == Long.class|| clazz == long.class ){
             temp = Long.parseLong(valueStr);

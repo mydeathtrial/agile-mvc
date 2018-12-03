@@ -73,11 +73,11 @@
   $(document).ready(function(){
       $.ajax({
           async:true,
-          url:'/swaggerInfo.json',
+          url:'/v2/api-docs',
           success:function (data) {
               // Build a system
               window.ui = SwaggerUIBundle({
-                  spec: data.swaggerInfo,
+                  spec: data,
                   validatorUrl: "",
                   dom_id: '#swagger-ui',
                   deepLinking: true,

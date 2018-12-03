@@ -51,19 +51,4 @@ public class ESUtil {
         ClusterStateResponse response = getClient().admin().cluster().prepareState().execute().actionGet();
         return response.getState().getMetaData().index(index).getMappings().values();
     }
-    
-    public static void main(String[] args) {
-        ObjectContainer<MappingMetaData> s = getTypeByIndex("db_1");
-        Iterator<ObjectCursor<MappingMetaData>> it = s.iterator();
-        while (it.hasNext()){
-            ObjectCursor<MappingMetaData> a = it.next();
-            try {
-                Map<String, Object> as = a.value.getSourceAsMap();
-                Object properties = as.get("properties");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println(s);
-    }
 }

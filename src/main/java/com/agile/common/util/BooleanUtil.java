@@ -10,6 +10,6 @@ public class BooleanUtil{
     }
 
     public static boolean toBoolean(Object resource){
-        return ObjectUtil.isEmpty(resource)?false:(Boolean)resource;
+        return !ObjectUtil.isEmpty(resource) && Boolean.parseBoolean(resource.toString());
     }
 }

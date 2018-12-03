@@ -6,9 +6,6 @@ import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.TokenUtil;
 import com.google.code.kaptcha.Producer;
-import com.google.code.kaptcha.impl.DefaultKaptcha;
-import com.google.code.kaptcha.util.Config;
-
 import javax.imageio.ImageIO;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;

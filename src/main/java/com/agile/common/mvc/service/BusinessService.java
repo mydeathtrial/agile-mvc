@@ -91,7 +91,7 @@ public class BusinessService<T> extends MainService {
     /**
      * 分页查询
      */
-    public RETURN pageQuery() throws IllegalAccessException, InstantiationException, NoSuchIDException {
+    public RETURN pageQuery() throws IllegalAccessException, InstantiationException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         if(entity==null){
             entity = entityClass.newInstance();
@@ -163,10 +163,8 @@ public class BusinessService<T> extends MainService {
 
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         T target = dao.findOne(entityClass, getInParam("id", String.class));
-        if (!ObjectUtil.isEmpty(entity)){
-            if(!ObjectUtil.compareOfNotNull(entity,target)){
-                target = null;
-            }
+        if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity,target)){
+            target = null;
         }
 
         setOutParam(Constant.ResponseAbout.RESULT,target);

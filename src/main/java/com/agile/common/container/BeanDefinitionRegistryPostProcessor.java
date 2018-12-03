@@ -1,15 +1,18 @@
 package com.agile.common.container;
 
 import com.agile.common.annotation.AnnotationProcessor;
+import com.agile.common.annotation.ParsingBeanBefore;
+import com.agile.common.annotation.ParsingMethodAfter;
+import com.agile.common.annotation.ParsingMethodBefore;
+import com.agile.common.properties.DruidConfigProperty;
 import com.agile.common.util.PropertiesUtil;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -34,7 +37,7 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
         isUse("agile.activiti.enable",activitis,beanDefinitionRegistry);
         isUse("agile.elasticsearch.enable",es,beanDefinitionRegistry);
         this.cacheManagerProcessor(beanDefinitionRegistry);
-        this.annotationProcessor();
+        this.beanAnnotationProcessor();
     }
 
     private void isUse(String handlerName,String[] beanNames,BeanDefinitionRegistry beanDefinitionRegistry){
@@ -50,6 +53,7 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
 
     /**
      * 解决多个cacheManager导致spring无法成功获取缓存控制器问题
+     * @param beanDefinitionRegistry bean注册器
      */
     private void cacheManagerProcessor(BeanDefinitionRegistry beanDefinitionRegistry){
         String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy").toLowerCase();
@@ -75,29 +79,8 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
     /**
      * 1：处理自定义注解
      */
-    private void annotationProcessor(){
-        for(int i = 0; i < AnnotationProcessor.beforeClassAnnotations.length; i++){
-            this.annotationProcessor(AnnotationProcessor.beforeClassAnnotations[i]);
-        }
-    }
-
-    /**
-     * 2：处理自定义注解
-     */
-    private void annotationProcessor(Class<? extends Annotation> clazz){
-        Map<String, Object> beans = applicationContext.getBeansWithAnnotation(clazz);
-        for(Map.Entry<String, Object> map: beans.entrySet()){
-            Object bean = map.getValue();
-            Class<?> targetClass = bean.getClass();
-            Annotation annotation = targetClass.getAnnotation(clazz);
-            try {
-                Method method = AnnotationProcessor.class.getDeclaredMethod(clazz.getSimpleName(), clazz, Object.class);
-                method.setAccessible(true);
-                ReflectionUtils.invokeMethod(method,applicationContext.getBean(AnnotationProcessor.class),annotation,bean);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-        }
+    private void beanAnnotationProcessor(){
+        AnnotationProcessor.beanAnnotationProcessor(applicationContext,ParsingBeanBefore.class);
     }
 
     @Override

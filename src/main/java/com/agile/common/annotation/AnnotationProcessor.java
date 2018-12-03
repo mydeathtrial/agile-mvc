@@ -1,104 +1,62 @@
 package com.agile.common.annotation;
 
-import com.agile.common.util.*;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.util.ProxyUtils;
 
-import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/1/5
+ * 描述：
+ * <p>创建时间：2018/11/29<br>
+ *
+ * @author 佟盟
+ * @version 1.0
+ * @since 1.0
  */
-@Component
 public class AnnotationProcessor {
-    /**
-     * 准备处理的注解
-     */
-    public static Class[] beforeClassAnnotations = {Properties.class};
-    public static Class[] afterClassAnnotations = {};
-    public static Class[] methodAnnotations = {Init.class};
+    public static void methodAnnotationProcessor(ApplicationContext applicationContext,String beanName,Object bean, Class annotationClass){
+        String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
+        for (String parsingName:annotationParsings){
+            Parsing parsing = (Parsing)applicationContext.getBean(parsingName);
+            Class<? extends Annotation> annotation = parsing.getAnnotation();
+            if(annotation==null)continue;
+            methodAnnotationProcessor(beanName,bean, ProxyUtils.getUserClass(bean),parsing);
+        }
 
-    @Transactional
-    public void Init(Init init, Object bean,Method method){
-        method.setAccessible(true);
-        if(!ObjectUtil.isEmpty(init)){
-            try {
-                method.invoke(bean);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e){
-                e.getTargetException().printStackTrace();
+    }
+
+    public static void beanAnnotationProcessor(ApplicationContext applicationContext, Class annotationClass){
+        String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
+        for (String parsingName:annotationParsings) {
+            Parsing parsing = (Parsing)applicationContext.getBean(parsingName);
+            Class<? extends Annotation> annotation = parsing.getAnnotation();
+            if(annotation==null)continue;
+
+            Map<String, Object> beans = applicationContext.getBeansWithAnnotation(annotation);
+            for(Map.Entry<String, Object> map: beans.entrySet()){
+                String beanName = map.getKey();
+                Object bean = map.getValue();
+                if(parsing instanceof ParsingBeanAfter){
+                    ((ParsingBeanAfter) parsing).parsing(beanName,bean);
+                }else if(parsing instanceof ParsingBeanBefore){
+                    ((ParsingBeanBefore) parsing).parsing(beanName,bean);
+                }
             }
         }
     }
 
-    void Properties(Properties properties, Object bean) throws InstantiationException, IllegalAccessException {
-        if(ObjectUtil.isEmpty(properties))return;
-        String prefix = properties.prefix();
-        setProperties(bean,prefix);
-    }
-
-    private void setProperties(Object target,String prefix) throws IllegalAccessException, InstantiationException {
-        if(ObjectUtil.isEmpty(target))return;
-        Class<?> targetClass = target.getClass();
-        Field[] fields = targetClass.getDeclaredFields();
-        for(int i = 0 ; i < fields.length;i++){
-            Field field = fields[i];
-            field.setAccessible(true);
-            Class<?> type = field.getType();
-            String name = field.getName();
-            if(type.isAssignableFrom(List.class)){
-                Type genericType = field.getGenericType();
-                ParameterizedType parameterizedType = (ParameterizedType) genericType;
-                Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                if(ArrayUtil.isEmpty(typeArguments))continue;
-                Class innerClass = (Class)typeArguments[0];
-
-                List<Object> list = new ArrayList<>();
-                int j = 0 ;
-                boolean hasNext = true;
-
-                if(ClassUtil.isCustomClass(innerClass)){
-                    while (hasNext){
-                        String key = String.format("%s.%s[%s]",prefix,name,j);
-                        if(j==0){
-                            key = PropertiesUtil.properties.containsKey(key)?key:prefix+"."+name;
-                        }
-                        if(PropertiesUtil.properties.containsKey(key)){
-                            list.add(PropertiesUtil.getProperty(key,innerClass));
-                            j++;
-                        }else{
-                            hasNext = false;
-                        }
-                    }
-                }else{
-                    while (hasNext){
-                        Object temp = innerClass.newInstance();
-                        String key = String.format("%s.%s[%s]",prefix,name,j);
-                        setProperties(temp,key);
-                        if(ObjectUtil.compareValue(temp,innerClass.newInstance()) && j==0){
-                            setProperties(temp,String.format("%s.%s",prefix,name));
-                        }else if(ObjectUtil.compareValue(temp,innerClass.newInstance()) && j!=0){
-                            hasNext = false;
-                            continue;
-                        }
-                        j++;
-                        list.add(temp);
-                    }
-                }
-                field.set(target,list);
-            }else{
-                String key = prefix + "." + StringUtil.camelToUnderline(name);
-                if(ClassUtil.isCustomClass(type)){
-                    if(PropertiesUtil.properties.containsKey(key))
-                    field.set(target,PropertiesUtil.getProperty(key,type));
-                }else{
-                    Object temp = type.newInstance();
-                    setProperties(temp,key);
-                    field.set(target,temp);
-                }
+    private static void methodAnnotationProcessor(String beanName, Object bean, Class realClass, Parsing parsing){
+        Method[] methods =  realClass.getDeclaredMethods();
+        for (Method method : methods) {
+            method.setAccessible(true);
+            Class<? extends Annotation> annotation = parsing.getAnnotation();
+            if (annotation == null || method.getAnnotation(annotation) == null) continue;
+            if (parsing instanceof ParsingMethodAfter){
+                ((ParsingMethodAfter) parsing).parsing(beanName, bean, method);
+            }else if(parsing instanceof ParsingMethodBefore){
+                ((ParsingMethodBefore) parsing).parsing(beanName, bean, method);
             }
         }
     }

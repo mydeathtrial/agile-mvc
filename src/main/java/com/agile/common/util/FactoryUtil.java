@@ -22,15 +22,8 @@ public final class FactoryUtil {
      */
     @Autowired
     private FactoryUtil(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-
-    /**
-     * 初始化前
-     */
-    @PostConstruct
-    private void init() {
         factoryUtil = this;
+        this.applicationContext = applicationContext;
     }
 
     /**
