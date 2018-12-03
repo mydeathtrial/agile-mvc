@@ -130,7 +130,7 @@ agile:
     test_on_borrow: true
     test_on_return: false
   security:
-    enable: false
+    enable: true
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*
     login_out_url: /logout
     login_url: /login

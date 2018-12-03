@@ -7,9 +7,7 @@
     <name>Agile工程</name>
     <description>Agile API平台</description>
     <url>http://192.168.0.55:7777/repository/maven-public/</url>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+
     <!--资源库-->
     <repositories>
         <repository>
@@ -25,7 +23,7 @@
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-parent</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.6</version>
     </parent>
 
     <!--<dependencies>-->
@@ -77,9 +75,30 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <aggregate>true</aggregate>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <reporting>
+        <excludeDefaults>true</excludeDefaults>
+        <outputDirectory>${basedir}/target/doc</outputDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -91,6 +110,11 @@
                     <failsOnError>true</failsOnError>
                     <includeTestSourceDirectory>false</includeTestSourceDirectory>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.3</version>
             </plugin>
         </plugins>
     </reporting>
