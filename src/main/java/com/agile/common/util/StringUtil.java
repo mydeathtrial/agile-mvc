@@ -4,7 +4,9 @@ import com.agile.common.base.Constant;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BeanPropertyBindingResult;
-import java.util.Map;
+
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +34,25 @@ public final class StringUtil extends StringUtils {
             }
         }
         return cacheStr.toString();
+    }
+
+    /**
+     * 驼峰式转下路径匹配
+     * @param text 任意字符串
+     * @return 返回路径匹配正则
+     */
+    public static String camelToUrlRegex(String text){
+        StringBuilder s = new StringBuilder();
+        String[] setps = camelToUnderline(text).split("_");
+        for(int i = 0 ;i< setps.length;i++){
+            String step = setps[i];
+            String first = step.substring(0,1);
+
+            s.append(String.format("[%s]",first.toLowerCase()+first.toUpperCase())+step.substring(1));
+            if(i == setps.length-1)continue;
+            s.append(Constant.RegularAbout.URL_REGEX);
+        }
+        return s.toString();
     }
 
     /**
@@ -155,19 +176,70 @@ public final class StringUtil extends StringUtils {
         return sb.toString().split(",");
     }
 
-    public static String[] getGroupString(String regex,String text){
+    public static String getGroupString(String regex,String text,int index){
         Pattern pattern=Pattern.compile(regex,Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(text);
         int count = matcher.groupCount();
         if (count>0){
-            String[] s = new String[count-1];
             if (matcher.find()){
-                for (int i = 1 ; i < count;i++)
-                s[i-1] = matcher.group(i);
+                return matcher.group(index);
             }
-            return s;
         }
         return null;
+    }
+
+    /**
+     * 从el表达式中获取key、value，如{key:value}
+     * @param el 需要处理的字符串
+     * @param startChar 开始字符串如{
+     * @param endChar 结束字符串如}
+     * @param equalChar 中间字符串如：
+     * @return 返回处理后的map集合
+     */
+    public static Map<String,String> getGroupByStartEnd(String el,String startChar,String endChar,String equalChar){
+        Map<String,String> map = new LinkedHashMap<>();
+        int index = el.indexOf(startChar);
+        if(index == -1)return map;
+
+        String last = el;
+        while (index>-1 && index<el.length()){
+            int end;
+            int first = last.indexOf(startChar);
+            last = last.substring(first + startChar.length());
+            index += (first + startChar.length());
+            end = last.indexOf(equalChar);
+            if(end == -1)return map;
+            String key = last.substring(0, end);
+            index += end;
+            last = last.substring(end + equalChar.length());
+            index += equalChar.length();
+            end = last.indexOf(endChar);
+            if(end == -1)return map;
+            String value = last.substring(0, end);
+            index += end;
+            last = last.substring(end + endChar.length());
+            map.put(key,value);
+        }
+        return map;
+    }
+
+    public static Map<String,String> getParamFromMapping(String url,String mapUrl){
+        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> map = getGroupByStartEnd(mapUrl, "{", "}", ":");
+        for (Map.Entry<String,String> entry:map.entrySet()){
+            String value = getMatchedString(entry.getValue(), url,0);
+            if (isBlank(value)) {
+                return null;
+            }
+            result.put(entry.getKey(),value);
+            int start = url.indexOf(value);
+            url = url.substring(start+value.length());
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+        getGroupByStartEnd("{service:[dD]ictionary[\\W_]{0,1}[dD]ata[\\W_]{0,1}[sS]ervice}","{", "}", ":");
     }
 
     /**

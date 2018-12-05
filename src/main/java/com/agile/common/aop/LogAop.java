@@ -1,6 +1,5 @@
 package com.agile.common.aop;
 
-import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
 import com.agile.common.mvc.service.MainService;
@@ -8,7 +7,8 @@ import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +29,16 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 public class LogAop {
 
-    @Autowired
-    HttpServletRequest request;
-
-    private static int maxLenth = 5000;
+    private static final int MAX_LENGTH = 5000;
 
     //日志线程池
     private static ThreadPoolExecutor pool = PoolFactory.pool(5, 30, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(),new ThreadPoolExecutor.DiscardPolicy());
 
     //日志模板
-    private static final String logTemplate = "\nIP:%s\nURL:%s\n服务:%s\n方法:%s\n入参:%s\n出参:%s\n<---------------------------------------------------------------------->";
+    private static final String logTemplate = "\n状    态: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n出参:\n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
+    private static final String errorLogTemplate = "\n状    态: %s\n异常类型: %s\n异常信息: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
+    private static final String success = "success";
+    private static final String error = "error";
 
     /**
      * 服务切面
@@ -47,49 +47,76 @@ public class LogAop {
     public void servicePointCut() {
     }
 
-    /**
-     * 后置通知
-     * @param joinPoint 切入点
-     */
-    @After(value = "servicePointCut()")
-    public void logAround(JoinPoint joinPoint) {
-        MainService service = (MainService)joinPoint.getTarget();
+    @Around(value = "servicePointCut()")
+    public void logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        long endTime;
+        MainService service = getService(joinPoint);
+        HttpServletRequest request = (HttpServletRequest) joinPoint.getArgs()[2];
+        Method method = (Method)joinPoint.getArgs()[1];
         Map<String, Object> inParam = service.getInParam();
-        Map<String, Object> outParam = service.getOutParam();
-        LogThread thread = new LogThread(service, ((Method)(joinPoint.getArgs()[1])).getName(), ServletUtil.getCustomerIPAddr(request), request.getRequestURL(),inParam,outParam,request);
+        try {
+            joinPoint.proceed();
+        } catch (Throwable throwable) {
+            endTime = System.currentTimeMillis();
+            printLog(throwable,endTime-startTime,service, method.getName(),ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request),inParam);
+            throw throwable;
+        }
+        endTime = System.currentTimeMillis();
+        printLog(endTime-startTime,service, method.getName(),ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request),inParam,service.getOutParam());
+    }
+
+    private void printLog(long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam){
+        LogThread thread = new LogThread(time,service, methodName, ip, url,inParam,outParam);
         pool.execute(thread);
+    }
+
+    private void printLog(Throwable throwable, long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam){
+        LogThread thread = new LogThread(throwable,time,service, methodName, ip, url,inParam);
+        pool.execute(thread);
+    }
+
+    private MainService getService(JoinPoint joinPoint){
+        return (MainService)joinPoint.getTarget();
     }
 
     /**
      * 日志线程
      */
     private class LogThread implements Runnable {
+        Throwable e;
+        long time;
         Object service;
         String methodName;
         String ip;
-        StringBuffer url;
+        String url;
         Map<String, Object> inParam;
         Map<String, Object> outParam;
-        HttpServletRequest request;
-        LogThread(MainService service, String methodName, String ip, StringBuffer url, Map<String, Object> inParam, Map<String, Object> outParam, HttpServletRequest request) {
+        LogThread(long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
+            this(null,time,service,methodName,ip,url,inParam);
+            this.outParam = outParam;
+        }
+
+        LogThread(Throwable e,long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam){
+            this.e = e;
+            this.time = time;
             this.service = service;
             this.methodName = methodName;
             this.ip = ip;
             this.url = url;
             this.inParam = inParam;
-            this.outParam = outParam;
-            this.request = request;
         }
-
         @Override
         public void run() {
             try {
                 Class<?> serviceClass = service.getClass();
-                Log logger = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, serviceClass);
-                if(logger.isInfoEnabled()){
-                    String outStr = JSONUtil.toJSONString(outParam);
-                    String print = (outStr != null && outStr.length() > maxLenth) ? outStr.substring(0, maxLenth) + "...}":outStr;
-                    logger.info(String.format(logTemplate,ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toJSONString(inParam),print));
+                Log logger = LoggerFactory.getServiceLog(serviceClass);
+                if(e == null){
+                    String outStr = JSONUtil.toStringPretty(outParam,10);
+                    String print = (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}":outStr;
+                    logger.info(String.format(logTemplate,success,ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),print,time));
+                }else{
+                    logger.info(String.format(errorLogTemplate,error,e.getClass(),e.getMessage(),ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),time));
                 }
             }catch (Exception e){
                 e.printStackTrace();

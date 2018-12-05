@@ -9,6 +9,7 @@ import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
@@ -414,27 +415,87 @@ public class Dao {
 
         SQLExpr where = sqlSelectQueryBlock.getWhere();
         if(where == null)return sql;
-        List<SQLObject> conditions = where.getChildren();
-        for (SQLObject c:conditions) {
-            List<SQLExpr> items = SQLBinaryOpExpr.split((SQLBinaryOpExpr) c);
-            for (SQLExpr item:items) {
-                String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);
-                if(key!=null){
-                    Object value = parameters.get(key);
-                    if(parameters.get(key) == null || StringUtil.isEmpty(String.valueOf(value))){
-                        SQLUtils.replaceInParent(item,null);
-                    }else{
-                        String format = item.toString().replace(String.format("{%s}", key), "{%s}");
-                        SQLUtils.replaceInParent(item,SQLUtils.toSQLExpr(format.replaceAll("\\{%s\\}",parameters.get(key).toString())));
-                    }
-                }
-            }
-        }
+        parserSQLObject(where,parameters);
 
         System.out.println(sqlSelectQueryBlock.toString());
         return sqlSelectQueryBlock.toString();
     }
 
+    private static void parserSQLObject(SQLExpr c,Map<String,Object> parameters){
+        List<SQLObject> list = c.getChildren();
+        for(SQLObject sql:list){
+            List<SQLObject> children = ((SQLExpr) sql).getChildren();
+            if(children == null || children.size() == 0){
+                SQLObject parent = sql.getParent();
+                if(parent instanceof SQLInListExpr){
+                    parserWhere((SQLInListExpr)parent,parameters);
+                }else if(parent instanceof SQLBinaryOpExpr){
+                    parserWhere((SQLBinaryOpExpr)parent,parameters);
+                }
+                break;
+            }else{
+                parserSQLObject((SQLExpr)sql,parameters);
+            }
+        }
+    }
+
+    private static void parser(List<SQLExpr> items,Map<String,Object> parameters){
+        for (SQLExpr item:items) {
+            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);
+            if(key!=null){
+                Object value = parameters.get(key);
+                if(parameters.get(key) == null || StringUtil.isEmpty(String.valueOf(value))){
+                    SQLUtils.replaceInParent((SQLExpr) item.getParent(),null);
+                }else{
+                    String format = item.toString().replace(String.format("{%s}", key), "{%s}");
+                    Object param = parameters.get(key);
+                    SQLUtils.replaceInParent(item,SQLUtils.toSQLExpr(format.replaceAll("\\{%s\\}",param.toString())));
+                }
+            }
+        }
+    }
+    private static void parserWhere(SQLInListExpr c,Map<String,Object> parameters){
+        List<SQLExpr> items = c.getTargetList();
+        if(items == null)return;
+        List<SQLExpr> list = new ArrayList<>();
+        for (SQLExpr item:items) {
+            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);
+            if(key!=null){
+                Object value = parameters.get(key);
+                if(parameters.get(key) != null && !StringUtil.isEmpty(String.valueOf(value))){
+                    Object param = parameters.get(key);
+                    if(param instanceof Iterable){
+                        Iterator it = ((Iterable) param).iterator();
+                        while (it.hasNext()){
+                            list.add(SQLUtils.toSQLExpr(String.format("'%s'",String.valueOf(it.next()))));
+                        }
+                    }else if(param.getClass().isArray()){
+                        for (Object o:(Object[])param) {
+                            list.add(SQLUtils.toSQLExpr(String.format("'%s'",String.valueOf(o))));
+                        }
+                    }
+                }
+            }
+        }
+        if(list.size()>0){
+            c.setTargetList(list);
+        }else{
+            c.setNot(!c.isNot());
+            c.setTargetList(Collections.singletonList(SQLUtils.toSQLExpr("null")));
+        }
+    }
+    private static void parserWhere(SQLBinaryOpExpr c,Map<String,Object> parameters){
+        List<SQLExpr> items = SQLBinaryOpExpr.split(c);
+        parser(items,parameters);
+    }
+
+    public static void main(String[] args) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("ids",new String[]{"1","123"});
+        map.put("name","222");
+        map.put("id","111");
+        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name={name1} or cd = {name1}",map);
+    }
     /**
      * 根据sql查询出单条数据，并映射成指定clazz类型
      * @param <T> 查询的表的映射实体类型

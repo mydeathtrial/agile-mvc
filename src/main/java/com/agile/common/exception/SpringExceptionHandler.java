@@ -8,6 +8,7 @@ import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.StringUtil;
 import org.apache.commons.logging.Log;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -15,14 +16,14 @@ import org.springframework.web.servlet.ModelAndView;
 /**
  * Created by 佟盟 on 2018/6/25
  */
+@Order(0)
 @ControllerAdvice
 public class SpringExceptionHandler {
-    /**
-     * 日志工具
-     */
-    private Log logger = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, this.getClass());
 
-    private static String MESSAGE_PRIFIX = "agile.exception.%s";
+    private static final String MESSAGE_PREFIX = "agile.exception.%s";
+    private static final String ERROR_MESSAGE_TEMPLATE = "[类:%s][方法:%s][行:%s]";
+    private static final String ERROR_DETAIL_MESSAGE_TEMPLATE = "[信息:%s]";
+
     @ExceptionHandler(Throwable.class)
     public ModelAndView allExceptionHandler(Throwable e){
         return createModelAndView(e);
@@ -34,13 +35,13 @@ public class SpringExceptionHandler {
 
         RETURN r;
         if(e instanceof AbstractCustomException){
-            r = RETURN.getMessage(String.format(MESSAGE_PRIFIX, e.getClass().getSimpleName()),((AbstractCustomException) e).getParams());
+            r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()),((AbstractCustomException) e).getParams());
         }else{
             if(e.getCause() == null){
-                r = RETURN.getMessage(String.format(MESSAGE_PRIFIX, e.getClass().getSimpleName()));
+                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()));
 
             }else{
-                r = RETURN.getMessage(String.format(MESSAGE_PRIFIX, e.getCause().getClass().getSimpleName()));
+                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getCause().getClass().getSimpleName()));
             }
         }
         if(r == null){
@@ -53,7 +54,7 @@ public class SpringExceptionHandler {
 
         AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
         if(abstractResponseFormat!=null){
-            modelAndView = FactoryUtil.getBean(AbstractResponseFormat.class).buildResponse(head,msgStr);
+            modelAndView = abstractResponseFormat.buildResponse(head,msgStr);
         }else{
             modelAndView = new ModelAndView();
             modelAndView.addObject(Constant.ResponseAbout.HEAD,head);
@@ -69,12 +70,11 @@ public class SpringExceptionHandler {
         String method = msg.getMethodName();
         int lineNumber = msg.getLineNumber();
 
-        String msgStr = String.format("【异常定位:[类:%s]调用[方法:%s]时在第%s行代码处发生错误!】",exclass,method,lineNumber);
+        String msgStr = String.format(ERROR_MESSAGE_TEMPLATE,exclass,method,lineNumber);
 
         if(!StringUtil.isEmpty(e.getMessage())){
-            msgStr += String.format(" | 【详情:%s】", e.getMessage());
+            msgStr += String.format(ERROR_DETAIL_MESSAGE_TEMPLATE, e.getMessage());
         }
-        logger.error(msgStr);
         return msgStr;
     }
 

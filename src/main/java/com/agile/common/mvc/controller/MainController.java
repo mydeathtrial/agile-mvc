@@ -12,6 +12,7 @@ import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.util.*;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.view.ForwardView;
+import org.springframework.data.util.ProxyUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
@@ -464,23 +465,25 @@ public class MainController {
         uri = uri.replaceAll("."+extension,"");
         HandlerMethod info = APIUtil.getApiCache(currentRequest);
 
+        //处理路径入参
         if(info!=null){
             Object bean = info.getBean();
             Method method = info.getMethod();
-            RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(method, bean.getClass());
+            RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(method, ProxyUtils.getUserClass(bean));
             if(requestMappingInfo!=null){
                 Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
                 for (String mapping:mappingCache){
                     String[] uris = StringUtil.split(uri,Constant.RegularAbout.SLASH);
                     String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);
-                    int i = 0;
-                    for(String targetParam:targetParams){
-                        if(StringUtil.findMatchedString(Constant.RegularAbout.URL_PARAM, targetParam)){
-                            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM, targetParam, 0);
+                    if(uris.length == targetParams.length){
+                        for(int i = 0 ; i < targetParams.length;i++){
+                            String targetParam = targetParams[i];
                             String value = uris[i];
-                            inParam.put(key,value);
+                            Map<String, String> params = StringUtil.getParamFromMapping(value, targetParam);
+                            if(params!=null){
+                                inParam.putAll(params);
+                            }
                         }
-                        i++;
                     }
                 }
             }

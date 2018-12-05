@@ -16,19 +16,18 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class EhCacheRegionFactory extends SingletonEhcacheRegionFactory {
     private static final AtomicInteger REFERENCE_COUNT = new AtomicInteger();
-    private Log log = LoggerFactory.createLogger("ehcache",EhCacheRegionFactory.class);
 
     @Override
     protected CacheManager resolveCacheManager(SessionFactoryOptions settings, Map properties) {
         try {
-            if(log.isInfoEnabled()){
-                log.info("初始化EhCache二级缓存区域");
+            if(LoggerFactory.CACHE_LOG.isInfoEnabled()){
+                LoggerFactory.CACHE_LOG.info("初始化EhCache二级缓存区域");
             }
             REFERENCE_COUNT.incrementAndGet();
             return CacheManager.create(EhCacheConfig.configuration());
         }catch (Exception e){
-            if(log.isInfoEnabled()){
-                log.info("初始化EhCache二级缓存区域失败");
+            if(LoggerFactory.CACHE_LOG.isInfoEnabled()){
+                LoggerFactory.CACHE_LOG.info("初始化EhCache二级缓存区域失败");
             }
             REFERENCE_COUNT.decrementAndGet();
             throw e;

@@ -1,7 +1,7 @@
 package com.agile.common.container;
 
-import com.agile.common.config.ConfigProcessor;
 import com.agile.common.config.LoggerFactoryConfig;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.filter.CORSFilter;
 import com.agile.common.kaptcha.KaptchaServlet;
 import com.agile.common.util.DataBaseUtil;
@@ -9,8 +9,6 @@ import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.alibaba.druid.support.http.StatViewServlet;
 import com.alibaba.druid.support.http.WebStatFilter;
-import org.apache.commons.logging.Log;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.jolokia.http.AgentServlet;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
@@ -35,7 +33,7 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
 
         System.setProperty("webapp.root",servletContext.getRealPath("/"));
 
-        Log logger = com.agile.common.factory.LoggerFactory.createLogger("container", WebInitializer.class,Level.DEBUG,Level.ERROR);
+
 
         DataBaseUtil.tryLink(PropertiesUtil.getProperty("agile.druid.type"), PropertiesUtil.getProperty("agile.druid.data_base_ip"), PropertiesUtil.getProperty("agile.druid.data_base_port"), PropertiesUtil.getProperty("agile.druid.data_base_name"), PropertiesUtil.getProperty("agile.druid.data_base_username"), PropertiesUtil.getProperty("agile.druid.data_base_password"));
 
@@ -51,8 +49,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         /*
           编码过滤器
          */
-        if(logger.isDebugEnabled()){
-            logger.debug("初始化编码过滤器");
+        if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+            LoggerFactory.COMMON_LOG.debug("初始化编码过滤器");
         }
         FilterRegistration.Dynamic encodingFilter = servletContext.addFilter("EncodingFilter", CharacterEncodingFilter.class);
         encodingFilter.setInitParameter("encoding", PropertiesUtil.getProperty("agile.servlet.character"));
@@ -63,8 +61,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         /*
           Druid监控过滤器
          */
-        if(logger.isDebugEnabled()){
-            logger.debug("初始化Druid监控过滤器");
+        if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+            LoggerFactory.COMMON_LOG.debug("初始化Druid监控过滤器");
         }
         FilterRegistration.Dynamic druidWebStatFilter = servletContext.addFilter("DruidWebStatFilter", WebStatFilter.class);
         druidWebStatFilter.setInitParameter("exclusions",PropertiesUtil.getProperty("agile.druid.exclusions"));
@@ -74,8 +72,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         /*
           CORS过滤器
          */
-        if(logger.isDebugEnabled()){
-            logger.debug("初始化CORS过滤器");
+        if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+            LoggerFactory.COMMON_LOG.debug("初始化CORS过滤器");
         }
         FilterRegistration.Dynamic corsFilter = servletContext.addFilter("CORSFilter", CORSFilter.class);
         corsFilter.setInitParameter("allowOrigin",PropertiesUtil.getProperty("agile.servlet.allow_origin"));
@@ -88,8 +86,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
           Security过滤器
          */
         if(Boolean.valueOf(PropertiesUtil.getProperty("agile.security.enable"))){
-            if(logger.isDebugEnabled()){
-                logger.debug("初始化Security过滤链");
+            if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+                LoggerFactory.COMMON_LOG.debug("初始化Security过滤链");
             }
             FilterRegistration.Dynamic securityFilter = servletContext.addFilter("springSecurityFilterChain", DelegatingFilterProxy.class);
             if(!ObjectUtil.isEmpty(securityFilter)){
@@ -101,8 +99,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
           验证码Servlet
          */
         if(Boolean.valueOf(PropertiesUtil.getProperty("agile.kaptcha.enable"))){
-            if(logger.isDebugEnabled()){
-                logger.debug("初始化验证码Servlet");
+            if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+                LoggerFactory.COMMON_LOG.debug("初始化验证码Servlet");
             }
             ServletRegistration.Dynamic kaptchaServlet = servletContext.addServlet("VerificationCodeServlet", KaptchaServlet.class);
             kaptchaServlet.addMapping(PropertiesUtil.getProperty("agile.kaptcha.url"));
@@ -111,8 +109,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         /*
           DruidServlet
          */
-        if(logger.isDebugEnabled()){
-            logger.debug("初始化DruidServlet");
+        if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+            LoggerFactory.COMMON_LOG.debug("初始化DruidServlet");
         }
         ServletRegistration.Dynamic druidStatViewServlet = servletContext.addServlet("DruidStatViewServlet", StatViewServlet.class);
         druidStatViewServlet.setInitParameter("resetEnable",PropertiesUtil.getProperty("agile.druid.reset_enable"));
@@ -125,13 +123,13 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
          */
         ServletRegistration springDispatcherServlet;
         if(servletContext.getServletRegistrations().containsKey("dispatcherServlet")){
-            if(logger.isDebugEnabled()){
-                logger.debug("当前环境识别为spring boot启动");
+            if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+                LoggerFactory.COMMON_LOG.debug("当前环境识别为spring boot启动");
             }
             springDispatcherServlet = servletContext.getServletRegistrations().get("dispatcherServlet");
         }else{
-            if(logger.isDebugEnabled()){
-                logger.debug("初始化SpringDispatcherServlet");
+            if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+                LoggerFactory.COMMON_LOG.debug("初始化SpringDispatcherServlet");
             }
             springDispatcherServlet = servletContext.addServlet("SpringDispatcherServlet", DispatcherServlet.class);
         }
@@ -147,8 +145,8 @@ public class WebInitializer implements WebApplicationInitializer,ServletContextI
         /*
           内存溢出监听
          */
-        if(logger.isDebugEnabled()){
-            logger.debug("初始化内存溢出监听");
+        if(LoggerFactory.COMMON_LOG.isDebugEnabled()){
+            LoggerFactory.COMMON_LOG.debug("初始化内存溢出监听");
         }
         servletContext.addListener(IntrospectorCleanupListener.class);
 

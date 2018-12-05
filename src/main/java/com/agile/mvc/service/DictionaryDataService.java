@@ -1,10 +1,8 @@
 package com.agile.mvc.service;
 
-import com.agile.common.annotation.Init;
 import com.agile.common.annotation.Mapping;
-import com.agile.common.exception.NoSuchIDException;
+import com.agile.common.base.RETURN;
 import com.agile.common.mvc.service.BusinessService;
-import com.agile.common.util.JSONUtil;
 import com.agile.common.util.RandomStringUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.agile.mvc.entity.SysUsersEntity;
@@ -30,5 +28,15 @@ public class DictionaryDataService extends BusinessService<DictionaryDataEntity>
     @ApiResponses({@ApiResponse(code = 200,message = "成功",response = DictionaryDataEntity.class)})
     public Object test() {
         return dao.saveAndReturn(SysUsersEntity.builder().setName("tudou").setSysUsersId(RandomStringUtil.getRandom(8, RandomStringUtil.Random.MIX_1)).setSaltKey("111").setSaltValue("111").build());
+    }
+
+    public Object test1(){
+        setOutParam("key",dao.findAll(SysUsersEntity.class));
+        return RETURN.SUCCESS;
+    }
+
+    @Mapping(value = "/test2")
+    public Object test2(){
+        return RETURN.SUCCESS;
     }
 }

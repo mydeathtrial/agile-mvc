@@ -1,6 +1,10 @@
 package com.agile.common.factory;
 
 import com.agile.common.base.Constant;
+import com.agile.common.cache.Cache;
+import com.agile.common.config.LoggerFactoryConfig;
+import com.agile.common.container.WebInitializer;
+import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
@@ -21,12 +25,15 @@ import org.apache.logging.log4j.core.appender.rolling.TriggeringPolicy;
 import org.apache.logging.log4j.core.async.AsyncLoggerConfig;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.builder.impl.DefaultConfigurationBuilder;
 import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -165,6 +172,7 @@ public class LoggerFactory {
     }
 
     static {
+        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
         String prefix = "agile.log.package.";
         Properties properties = PropertiesUtil.getPropertyByPrefix(prefix);
         for (String key:properties.stringPropertyNames()) {
@@ -172,5 +180,18 @@ public class LoggerFactory {
             String packageName = key.replaceFirst(prefix,"");
             createLogger(packageName,packageName,coverLevel(levels));
         }
+    }
+    public static Log COMMON_LOG = createLogger("container", WebInitializer.class,Level.DEBUG,Level.ERROR);
+    public static Log CACHE_LOG = createLogger("cache", Cache.class,Level.DEBUG,Level.ERROR);
+    public static Log DAO_LOG = createLogger("sql", Dao.class,Level.INFO,Level.ERROR);
+    private static Map<Class,Log> ServiceCacheLogs = new HashMap<>();
+
+    public static Log getServiceLog(Class clazz){
+        Log log = ServiceCacheLogs.get(clazz);
+        if(log==null){
+            log = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, clazz);
+            ServiceCacheLogs.put(clazz,log);
+        }
+        return log;
     }
 }

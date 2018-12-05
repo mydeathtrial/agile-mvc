@@ -20,6 +20,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+
 
 /**
  * Created by 佟盟 on 2017/5/5
@@ -66,6 +69,14 @@ public class MainControllerTest {
      */
     protected void setParameter(String key,String value){
         request.setParameter(key,value);
+    }
+
+    /**
+     * 设置body参数
+     * @param value 参数
+     */
+    protected void setBody(String value) {
+        request.setContent(value.getBytes(StandardCharsets.UTF_8));
     }
 
     /**

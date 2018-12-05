@@ -3,7 +3,6 @@ package com.agile.common.cache.ehCache;
 import com.agile.common.factory.LoggerFactory;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.Configuration;
-import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -13,7 +12,6 @@ import org.springframework.lang.Nullable;
  * Created by 佟盟 on 2018/2/11
  */
 public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, InitializingBean, DisposableBean {
-    private Log log = LoggerFactory.createLogger("ehcache",EhCacheManagerFactoryBean.class);
     @Nullable
     private CacheManager cacheManager;
     private boolean locallyManaged = true;
@@ -47,8 +45,8 @@ public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, Ini
     @Override
     public void destroy() {
         if (this.cacheManager != null && this.locallyManaged) {
-            if (log.isInfoEnabled()) {
-                log.info("关闭 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
+            if (LoggerFactory.CACHE_LOG.isInfoEnabled()) {
+                LoggerFactory.CACHE_LOG.info("关闭 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
             }
             this.cacheManager.shutdown();
         }
@@ -66,8 +64,8 @@ public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, Ini
 
     @Override
     public void afterPropertiesSet() {
-        if (log.isInfoEnabled()) {
-            log.info("正在初始化 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
+        if (LoggerFactory.CACHE_LOG.isInfoEnabled()) {
+            LoggerFactory.CACHE_LOG.info("正在初始化 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
         }
 
         if (this.cacheManagerName != null) {

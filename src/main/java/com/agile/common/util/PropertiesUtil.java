@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -22,6 +23,7 @@ import java.util.*;
 public class PropertiesUtil extends PropertiesLoaderUtils {
 
     private static final String classPath = "/com/agile/conf/";
+    private static final String json_file_error = "未成功解析的json文件";
     public static Properties properties = new Properties();
 
     private PropertiesUtil(File file) {
@@ -164,7 +166,8 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
         try {
             if(ObjectUtil.isEmpty(file) || !file.getName().endsWith(".json"))return;
             String data = FileUtils.readFileToString(file,"UTF-8");
-            properties.put(file.getName(),JSONUtil.toJSON(data));
+            JSON json = JSONUtil.toJSON(data);
+            properties.put(file.getName(),json==null?json_file_error:json);
         }catch (Exception ignored){}
     }
 

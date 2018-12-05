@@ -142,7 +142,7 @@ public class ServletUtil {
             }
             JSONObject json;
             try{
-                json = JSONUtil.toJSON(jsonStr.toString());
+                json = (JSONObject) JSONUtil.toJSON(jsonStr.toString());
             }catch (Exception e){
                 return null;
             }
@@ -162,4 +162,14 @@ public class ServletUtil {
         return null;
     }
 
+    /**
+     * 获取当前request中的请求地址
+     * @return url
+     */
+    public static String getCurrentUrl(HttpServletRequest request){
+        if(request!=null){
+            return request.getRequestURL().toString();
+        }
+        return null;
+    }
 }

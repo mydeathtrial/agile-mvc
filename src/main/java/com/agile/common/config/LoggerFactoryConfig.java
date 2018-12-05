@@ -21,10 +21,6 @@ import java.net.URI;
 @Plugin(name = "LoggerFactoryConfig", category = ConfigurationFactory.CATEGORY)
 public class LoggerFactoryConfig extends ConfigurationFactory {
 
-    static {
-        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
-    }
-
     private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder){
         builder.setConfigurationName(name);
 

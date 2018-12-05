@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2.44</version>
+    <version>1.0.2.46</version>
     <name>Agile工程</name>
     <description>Agile API平台</description>
     <url>http://192.168.0.55:7777/repository/maven-public/</url>
@@ -26,21 +26,6 @@
         <version>1.0.6</version>
     </parent>
 
-    <!--<dependencies>-->
-        <!--<dependency>-->
-            <!--<groupId>javax</groupId>-->
-            <!--<artifactId>javaee-api</artifactId>-->
-            <!--<version>8.0</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
-    <!--</dependencies>-->
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-websocket</artifactId>
-            <version>5.1.0.RELEASE</version>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
             <!--<plugin>-->
