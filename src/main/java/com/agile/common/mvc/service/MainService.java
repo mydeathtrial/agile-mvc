@@ -3,11 +3,13 @@ package com.agile.common.mvc.service;
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.base.AbstractResponseFormat;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
 import com.agile.common.util.*;
 import com.agile.mvc.entity.SysUsersEntity;
 import net.sf.json.JSONObject;
+import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,8 @@ public class MainService implements ServiceInterface {
 
     @Autowired
     protected Dao dao;
+
+    protected Log logger = LoggerFactory.getServiceLog(this.getClass());
 
     //输入
     private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();

@@ -7,6 +7,7 @@ import com.agile.common.util.RandomStringUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.agile.mvc.entity.SysUsersEntity;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +32,13 @@ public class DictionaryDataService extends BusinessService<DictionaryDataEntity>
     }
 
     public Object test1(){
-        setOutParam("key",dao.findAll(SysUsersEntity.class));
+        this.logger.info("11111111111111111111111111");
+        dao.findOne(SysUsersEntity.class,"1");
+        respository.get("1");
+        setOutParam("key",respository.get0("1"));
         return RETURN.SUCCESS;
     }
 
-    @Mapping(value = "/test2")
-    public Object test2(){
-        return RETURN.SUCCESS;
-    }
+    @Autowired
+    Respository respository;
 }

@@ -4,16 +4,11 @@ import com.agile.common.base.Constant;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.*;
 import com.alibaba.druid.sql.SQLUtils;
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.SQLObject;
-import com.alibaba.druid.sql.ast.SQLOrderBy;
-import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.*;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
-import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
-import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
+import com.alibaba.druid.sql.ast.statement.*;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
@@ -369,134 +364,6 @@ public class Dao {
     }
 
     /**
-     * 根据给定参数动态生成完成参数占位的查询条数sql语句
-     * @param sql 原sql模板
-     * @param parameters map格式的sql语句中的参数集合，使用{paramName}方式占位
-     * @return 生成的sql结果
-     */
-    public static String parserCountSQL(String sql,Map<String,Object> parameters){
-        sql = parserSQL( sql, parameters);
-        // 新建 MySQL Parser
-        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
-        // 使用Parser解析生成AST，这里SQLStatement就是AST
-        SQLStatement statement = parser.parseStatement();
-        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
-        List<SQLSelectItem> items = sqlSelectQueryBlock.getSelectList();
-        items.removeAll(items);
-        items.add(new SQLSelectItem(SQLUtils.toSQLExpr("count(1)")));
-        return sqlSelectQueryBlock.toString();
-    }
-
-//    public static void main(String[] args) {
-//        Map<String,String> param
-//        parserCountSQL("update sys_users set name={name} where id={id}",)
-//    }
-    /**
-     * 根据给定参数动态生成完成参数占位的sql语句
-     * @param sql 原sql
-     * @param parameters map格式的sql语句中的参数集合，使用{paramName}方式占位
-     * @return 生成的sql结果
-     */
-    public static String parserSQL(String sql,Map<String,Object> parameters){
-        if(!sql.contains("{"))return sql;
-        sql = sql.replaceAll("\\{","\\'{").replaceAll("}","\\}'");
-
-        // 新建 MySQL Parser
-        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
-
-        // 使用Parser解析生成AST，这里SQLStatement就是AST
-        SQLStatement statement = parser.parseStatement();
-
-        // 使用visitor来访问AST
-        MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
-        statement.accept(visitor);
-
-        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
-
-        SQLExpr where = sqlSelectQueryBlock.getWhere();
-        if(where == null)return sql;
-        parserSQLObject(where,parameters);
-
-        System.out.println(sqlSelectQueryBlock.toString());
-        return sqlSelectQueryBlock.toString();
-    }
-
-    private static void parserSQLObject(SQLExpr c,Map<String,Object> parameters){
-        List<SQLObject> list = c.getChildren();
-        for(SQLObject sql:list){
-            List<SQLObject> children = ((SQLExpr) sql).getChildren();
-            if(children == null || children.size() == 0){
-                SQLObject parent = sql.getParent();
-                if(parent instanceof SQLInListExpr){
-                    parserWhere((SQLInListExpr)parent,parameters);
-                }else if(parent instanceof SQLBinaryOpExpr){
-                    parserWhere((SQLBinaryOpExpr)parent,parameters);
-                }
-                break;
-            }else{
-                parserSQLObject((SQLExpr)sql,parameters);
-            }
-        }
-    }
-
-    private static void parser(List<SQLExpr> items,Map<String,Object> parameters){
-        for (SQLExpr item:items) {
-            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);
-            if(key!=null){
-                Object value = parameters.get(key);
-                if(parameters.get(key) == null || StringUtil.isEmpty(String.valueOf(value))){
-                    SQLUtils.replaceInParent((SQLExpr) item.getParent(),null);
-                }else{
-                    String format = item.toString().replace(String.format("{%s}", key), "{%s}");
-                    Object param = parameters.get(key);
-                    SQLUtils.replaceInParent(item,SQLUtils.toSQLExpr(format.replaceAll("\\{%s\\}",param.toString())));
-                }
-            }
-        }
-    }
-    private static void parserWhere(SQLInListExpr c,Map<String,Object> parameters){
-        List<SQLExpr> items = c.getTargetList();
-        if(items == null)return;
-        List<SQLExpr> list = new ArrayList<>();
-        for (SQLExpr item:items) {
-            String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);
-            if(key!=null){
-                Object value = parameters.get(key);
-                if(parameters.get(key) != null && !StringUtil.isEmpty(String.valueOf(value))){
-                    Object param = parameters.get(key);
-                    if(param instanceof Iterable){
-                        Iterator it = ((Iterable) param).iterator();
-                        while (it.hasNext()){
-                            list.add(SQLUtils.toSQLExpr(String.format("'%s'",String.valueOf(it.next()))));
-                        }
-                    }else if(param.getClass().isArray()){
-                        for (Object o:(Object[])param) {
-                            list.add(SQLUtils.toSQLExpr(String.format("'%s'",String.valueOf(o))));
-                        }
-                    }
-                }
-            }
-        }
-        if(list.size()>0){
-            c.setTargetList(list);
-        }else{
-            c.setNot(!c.isNot());
-            c.setTargetList(Collections.singletonList(SQLUtils.toSQLExpr("null")));
-        }
-    }
-    private static void parserWhere(SQLBinaryOpExpr c,Map<String,Object> parameters){
-        List<SQLExpr> items = SQLBinaryOpExpr.split(c);
-        parser(items,parameters);
-    }
-
-    public static void main(String[] args) {
-        Map<String,Object> map = new HashMap<>();
-        map.put("ids",new String[]{"1","123"});
-        map.put("name","222");
-        map.put("id","111");
-        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name={name1} or cd = {name1}",map);
-    }
-    /**
      * 根据sql查询出单条数据，并映射成指定clazz类型
      * @param <T> 查询的表的映射实体类型
      * @param sql sql
@@ -523,7 +390,7 @@ public class Dao {
      * @return 查询的结果
      */
     public <T>T findOne(String sql, Class<T> clazz,Map<String,Object> parameters){
-        return findOne(parserSQL(sql,parameters),clazz);
+        return findOne(SqlUtil.parserSQL(sql,parameters),clazz);
     }
 
     /**
@@ -618,7 +485,7 @@ public class Dao {
     }
 
     public <T>List<T> findAll(String sql, Class<T> clazz,Map<String,Object> parameters){
-        List result = findAll(parserSQL(sql,parameters),clazz);
+        List result = findAll(SqlUtil.parserSQL(sql,parameters),clazz);
         if(result!=null)return result;
         return new ArrayList<>();
     }
@@ -693,11 +560,11 @@ public class Dao {
     }
 
     public Page findPageBySQL(String sql, String countSql,int page, int size, Map<String,Object> parameters){
-        return findPageBySQL(parserSQL(sql,parameters),parserSQL(countSql,parameters),page,size);
+        return findPageBySQL(SqlUtil.parserSQL(sql,parameters),SqlUtil.parserSQL(countSql,parameters),page,size);
     }
 
     public Page findPageBySQL(String sql,int page, int size, Map<String,Object> parameters){
-        return findPageBySQL(parserSQL(sql,parameters),parserCountSQL(sql,parameters),page,size);
+        return findPageBySQL(SqlUtil.parserSQL(sql,parameters),SqlUtil.parserCountSQL(sql,parameters),page,size);
     }
 
     private Query creatQuery(String sql, Object... parameters){
@@ -730,7 +597,7 @@ public class Dao {
     }
 
     public List<Map<String,Object>> findAllBySQL(String sql,Map<String,Object> parameters){
-        List result = findAllBySQL(parserSQL(sql,parameters));
+        List result = findAllBySQL(SqlUtil.parserSQL(sql,parameters));
         if(result!=null)return result;
         return new ArrayList<>();
     }
@@ -747,7 +614,7 @@ public class Dao {
     }
 
     public Object findParameter(String sql,Map<String,Object> parameters){
-        return findParameter(parserSQL(sql,parameters));
+        return findParameter(SqlUtil.parserSQL(sql,parameters));
     }
 
     /**
@@ -760,7 +627,7 @@ public class Dao {
     }
 
     public int updateBySQL(String sql,Map<String,Object> parameters){
-        return updateBySQL(parserSQL(sql,parameters));
+        return updateBySQL(SqlUtil.parserSQL(sql,parameters));
     }
     /**
      * 查询列表

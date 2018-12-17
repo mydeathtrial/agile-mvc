@@ -4,6 +4,7 @@ import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
 import com.agile.common.mvc.service.MainService;
 import com.agile.common.util.JSONUtil;
+import com.agile.common.util.MapUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
 import org.aspectj.lang.JoinPoint;
@@ -13,9 +14,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -39,6 +42,7 @@ public class LogAop {
     private static final String errorLogTemplate = "\n状    态: %s\n异常类型: %s\n异常信息: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
     private static final String success = "success";
     private static final String error = "error";
+    private static final String detailErrorInfo = "详细错误信息：\n";
 
     /**
      * 服务切面
@@ -94,7 +98,7 @@ public class LogAop {
         Map<String, Object> outParam;
         LogThread(long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
             this(null,time,service,methodName,ip,url,inParam);
-            this.outParam = outParam;
+            this.outParam = MapUtil.coverCanSerializer(outParam);;
         }
 
         LogThread(Throwable e,long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam){
@@ -104,7 +108,7 @@ public class LogAop {
             this.methodName = methodName;
             this.ip = ip;
             this.url = url;
-            this.inParam = inParam;
+            this.inParam = MapUtil.coverCanSerializer(inParam);;
         }
         @Override
         public void run() {
@@ -116,7 +120,8 @@ public class LogAop {
                     String print = (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}":outStr;
                     logger.info(String.format(logTemplate,success,ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),print,time));
                 }else{
-                    logger.info(String.format(errorLogTemplate,error,e.getClass(),e.getMessage(),ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),time));
+                    logger.error(String.format(errorLogTemplate,error,e.getClass(),e.getMessage(),ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),time));
+                    logger.error(detailErrorInfo,e);
                 }
             }catch (Exception e){
                 e.printStackTrace();

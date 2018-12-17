@@ -1,12 +1,13 @@
 package com.agile.common.config;
 
 import com.agile.common.exception.NonSupportDBException;
+import com.agile.common.filter.DruidFilter;
 import com.agile.common.properties.*;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import javax.annotation.PostConstruct;
 import java.sql.SQLException;
+import java.util.Collections;
 
 /**
  * Created by 佟盟 on 2017/10/7
@@ -70,6 +71,8 @@ public class DruidConfig {
         druidDataSource.setPoolPreparedStatements(druidConfigProperty.isPoolPreparedStatements());
         druidDataSource.setMaxPoolPreparedStatementPerConnectionSize(druidConfigProperty.getMaxPoolPreparedStatementPerConnectionSize());
         druidDataSource.setUseGlobalDataSourceStat(druidConfigProperty.isGlobalDataSourceStat());
+
+        druidDataSource.setProxyFilters(Collections.singletonList(new DruidFilter()));
         return druidDataSource;
 
     }

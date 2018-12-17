@@ -30,6 +30,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.config.builder.impl.DefaultConfigurationBuilder;
 import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.elasticsearch.client.Client;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +44,7 @@ import java.util.Properties;
 public class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
-    private static String path = PropertiesUtil.getProperty("agile.log.package_uri",System.getProperty("webapp.root","")+"/logs/");
+    private static String path = PropertiesUtil.getProperty("agile.log.package_uri",System.getProperty("webapp.root","")+"logs\\");
 
     private LoggerFactory() {}
     private static void createLogger(String baseName, String packagePath, Level... levels) {
@@ -129,6 +130,11 @@ public class LoggerFactory {
         return LogFactory.getLog(clazz);
     }
 
+    private static Log createPlugLogger(String fileName, String plugKey, Class clazz, Level... levels) {
+        if(!PropertiesUtil.getProperty(plugKey,boolean.class,"false"))return null;
+        return createLogger(fileName,clazz,levels);
+    }
+
     public static Log createLogger(String fileName,Class clazz,String packagePath,Level... levels) {
         createLogger(fileName,packagePath,levels);
         return LogFactory.getLog(clazz);
@@ -181,9 +187,11 @@ public class LoggerFactory {
             createLogger(packageName,packageName,coverLevel(levels));
         }
     }
-    public static Log COMMON_LOG = createLogger("container", WebInitializer.class,Level.DEBUG,Level.ERROR);
+    public static Log COMMON_LOG = createLogger("container",WebInitializer.class,Level.DEBUG,Level.ERROR);
     public static Log CACHE_LOG = createLogger("cache", Cache.class,Level.DEBUG,Level.ERROR);
     public static Log DAO_LOG = createLogger("sql", Dao.class,Level.INFO,Level.ERROR);
+    public static Log ES_LOG = createPlugLogger("elasticsearch","agile.elasticsearch.enable", Client.class,Level.INFO,Level.ERROR);
+    public static Log TASK_LOG = createPlugLogger("task","agile.task.enable", Client.class,Level.INFO,Level.ERROR);
     private static Map<Class,Log> ServiceCacheLogs = new HashMap<>();
 
     public static Log getServiceLog(Class clazz){

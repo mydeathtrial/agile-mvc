@@ -27,7 +27,7 @@ import java.util.concurrent.ScheduledFuture;
  * Created by 佟盟 on 2018/2/2
  */
 public class TaskService extends BusinessService<SysTaskEntity>{
-    private Log log = LoggerFactory.createLogger("task",TaskService.class);
+    private Log log = LoggerFactory.TASK_LOG;
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
 

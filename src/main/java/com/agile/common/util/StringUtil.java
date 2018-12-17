@@ -367,7 +367,14 @@ public final class StringUtil extends StringUtils {
                     builder.append(src, start, src.length - start);
                     offset = src.length;
                 } else {
-                    String value = String.valueOf(args.get(expression.toString()));
+                    String key = expression.toString();
+                    Object o = args.get(key);
+                    String value;
+                    if(o == null){
+                        value = openToken + closeToken;
+                    }else{
+                        value = String.valueOf(o);
+                    }
                     builder.append(value);
                     offset = end + closeToken.length();
                 }

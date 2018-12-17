@@ -5,7 +5,7 @@
     <groupId>com.agileframework</groupId>
     <artifactId>agile-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
     <name>agile-parent</name>
     <description>Agile工程父级POM支持</description>
 
@@ -65,6 +65,8 @@
         <lombok.version>1.18.4</lombok.version>
         <disruptor.version>3.4.2</disruptor.version>
         <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
+        <mybatis.version>3.4.6</mybatis.version>
+        <mybatis.spring.version>1.3.2</mybatis.spring.version>
     </properties>
     <dependencies>
         <!--#servlet api支持-->
@@ -516,6 +518,10 @@
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                </exclusion>
+                <exclusion>
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
@@ -785,6 +791,17 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-websocket</artifactId>
             <version>${spring.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${mybatis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>${mybatis.spring.version}</version>
         </dependency>
     </dependencies>
     <build>

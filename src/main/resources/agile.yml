@@ -94,7 +94,7 @@ agile:
     hbm2ddl: none
     show_sql: false
     use_query_cache: true
-    use_second_level_cache: true
+    use_second_level_cache: false
     use_structured_entries: false
     use_sql_comments: false
   kaptcha:
@@ -130,7 +130,7 @@ agile:
     test_on_borrow: true
     test_on_return: false
   security:
-    enable: true
+    enable: false
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*
     login_out_url: /logout
     login_url: /login

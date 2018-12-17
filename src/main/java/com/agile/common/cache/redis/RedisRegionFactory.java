@@ -95,7 +95,7 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
             return redisCacheManager;
         }catch (Exception e){
             if(LoggerFactory.CACHE_LOG.isDebugEnabled()){
-                LoggerFactory.CACHE_LOG.debug("初始化Redis二级缓存区域失败");
+                LoggerFactory.CACHE_LOG.error("初始化Redis二级缓存区域失败");
                 e.printStackTrace();
             }
             REFERENCE_COUNT.decrementAndGet();

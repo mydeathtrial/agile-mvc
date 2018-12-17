@@ -15,7 +15,6 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -90,7 +89,6 @@ public class JPAConfig {
         properties.setProperty("hibernate.show_sql",jpaConfigProperty.getShowSql());
         properties.setProperty("hibernate.format_sql",jpaConfigProperty.getFormatSql());
         properties.setProperty("hibernate.use_sql_comments",jpaConfigProperty.getUseSqlComments());
-        properties.setProperty("hibernate.ejb.interceptor","com.agile.common.interceptor.JpaInterceptor");
         properties.setProperty("hibernate.cache.region_prefix","hibernate");
         return properties;
     }

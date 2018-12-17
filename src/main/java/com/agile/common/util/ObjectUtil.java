@@ -5,9 +5,11 @@ import org.springframework.util.ObjectUtils;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.lang.annotation.Annotation;
 import java.text.ParseException;
 import java.util.*;
 
@@ -227,6 +229,15 @@ public class ObjectUtil extends ObjectUtils {
         }
     }
 
+    public static Method getMethod(Class clazz,String fieldName){
+        Set<Method> methods = getAllMethod(clazz);
+        for (Method method:methods) {
+            if(method.getName().equals(fieldName))return method;
+        }
+        return null;
+    }
+
+
     public static Field getField(Class clazz,String fieldName){
         Set<Field> fields = getAllField(clazz);
         for (Field field:fields) {
@@ -268,6 +279,75 @@ public class ObjectUtil extends ObjectUtils {
             fields.addAll(Arrays.asList(extendFields));
         }catch (Exception ignored){}
         return fields;
+    }
+
+    public static Set<Target> getAllFieldAnnotation(Class clazz,Class annotationClass){
+        Set<Field> fields = getAllField(clazz);
+        Set<Target> set = new HashSet<>();
+        Iterator<Field> it = fields.iterator();
+        while (it.hasNext()){
+            Field field = it.next();
+            Annotation annotation = field.getAnnotation(annotationClass);
+            if(annotation!=null){
+                set.add(new Target(field,annotation));
+            }
+        }
+        return set;
+    }
+
+    public static Set<Target> getAllMethodAnnotation(Class clazz,Class annotationClass){
+        Set<Method> fields = getAllMethod(clazz);
+        Set<Target> set = new HashSet<>();
+        Iterator<Method> it = fields.iterator();
+        while (it.hasNext()){
+            Method method = it.next();
+            Annotation annotation = method.getAnnotation(annotationClass);
+            if(annotation!=null){
+                set.add(new Target(method,annotation));
+            }
+        }
+        return set;
+    }
+
+    public static Set<Target> getAllColumnAnnotation(Class clazz){
+        Set<Target> fieldAnnotation = getAllFieldAnnotation(clazz, Column.class);
+        Set<Target> methodAnnotation = getAllMethodAnnotation(clazz, Column.class);
+        Iterator<Target> it = methodAnnotation.iterator();
+        while (it.hasNext()){
+            Target target = it.next();
+            String name = target.getMember().getName();
+            if(name.startsWith("get")){
+                Field field = getField(clazz, StringUtil.toLowerName(name.substring(3)));
+                fieldAnnotation.add(new Target(field,target.getAnnotation()));
+            }
+        }
+        return fieldAnnotation;
+    }
+
+    public static class Target{
+        private Member member;
+        private Annotation annotation;
+
+        public Target(Member member, Annotation annotation) {
+            this.member = member;
+            this.annotation = annotation;
+        }
+
+        public Member getMember() {
+            return member;
+        }
+
+        public void setMember(Member member) {
+            this.member = member;
+        }
+
+        public Annotation getAnnotation() {
+            return annotation;
+        }
+
+        public void setAnnotation(Annotation annotation) {
+            this.annotation = annotation;
+        }
     }
 
     /**
