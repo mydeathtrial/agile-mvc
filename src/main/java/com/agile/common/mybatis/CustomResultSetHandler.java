@@ -1,7 +1,6 @@
 package com.agile.common.mybatis;
 
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.StringUtil;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
@@ -14,7 +13,6 @@ import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.executor.result.DefaultResultContext;
 import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.apache.ibatis.executor.result.ResultMapException;
-import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetWrapper;
 import org.apache.ibatis.mapping.*;
@@ -26,6 +24,7 @@ import org.apache.ibatis.session.*;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+import org.springframework.data.domain.Page;
 
 import javax.persistence.Column;
 import java.lang.reflect.*;
@@ -364,7 +363,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
             }
             foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, null) || foundValues;
             foundValues = lazyLoader.size() > 0 || foundValues;
-            rowValue = (foundValues || configuration.isReturnInstanceForEmptyRow()) ? rowValue : null;
+            rowValue = (foundValues || configuration.isReturnInstanceForEmptyRow()) ? rowValue : coverObject(rsw,metaObject);
         }
         return rowValue;
     }
@@ -605,6 +604,9 @@ public class CustomResultSetHandler implements ResultSetHandler {
         } else if (!constructorMappings.isEmpty()) {
             return createParameterizedResultObject(rsw, resultType, constructorMappings, constructorArgTypes, constructorArgs, columnPrefix);
         } else if (resultType.isInterface() || metaType.hasDefaultConstructor()) {
+            if(resultType == Page.class){
+
+            }
             return objectFactory.create(resultType);
         } else if (shouldApplyAutomaticMappings(resultMap, false)) {
             return createByConstructorSignature(rsw, resultType, constructorArgTypes, constructorArgs, columnPrefix);

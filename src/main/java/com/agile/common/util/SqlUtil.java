@@ -56,6 +56,9 @@ public class SqlUtil{
         return sqlSelectQueryBlock.toString();
     }
 
+    public static String parserCountSQL(String sql){
+        return parserCountSQL(sql,null);
+    }
     /**
      * 根据给定参数动态生成完成参数占位的sql语句
      * @param sql 原sql

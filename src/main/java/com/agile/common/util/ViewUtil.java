@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.mybatis.Page;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -153,5 +154,66 @@ public class ViewUtil {
     @Nullable
     private static String getDefaultViewName(HttpServletRequest request) throws Exception {
         return viewUtil.viewNameTranslator != null ? viewUtil.viewNameTranslator.getViewName(request) : null;
+    }
+
+    public static Model modelProcessing(Map<String,Object> model){
+        Model m = new Model();
+        m.setModel(model);
+        for (Map.Entry<String,Object> entry:model.entrySet()) {
+            Object value = entry.getValue();
+            if(value == null)continue;
+            if(FileUtil.isFile(value)){
+                m.addFile(value);
+            }else if(value instanceof Page){
+                m.addPage(entry.getKey());
+                m.put(entry.getKey(),((Page) value).getPage());
+            }else if(Map.class.isAssignableFrom(value.getClass())){
+                Model inm = modelProcessing((Map<String, Object>) value);
+                m.addFiles(inm.getFiles());
+                m.addPages(inm.getPages());
+                m.put(entry.getKey(),inm);
+            }else{
+                m.put(entry.getKey(),entry.getValue());
+            }
+        }
+        return m;
+    }
+
+    public static class Model extends LinkedHashMap<String,Object>{
+        List<Object> files = new ArrayList<>();
+        List<String> pages = new ArrayList<>();
+        Map<String,Object> model;
+
+        public List<Object> getFiles() {
+            return files;
+        }
+
+        public void addFile(Object file) {
+            this.files.add(file);
+        }
+
+        public void addFiles(List<Object> files) {
+            this.files.addAll(files);
+        }
+
+        public List<String> getPages() {
+            return pages;
+        }
+
+        public void addPage(String page) {
+            this.pages.add(page);
+        }
+
+        public void addPages(List<String> pages) {
+            this.pages.addAll(pages);
+        }
+
+        public Map<String, Object> getModel() {
+            return model;
+        }
+
+        public void setModel(Map<String, Object> model) {
+            this.model = model;
+        }
     }
 }

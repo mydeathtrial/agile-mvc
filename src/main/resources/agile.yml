@@ -152,6 +152,8 @@ agile:
     default_encoding: utf-8
     include_format: txt,excel
     max_upload_size: 204800
+  download:
+    temp_path: 'D://'
   elasticsearch:
     enable: false
     cluster_name: argus

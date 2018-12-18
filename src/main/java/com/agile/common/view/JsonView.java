@@ -1,6 +1,7 @@
 package com.agile.common.view;
 
 import com.agile.common.util.FileUtil;
+import com.agile.common.util.ViewUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,10 +28,12 @@ public class JsonView extends MappingJackson2JsonView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        for (Object value:model.values()) {
-            boolean isFile = FileUtil.downloadFile(value, request, response);
-            if(isFile)return;
+        ViewUtil.Model target = ViewUtil.modelProcessing(model);
+        List<Object> files = target.getFiles();
+        if(files.size()>0){
+            FileUtil.downloadFile(files, request, response);
+        }else{
+            super.renderMergedOutputModel(target, request, response);
         }
-        super.renderMergedOutputModel(model, request, response);
     }
 }

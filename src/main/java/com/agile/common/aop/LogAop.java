@@ -52,7 +52,8 @@ public class LogAop {
     }
 
     @Around(value = "servicePointCut()")
-    public void logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object result;
         long startTime = System.currentTimeMillis();
         long endTime;
         MainService service = getService(joinPoint);
@@ -60,7 +61,7 @@ public class LogAop {
         Method method = (Method)joinPoint.getArgs()[1];
         Map<String, Object> inParam = service.getInParam();
         try {
-            joinPoint.proceed();
+            result = joinPoint.proceed();
         } catch (Throwable throwable) {
             endTime = System.currentTimeMillis();
             printLog(throwable,endTime-startTime,service, method.getName(),ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request),inParam);
@@ -68,6 +69,7 @@ public class LogAop {
         }
         endTime = System.currentTimeMillis();
         printLog(endTime-startTime,service, method.getName(),ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request),inParam,service.getOutParam());
+        return result;
     }
 
     private void printLog(long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam){

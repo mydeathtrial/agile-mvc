@@ -1,7 +1,9 @@
 package com.agile.common.config;
 
+import com.agile.common.mybatis.MybatisInterceptor;
 import com.agile.common.mybatis.CustomConfiguration;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
@@ -23,7 +25,12 @@ public class MyBatisConfig {
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource);sessionFactory.setConfiguration(new CustomConfiguration());
+        sessionFactory.setDataSource(dataSource);
+        CustomConfiguration configuration = new CustomConfiguration();
+        configuration.setCallSettersOnNulls(true);
+        sessionFactory.setConfiguration(configuration);
+        sessionFactory.setPlugins(new Interceptor[]{new MybatisInterceptor()});
+
         return sessionFactory.getObject();
     }
 

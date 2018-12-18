@@ -3,6 +3,7 @@ package com.agile.common.util;
 import com.agile.common.base.Constant;
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
+import com.agile.common.factory.LoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,14 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Created by 佟盟 on 2017/12/21
@@ -201,21 +206,13 @@ public class FileUtil extends FileUtils {
         return downloadFile(new File(filePath));
     }
 
-    public static void downloadFile(String fileName,String contentType,InputStream stream,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
+    public static void downloadFile(String fileName,String contentType,InputStream stream,HttpServletRequest request, HttpServletResponse response) throws IOException {
         setContentDisposition(fileName,request,response);
         response.setContentType(contentType==null?MediaType.APPLICATION_OCTET_STREAM.toString():contentType);
-        try {
-            byte[] b = new byte[100];
-            int len;
-            while ((len = stream.read(b)) > 0)
-                response.getOutputStream().write(b, 0, len);
-            stream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        inWriteOut(stream,response.getOutputStream());
     }
 
-    public static void downloadFile(String fileName,String contentType,File file,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException, FileNotFoundException {
+    public static void downloadFile(String fileName,String contentType,File file,HttpServletRequest request, HttpServletResponse response) throws IOException {
         downloadFile(fileName,contentType,new FileInputStream(file),request,response);
     }
 
@@ -229,7 +226,7 @@ public class FileUtil extends FileUtils {
         response.setHeader("Content-Disposition", contentDisposition);
     }
 
-    public static void downloadFile(File file,HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException, FileNotFoundException {
+    public static void downloadFile(File file,HttpServletRequest request, HttpServletResponse response) throws IOException {
         downloadFile(file.getName(),null,file,request,response);
     }
 
@@ -239,19 +236,113 @@ public class FileUtil extends FileUtils {
         ((excelFile).getWorkbook()).write(response.getOutputStream());
     }
 
-    public static boolean downloadFile(Object value, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if(value==null)return false;
-        if(value instanceof ExcelFile){
-            downloadFile((ExcelFile) value,request,response);
-            return true;
-        }else if(ResponseFile.class.isAssignableFrom(value.getClass())){
-            ResponseFile temp = (ResponseFile) value;
-            downloadFile(temp.getFileName(),temp.getContentType(),temp.getInputStream(),request,response);
-            return true;
-        }else if(File.class.isAssignableFrom(value.getClass())){
-            downloadFile((File)value,request,response);
-            return true;
+    public static void downloadFile(Object value, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if(value==null)return ;
+        Object v = null;
+        if(List.class.isAssignableFrom(value.getClass())){
+            int size = ((List) value).size();
+            if(size>1){
+                downloadZip((List) value,request,response);
+                return ;
+            }else if(size==1){
+                v = ((List) value).get(0);
+            }
+        }else{
+            v = value;
         }
-        return false;
+
+        if(v == null){
+            return ;
+        }
+
+        if(v instanceof ExcelFile){
+            downloadFile((ExcelFile) v,request,response);
+        }else if(ResponseFile.class.isAssignableFrom(v.getClass())){
+            ResponseFile temp = (ResponseFile) v;
+            downloadFile(temp.getFileName(),temp.getContentType(),temp.getInputStream(),request,response);
+        }else if(File.class.isAssignableFrom(v.getClass())){
+            downloadFile((File)v,request,response);
+        }
+    }
+
+    public static void downloadZip(List fileList,HttpServletRequest request, HttpServletResponse response) throws IOException {
+        File zip = createFile(PropertiesUtil.getProperty("agile.download.temp_path"), "download.zip");
+        if(zip!=null){
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            createZipFile(fileList,new FileOutputStream(zip));
+            FileInputStream in = new FileInputStream(zip);
+            inWriteOut(in,out);
+            downloadFile("download.zip",MediaType.APPLICATION_OCTET_STREAM.toString(),new ByteArrayInputStream(out.toByteArray()),request,response);
+            zip.delete();
+        }
+    }
+
+    public static File createFile(String path,String fileName) throws IOException {
+        File dir = new File(path);
+        if(!dir.exists()){
+            boolean isSuccess = dir.mkdirs();
+            if(!isSuccess){
+                return null;
+            }
+        }
+        File file = new File(dir.getPath() + fileName);
+        if(!file.exists()){
+            boolean isSuccess = file.createNewFile();
+            if(!isSuccess){
+                return null;
+            }
+        }
+        return file;
+    }
+
+    public static void createZipFile(List fileList,OutputStream outputStream) throws IOException {
+        ZipOutputStream out = new ZipOutputStream(outputStream);
+        zipFile(fileList, out);
+        out.flush();
+        out.close();
+    }
+
+    public static void zipFile(List fileList, ZipOutputStream out) throws IOException {
+        if (fileList != null && fileList.size() > 0) {
+            for (Object fileObject : fileList) {
+                if (StringUtil.isString(fileObject)) {
+                    String fileAllName = (String) fileObject;
+                    //文件读取到文件流中
+                    URL url = new URL(fileAllName);
+                    URLConnection connection = url.openConnection();
+                    InputStream fileInputStream = connection.getInputStream();
+
+                    //压缩文件名称
+                    String fileName = File.separatorChar + (fileAllName.substring(fileAllName.lastIndexOf("/") + 1));
+                    out.putNextEntry(new ZipEntry(fileName));
+                    //把流中文件写到压缩包
+                    inWriteOut(fileInputStream, out);
+                } else if (fileObject instanceof ExcelFile) {
+                    out.putNextEntry(new ZipEntry(((ExcelFile) fileObject).getFileName()));
+                    ((ExcelFile) fileObject).getWorkbook().write(out);
+                } else if (ResponseFile.class.isAssignableFrom(fileObject.getClass())) {
+                    out.putNextEntry(new ZipEntry(((ResponseFile) fileObject).getFileName()));
+                    inWriteOut(((ResponseFile) fileObject).getInputStream(), out);
+                } else if (File.class.isAssignableFrom(fileObject.getClass())) {
+                    out.putNextEntry(new ZipEntry(((File) fileObject).getName()));
+                    inWriteOut(new FileInputStream((File) fileObject), out);
+                }
+            }
+        }
+    }
+
+    public static void inWriteOut(InputStream inputStream,OutputStream outputStream) throws IOException {
+        //把流中文件写到压缩包
+        byte[] buffer = new byte[1024];
+        int r;
+        while ((r = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, r);
+        }
+        inputStream.close();
+    }
+
+    public static boolean isFile(Object value){
+        if(value==null)return false;
+        return value instanceof ExcelFile || ResponseFile.class.isAssignableFrom(value.getClass()) || File.class.isAssignableFrom(value.getClass());
     }
 }
