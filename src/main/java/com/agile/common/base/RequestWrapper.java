@@ -51,6 +51,11 @@ public class RequestWrapper extends HttpServletRequestWrapper {
         return params;
     }
 
+    /**
+     * 为request添加parameter参数
+     * @param key key值
+     * @param o value值
+     */
     public void addParameter(String key, String o) {
         if (this.params.containsKey(key)) {
             String[] value = params.get(key);

@@ -28,6 +28,11 @@ public class ParsingInit implements ParsingMethodAfter {
         return Init.class;
     }
 
+    /**
+     * Init注解解析过程
+     * @param bean bean
+     * @param method init注解下的方法
+     */
     @Transactional
     public void parse(Object bean, Method method) {
         method.setAccessible(true);

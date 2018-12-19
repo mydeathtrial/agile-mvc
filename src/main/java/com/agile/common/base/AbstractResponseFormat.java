@@ -13,11 +13,21 @@ import java.util.LinkedHashMap;
  * Created by 佟盟 on 2018/11/2
  */
 public abstract class AbstractResponseFormat extends LinkedHashMap<String, Object> {
+    /**
+     * 构建响应文
+     * @return 返回响应模板本身
+     */
     public AbstractResponseFormat buildResponse() {
         MapUtil.coverMap(this, this);
         return this;
     }
 
+    /**
+     * 构建响应报文体
+     * @param head 头信息
+     * @param result 体信息
+     * @return 返回ModelAndView
+     */
     public ModelAndView buildResponse(Head head, Object result) {
         Field[] fields = this.getClass().getDeclaredFields();
         for (Field field : fields) {

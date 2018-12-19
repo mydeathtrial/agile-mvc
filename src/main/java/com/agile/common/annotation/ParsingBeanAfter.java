@@ -1,7 +1,7 @@
 package com.agile.common.annotation;
 
 /**
- * 描述：
+ * 描述：bean加载之后触发的注解解析器
  * <p>创建时间：2018/11/28<br>
  *
  * @author 佟盟
@@ -9,5 +9,10 @@ package com.agile.common.annotation;
  * @since 1.0
  */
 public interface ParsingBeanAfter extends Parsing {
+    /**
+     * 解析器方法
+     * @param beanName beanName
+     * @param bean bean
+     */
     void parsing(String beanName, Object bean);
 }

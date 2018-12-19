@@ -3,7 +3,7 @@ package com.agile.common.base.poi;
 /**
  * Created by 佟盟 on 2018/10/17
  */
-public class Cell {
+public final class Cell {
     private int sort;
     private String key;
     private String showName;

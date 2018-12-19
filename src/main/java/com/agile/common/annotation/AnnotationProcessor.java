@@ -29,7 +29,9 @@ public class AnnotationProcessor {
         for (String parsingName : annotationParsings) {
             Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
             Class<? extends Annotation> annotation = parsing.getAnnotation();
-            if (annotation == null) continue;
+            if (annotation == null) {
+                continue;
+            }
             methodAnnotationProcessor(beanName, bean, ProxyUtils.getUserClass(bean), parsing);
         }
 
@@ -46,7 +48,9 @@ public class AnnotationProcessor {
         for (String parsingName : annotationParsings) {
             Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
             Class<? extends Annotation> annotation = parsing.getAnnotation();
-            if (annotation == null) continue;
+            if (annotation == null) {
+                continue;
+            }
 
             Map<String, Object> beans = applicationContext.getBeansWithAnnotation(annotation);
             for (Map.Entry<String, Object> map : beans.entrySet()) {
@@ -74,7 +78,9 @@ public class AnnotationProcessor {
         for (Method method : methods) {
             method.setAccessible(true);
             Class<? extends Annotation> annotation = parsing.getAnnotation();
-            if (annotation == null || method.getAnnotation(annotation) == null) continue;
+            if (annotation == null || method.getAnnotation(annotation) == null) {
+                continue;
+            }
             if (parsing instanceof ParsingMethodAfter) {
                 ((ParsingMethodAfter) parsing).parsing(beanName, bean, method);
             } else if (parsing instanceof ParsingMethodBefore) {
