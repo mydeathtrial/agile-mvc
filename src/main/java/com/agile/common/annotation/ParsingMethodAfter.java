@@ -10,6 +10,6 @@ import java.lang.reflect.Method;
  * @version 1.0
  * @since 1.0
  */
-public interface ParsingMethodAfter extends Parsing{
-    void parsing(String beanName,Object object,Method method);
+public interface ParsingMethodAfter extends Parsing {
+    void parsing(String beanName, Object object, Method method);
 }

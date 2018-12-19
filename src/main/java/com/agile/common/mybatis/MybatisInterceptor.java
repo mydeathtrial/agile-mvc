@@ -1,14 +1,8 @@
 package com.agile.common.mybatis;
 
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Properties;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
@@ -18,6 +12,12 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.springframework.data.domain.PageRequest;
 
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Properties;
+
 /**
  * 描述：
  * <p>创建时间：2018/12/17<br>
@@ -26,7 +26,7 @@ import org.springframework.data.domain.PageRequest;
  * @version 1.0
  * @since 1.0
  */
-@Intercepts(@Signature(method = "prepare", type = StatementHandler.class, args = { Connection.class,Integer.class }))
+@Intercepts(@Signature(method = "prepare", type = StatementHandler.class, args = {Connection.class, Integer.class}))
 public class MybatisInterceptor implements Interceptor {
 
     @Override
@@ -42,7 +42,7 @@ public class MybatisInterceptor implements Interceptor {
 
         PageRequest pageRequest = PageExecutor.getPageRequest(paramObject);
 
-        if (pageRequest == null || !checkIsSelectFalg(sql)){
+        if (pageRequest == null || !checkIsSelectFalg(sql)) {
             return invocation.proceed();
         }
         //修改sql
@@ -85,7 +85,7 @@ public class MybatisInterceptor implements Interceptor {
         //获取sql总的参数总数
         int count = ps.getParameterMetaData().getParameterCount();
         //设置与分页相关的两个参数
-        ps.setInt(count - 1, page  * pageSize);
+        ps.setInt(count - 1, page * pageSize);
         ps.setInt(count, pageSize);
         return ps;
     }
@@ -93,7 +93,7 @@ public class MybatisInterceptor implements Interceptor {
     @Override
     public Object plugin(Object o) {
         if (Executor.class.isAssignableFrom(o.getClass())) {
-            PageExecutor executor = new PageExecutor((Executor)o);
+            PageExecutor executor = new PageExecutor((Executor) o);
             return Plugin.wrap(executor, this);
         } else if (o instanceof StatementHandler) {
             return Plugin.wrap(o, this);

@@ -5,17 +5,27 @@ import com.agile.common.factory.LoggerFactory;
 import oracle.jdbc.OracleDriver;
 import org.apache.commons.logging.Log;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by 佟盟 on 2018/9/7
  */
 public class DataBaseUtil {
-   private static Log logger = LoggerFactory.createLogger("sql",DataBaseUtil.class);
+    private static Log logger = LoggerFactory.createLogger("sql", DataBaseUtil.class);
+
     /**
      * 数据库类型,枚举
-     *
      */
     public enum DB {
         ORACLE, MYSQL, SQL_SERVER, SQL_SERVER2005, DB2, INFORMIX, SYBASE, OTHER, EMPTY
@@ -82,7 +92,7 @@ public class DataBaseUtil {
         return DB.OTHER;
     }
 
-    private static ResultSet getResultSet(PATTERN type,String dbType, String ip, String port, String dbName,String username, String password, String pattern){
+    private static ResultSet getResultSet(PATTERN type, String dbType, String ip, String port, String dbName, String username, String password, String pattern) {
         ip = trim(ip);
         port = trim(port);
         dbName = trim(dbName);
@@ -92,11 +102,11 @@ public class DataBaseUtil {
         String url = createDBUrl(dbtype, ip, port, dbName);
         try {
             conn = getConnection(url, username, password);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        pattern=pattern==null?"%":pattern;
+        pattern = pattern == null ? "%" : pattern;
         ResultSet rs = null;
         try {
             // 获取Meta信息对象
@@ -104,9 +114,9 @@ public class DataBaseUtil {
             // 数据库的用户
             String schemaPattern = null;
 
-            switch (type){
+            switch (type) {
                 case TABLE:
-                    String[] types = { "TABLE","VIEW" };
+                    String[] types = {"TABLE", "VIEW"};
 
                     if (DB.ORACLE.equals(dbtype)) {
                         schemaPattern = username;
@@ -117,9 +127,9 @@ public class DataBaseUtil {
                     } else if (DB.MYSQL.equals(dbtype)) {
                         schemaPattern = dbName;
                         rs = meta.getTables(schemaPattern, schemaPattern, pattern, types);
-                    }  else if (DB.SQL_SERVER.equals(dbtype) || DB.SQL_SERVER2005.equals(dbtype)) {
+                    } else if (DB.SQL_SERVER.equals(dbtype) || DB.SQL_SERVER2005.equals(dbtype)) {
                         rs = meta.getTables(null, null, pattern, types);
-                    }  else if (DB.DB2.equals(dbtype)) {
+                    } else if (DB.DB2.equals(dbtype)) {
                         schemaPattern = "jence_user";
                         rs = meta.getTables(null, schemaPattern, pattern, types);
                     } else if (DB.INFORMIX.equals(dbtype)) {
@@ -152,39 +162,40 @@ public class DataBaseUtil {
                     rs = meta.getPrimaryKeys(null, schemaPattern, pattern);
                     break;
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return rs;
     }
+
     /**
      * 列出数据库的所有表
      */
-    public static List<Map<String, Object>> listTables(String dbType, String ip, String port, String dbName,String username, String password, String tableName) {
-        if (tableName.contains(",")){
-            String[] tables = tableName.replaceAll("((?![%-])\\W)+",",").split(",");
+    public static List<Map<String, Object>> listTables(String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
+        if (tableName.contains(",")) {
+            String[] tables = tableName.replaceAll("((?![%-])\\W)+", ",").split(",");
             List<Map<String, Object>> list = new ArrayList<>();
-            for (int i=0;i<tables.length;i++){
-                list.addAll(getDBInfo(PATTERN.TABLE,dbType,ip,port,dbName,username,password,tables[i]));
+            for (int i = 0; i < tables.length; i++) {
+                list.addAll(getDBInfo(PATTERN.TABLE, dbType, ip, port, dbName, username, password, tables[i]));
             }
             return list;
         }
-        return getDBInfo(PATTERN.TABLE,dbType,ip,port,dbName,username,password,tableName.trim());
+        return getDBInfo(PATTERN.TABLE, dbType, ip, port, dbName, username, password, tableName.trim());
     }
 
     /**
      * 列出表的所有字段
      */
-    public static List<Map<String, Object>> listColumns(String dbType, String ip, String port, String dbName,String username, String password, String tableName) {
+    public static List<Map<String, Object>> listColumns(String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
         List<Map<String, Object>> list = getDBInfo(PATTERN.COLUMN, dbType, ip, port, dbName, username, password, tableName);
         List<Map<String, Object>> keyList = listPrimayKeys(dbType, ip, port, dbName, username, password, tableName);
-        for (Map<String, Object> keyColumn:keyList){
-            for (Map<String, Object> column:list){
+        for (Map<String, Object> keyColumn : keyList) {
+            for (Map<String, Object> column : list) {
                 boolean isPrimaryKey = false;
-                if(keyColumn.get("COLUMN_NAME").toString().equals(column.get("COLUMN_NAME").toString())){
+                if (keyColumn.get("COLUMN_NAME").toString().equals(column.get("COLUMN_NAME").toString())) {
                     isPrimaryKey = true;
                 }
-                column.put("IS_PRIMARY_KEY",isPrimaryKey);
+                column.put("IS_PRIMARY_KEY", isPrimaryKey);
             }
         }
         return list;
@@ -193,18 +204,18 @@ public class DataBaseUtil {
     /**
      * 列出表的所有主键
      */
-    public static List<Map<String, Object>> listPrimayKeys(String dbType, String ip, String port, String dbName,String username, String password, String tableName) {
-        return getDBInfo(PATTERN.PRIMARY_KEY,dbType,ip,port,dbName,username,password,tableName);
+    public static List<Map<String, Object>> listPrimayKeys(String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
+        return getDBInfo(PATTERN.PRIMARY_KEY, dbType, ip, port, dbName, username, password, tableName);
     }
 
     /**
      * 列出表的所有主键
      */
-    public static List<Map<String, Object>> getDBInfo(PATTERN pattern,String dbType, String ip, String port, String dbName,String username, String password, String tableName) {
+    public static List<Map<String, Object>> getDBInfo(PATTERN pattern, String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
         List<Map<String, Object>> list = null;
         ResultSet rs = null;
         try {
-            rs = getResultSet(pattern,dbType,ip,port,dbName,username,password,tableName);
+            rs = getResultSet(pattern, dbType, ip, port, dbName, username, password, tableName);
             list = parseResultSetToMapList(rs);
         } catch (Exception e) {
             e.printStackTrace();
@@ -274,13 +285,13 @@ public class DataBaseUtil {
      * 获取JDBC连接
      */
     private static Connection getConnection(String url, String username, String password) throws SQLException {
-        Properties info =new Properties();
+        Properties info = new Properties();
         info.put("user", username);
         info.put("password", password);
         // !!! Oracle 如果想要获取元数据 REMARKS 信息,需要加此参数
-        info.put("remarksReporting","true");
+        info.put("remarksReporting", "true");
         // !!! MySQL 标志位, 获取TABLE元数据 REMARKS 信息
-        info.put("useInformationSchema","true");
+        info.put("useInformationSchema", "true");
         return DriverManager.getConnection(url, info);
     }
 
@@ -335,25 +346,25 @@ public class DataBaseUtil {
         Connection conn = null;
         try {
             conn = getConnection(url, username, password);
-            if(null == conn){
+            if (null == conn) {
                 return false;
             }
-            DatabaseMetaData meta =  conn.getMetaData();
+            DatabaseMetaData meta = conn.getMetaData();
             return null != meta;
         } catch (Exception e) {
-            if(logger.isErrorEnabled()){
+            if (logger.isErrorEnabled()) {
                 logger.error("数据库连接失败");
             }
             e.printStackTrace();
             System.exit(0);
-        } finally{
+        } finally {
             close(conn);
         }
         return false;
     }
 
     public static void close(Connection conn) {
-        if(conn!=null) {
+        if (conn != null) {
             try {
                 conn.close();
                 conn = null;
@@ -364,7 +375,7 @@ public class DataBaseUtil {
     }
 
     public static void close(Statement stmt) {
-        if(stmt!=null) {
+        if (stmt != null) {
             try {
                 stmt.close();
                 stmt = null;
@@ -375,7 +386,7 @@ public class DataBaseUtil {
     }
 
     public static void close(ResultSet rs) {
-        if(rs!=null) {
+        if (rs != null) {
             try {
                 rs.close();
                 rs = null;
@@ -385,8 +396,8 @@ public class DataBaseUtil {
         }
     }
 
-    public static String trim(String str){
-        if(null != str){
+    public static String trim(String str) {
+        if (null != str) {
             str = str.trim();
         }
         return str;

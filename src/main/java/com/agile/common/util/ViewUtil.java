@@ -14,12 +14,25 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.*;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.RequestToViewNameTranslator;
+import org.springframework.web.servlet.View;
+import org.springframework.web.servlet.ViewResolver;
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by 佟盟 on 2018/8/22
@@ -33,9 +46,9 @@ public class ViewUtil {
     private Locale locale;
     @Nullable
     private RequestToViewNameTranslator viewNameTranslator;
-    
+
     @PostConstruct
-    void init(){
+    void init() {
         viewUtil = this;
     }
 
@@ -44,19 +57,19 @@ public class ViewUtil {
 
         ApplicationContext context = FactoryUtil.getApplicationContext();
 
-        if(viewUtil.locale == null){
-            initLocaleResolver(context,request);
+        if (viewUtil.locale == null) {
+            initLocaleResolver(context, request);
         }
-        if(viewUtil.viewResolvers == null){
+        if (viewUtil.viewResolvers == null) {
             initViewResolvers(context);
         }
-        if(viewUtil.viewNameTranslator == null){
+        if (viewUtil.viewNameTranslator == null) {
             initRequestToViewNameTranslator(context);
         }
 
         response.setLocale(viewUtil.locale);
         String viewName = mv.getViewName();
-        if(viewName==null){
+        if (viewName == null) {
             viewName = getDefaultViewName(request);
             mv.setViewName(viewName);
         }
@@ -79,8 +92,8 @@ public class ViewUtil {
         if (viewUtil.viewResolvers != null) {
             Iterator var5 = viewUtil.viewResolvers.iterator();
 
-            while(var5.hasNext()) {
-                ViewResolver viewResolver = (ViewResolver)var5.next();
+            while (var5.hasNext()) {
+                ViewResolver viewResolver = (ViewResolver) var5.next();
                 View view = viewResolver.resolveViewName(viewName, locale);
                 if (view != null) {
                     return view;
@@ -93,7 +106,7 @@ public class ViewUtil {
 
     private static void initLocaleResolver(ApplicationContext context, HttpServletRequest request) throws IOException {
         List<LocaleResolver> localeResolvers = getDefaultStrategies(context, LocaleResolver.class);
-        viewUtil.locale = localeResolvers == null? request.getLocale():(localeResolvers.get(0)).resolveLocale(request);
+        viewUtil.locale = localeResolvers == null ? request.getLocale() : (localeResolvers.get(0)).resolveLocale(request);
     }
 
     private static void initViewResolvers(ApplicationContext context) throws IOException {
@@ -125,14 +138,14 @@ public class ViewUtil {
         String value = defaultStrategies.getProperty(key);
         if (value == null) {
             return new LinkedList();
-        }else {
+        } else {
 
             String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
             List<T> strategies = new ArrayList(classNames.length);
             String[] var7 = classNames;
             int var8 = classNames.length;
 
-            for(int var9 = 0; var9 < var8; ++var9) {
+            for (int var9 = 0; var9 < var8; ++var9) {
                 String className = var7[var9];
 
                 try {
@@ -156,35 +169,35 @@ public class ViewUtil {
         return viewUtil.viewNameTranslator != null ? viewUtil.viewNameTranslator.getViewName(request) : null;
     }
 
-    public static Model modelProcessing(Map<String,Object> model){
+    public static Model modelProcessing(Map<String, Object> model) {
         Model m = new Model();
         m.setModel(model);
-        for (Map.Entry<String,Object> entry:model.entrySet()) {
+        for (Map.Entry<String, Object> entry : model.entrySet()) {
             Object value = entry.getValue();
-            if(value == null) {
+            if (value == null) {
                 continue;
             }
-            if(FileUtil.isFile(value)){
+            if (FileUtil.isFile(value)) {
                 m.addFile(value);
-            }else if(value instanceof Page){
+            } else if (value instanceof Page) {
                 m.addPage(entry.getKey());
-                m.put(entry.getKey(),((Page) value).getPage());
-            }else if(Map.class.isAssignableFrom(value.getClass())){
+                m.put(entry.getKey(), ((Page) value).getPage());
+            } else if (Map.class.isAssignableFrom(value.getClass())) {
                 Model inm = modelProcessing((Map<String, Object>) value);
                 m.addFiles(inm.getFiles());
                 m.addPages(inm.getPages());
-                m.put(entry.getKey(),inm);
-            }else{
-                m.put(entry.getKey(),entry.getValue());
+                m.put(entry.getKey(), inm);
+            } else {
+                m.put(entry.getKey(), entry.getValue());
             }
         }
         return m;
     }
 
-    public static class Model extends LinkedHashMap<String,Object>{
+    public static class Model extends LinkedHashMap<String, Object> {
         List<Object> files = new ArrayList<>();
         List<String> pages = new ArrayList<>();
-        Map<String,Object> model;
+        Map<String, Object> model;
 
         public List<Object> getFiles() {
             return files;

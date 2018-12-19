@@ -15,49 +15,50 @@ public class DateUtil extends DateUtils {
     /**
      * 获取Long型时间戳
      */
-    public static long getTimeStamp(){
+    public static long getTimeStamp() {
         return getTimeStamp(new Date());
     }
 
     /**
      * 获取Long型时间戳
      */
-    public static long getTimeStamp(Date date){
+    public static long getTimeStamp(Date date) {
         return date.getTime();
     }
 
     /**
      * 获取时间戳字符串
      */
-    public static String getTimeStampStr(){
+    public static String getTimeStampStr() {
         return getTimeStampStr(new Date());
     }
 
     /**
      * 获取时间戳字符串
      */
-    public static String getTimeStampStr(Date date){
+    public static String getTimeStampStr(Date date) {
         return Long.toString(date.getTime());
     }
 
     /**
      * 获取时间戳字符串
      */
-    public static Date getCurrentDate(){
+    public static Date getCurrentDate() {
         return new Date(System.currentTimeMillis());
     }
 
     /**
      * 字符串转日期
-     * @param date 日期字符串
+     *
+     * @param date   日期字符串
      * @param format 格式
      */
-    public static Date toDateByFormat(String date,String format) throws ParseException {
+    public static Date toDateByFormat(String date, String format) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.parse(date);
     }
 
-    public static String toFormatByDate(Date date,String format){
+    public static String toFormatByDate(Date date, String format) {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.format(date);
     }
@@ -246,11 +247,12 @@ public class DateUtil extends DateUtils {
     /**
      * 日期格式指定（yyyy-MM-dd'T'HH:mm:ss.SSS+mm:ss）
      */
-    public static final String YYYYMMDDTHHMMSSSSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";    /**
+    public static final String YYYYMMDDTHHMMSSSSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    /**
      * mysql查询日期格式指定（%Y-%m）
      */
-    public static final String YYYYMM_MYSQL = "%Y-%m";    /**
-
+    public static final String YYYYMM_MYSQL = "%Y-%m";
+    /**
      * mysql查询日期格式指定（%Y-%m-%d）
      */
     public static final String YYYYMMDD_MYSQL = "%Y-%m-%d";
@@ -324,12 +326,12 @@ public class DateUtil extends DateUtils {
      * @param format  时间格式
      * @return Date类型时间
      */
-    public static Date convertToDate(String dateStr, String format,boolean  timeZone) throws ParseException {
+    public static Date convertToDate(String dateStr, String format, boolean timeZone) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-        if(timeZone){
+        if (timeZone) {
             //增加8个时区的时间
-            return addMin(simpleDateFormat.parse(dateStr),8*60);
-        }else {
+            return addMin(simpleDateFormat.parse(dateStr), 8 * 60);
+        } else {
             return simpleDateFormat.parse(dateStr);
         }
     }
@@ -349,17 +351,17 @@ public class DateUtil extends DateUtils {
 
     /**
      * 将Date类型时间按照指定format格式转为字符串类型的时间(时区转换{中国时区})
-     * @param date   Date类型时间
-     * @param format 时间格式
-     * @return 字符串类型时间
-     * @param timeZone   是否时区转换
+     *
+     * @param date     Date类型时间
+     * @param format   时间格式
+     * @param timeZone 是否时区转换
      * @return
      */
-    public static String convertToString(Date date, String format,boolean timeZone) {
+    public static String convertToString(Date date, String format, boolean timeZone) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-        if(timeZone){
-            return simpleDateFormat.format(addMin(date,-(8*60)));
-        }else {
+        if (timeZone) {
+            return simpleDateFormat.format(addMin(date, -(8 * 60)));
+        } else {
             return simpleDateFormat.format(date);
         }
     }
@@ -369,7 +371,7 @@ public class DateUtil extends DateUtils {
      *
      * @param date1 Date类型时间1
      * @param date2 Date类型时间2
-     * @return 判断结果(true：相同，flase：不同)
+     * @return 判断结果(true ： 相同 ， flase ： 不同)
      */
     public static boolean isSameDay(Date date1, Date date2) {
         if (date1 == null || date2 == null) {
@@ -390,7 +392,7 @@ public class DateUtil extends DateUtils {
      * @param nowYmd 当前时间
      * @param endYmd 截止时间
      * @param days   天数
-     * @return 判断结果(true：当前时间在指定天数后大于等于截至日期，flase：当前时间在指定天数后小于截至日期)
+     * @return 判断结果(true ： 当前时间在指定天数后大于等于截至日期 ， flase ： 当前时间在指定天数后小于截至日期)
      */
     public static boolean isRangeDay(Date nowYmd, Date endYmd, int days) {
         if (nowYmd == null || endYmd == null) {
@@ -421,17 +423,17 @@ public class DateUtil extends DateUtils {
     }
 
     /**
-     *  根据传递的时间段计算  返回显示时间粒度
+     * 根据传递的时间段计算  返回显示时间粒度
      *
      * @param startTime 开始时间
-     * @param endTime 结束时间
+     * @param endTime   结束时间
      * @return
      */
-    public static String getDaysBetween(long startTime,long endTime){
+    public static String getDaysBetween(long startTime, long endTime) {
         //计算2个long型时间差值 大于1天时，按天级返回， 小于1天，按小时返回
-        if ((endTime - startTime)/1000/3600/24>1){
+        if ((endTime - startTime) / 1000 / 3600 / 24 > 1) {
             return YYYYMMDD_MYSQL;
-        }else {
+        } else {
             return YYYYMMDDHH_MYSQL;
         }
     }
@@ -539,13 +541,15 @@ public class DateUtil extends DateUtils {
         }
         return "";
     }
-    public static String stringToString(String date, String format, String formatTo,boolean add8) throws ParseException {
+
+    public static String stringToString(String date, String format, String formatTo, boolean add8) throws ParseException {
         if (StringUtil.isNotEmpty(date)) {
-            Date da = convertToDate(date, format,add8);
+            Date da = convertToDate(date, format, add8);
             return convertToString(da, formatTo);
         }
         return "";
     }
+
     /**
      * 将UNIX时间戳转成YYYYMMDDSSSSS格式的日期字符串
      *
@@ -561,24 +565,24 @@ public class DateUtil extends DateUtils {
      * 将UNIX时间戳转成指定格式的日期字符串
      *
      * @param timestamp 日期（long）
-     * @param format 格式
+     * @param format    格式
      * @return
      */
-    public static String unixTimeStampToFormatString(long timestamp,String format) {
+    public static String unixTimeStampToFormatString(long timestamp, String format) {
         return new SimpleDateFormat(format).format(new Date(timestamp));
     }
-
 
 
     /**
      * 计算起始时间和结束时间相隔多少时间
      * 获取时间单位   y:年, M:月，w:周，d:天，h:小时，m:分钟，s:秒
+     *
      * @param startTime 开始时间
-     * @param endTime 结束时间
-     * @return  格式  数字 ：单位  中间用":"分割
+     * @param endTime   结束时间
+     * @return 格式  数字 ：单位  中间用":"分割
      */
-    public static String getCalculateBetweenTime(long startTime,long endTime){
-        if(endTime - startTime < 0 ){
+    public static String getCalculateBetweenTime(long startTime, long endTime) {
+        if (endTime - startTime < 0) {
             return "";
         }
         Calendar startDate = Calendar.getInstance();
@@ -598,15 +602,16 @@ public class DateUtil extends DateUtils {
             return min + ":" + "m";
         } else if (hh <= 48) {
             return hh + ":" + "h";
-        } else  {
+        } else {
             return dd + ":" + "d";
         }
     }
 
     /**
-     *时间刻度判断
+     * 时间刻度判断
+     *
      * @param startTime 开始时间
-     * @param endTime 结束时间
+     * @param endTime   结束时间
      * @return
      */
     public static String getTimeScale(long startTime, long endTime) {

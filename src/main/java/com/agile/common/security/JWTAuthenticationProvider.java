@@ -5,7 +5,9 @@ import com.agile.common.util.CacheUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +35,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if(authentication.getDetails() instanceof SecurityUser) {
+        if (authentication.getDetails() instanceof SecurityUser) {
             return authentication;
         }
 
@@ -46,13 +48,13 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         userDetailsService.validate(user);
 
         //验证密码
-        checkPassword(authentication,user);
+        checkPassword(authentication, user);
 
         //判断登陆策略
         loginStrategyHandler(user);
 
         //设置详情，用于token策略
-        ((UsernamePasswordAuthenticationToken)authentication).setDetails(user);
+        ((UsernamePasswordAuthenticationToken) authentication).setDetails(user);
 
         return authentication;
     }
@@ -65,7 +67,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     /**
      * 校验密码
      */
-    private void checkPassword(Authentication authentication, UserDetails user){
+    private void checkPassword(Authentication authentication, UserDetails user) {
         if (authentication.getCredentials() == null) {
             this.logger.debug("未找到密码");
             throw new BadCredentialsException(null);
@@ -81,12 +83,12 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     /**
      * 登陆策略
      */
-    private void loginStrategyHandler(UserDetails user){
+    private void loginStrategyHandler(UserDetails user) {
         Object salts = CacheUtil.get(user.getUsername() + "_SALT");
-        if(salts!=null && !salts.toString().isEmpty()){
-            switch (((SecurityUser)user).getOnLineStrategy()){
+        if (salts != null && !salts.toString().isEmpty()) {
+            switch (((SecurityUser) user).getOnLineStrategy()) {
                 case "1000":
-                    CacheUtil.evict(user.getUsername()+"_SALT");
+                    CacheUtil.evict(user.getUsername() + "_SALT");
                     break;
                 case "2000":
                     break;

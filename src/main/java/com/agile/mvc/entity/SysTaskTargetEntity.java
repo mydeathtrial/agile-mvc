@@ -1,40 +1,46 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_task_target",  catalog = "agile_db")
+@Table(name = "sys_task_target", catalog = "agile_db")
 @Remark("[系统管理]目标任务表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysTaskTargetEntity implements Serializable,Cloneable {
+public class SysTaskTargetEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysTaskTargetId ;
+    private String sysTaskTargetId;
     @Remark("方法含义名")
-    private String name ;
+    private String name;
     @Remark("包名")
-    private String targetPackage ;
+    private String targetPackage;
     @Remark("类名")
-    private String targetClass ;
+    private String targetClass;
     @Remark("方法名")
-    private String targetMethod ;
+    private String targetMethod;
     @Remark("备注")
-    private String remarks ;
+    private String remarks;
 
     //无参构造器
-    public SysTaskTargetEntity(){}
+    public SysTaskTargetEntity() {
+    }
 
     //有参构造器
-    public SysTaskTargetEntity(String sysTaskTargetId,String name,String targetPackage,String targetClass,String targetMethod,String remarks){
+    public SysTaskTargetEntity(String sysTaskTargetId, String name, String targetPackage, String targetClass, String targetMethod, String remarks) {
         this.sysTaskTargetId = sysTaskTargetId;
         this.name = name;
         this.targetPackage = targetPackage;
@@ -44,7 +50,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_task_target_id" , nullable = false  )
+    @Column(name = "sys_task_target_id", nullable = false)
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
@@ -54,7 +60,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name"  )
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -64,7 +70,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "target_package" , nullable = false  )
+    @Column(name = "target_package", nullable = false)
     public String getTargetPackage() {
         return targetPackage;
     }
@@ -74,7 +80,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "target_class" , nullable = false  )
+    @Column(name = "target_class", nullable = false)
     public String getTargetClass() {
         return targetClass;
     }
@@ -84,7 +90,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "target_method" , nullable = false  )
+    @Column(name = "target_method", nullable = false)
     public String getTargetMethod() {
         return targetMethod;
     }
@@ -94,7 +100,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "remarks"  )
+    @Column(name = "remarks")
     public String getRemarks() {
         return remarks;
     }
@@ -114,11 +120,11 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
         }
         SysTaskTargetEntity that = (SysTaskTargetEntity) object;
         return Objects.equals(getSysTaskTargetId(), that.getSysTaskTargetId()) &&
-            Objects.equals(getName(), that.getName()) &&
-            Objects.equals(getTargetPackage(), that.getTargetPackage()) &&
-            Objects.equals(getTargetClass(), that.getTargetClass()) &&
-            Objects.equals(getTargetMethod(), that.getTargetMethod()) &&
-            Objects.equals(getRemarks(), that.getRemarks());
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getTargetPackage(), that.getTargetPackage()) &&
+                Objects.equals(getTargetClass(), that.getTargetClass()) &&
+                Objects.equals(getTargetMethod(), that.getTargetMethod()) &&
+                Objects.equals(getRemarks(), that.getRemarks());
     }
 
     @Override
@@ -129,16 +135,16 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysTaskTargetEntity{" +
-        "sysTaskTargetId='" + sysTaskTargetId + '\'' +
-        ",name='" + name + '\'' +
-        ",targetPackage='" + targetPackage + '\'' +
-        ",targetClass='" + targetClass + '\'' +
-        ",targetMethod='" + targetMethod + '\'' +
-        ",remarks='" + remarks + '\'' +
-        '}';
+                "sysTaskTargetId='" + sysTaskTargetId + '\'' +
+                ",name='" + name + '\'' +
+                ",targetPackage='" + targetPackage + '\'' +
+                ",targetClass='" + targetClass + '\'' +
+                ",targetMethod='" + targetMethod + '\'' +
+                ",remarks='" + remarks + '\'' +
+                '}';
     }
 
-    private SysTaskTargetEntity(Builder builder){
+    private SysTaskTargetEntity(Builder builder) {
         this.sysTaskTargetId = builder.sysTaskTargetId;
         this.name = builder.name;
         this.targetPackage = builder.targetPackage;
@@ -147,7 +153,7 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
         this.remarks = builder.remarks;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysTaskTargetId;
         private String name;
         private String targetPackage;
@@ -159,40 +165,46 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
             this.sysTaskTargetId = sysTaskTargetId;
             return this;
         }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
+
         public Builder setTargetPackage(String targetPackage) {
             this.targetPackage = targetPackage;
             return this;
         }
+
         public Builder setTargetClass(String targetClass) {
             this.targetClass = targetClass;
             return this;
         }
+
         public Builder setTargetMethod(String targetMethod) {
             this.targetMethod = targetMethod;
             return this;
         }
+
         public Builder setRemarks(String remarks) {
             this.remarks = remarks;
             return this;
         }
-        public SysTaskTargetEntity build(){
+
+        public SysTaskTargetEntity build() {
             return new SysTaskTargetEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysTaskTargetEntity clone() {
         try {
-            return (SysTaskTargetEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysTaskTargetEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

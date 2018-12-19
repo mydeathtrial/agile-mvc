@@ -74,19 +74,16 @@ public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, Ini
 
         if (this.shared) {
             this.cacheManager = CacheManager.create(this.configLocation);
-        }
-        else if (this.acceptExisting) {
+        } else if (this.acceptExisting) {
             synchronized (CacheManager.class) {
                 this.cacheManager = CacheManager.getCacheManager(this.cacheManagerName);
                 if (this.cacheManager == null) {
                     this.cacheManager = CacheManager.getInstance();
-                }
-                else {
+                } else {
                     this.locallyManaged = false;
                 }
             }
-        }
-        else {
+        } else {
             this.cacheManager = new CacheManager(this.configLocation);
         }
     }

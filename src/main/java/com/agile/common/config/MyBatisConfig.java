@@ -1,7 +1,7 @@
 package com.agile.common.config;
 
-import com.agile.common.mybatis.MybatisInterceptor;
 import com.agile.common.mybatis.CustomConfiguration;
+import com.agile.common.mybatis.MybatisInterceptor;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -35,7 +35,7 @@ public class MyBatisConfig {
     }
 
     @Bean
-    public MapperScannerConfigurer mapperScannerConfigurer(){
+    public MapperScannerConfigurer mapperScannerConfigurer() {
         MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
         mapperScannerConfigurer.setBasePackage("com.agile");
         mapperScannerConfigurer.setAnnotationClass(Mapper.class);

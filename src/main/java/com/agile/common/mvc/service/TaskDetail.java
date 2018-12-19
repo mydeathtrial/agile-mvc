@@ -25,7 +25,7 @@ interface TaskDetail {
 
     Boolean getSync();
 
-    void setSync(Boolean sync) ;
+    void setSync(Boolean sync);
 
     Date getUpdateTime();
 

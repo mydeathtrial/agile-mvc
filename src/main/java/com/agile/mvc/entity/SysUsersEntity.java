@@ -1,57 +1,65 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.GenerationTime;
-import java.util.Date;
 import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_users",  catalog = "agile_db")
+@Table(name = "sys_users", catalog = "agile_db")
 @Remark("[系统管理]用户")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysUsersEntity implements Serializable,Cloneable {
+public class SysUsersEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysUsersId ;
+    private String sysUsersId;
     @Remark("账号")
-    private String saltKey ;
+    private String saltKey;
     @Remark("密码")
-    private String saltValue ;
+    private String saltValue;
     @Remark("用户姓名")
-    private String name ;
+    private String name;
     @Remark("所属机构ID")
-    private String vQzjgid ;
+    private String vQzjgid;
     @Remark("所属机构名称")
-    private String vQzjgmc ;
+    private String vQzjgmc;
     @Remark("地区编号")
-    private String areaId ;
+    private String areaId;
     @Remark("过期时间")
-    private Date expiredTime ;
+    private Date expiredTime;
     @Remark("用户是否锁定")
-    private Boolean isLocked ;
+    private Boolean isLocked;
     @Remark("同时在线策略")
-    private String onLineStrategy ;
+    private String onLineStrategy;
     @Remark("创建时间")
-    private Date createTime ;
+    private Date createTime;
     @Remark("修改时间")
-    private Date updateTime ;
+    private Date updateTime;
     @Remark("是否可用")
-    private Boolean enabled ;
+    private Boolean enabled;
 
     //无参构造器
-    public SysUsersEntity(){}
+    public SysUsersEntity() {
+    }
 
     //有参构造器
-    public SysUsersEntity(String sysUsersId,String saltKey,String saltValue,String name,String vQzjgid,String vQzjgmc,String areaId,Date expiredTime,Boolean isLocked,String onLineStrategy,Date createTime,Date updateTime,Boolean enabled){
+    public SysUsersEntity(String sysUsersId, String saltKey, String saltValue, String name, String vQzjgid, String vQzjgmc, String areaId, Date expiredTime, Boolean isLocked, String onLineStrategy, Date createTime, Date updateTime, Boolean enabled) {
         this.sysUsersId = sysUsersId;
         this.saltKey = saltKey;
         this.saltValue = saltValue;
@@ -68,7 +76,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_users_id" , nullable = false  )
+    @Column(name = "sys_users_id", nullable = false)
     public String getSysUsersId() {
         return sysUsersId;
     }
@@ -78,7 +86,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "salt_key" , nullable = false  )
+    @Column(name = "salt_key", nullable = false)
     public String getSaltKey() {
         return saltKey;
     }
@@ -88,7 +96,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "salt_value" , nullable = false  )
+    @Column(name = "salt_value", nullable = false)
     public String getSaltValue() {
         return saltValue;
     }
@@ -98,7 +106,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name"  )
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -108,7 +116,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "v_qzjgid"  )
+    @Column(name = "v_qzjgid")
     public String getVQzjgid() {
         return vQzjgid;
     }
@@ -118,7 +126,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "v_qzjgmc"  )
+    @Column(name = "v_qzjgmc")
     public String getVQzjgmc() {
         return vQzjgmc;
     }
@@ -128,7 +136,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "area_id"  )
+    @Column(name = "area_id")
     public String getAreaId() {
         return areaId;
     }
@@ -138,7 +146,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "expired_time"  )
+    @Column(name = "expired_time")
     public Date getExpiredTime() {
         return expiredTime;
     }
@@ -148,7 +156,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "is_locked"  )
+    @Column(name = "is_locked")
     public Boolean getIsLocked() {
         return isLocked;
     }
@@ -158,7 +166,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "on_line_strategy"  )
+    @Column(name = "on_line_strategy")
     public String getOnLineStrategy() {
         return onLineStrategy;
     }
@@ -169,7 +177,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
 
     @Basic
     @Generated(GenerationTime.INSERT)
-    @Column(name = "create_time"  )
+    @Column(name = "create_time")
     public Date getCreateTime() {
         return createTime;
     }
@@ -181,7 +189,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @Generated(GenerationTime.ALWAYS)
-    @Column(name = "update_time"  )
+    @Column(name = "update_time")
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -191,7 +199,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "enabled"  )
+    @Column(name = "enabled")
     public Boolean getEnabled() {
         return enabled;
     }
@@ -211,18 +219,18 @@ public class SysUsersEntity implements Serializable,Cloneable {
         }
         SysUsersEntity that = (SysUsersEntity) object;
         return Objects.equals(getSysUsersId(), that.getSysUsersId()) &&
-            Objects.equals(getSaltKey(), that.getSaltKey()) &&
-            Objects.equals(getSaltValue(), that.getSaltValue()) &&
-            Objects.equals(getName(), that.getName()) &&
-            Objects.equals(getVQzjgid(), that.getVQzjgid()) &&
-            Objects.equals(getVQzjgmc(), that.getVQzjgmc()) &&
-            Objects.equals(getAreaId(), that.getAreaId()) &&
-            Objects.equals(getExpiredTime(), that.getExpiredTime()) &&
-            Objects.equals(getIsLocked(), that.getIsLocked()) &&
-            Objects.equals(getOnLineStrategy(), that.getOnLineStrategy()) &&
-            Objects.equals(getCreateTime(), that.getCreateTime()) &&
-            Objects.equals(getUpdateTime(), that.getUpdateTime()) &&
-            Objects.equals(getEnabled(), that.getEnabled());
+                Objects.equals(getSaltKey(), that.getSaltKey()) &&
+                Objects.equals(getSaltValue(), that.getSaltValue()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getVQzjgid(), that.getVQzjgid()) &&
+                Objects.equals(getVQzjgmc(), that.getVQzjgmc()) &&
+                Objects.equals(getAreaId(), that.getAreaId()) &&
+                Objects.equals(getExpiredTime(), that.getExpiredTime()) &&
+                Objects.equals(getIsLocked(), that.getIsLocked()) &&
+                Objects.equals(getOnLineStrategy(), that.getOnLineStrategy()) &&
+                Objects.equals(getCreateTime(), that.getCreateTime()) &&
+                Objects.equals(getUpdateTime(), that.getUpdateTime()) &&
+                Objects.equals(getEnabled(), that.getEnabled());
     }
 
     @Override
@@ -233,23 +241,23 @@ public class SysUsersEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysUsersEntity{" +
-        "sysUsersId='" + sysUsersId + '\'' +
-        ",saltKey='" + saltKey + '\'' +
-        ",saltValue='" + saltValue + '\'' +
-        ",name='" + name + '\'' +
-        ",vQzjgid='" + vQzjgid + '\'' +
-        ",vQzjgmc='" + vQzjgmc + '\'' +
-        ",areaId='" + areaId + '\'' +
-        ",expiredTime=" + expiredTime +
-        ",isLocked=" + isLocked +
-        ",onLineStrategy='" + onLineStrategy + '\'' +
-        ",createTime=" + createTime +
-        ",updateTime=" + updateTime +
-        ",enabled=" + enabled +
-        '}';
+                "sysUsersId='" + sysUsersId + '\'' +
+                ",saltKey='" + saltKey + '\'' +
+                ",saltValue='" + saltValue + '\'' +
+                ",name='" + name + '\'' +
+                ",vQzjgid='" + vQzjgid + '\'' +
+                ",vQzjgmc='" + vQzjgmc + '\'' +
+                ",areaId='" + areaId + '\'' +
+                ",expiredTime=" + expiredTime +
+                ",isLocked=" + isLocked +
+                ",onLineStrategy='" + onLineStrategy + '\'' +
+                ",createTime=" + createTime +
+                ",updateTime=" + updateTime +
+                ",enabled=" + enabled +
+                '}';
     }
 
-    private SysUsersEntity(Builder builder){
+    private SysUsersEntity(Builder builder) {
         this.sysUsersId = builder.sysUsersId;
         this.saltKey = builder.saltKey;
         this.saltValue = builder.saltValue;
@@ -265,7 +273,7 @@ public class SysUsersEntity implements Serializable,Cloneable {
         this.enabled = builder.enabled;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysUsersId;
         private String saltKey;
         private String saltValue;
@@ -284,68 +292,81 @@ public class SysUsersEntity implements Serializable,Cloneable {
             this.sysUsersId = sysUsersId;
             return this;
         }
+
         public Builder setSaltKey(String saltKey) {
             this.saltKey = saltKey;
             return this;
         }
+
         public Builder setSaltValue(String saltValue) {
             this.saltValue = saltValue;
             return this;
         }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
+
         public Builder setVQzjgid(String vQzjgid) {
             this.vQzjgid = vQzjgid;
             return this;
         }
+
         public Builder setVQzjgmc(String vQzjgmc) {
             this.vQzjgmc = vQzjgmc;
             return this;
         }
+
         public Builder setAreaId(String areaId) {
             this.areaId = areaId;
             return this;
         }
+
         public Builder setExpiredTime(Date expiredTime) {
             this.expiredTime = expiredTime;
             return this;
         }
+
         public Builder setIsLocked(Boolean isLocked) {
             this.isLocked = isLocked;
             return this;
         }
+
         public Builder setOnLineStrategy(String onLineStrategy) {
             this.onLineStrategy = onLineStrategy;
             return this;
         }
+
         public Builder setCreateTime(Date createTime) {
             this.createTime = createTime;
             return this;
         }
+
         public Builder setUpdateTime(Date updateTime) {
             this.updateTime = updateTime;
             return this;
         }
+
         public Builder setEnabled(Boolean enabled) {
             this.enabled = enabled;
             return this;
         }
-        public SysUsersEntity build(){
+
+        public SysUsersEntity build() {
             return new SysUsersEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysUsersEntity clone() {
         try {
-            return (SysUsersEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysUsersEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

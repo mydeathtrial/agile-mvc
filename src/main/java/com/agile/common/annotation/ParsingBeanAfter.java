@@ -8,6 +8,6 @@ package com.agile.common.annotation;
  * @version 1.0
  * @since 1.0
  */
-public interface ParsingBeanAfter extends Parsing{
-    void parsing(String beanName,Object bean);
+public interface ParsingBeanAfter extends Parsing {
+    void parsing(String beanName, Object bean);
 }

@@ -1,43 +1,47 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-
-import io.swagger.annotations.ApiModel;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "dictionary_data",  catalog = "agile_db")
+@Table(name = "dictionary_data", catalog = "agile_db")
 @Remark("[系统管理]字典数据表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 //@ApiModel
-public class DictionaryDataEntity implements Serializable,Cloneable {
+public class DictionaryDataEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String dictionaryDataId ;
+    private String dictionaryDataId;
     @Remark("字典主表主键")
-    private String dictionaryMainId ;
+    private String dictionaryMainId;
     @Remark("父节点主键")
-    private String parentId ;
+    private String parentId;
     @Remark("显示名称")
-    private String key ;
+    private String key;
     @Remark("代表值")
-    private String value ;
+    private String value;
     @Remark("字典值是否固定")
-    private Boolean isFixed ;
+    private Boolean isFixed;
 
     //无参构造器
-    public DictionaryDataEntity(){}
+    public DictionaryDataEntity() {
+    }
 
     //有参构造器
-    public DictionaryDataEntity(String dictionaryDataId,String dictionaryMainId,String parentId,String key,String value,Boolean isFixed){
+    public DictionaryDataEntity(String dictionaryDataId, String dictionaryMainId, String parentId, String key, String value, Boolean isFixed) {
         this.dictionaryDataId = dictionaryDataId;
         this.dictionaryMainId = dictionaryMainId;
         this.parentId = parentId;
@@ -47,7 +51,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "dictionary_data_id" , nullable = false  )
+    @Column(name = "dictionary_data_id", nullable = false)
     public String getDictionaryDataId() {
         return dictionaryDataId;
     }
@@ -57,7 +61,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "dictionary_main_id" , nullable = false  )
+    @Column(name = "dictionary_main_id", nullable = false)
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
@@ -67,7 +71,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "parent_id"  )
+    @Column(name = "parent_id")
     public String getParentId() {
         return parentId;
     }
@@ -77,7 +81,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "key" , nullable = false  )
+    @Column(name = "key", nullable = false)
     public String getKey() {
         return key;
     }
@@ -87,7 +91,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "value" , nullable = false  )
+    @Column(name = "value", nullable = false)
     public String getValue() {
         return value;
     }
@@ -97,7 +101,7 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "is_fixed" , nullable = false  )
+    @Column(name = "is_fixed", nullable = false)
     public Boolean getIsFixed() {
         return isFixed;
     }
@@ -117,11 +121,11 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
         }
         DictionaryDataEntity that = (DictionaryDataEntity) object;
         return Objects.equals(getDictionaryDataId(), that.getDictionaryDataId()) &&
-            Objects.equals(getDictionaryMainId(), that.getDictionaryMainId()) &&
-            Objects.equals(getParentId(), that.getParentId()) &&
-            Objects.equals(getKey(), that.getKey()) &&
-            Objects.equals(getValue(), that.getValue()) &&
-            Objects.equals(getIsFixed(), that.getIsFixed());
+                Objects.equals(getDictionaryMainId(), that.getDictionaryMainId()) &&
+                Objects.equals(getParentId(), that.getParentId()) &&
+                Objects.equals(getKey(), that.getKey()) &&
+                Objects.equals(getValue(), that.getValue()) &&
+                Objects.equals(getIsFixed(), that.getIsFixed());
     }
 
     @Override
@@ -132,16 +136,16 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "DictionaryDataEntity{" +
-        "dictionaryDataId='" + dictionaryDataId + '\'' +
-        ",dictionaryMainId='" + dictionaryMainId + '\'' +
-        ",parentId='" + parentId + '\'' +
-        ",key='" + key + '\'' +
-        ",value='" + value + '\'' +
-        ",isFixed=" + isFixed +
-        '}';
+                "dictionaryDataId='" + dictionaryDataId + '\'' +
+                ",dictionaryMainId='" + dictionaryMainId + '\'' +
+                ",parentId='" + parentId + '\'' +
+                ",key='" + key + '\'' +
+                ",value='" + value + '\'' +
+                ",isFixed=" + isFixed +
+                '}';
     }
 
-    private DictionaryDataEntity(Builder builder){
+    private DictionaryDataEntity(Builder builder) {
         this.dictionaryDataId = builder.dictionaryDataId;
         this.dictionaryMainId = builder.dictionaryMainId;
         this.parentId = builder.parentId;
@@ -150,52 +154,58 @@ public class DictionaryDataEntity implements Serializable,Cloneable {
         this.isFixed = builder.isFixed;
     }
 
-    public static class Builder{
-        private String dictionaryDataId ;
-        private String dictionaryMainId ;
-        private String parentId ;
-        private String key ;
-        private String value ;
-        private Boolean isFixed ;
+    public static class Builder {
+        private String dictionaryDataId;
+        private String dictionaryMainId;
+        private String parentId;
+        private String key;
+        private String value;
+        private Boolean isFixed;
 
         public Builder setDictionaryDataId(String dictionaryDataId) {
             this.dictionaryDataId = dictionaryDataId;
             return this;
         }
+
         public Builder setDictionaryMainId(String dictionaryMainId) {
             this.dictionaryMainId = dictionaryMainId;
             return this;
         }
+
         public Builder setParentId(String parentId) {
             this.parentId = parentId;
             return this;
         }
+
         public Builder setKey(String key) {
             this.key = key;
             return this;
         }
+
         public Builder setValue(String value) {
             this.value = value;
             return this;
         }
+
         public Builder setIsFixed(Boolean isFixed) {
             this.isFixed = isFixed;
             return this;
         }
-        public DictionaryDataEntity build(){
+
+        public DictionaryDataEntity build() {
             return new DictionaryDataEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public DictionaryDataEntity clone() {
         try {
-            return (DictionaryDataEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (DictionaryDataEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

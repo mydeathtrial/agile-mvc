@@ -51,7 +51,7 @@ public class ResourcePathProvider {
         if (annotation != null) {
             return annotation.path();
         }
-        return new String[] {};
+        return new String[]{};
     }
 
     private Optional<? extends Class<?>> controllerClass() {

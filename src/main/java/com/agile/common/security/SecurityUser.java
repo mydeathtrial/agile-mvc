@@ -7,6 +7,7 @@ import com.agile.mvc.entity.SysUsersEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -20,9 +21,8 @@ public class SecurityUser extends SysUsersEntity implements UserDetails {
     private List<SysAuthoritiesEntity> sysAuthoritiesEntities;
 
     public SecurityUser(SysUsersEntity user, List<SysAuthoritiesEntity> sysAuthoritiesEntities) {
-        if(user != null)
-        {
-            ObjectUtil.copyProperties(user,this);
+        if (user != null) {
+            ObjectUtil.copyProperties(user, this);
             this.sysAuthoritiesEntities = sysAuthoritiesEntities;
         }
     }
@@ -30,8 +30,7 @@ public class SecurityUser extends SysUsersEntity implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        if(sysAuthoritiesEntities != null)
-        {
+        if (sysAuthoritiesEntities != null) {
             for (SysAuthoritiesEntity role : sysAuthoritiesEntities) {
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.getName());
                 authorities.add(authority);

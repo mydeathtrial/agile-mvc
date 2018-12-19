@@ -1,46 +1,52 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_resources",  catalog = "agile_db")
+@Table(name = "sys_resources", catalog = "agile_db")
 @Remark("[系统管理]资源")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysResourcesEntity implements Serializable,Cloneable {
+public class SysResourcesEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysResourcesId ;
+    private String sysResourcesId;
     @Remark("资源类型")
-    private String type ;
+    private String type;
     @Remark("资源名称")
-    private String name ;
+    private String name;
     @Remark("资源描述")
-    private String desc ;
+    private String desc;
     @Remark("资源路径")
-    private String path ;
+    private String path;
     @Remark("优先级")
-    private String priority ;
+    private String priority;
     @Remark("是否可用")
-    private Boolean enable ;
+    private Boolean enable;
     @Remark("是否系统权限")
-    private Boolean issys ;
+    private Boolean issys;
     @Remark("模块")
-    private String moduleId ;
+    private String moduleId;
 
     //无参构造器
-    public SysResourcesEntity(){}
+    public SysResourcesEntity() {
+    }
 
     //有参构造器
-    public SysResourcesEntity(String sysResourcesId,String type,String name,String desc,String path,String priority,Boolean enable,Boolean issys,String moduleId){
+    public SysResourcesEntity(String sysResourcesId, String type, String name, String desc, String path, String priority, Boolean enable, Boolean issys, String moduleId) {
         this.sysResourcesId = sysResourcesId;
         this.type = type;
         this.name = name;
@@ -53,7 +59,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_resources_id" , nullable = false  )
+    @Column(name = "sys_resources_id", nullable = false)
     public String getSysResourcesId() {
         return sysResourcesId;
     }
@@ -63,7 +69,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "type"  )
+    @Column(name = "type")
     public String getType() {
         return type;
     }
@@ -73,7 +79,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name"  )
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -83,7 +89,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "desc"  )
+    @Column(name = "desc")
     public String getDesc() {
         return desc;
     }
@@ -93,7 +99,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "path"  )
+    @Column(name = "path")
     public String getPath() {
         return path;
     }
@@ -103,7 +109,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "priority"  )
+    @Column(name = "priority")
     public String getPriority() {
         return priority;
     }
@@ -113,7 +119,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "enable"  )
+    @Column(name = "enable")
     public Boolean getEnable() {
         return enable;
     }
@@ -123,7 +129,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "issys"  )
+    @Column(name = "issys")
     public Boolean getIssys() {
         return issys;
     }
@@ -133,7 +139,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "module_id"  )
+    @Column(name = "module_id")
     public String getModuleId() {
         return moduleId;
     }
@@ -153,14 +159,14 @@ public class SysResourcesEntity implements Serializable,Cloneable {
         }
         SysResourcesEntity that = (SysResourcesEntity) object;
         return Objects.equals(getSysResourcesId(), that.getSysResourcesId()) &&
-            Objects.equals(getType(), that.getType()) &&
-            Objects.equals(getName(), that.getName()) &&
-            Objects.equals(getDesc(), that.getDesc()) &&
-            Objects.equals(getPath(), that.getPath()) &&
-            Objects.equals(getPriority(), that.getPriority()) &&
-            Objects.equals(getEnable(), that.getEnable()) &&
-            Objects.equals(getIssys(), that.getIssys()) &&
-            Objects.equals(getModuleId(), that.getModuleId());
+                Objects.equals(getType(), that.getType()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getDesc(), that.getDesc()) &&
+                Objects.equals(getPath(), that.getPath()) &&
+                Objects.equals(getPriority(), that.getPriority()) &&
+                Objects.equals(getEnable(), that.getEnable()) &&
+                Objects.equals(getIssys(), that.getIssys()) &&
+                Objects.equals(getModuleId(), that.getModuleId());
     }
 
     @Override
@@ -171,19 +177,19 @@ public class SysResourcesEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysResourcesEntity{" +
-        "sysResourcesId='" + sysResourcesId + '\'' +
-        ",type='" + type + '\'' +
-        ",name='" + name + '\'' +
-        ",desc='" + desc + '\'' +
-        ",path='" + path + '\'' +
-        ",priority='" + priority + '\'' +
-        ",enable=" + enable +
-        ",issys=" + issys +
-        ",moduleId='" + moduleId + '\'' +
-        '}';
+                "sysResourcesId='" + sysResourcesId + '\'' +
+                ",type='" + type + '\'' +
+                ",name='" + name + '\'' +
+                ",desc='" + desc + '\'' +
+                ",path='" + path + '\'' +
+                ",priority='" + priority + '\'' +
+                ",enable=" + enable +
+                ",issys=" + issys +
+                ",moduleId='" + moduleId + '\'' +
+                '}';
     }
 
-    private SysResourcesEntity(Builder builder){
+    private SysResourcesEntity(Builder builder) {
         this.sysResourcesId = builder.sysResourcesId;
         this.type = builder.type;
         this.name = builder.name;
@@ -195,7 +201,7 @@ public class SysResourcesEntity implements Serializable,Cloneable {
         this.moduleId = builder.moduleId;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysResourcesId;
         private String type;
         private String name;
@@ -210,52 +216,61 @@ public class SysResourcesEntity implements Serializable,Cloneable {
             this.sysResourcesId = sysResourcesId;
             return this;
         }
+
         public Builder setType(String type) {
             this.type = type;
             return this;
         }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
+
         public Builder setDesc(String desc) {
             this.desc = desc;
             return this;
         }
+
         public Builder setPath(String path) {
             this.path = path;
             return this;
         }
+
         public Builder setPriority(String priority) {
             this.priority = priority;
             return this;
         }
+
         public Builder setEnable(Boolean enable) {
             this.enable = enable;
             return this;
         }
+
         public Builder setIssys(Boolean issys) {
             this.issys = issys;
             return this;
         }
+
         public Builder setModuleId(String moduleId) {
             this.moduleId = moduleId;
             return this;
         }
-        public SysResourcesEntity build(){
+
+        public SysResourcesEntity build() {
             return new SysResourcesEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysResourcesEntity clone() {
         try {
-            return (SysResourcesEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysResourcesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

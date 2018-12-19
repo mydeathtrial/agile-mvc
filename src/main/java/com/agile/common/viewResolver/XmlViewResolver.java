@@ -3,6 +3,7 @@ package com.agile.common.viewResolver;
 import com.agile.common.view.XmlView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.AbstractCachingViewResolver;
+
 import java.util.Locale;
 
 /**

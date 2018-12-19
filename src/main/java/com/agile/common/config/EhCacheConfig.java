@@ -21,14 +21,14 @@ public class EhCacheConfig {
     }
 
     @Bean
-    EhCacheManagerFactoryBean ehCacheManagerFactoryBean(){
+    EhCacheManagerFactoryBean ehCacheManagerFactoryBean() {
         EhCacheManagerFactoryBean ehCacheManagerFactoryBean = new EhCacheManagerFactoryBean();
         ehCacheManagerFactoryBean.setAcceptExisting(true);
         ehCacheManagerFactoryBean.setConfigLocation(configuration());
         return ehCacheManagerFactoryBean;
     }
 
-    public static net.sf.ehcache.config.Configuration configuration(){
+    public static net.sf.ehcache.config.Configuration configuration() {
         String path = System.getProperty("agile.root") + "temp";
         DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration().path(path);
         new PersistenceConfiguration().strategy("localTempSwap");

@@ -3,9 +3,9 @@ package com.agile.common.util;
 import com.agile.common.base.Constant;
 import net.sf.json.JSONObject;
 import org.jetbrains.annotations.Contract;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -21,11 +21,12 @@ import java.util.Map;
 public class ServletUtil {
     /**
      * 获取http请求的真实IP地址
+     *
      * @param request 请求对象
      * @return 返回IP地址
      */
     @Contract("null -> null")
-    public static String getCustomerIPAddr(HttpServletRequest request){
+    public static String getCustomerIPAddr(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
@@ -50,6 +51,7 @@ public class ServletUtil {
 
     /**
      * 本地地址格式化
+     *
      * @param ip IP地址
      * @return 格式化后的IP地址
      */
@@ -57,8 +59,7 @@ public class ServletUtil {
         if ("127.0.0.1".equals(ip) || "0:0:0:0:0:0:0:1".equals(ip)) {
             try {
                 ip = InetAddress.getLocalHost().getHostAddress();
-            }
-            catch (UnknownHostException unknownhostexception) {
+            } catch (UnknownHostException unknownhostexception) {
                 ip = "未知IP地址";
             }
         }
@@ -67,16 +68,17 @@ public class ServletUtil {
 
     /**
      * 获取Linux下的IP地址
+     *
      * @return IP地址
      */
     private static String getLinuxLocalIp() {
         String ip = "";
         try {
-            for (Enumeration <NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
                 NetworkInterface intf = en.nextElement();
                 String name = intf.getName();
                 if (!name.contains("docker") && !name.contains("lo")) {
-                    for (Enumeration< InetAddress > enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
                         InetAddress inetAddress = enumIpAddr.nextElement();
                         if (!inetAddress.isLoopbackAddress()) {
                             String ipaddress = inetAddress.getHostAddress();
@@ -97,7 +99,7 @@ public class ServletUtil {
     /**
      * 获取本地Host名称
      */
-    public static String getLocalHostName(){
+    public static String getLocalHostName() {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
@@ -135,46 +137,48 @@ public class ServletUtil {
 
     /**
      * 处理body参数
+     *
      * @param request 请求request
      */
-    public static Map<String,Object> getBody(HttpServletRequest request) {
+    public static Map<String, Object> getBody(HttpServletRequest request) {
 
         try {
             BufferedReader br = request.getReader();
 
             String cache;
             StringBuilder jsonStr = new StringBuilder();
-            while((cache = br.readLine()) != null){
+            while ((cache = br.readLine()) != null) {
                 jsonStr.append(cache);
             }
             JSONObject json;
-            try{
+            try {
                 json = (JSONObject) JSONUtil.toJSON(jsonStr.toString());
-            }catch (Exception e){
+            } catch (Exception e) {
                 return null;
             }
-            if(json!=null){
-                Map<String,Object> map = new HashMap<>();
-                map.put(Constant.ResponseAbout.BODY,json);
+            if (json != null) {
+                Map<String, Object> map = new HashMap<>();
+                map.put(Constant.ResponseAbout.BODY, json);
                 Iterator keys = json.keys();
-                while (keys.hasNext()){
+                while (keys.hasNext()) {
                     String keyName = keys.next().toString();
                     Object value = json.get(keyName);
-                    map.put(keyName,value);
+                    map.put(keyName, value);
                 }
                 return map;
             }
-        }catch (Exception ignored){
+        } catch (Exception ignored) {
         }
         return null;
     }
 
     /**
      * 获取当前request中的请求地址
+     *
      * @return url
      */
-    public static String getCurrentUrl(HttpServletRequest request){
-        if(request!=null){
+    public static String getCurrentUrl(HttpServletRequest request) {
+        if (request != null) {
             return request.getRequestURL().toString();
         }
         return null;

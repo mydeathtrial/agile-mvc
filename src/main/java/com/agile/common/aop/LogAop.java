@@ -12,13 +12,10 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -35,7 +32,7 @@ public class LogAop {
     private static final int MAX_LENGTH = 5000;
 
     //日志线程池
-    private static ThreadPoolExecutor pool = PoolFactory.pool(5, 30, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(),new ThreadPoolExecutor.DiscardPolicy());
+    private static ThreadPoolExecutor pool = PoolFactory.pool(5, 30, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 
     //日志模板
     private static final String logTemplate = "\n状    态: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n出参:\n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
@@ -58,32 +55,32 @@ public class LogAop {
         long endTime;
         MainService service = getService(joinPoint);
         HttpServletRequest request = (HttpServletRequest) joinPoint.getArgs()[2];
-        Method method = (Method)joinPoint.getArgs()[1];
+        Method method = (Method) joinPoint.getArgs()[1];
         Map<String, Object> inParam = service.getInParam();
         try {
             result = joinPoint.proceed();
         } catch (Throwable throwable) {
             endTime = System.currentTimeMillis();
-            printLog(throwable,endTime-startTime,service, method.getName(),ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request),inParam);
+            printLog(throwable, endTime - startTime, service, method.getName(), ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request), inParam);
             throw throwable;
         }
         endTime = System.currentTimeMillis();
-        printLog(endTime-startTime,service, method.getName(),ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request),inParam,service.getOutParam());
+        printLog(endTime - startTime, service, method.getName(), ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request), inParam, service.getOutParam());
         return result;
     }
 
-    private void printLog(long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam){
-        LogThread thread = new LogThread(time,service, methodName, ip, url,inParam,outParam);
+    private void printLog(long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
+        LogThread thread = new LogThread(time, service, methodName, ip, url, inParam, outParam);
         pool.execute(thread);
     }
 
-    private void printLog(Throwable throwable, long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam){
-        LogThread thread = new LogThread(throwable,time,service, methodName, ip, url,inParam);
+    private void printLog(Throwable throwable, long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam) {
+        LogThread thread = new LogThread(throwable, time, service, methodName, ip, url, inParam);
         pool.execute(thread);
     }
 
-    private MainService getService(JoinPoint joinPoint){
-        return (MainService)joinPoint.getTarget();
+    private MainService getService(JoinPoint joinPoint) {
+        return (MainService) joinPoint.getTarget();
     }
 
     /**
@@ -98,34 +95,38 @@ public class LogAop {
         String url;
         Map<String, Object> inParam;
         Map<String, Object> outParam;
-        LogThread(long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
-            this(null,time,service,methodName,ip,url,inParam);
-            this.outParam = MapUtil.coverCanSerializer(outParam);;
+
+        LogThread(long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
+            this(null, time, service, methodName, ip, url, inParam);
+            this.outParam = MapUtil.coverCanSerializer(outParam);
+            ;
         }
 
-        LogThread(Throwable e,long time,MainService service, String methodName, String ip, String url, Map<String, Object> inParam){
+        LogThread(Throwable e, long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam) {
             this.e = e;
             this.time = time;
             this.service = service;
             this.methodName = methodName;
             this.ip = ip;
             this.url = url;
-            this.inParam = MapUtil.coverCanSerializer(inParam);;
+            this.inParam = MapUtil.coverCanSerializer(inParam);
+            ;
         }
+
         @Override
         public void run() {
             try {
                 Class<?> serviceClass = service.getClass();
                 Log logger = LoggerFactory.getServiceLog(serviceClass);
-                if(e == null){
-                    String outStr = JSONUtil.toStringPretty(outParam,10);
-                    String print = (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}":outStr;
-                    logger.info(String.format(logTemplate,success,ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),print,time));
-                }else{
-                    logger.error(String.format(errorLogTemplate,error,e.getClass(),e.getMessage(),ip,url,serviceClass.getSimpleName(),methodName, JSONUtil.toStringPretty(inParam,10),time));
-                    logger.error(detailErrorInfo,e);
+                if (e == null) {
+                    String outStr = JSONUtil.toStringPretty(outParam, 10);
+                    String print = (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
+                    logger.info(String.format(logTemplate, success, ip, url, serviceClass.getSimpleName(), methodName, JSONUtil.toStringPretty(inParam, 10), print, time));
+                } else {
+                    logger.error(String.format(errorLogTemplate, error, e.getClass(), e.getMessage(), ip, url, serviceClass.getSimpleName(), methodName, JSONUtil.toStringPretty(inParam, 10), time));
+                    logger.error(detailErrorInfo, e);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

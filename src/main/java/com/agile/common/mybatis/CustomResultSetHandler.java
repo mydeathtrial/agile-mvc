@@ -15,24 +15,42 @@ import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.apache.ibatis.executor.result.ResultMapException;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetWrapper;
-import org.apache.ibatis.mapping.*;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.Discriminator;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.mapping.ParameterMode;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.reflection.MetaClass;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectorFactory;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
-import org.apache.ibatis.session.*;
+import org.apache.ibatis.session.AutoMappingBehavior;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ResultContext;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.springframework.data.domain.Page;
 
 import javax.persistence.Column;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 描述：
@@ -81,6 +99,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         private final String property;
         private final TypeHandler<?> typeHandler;
         private final boolean primitive;
+
         public UnMappedColumnAutoMapping(String column, String property, TypeHandler<?> typeHandler, boolean primitive) {
             this.column = column;
             this.property = property;
@@ -106,7 +125,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
     // HANDLE OUTPUT PARAMETER
     //
 
-    
+
     @Override
     public void handleOutputParameters(CallableStatement cs) throws SQLException {
         final Object parameterObject = parameterHandler.getParameterObject();
@@ -145,7 +164,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
     //
     // HANDLE RESULT SETS
     //
-    
+
     @Override
     public List<Object> handleResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
@@ -184,7 +203,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return collapseSingleResultList(multipleResults);
     }
 
-    
+
     @Override
     public <E> Cursor<E> handleCursorResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling cursor results").object(mappedStatement.getId());
@@ -332,7 +351,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
     @SuppressWarnings("unchecked" /* because ResultHandler<?> is always ResultHandler<Object>*/)
     private void callResultHandler(ResultHandler<?> resultHandler, DefaultResultContext<Object> resultContext, Object rowValue) {
         resultContext.nextResultObject(rowValue);
-        ((ResultHandler<Object>)resultHandler).handleResult(resultContext);
+        ((ResultHandler<Object>) resultHandler).handleResult(resultContext);
     }
 
     private boolean shouldProcessMoreRows(ResultContext<?> context, RowBounds rowBounds) throws SQLException {
@@ -366,7 +385,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
             }
             foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, null) || foundValues;
             foundValues = lazyLoader.size() > 0 || foundValues;
-            rowValue = (foundValues || configuration.isReturnInstanceForEmptyRow()) ? rowValue : coverObject(rsw,metaObject);
+            rowValue = (foundValues || configuration.isReturnInstanceForEmptyRow()) ? rowValue : coverObject(rsw, metaObject);
         }
         return rowValue;
     }
@@ -463,7 +482,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
                         configuration.getAutoMappingUnknownColumnBehavior()
                                 .doAction(mappedStatement, columnName, property, propertyType);
                     }
-                } else{
+                } else {
                     configuration.getAutoMappingUnknownColumnBehavior()
                             .doAction(mappedStatement, columnName, (property != null) ? property : propertyName, null);
                 }
@@ -473,28 +492,28 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return autoMapping;
     }
 
-    private Object coverObject(ResultSetWrapper rsw,MetaObject metaObject) throws SQLException {
+    private Object coverObject(ResultSetWrapper rsw, MetaObject metaObject) throws SQLException {
         ResultSet resultSet = rsw.getResultSet();
         Object entity = metaObject.getOriginalObject();
         Class<?> clazz = entity.getClass();
         Set<ObjectUtil.Target> columnSet = ObjectUtil.getAllColumnAnnotation(clazz);
         Iterator<ObjectUtil.Target> it = columnSet.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             ObjectUtil.Target target = it.next();
-            if(target!=null){
-                String name = ((Column)target.getAnnotation()).name();
+            if (target != null) {
+                String name = ((Column) target.getAnnotation()).name();
                 Object value = resultSet.getObject(name);
                 Member member = target.getMember();
-                if(member instanceof Field){
+                if (member instanceof Field) {
                     try {
                         ((Field) member).setAccessible(true);
-                        ((Field) member).set(entity,value);
+                        ((Field) member).set(entity, value);
                     } catch (IllegalAccessException ignored) {
                     }
                 }
             }
         }
-        if(ObjectUtil.isAllNullValidity(entity)) {
+        if (ObjectUtil.isAllNullValidity(entity)) {
             return null;
         }
         return entity;
@@ -502,6 +521,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
 
     /**
      * 修改mybatis结果映射过程，把结果数据根据目标类型的Column字段进行映射
+     *
      * @throws SQLException
      */
     private boolean applyAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
@@ -519,7 +539,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
                 }
             }
         }
-        coverObject(rsw,metaObject);
+        coverObject(rsw, metaObject);
         return foundValues;
     }
 
@@ -565,7 +585,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         if (columns != null && names != null) {
             String[] columnsArray = columns.split(",");
             String[] namesArray = names.split(",");
-            for (int i = 0 ; i < columnsArray.length ; i++) {
+            for (int i = 0; i < columnsArray.length; i++) {
                 Object value = rs.getString(columnsArray[i]);
                 if (value != null) {
                     cacheKey.update(namesArray[i]);
@@ -609,7 +629,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         } else if (!constructorMappings.isEmpty()) {
             return createParameterizedResultObject(rsw, resultType, constructorMappings, constructorArgTypes, constructorArgs, columnPrefix);
         } else if (resultType.isInterface() || metaType.hasDefaultConstructor()) {
-            if(resultType == Page.class){
+            if (resultType == Page.class) {
 
             }
             return objectFactory.create(resultType);
@@ -951,7 +971,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         Set<String> notNullColumns = resultMapping.getNotNullColumns();
         if (notNullColumns != null && !notNullColumns.isEmpty()) {
             ResultSet rs = rsw.getResultSet();
-            for (String column: notNullColumns) {
+            for (String column : notNullColumns) {
                 rs.getObject(prependPrefix(column, columnPrefix));
                 if (!rs.wasNull()) {
                     return true;

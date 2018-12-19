@@ -1,6 +1,10 @@
 package com.agile.common.annotation;
 
-import com.agile.common.util.*;
+import com.agile.common.util.ArrayUtil;
+import com.agile.common.util.ClassUtil;
+import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.PropertiesUtil;
+import com.agile.common.util.StringUtil;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
@@ -22,14 +26,15 @@ import java.util.List;
 public class ParsingProperties implements ParsingBeanBefore {
 
     @Override
-    public void parsing(String beanName,Object bean) {
-        Properties annotation = (Properties)bean.getClass().getAnnotation(getAnnotation());
-        if(annotation==null) {
+    public void parsing(String beanName, Object bean) {
+        Properties annotation = (Properties) bean.getClass().getAnnotation(getAnnotation());
+        if (annotation == null) {
             return;
         }
         try {
             setProperties(bean, annotation.prefix());
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -93,9 +98,10 @@ public class ParsingProperties implements ParsingBeanBefore {
             } else {
                 String key = prefix + "." + StringUtil.camelToUnderline(name);
                 if (ClassUtil.isCustomClass(type)) {
-                    if (PropertiesUtil.properties.containsKey(key)){
+                    if (PropertiesUtil.properties.containsKey(key)) {
                         field.set(target, PropertiesUtil.getProperty(key, type));
-                    };
+                    }
+                    ;
                 } else {
                     Object temp = type.newInstance();
                     setProperties(temp, key);

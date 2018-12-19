@@ -1,41 +1,47 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "dictionary_main",  catalog = "agile_db")
+@Table(name = "dictionary_main", catalog = "agile_db")
 @Remark("[系统管理]字典表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class DictionaryMainEntity implements Serializable,Cloneable {
+public class DictionaryMainEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String dictionaryMainId ;
+    private String dictionaryMainId;
     @Remark("字典编码")
-    private String code ;
+    private String code;
     @Remark("字典名称")
-    private String name ;
+    private String name;
 
     //无参构造器
-    public DictionaryMainEntity(){}
+    public DictionaryMainEntity() {
+    }
 
     //有参构造器
-    public DictionaryMainEntity(String dictionaryMainId,String code,String name){
+    public DictionaryMainEntity(String dictionaryMainId, String code, String name) {
         this.dictionaryMainId = dictionaryMainId;
         this.code = code;
         this.name = name;
     }
 
     @Id
-    @Column(name = "dictionary_main_id" , nullable = false  )
+    @Column(name = "dictionary_main_id", nullable = false)
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
@@ -45,7 +51,7 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "code" , nullable = false  )
+    @Column(name = "code", nullable = false)
     public String getCode() {
         return code;
     }
@@ -55,7 +61,7 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name" , nullable = false  )
+    @Column(name = "name", nullable = false)
     public String getName() {
         return name;
     }
@@ -75,8 +81,8 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
         }
         DictionaryMainEntity that = (DictionaryMainEntity) object;
         return Objects.equals(getDictionaryMainId(), that.getDictionaryMainId()) &&
-            Objects.equals(getCode(), that.getCode()) &&
-            Objects.equals(getName(), that.getName());
+                Objects.equals(getCode(), that.getCode()) &&
+                Objects.equals(getName(), that.getName());
     }
 
     @Override
@@ -87,49 +93,52 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "DictionaryMainEntity{" +
-        "dictionaryMainId='" + dictionaryMainId + '\'' +
-        ",code='" + code + '\'' +
-        ",name='" + name + '\'' +
-        '}';
+                "dictionaryMainId='" + dictionaryMainId + '\'' +
+                ",code='" + code + '\'' +
+                ",name='" + name + '\'' +
+                '}';
     }
 
-    private DictionaryMainEntity(Builder builder){
+    private DictionaryMainEntity(Builder builder) {
         this.dictionaryMainId = builder.dictionaryMainId;
         this.code = builder.code;
         this.name = builder.name;
     }
 
-    public static class Builder{
-        private String dictionaryMainId ;
-        private String code ;
-        private String name ;
+    public static class Builder {
+        private String dictionaryMainId;
+        private String code;
+        private String name;
 
         public Builder setDictionaryMainId(String dictionaryMainId) {
             this.dictionaryMainId = dictionaryMainId;
             return this;
         }
+
         public Builder setCode(String code) {
             this.code = code;
             return this;
         }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
-        public DictionaryMainEntity build(){
+
+        public DictionaryMainEntity build() {
             return new DictionaryMainEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public DictionaryMainEntity clone() {
         try {
-            return (DictionaryMainEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (DictionaryMainEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

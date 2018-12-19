@@ -5,7 +5,11 @@ import com.agile.common.exception.NoSignInException;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.*;
+import com.agile.common.util.CacheUtil;
+import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.RandomStringUtil;
+import com.agile.common.util.StringUtil;
+import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -15,6 +19,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
@@ -40,7 +45,7 @@ public class TokenFilter extends OncePerRequestFilter {
         String[] urls = SecurityConfig.immuneUrl;
         matches = new RequestMatcher[urls.length];
         int i = 0;
-        while (i < urls.length){
+        while (i < urls.length) {
             matches[i] = new AntPathRequestMatcher(urls[i]);
             i++;
         }
@@ -51,79 +56,80 @@ public class TokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            if(!requiresAuthentication(request)){
-                filterChain.doFilter(request,response);
+            if (!requiresAuthentication(request)) {
+                filterChain.doFilter(request, response);
                 return;
             }
-            String token = TokenUtil.getToken(request,SecurityProperties.getTokenHeader());
-            if(StringUtil.isBlank(token)){
+            String token = TokenUtil.getToken(request, SecurityProperties.getTokenHeader());
+            if (StringUtil.isBlank(token)) {
                 throw new NoSignInException(null);
             }
 
-            if(!TokenUtil.validateToken(token)){
+            if (!TokenUtil.validateToken(token)) {
                 throw new TokenIllegalException(null);
             }
 
             Claims claims = TokenUtil.getClaimsFromToken(token);
             assert claims != null;
             String cacheKey = claims.get(TokenUtil.AUTHENTICATION_CACHE_KEY).toString();
-            String saltsKey = cacheKey+"_SALT";
+            String saltsKey = cacheKey + "_SALT";
             String oldSalt = claims.get(TokenUtil.AUTHENTICATION_CACHE_SALT_KEY).toString();
             String salts = Objects.requireNonNull(CacheUtil.get(saltsKey)).toString();
             Authentication authentication = (Authentication) CacheUtil.get(cacheKey);
-            if(ObjectUtil.isEmpty(authentication)){
+            if (ObjectUtil.isEmpty(authentication)) {
                 throw new TokenIllegalException(null);
             }
-            if(!salts.contains(oldSalt)){
+            if (!salts.contains(oldSalt)) {
                 throw new TokenIllegalException(null);
             }
-            SecurityUser userDetails = (SecurityUser)authentication.getDetails();
+            SecurityUser userDetails = (SecurityUser) authentication.getDetails();
             securityUserDetailsService.validate(userDetails);
 
             String oldSaltValue = claims.get(TokenUtil.AUTHENTICATION_CREATE_SALT_VALUE).toString();
             String currentSaltValue = userDetails.getPassword();
-            if(!oldSaltValue.equals(currentSaltValue)){
+            if (!oldSaltValue.equals(currentSaltValue)) {
                 throw new TokenIllegalException(null);
             }
-            if(SignOutUrl.matches(request)){
+            if (SignOutUrl.matches(request)) {
                 securityUserDetailsService.updateLoginInfo(oldSalt);
-                CacheUtil.put(saltsKey,salts.replaceAll(oldSalt,""));
-            }else{
+                CacheUtil.put(saltsKey, salts.replaceAll(oldSalt, ""));
+            } else {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                refreshToken(authentication,response,oldSalt,userDetails.getSaltValue());
+                refreshToken(authentication, response, oldSalt, userDetails.getSaltValue());
             }
-            filterChain.doFilter(request,response);
-        }catch (Exception e){
-            if(e instanceof AuthenticationException){
-                exceptionHandler(request,response,(AuthenticationException)e);
-            }else{
-                exceptionHandler(request,response,new TokenIllegalException(null));
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            if (e instanceof AuthenticationException) {
+                exceptionHandler(request, response, (AuthenticationException) e);
+            } else {
+                exceptionHandler(request, response, new TokenIllegalException(null));
             }
         }
     }
+
     private void exceptionHandler(HttpServletRequest req, HttpServletResponse res, AuthenticationException e) throws IOException, ServletException {
         failureHandler.onAuthenticationFailure(req, res, e);
     }
 
-    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse,String oldSalt,String saltValue) throws NoSuchIDException {
+    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse, String oldSalt, String saltValue) throws NoSuchIDException {
         String cacheKey = authentication.getName();
-        String saltKey = cacheKey+"_SALT";
+        String saltKey = cacheKey + "_SALT";
         String newSalt = RandomStringUtil.getRandom(8, RandomStringUtil.Random.LETTER_UPPER);
-        CacheUtil.put(saltKey,Objects.requireNonNull(CacheUtil.get(saltKey)).toString().replaceAll(oldSalt, newSalt));
-        securityUserDetailsService.updateLoginInfo(oldSalt,newSalt);
+        CacheUtil.put(saltKey, Objects.requireNonNull(CacheUtil.get(saltKey)).toString().replaceAll(oldSalt, newSalt));
+        securityUserDetailsService.updateLoginInfo(oldSalt, newSalt);
 
-        String agileToken = TokenUtil.generateToken(cacheKey,newSalt,saltValue);
-        Cookie cookie = new Cookie(SecurityProperties.getTokenHeader(),agileToken);
+        String agileToken = TokenUtil.generateToken(cacheKey, newSalt, saltValue);
+        Cookie cookie = new Cookie(SecurityProperties.getTokenHeader(), agileToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        HttpServletResponse response = (HttpServletResponse)httpServletResponse;
+        HttpServletResponse response = (HttpServletResponse) httpServletResponse;
         response.addCookie(cookie);
-        response.setHeader(SecurityProperties.getTokenHeader(),agileToken);
+        response.setHeader(SecurityProperties.getTokenHeader(), agileToken);
     }
 
     private boolean requiresAuthentication(HttpServletRequest request) {
-        for (RequestMatcher matcher:matches) {
-            if(matcher.matches(request)){
+        for (RequestMatcher matcher : matches) {
+            if (matcher.matches(request)) {
                 return false;
             }
         }

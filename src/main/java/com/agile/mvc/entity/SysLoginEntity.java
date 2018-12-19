@@ -1,41 +1,47 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_login",  catalog = "agile_db")
+@Table(name = "sys_login", catalog = "agile_db")
 @Remark("")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysLoginEntity implements Serializable,Cloneable {
+public class SysLoginEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String sysLoginId ;
+    private String sysLoginId;
     @Remark("账号主键")
-    private String sysUserId ;
+    private String sysUserId;
     @Remark("登陆时间")
-    private Date loginTime ;
+    private Date loginTime;
     @Remark("退出时间")
-    private Date logoutTime ;
+    private Date logoutTime;
     @Remark("登陆IP地址")
-    private String loginIp ;
+    private String loginIp;
     @Remark("口令")
-    private String token ;
+    private String token;
 
     //无参构造器
-    public SysLoginEntity(){}
+    public SysLoginEntity() {
+    }
 
     //有参构造器
-    public SysLoginEntity(String sysLoginId,String sysUserId,Date loginTime,Date logoutTime,String loginIp,String token){
+    public SysLoginEntity(String sysLoginId, String sysUserId, Date loginTime, Date logoutTime, String loginIp, String token) {
         this.sysLoginId = sysLoginId;
         this.sysUserId = sysUserId;
         this.loginTime = loginTime;
@@ -45,7 +51,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_login_id" , nullable = false  )
+    @Column(name = "sys_login_id", nullable = false)
     public String getSysLoginId() {
         return sysLoginId;
     }
@@ -55,7 +61,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "sys_user_id"  )
+    @Column(name = "sys_user_id")
     public String getSysUserId() {
         return sysUserId;
     }
@@ -65,7 +71,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "login_time"  )
+    @Column(name = "login_time")
     public Date getLoginTime() {
         return loginTime;
     }
@@ -75,7 +81,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "logout_time"  )
+    @Column(name = "logout_time")
     public Date getLogoutTime() {
         return logoutTime;
     }
@@ -85,7 +91,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "login_ip"  )
+    @Column(name = "login_ip")
     public String getLoginIp() {
         return loginIp;
     }
@@ -95,7 +101,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "token"  )
+    @Column(name = "token")
     public String getToken() {
         return token;
     }
@@ -115,11 +121,11 @@ public class SysLoginEntity implements Serializable,Cloneable {
         }
         SysLoginEntity that = (SysLoginEntity) object;
         return Objects.equals(getSysLoginId(), that.getSysLoginId()) &&
-            Objects.equals(getSysUserId(), that.getSysUserId()) &&
-            Objects.equals(getLoginTime(), that.getLoginTime()) &&
-            Objects.equals(getLogoutTime(), that.getLogoutTime()) &&
-            Objects.equals(getLoginIp(), that.getLoginIp()) &&
-            Objects.equals(getToken(), that.getToken());
+                Objects.equals(getSysUserId(), that.getSysUserId()) &&
+                Objects.equals(getLoginTime(), that.getLoginTime()) &&
+                Objects.equals(getLogoutTime(), that.getLogoutTime()) &&
+                Objects.equals(getLoginIp(), that.getLoginIp()) &&
+                Objects.equals(getToken(), that.getToken());
     }
 
     @Override
@@ -130,16 +136,16 @@ public class SysLoginEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysLoginEntity{" +
-        "sysLoginId='" + sysLoginId + '\'' +
-        ",sysUserId='" + sysUserId + '\'' +
-        ",loginTime=" + loginTime +
-        ",logoutTime=" + logoutTime +
-        ",loginIp='" + loginIp + '\'' +
-        ",token='" + token + '\'' +
-        '}';
+                "sysLoginId='" + sysLoginId + '\'' +
+                ",sysUserId='" + sysUserId + '\'' +
+                ",loginTime=" + loginTime +
+                ",logoutTime=" + logoutTime +
+                ",loginIp='" + loginIp + '\'' +
+                ",token='" + token + '\'' +
+                '}';
     }
 
-    private SysLoginEntity(Builder builder){
+    private SysLoginEntity(Builder builder) {
         this.sysLoginId = builder.sysLoginId;
         this.sysUserId = builder.sysUserId;
         this.loginTime = builder.loginTime;
@@ -148,7 +154,7 @@ public class SysLoginEntity implements Serializable,Cloneable {
         this.token = builder.token;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysLoginId;
         private String sysUserId;
         private Date loginTime;
@@ -160,40 +166,46 @@ public class SysLoginEntity implements Serializable,Cloneable {
             this.sysLoginId = sysLoginId;
             return this;
         }
+
         public Builder setSysUserId(String sysUserId) {
             this.sysUserId = sysUserId;
             return this;
         }
+
         public Builder setLoginTime(Date loginTime) {
             this.loginTime = loginTime;
             return this;
         }
+
         public Builder setLogoutTime(Date logoutTime) {
             this.logoutTime = logoutTime;
             return this;
         }
+
         public Builder setLoginIp(String loginIp) {
             this.loginIp = loginIp;
             return this;
         }
+
         public Builder setToken(String token) {
             this.token = token;
             return this;
         }
-        public SysLoginEntity build(){
+
+        public SysLoginEntity build() {
             return new SysLoginEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysLoginEntity clone() {
         try {
-            return (SysLoginEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysLoginEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

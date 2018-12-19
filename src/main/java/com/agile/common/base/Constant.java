@@ -59,7 +59,7 @@ public class Constant {
         public final static String EQUAL = "=";
         public final static String HUMP = "((?=[\\x21-\\x7e]+)[^A-Za-z0-9])";
         public final static String UPER = "[A-Z]";
-        public final static String URL_REGEX ="[\\W_]?";
+        public final static String URL_REGEX = "[\\W_]?";
         public final static String HTTP = "http";
         public final static String HTTPS = "https";
         public final static String FORWARD = "forward";

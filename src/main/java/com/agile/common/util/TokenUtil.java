@@ -4,6 +4,7 @@ import com.agile.common.properties.SecurityProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +21,11 @@ public class TokenUtil {
     public static final String AUTHENTICATION_CACHE_SALT_KEY = "AUTHENTICATION_CACHE_SALT_KEY";
     public static final String AUTHENTICATION_CREATE_SALT_VALUE = "AUTHENTICATION_CACHE_SALT_VALUE";
     public static final String AUTHENTICATION_CREATE_TIME = "created";
+
     /**
      * 根据 TokenDetail 生成 Token
      */
-    public static String generateToken(String cacheKey,String salt,String saltValue) {
+    public static String generateToken(String cacheKey, String salt, String saltValue) {
         Map<String, Object> claims = new HashMap<>();
         claims.put(AUTHENTICATION_CACHE_KEY, cacheKey);
         claims.put(AUTHENTICATION_CACHE_SALT_KEY, salt);
@@ -31,7 +33,8 @@ public class TokenUtil {
         claims.put(AUTHENTICATION_CREATE_TIME, DateUtil.getCurrentDate());
         return generateToken(claims);
     }
-    public static String getToken(HttpServletRequest request,String key){
+
+    public static String getToken(HttpServletRequest request, String key) {
         String token = request.getHeader(key);
         if (StringUtil.isBlank(token)) {
             try {
@@ -82,14 +85,14 @@ public class TokenUtil {
                     .setSigningKey(SecurityProperties.getTokenKey().getBytes(StandardCharsets.UTF_8))
                     .parseClaimsJws(token)
                     .getBody();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
 
     public static boolean validateToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        if(ObjectUtil.isEmpty(claims)) {
+        if (ObjectUtil.isEmpty(claims)) {
             return false;
         }
         return claims.getExpiration().after(DateUtil.getCurrentDate());

@@ -7,7 +7,10 @@ import org.apache.ibatis.executor.BatchResult;
 import org.apache.ibatis.executor.ErrorContext;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.ExecutorException;
-import org.apache.ibatis.mapping.*;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.mapping.ParameterMode;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
@@ -47,13 +50,13 @@ public class PageExecutor implements Executor {
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey cacheKey, BoundSql boundSql) throws SQLException {
         RowBounds rb = new RowBounds(rowBounds.getOffset(), rowBounds.getLimit());
-        List<E> rows = executor.query(ms, parameter, rowBounds, resultHandler,cacheKey, boundSql);
+        List<E> rows = executor.query(ms, parameter, rowBounds, resultHandler, cacheKey, boundSql);
         return pageResolver(rows, ms, parameter, rb);
     }
 
-    private <E> List<E> pageResolver(List<E> rows, MappedStatement ms,Object parameter, RowBounds rowBounds) {
+    private <E> List<E> pageResolver(List<E> rows, MappedStatement ms, Object parameter, RowBounds rowBounds) {
         PageRequest pageRequest = getPageRequest(parameter);
-        if (pageRequest!=null) {
+        if (pageRequest != null) {
             long count = getCount(ms, parameter);
             return new Page<>(rows, pageRequest, count);
         }
@@ -109,7 +112,7 @@ public class PageExecutor implements Executor {
         return 0;
     }
 
-    private void setParameters(PreparedStatement ps, MappedStatement mappedStatement, BoundSql boundSql,Object parameterObject) throws SQLException {
+    private void setParameters(PreparedStatement ps, MappedStatement mappedStatement, BoundSql boundSql, Object parameterObject) throws SQLException {
         ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         if (parameterMappings != null) {
@@ -141,9 +144,11 @@ public class PageExecutor implements Executor {
             }
         }
     }
+
     private String getCountSql(String sql) {
         return SqlUtil.parserCountSQL(sql);
     }
+
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
         BoundSql boundSql = ms.getBoundSql(parameter);
@@ -154,7 +159,7 @@ public class PageExecutor implements Executor {
 
     @Override
     public <E> Cursor<E> queryCursor(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException {
-        return executor.queryCursor(ms,parameter,rowBounds);
+        return executor.queryCursor(ms, parameter, rowBounds);
     }
 
     @Override

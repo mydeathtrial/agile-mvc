@@ -20,11 +20,11 @@ public class ResponseFile {
     }
 
     public ResponseFile(String fileName, String contentType, File file) throws FileNotFoundException {
-        this(fileName,contentType,new FileInputStream(file));
+        this(fileName, contentType, new FileInputStream(file));
     }
 
     public ResponseFile(String fileName, File file) throws FileNotFoundException {
-        this(fileName,null,new FileInputStream(file));
+        this(fileName, null, new FileInputStream(file));
     }
 
     public String getFileName() {

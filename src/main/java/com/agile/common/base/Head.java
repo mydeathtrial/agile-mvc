@@ -1,6 +1,7 @@
 package com.agile.common.base;
 
 import com.agile.common.util.ServletUtil;
+
 import java.io.Serializable;
 
 /**

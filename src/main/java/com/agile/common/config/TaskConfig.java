@@ -18,12 +18,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @Configuration
 public class TaskConfig {
     @Bean
-    public TaskService customTaskServer(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext){
-        return new TaskService(threadPoolTaskScheduler,applicationContext);
+    public TaskService customTaskServer(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
+        return new TaskService(threadPoolTaskScheduler, applicationContext);
     }
 
     @Bean
-    public TaskFactory taskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler){
+    public TaskFactory taskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
         return new TaskFactory(threadPoolTaskScheduler);
     }
 }

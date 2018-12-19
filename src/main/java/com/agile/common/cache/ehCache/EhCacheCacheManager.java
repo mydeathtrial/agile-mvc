@@ -28,7 +28,7 @@ public class EhCacheCacheManager extends org.springframework.cache.ehcache.EhCac
             String[] names = this.getCacheManager().getCacheNames();
             LinkedHashSet<Cache> caches = new LinkedHashSet<>(names.length);
 
-            for(int i = 0; i < names.length; ++i) {
+            for (int i = 0; i < names.length; ++i) {
                 String name = names[i];
                 caches.add(new EhCacheCache(this.getCacheManager().getEhcache(name)));
             }

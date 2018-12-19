@@ -2,7 +2,12 @@ package com.agile.common.config;
 
 import com.agile.common.properties.ActivitiConfigProperties;
 import com.agile.common.properties.MailConfigProperty;
-import org.activiti.engine.*;
+import org.activiti.engine.DynamicBpmnService;
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.ManagementService;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +24,7 @@ import java.util.Objects;
 public class ActivitiConfig {
 
     @Bean
-    SpringProcessEngineConfiguration springProcessEngineConfiguration(PlatformTransactionManager transactionManager,DataSource dataSource){
+    SpringProcessEngineConfiguration springProcessEngineConfiguration(PlatformTransactionManager transactionManager, DataSource dataSource) {
         SpringProcessEngineConfiguration springProcessEngineConfiguration = new SpringProcessEngineConfiguration();
         springProcessEngineConfiguration.setDataSource(dataSource);
         springProcessEngineConfiguration.setTransactionManager(transactionManager);
@@ -35,7 +40,7 @@ public class ActivitiConfig {
     }
 
     @Bean
-    ProcessEngineFactoryBean processEngineFactoryBean(SpringProcessEngineConfiguration springProcessEngineConfiguration){
+    ProcessEngineFactoryBean processEngineFactoryBean(SpringProcessEngineConfiguration springProcessEngineConfiguration) {
         ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();
         processEngineFactoryBean.setProcessEngineConfiguration(springProcessEngineConfiguration);
         return processEngineFactoryBean;

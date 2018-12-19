@@ -9,6 +9,7 @@ import net.sf.ehcache.Element;
  */
 public class EhCacheCache extends org.springframework.cache.ehcache.EhCacheCache implements Cache {
     private Ehcache cache;
+
     public EhCacheCache(Ehcache ehcache) {
         super(ehcache);
         this.cache = ehcache;
@@ -25,7 +26,7 @@ public class EhCacheCache extends org.springframework.cache.ehcache.EhCacheCache
     public <T> T getCollection(Object o1, Class<T> o2) {
         try {
             return (T) get(o1).get();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

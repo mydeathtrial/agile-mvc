@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 public class BeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
+
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
@@ -23,8 +24,8 @@ public class BeanPostProcessor implements org.springframework.beans.factory.conf
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        AnnotationProcessor.methodAnnotationProcessor(applicationContext, beanName, bean,ParsingMethodBefore.class);
-        APIUtil.addMappingInfoCache(beanName,bean);
+        AnnotationProcessor.methodAnnotationProcessor(applicationContext, beanName, bean, ParsingMethodBefore.class);
+        APIUtil.addMappingInfoCache(beanName, bean);
         return bean;
     }
 

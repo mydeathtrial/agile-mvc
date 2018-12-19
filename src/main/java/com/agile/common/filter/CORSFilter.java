@@ -2,7 +2,10 @@ package com.agile.common.filter;
 
 import com.agile.common.util.StringUtil;
 import org.springframework.web.filter.OncePerRequestFilter;
-import javax.servlet.*;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,9 +24,9 @@ public class CORSFilter extends OncePerRequestFilter implements Filter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        if (allowOrigin.equals("*") || StringUtil.isEmpty(allowOrigin)){
+        if (allowOrigin.equals("*") || StringUtil.isEmpty(allowOrigin)) {
             httpServletResponse.setHeader("Access-Control-Allow-Origin", allowOrigin);
-        }else{
+        } else {
             List<String> allowOriginList = Arrays.asList(allowOrigin.split(","));
             String currentOrigin = httpServletRequest.getHeader("Origin");
             if (allowOriginList.contains(currentOrigin)) {

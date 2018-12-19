@@ -16,6 +16,7 @@ import java.util.Locale;
 public class JumpViewResolver extends AbstractCachingViewResolver implements Ordered {
     private static final String REDIRECT_URL_PREFIX = "redirect:";
     private static final String FORWARD_URL_PREFIX = "forward:";
+
     @Override
     public int getOrder() {
         return 0;
@@ -40,7 +41,7 @@ public class JumpViewResolver extends AbstractCachingViewResolver implements Ord
         ApplicationContext context = this.getApplicationContext();
         Object initialized = context.getAutowireCapableBeanFactory().initializeBean(view, viewName);
         if (initialized instanceof View) {
-            return (View)initialized;
+            return (View) initialized;
         }
 
         return view;

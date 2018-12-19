@@ -1,45 +1,51 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
-import java.io.Serializable;
-import java.util.Objects;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.GenerationTime;
-import java.util.Date;
 import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_task",  catalog = "agile_db")
+@Table(name = "sys_task", catalog = "agile_db")
 @Remark("[系统管理]定时任务")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysTaskEntity implements Serializable,Cloneable {
+public class SysTaskEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String sysTaskId ;
+    private String sysTaskId;
     @Remark("定时任务名")
-    private String name ;
+    private String name;
     @Remark("状态")
-    private Boolean state ;
+    private Boolean state;
     @Remark("定时表达式")
-    private String cron ;
+    private String cron;
     @Remark("是否同步")
-    private Boolean sync ;
+    private Boolean sync;
     @Remark("更新时间")
-    private Date updateTime ;
+    private Date updateTime;
     @Remark("创建时间")
-    private Date createTime ;
+    private Date createTime;
 
     //无参构造器
-    public SysTaskEntity(){}
+    public SysTaskEntity() {
+    }
 
     //有参构造器
-    public SysTaskEntity(String sysTaskId,String name,Boolean state,String cron,Boolean sync,Date updateTime,Date createTime){
+    public SysTaskEntity(String sysTaskId, String name, Boolean state, String cron, Boolean sync, Date updateTime, Date createTime) {
         this.sysTaskId = sysTaskId;
         this.name = name;
         this.state = state;
@@ -50,7 +56,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "sys_task_id" , nullable = false  )
+    @Column(name = "sys_task_id", nullable = false)
     public String getSysTaskId() {
         return sysTaskId;
     }
@@ -60,7 +66,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "name"  )
+    @Column(name = "name")
     public String getName() {
         return name;
     }
@@ -70,7 +76,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "state"  )
+    @Column(name = "state")
     public Boolean getState() {
         return state;
     }
@@ -80,7 +86,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "cron"  )
+    @Column(name = "cron")
     public String getCron() {
         return cron;
     }
@@ -90,7 +96,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "sync"  )
+    @Column(name = "sync")
     public Boolean getSync() {
         return sync;
     }
@@ -101,7 +107,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
 
     @Basic
     @Generated(GenerationTime.ALWAYS)
-    @Column(name = "update_time"  )
+    @Column(name = "update_time")
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -112,7 +118,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
 
     @Basic
     @Generated(GenerationTime.INSERT)
-    @Column(name = "create_time"  )
+    @Column(name = "create_time")
     public Date getCreateTime() {
         return createTime;
     }
@@ -132,12 +138,12 @@ public class SysTaskEntity implements Serializable,Cloneable {
         }
         SysTaskEntity that = (SysTaskEntity) object;
         return Objects.equals(getSysTaskId(), that.getSysTaskId()) &&
-            Objects.equals(getName(), that.getName()) &&
-            Objects.equals(getState(), that.getState()) &&
-            Objects.equals(getCron(), that.getCron()) &&
-            Objects.equals(getSync(), that.getSync()) &&
-            Objects.equals(getUpdateTime(), that.getUpdateTime()) &&
-            Objects.equals(getCreateTime(), that.getCreateTime());
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getState(), that.getState()) &&
+                Objects.equals(getCron(), that.getCron()) &&
+                Objects.equals(getSync(), that.getSync()) &&
+                Objects.equals(getUpdateTime(), that.getUpdateTime()) &&
+                Objects.equals(getCreateTime(), that.getCreateTime());
     }
 
     @Override
@@ -148,17 +154,17 @@ public class SysTaskEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysTaskEntity{" +
-        "sysTaskId='" + sysTaskId + '\'' +
-        ",name='" + name + '\'' +
-        ",state=" + state +
-        ",cron='" + cron + '\'' +
-        ",sync=" + sync +
-        ",updateTime=" + updateTime +
-        ",createTime=" + createTime +
-        '}';
+                "sysTaskId='" + sysTaskId + '\'' +
+                ",name='" + name + '\'' +
+                ",state=" + state +
+                ",cron='" + cron + '\'' +
+                ",sync=" + sync +
+                ",updateTime=" + updateTime +
+                ",createTime=" + createTime +
+                '}';
     }
 
-    private SysTaskEntity(Builder builder){
+    private SysTaskEntity(Builder builder) {
         this.sysTaskId = builder.sysTaskId;
         this.name = builder.name;
         this.state = builder.state;
@@ -168,7 +174,7 @@ public class SysTaskEntity implements Serializable,Cloneable {
         this.createTime = builder.createTime;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysTaskId;
         private String name;
         private Boolean state;
@@ -181,44 +187,51 @@ public class SysTaskEntity implements Serializable,Cloneable {
             this.sysTaskId = sysTaskId;
             return this;
         }
+
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
+
         public Builder setState(Boolean state) {
             this.state = state;
             return this;
         }
+
         public Builder setCron(String cron) {
             this.cron = cron;
             return this;
         }
+
         public Builder setSync(Boolean sync) {
             this.sync = sync;
             return this;
         }
+
         public Builder setUpdateTime(Date updateTime) {
             this.updateTime = updateTime;
             return this;
         }
+
         public Builder setCreateTime(Date createTime) {
             this.createTime = createTime;
             return this;
         }
-        public SysTaskEntity build(){
+
+        public SysTaskEntity build() {
             return new SysTaskEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysTaskEntity clone() {
         try {
-            return (SysTaskEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysTaskEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

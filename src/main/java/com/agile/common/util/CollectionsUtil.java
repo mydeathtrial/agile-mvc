@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * Created by 佟盟 on 2017/12/11
  */
-public class CollectionsUtil extends CollectionUtils{
-    public static <T>void sort(List<T> list, String propertiy){
+public class CollectionsUtil extends CollectionUtils {
+    public static <T> void sort(List<T> list, String propertiy) {
         list.sort((o1, o2) -> {
             try {
                 Class<?> clazz = o1.getClass();

@@ -26,11 +26,11 @@ public class ESConfig {
         Settings settings = Settings.builder().put("cluster.name", ESProperties.getClusterName()).put("client.transport.sniff", true).build();
         TransportClient client = new PreBuiltTransportClient(settings);
         String nodeInfo = ESProperties.getClusterNodes();
-        if(nodeInfo!=null){
+        if (nodeInfo != null) {
             String[] nodes = nodeInfo.split(",");
-            for (String node:nodes) {
+            for (String node : nodes) {
                 String[] info = node.split(":");
-                if(info.length!=2) {
+                if (info.length != 2) {
                     continue;
                 }
                 client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(info[0]), Integer.parseInt(info[1])));
@@ -41,10 +41,10 @@ public class ESConfig {
     }
 
     @Init
-    public void initEnv(){
-        if(PropertiesUtil.getProperty("agile.elasticsearch.enable", boolean.class)) {
+    public void initEnv() {
+        if (PropertiesUtil.getProperty("agile.elasticsearch.enable", boolean.class)) {
             try {
-                ObjectUtil.copyProperties(new ESProperties(),new com.idss.common.datafactory.utils.ESConfig());
+                ObjectUtil.copyProperties(new ESProperties(), new com.idss.common.datafactory.utils.ESConfig());
             } catch (Exception e) {
                 LoggerFactory.ES_LOG.error("ES环境初始化配置失败", e);
             }

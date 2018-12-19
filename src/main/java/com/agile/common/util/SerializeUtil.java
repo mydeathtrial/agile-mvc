@@ -24,7 +24,7 @@ public class SerializeUtil {
         return null;
     }
 
-    public static Object unserialize( byte[] bytes) {
+    public static Object unserialize(byte[] bytes) {
         ByteArrayInputStream bais;
         try {
             // 反序列化

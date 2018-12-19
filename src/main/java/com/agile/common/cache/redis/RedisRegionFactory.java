@@ -2,7 +2,6 @@ package com.agile.common.cache.redis;
 
 import com.agile.common.config.RedisConfig;
 import com.agile.common.factory.LoggerFactory;
-import org.apache.commons.logging.Log;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.cfg.spi.DomainDataRegionBuildingContext;
@@ -18,6 +17,7 @@ import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import redis.clients.jedis.JedisPoolConfig;
+
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,25 +34,26 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
     protected DomainDataStorageAccess createDomainDataStorageAccess(
             DomainDataRegionConfig regionConfig,
             DomainDataRegionBuildingContext buildingContext) {
-        return new StorageAccessImpl((RedisCache)getOrCreateCache( regionConfig.getRegionName(), buildingContext.getSessionFactory() ));
+        return new StorageAccessImpl((RedisCache) getOrCreateCache(regionConfig.getRegionName(), buildingContext.getSessionFactory()));
     }
+
     @Override
     protected StorageAccess createQueryResultsRegionStorageAccess(String regionName, SessionFactoryImplementor sessionFactory) {
-        return new StorageAccessImpl( (RedisCache)getOrCreateCache( regionName, sessionFactory ) );
+        return new StorageAccessImpl((RedisCache) getOrCreateCache(regionName, sessionFactory));
     }
 
     @Override
     protected StorageAccess createTimestampsRegionStorageAccess(String regionName, SessionFactoryImplementor sessionFactory) {
-        return new StorageAccessImpl((RedisCache) getOrCreateCache( regionName, sessionFactory ));
+        return new StorageAccessImpl((RedisCache) getOrCreateCache(regionName, sessionFactory));
     }
 
     @Override
     protected void prepareForUse(SessionFactoryOptions settings, Map configValues) {
-        synchronized ( this ) {
-            this.cacheManager = (RedisCacheManager)resolveCacheManager();
-            if ( this.cacheManager == null ) {
+        synchronized (this) {
+            this.cacheManager = (RedisCacheManager) resolveCacheManager();
+            if (this.cacheManager == null) {
                 String msg = "开启 Ehcache CacheManager 失败";
-                if(LoggerFactory.CACHE_LOG.isErrorEnabled()){
+                if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
                     LoggerFactory.CACHE_LOG.error(msg);
                 }
                 throw new CacheException(msg);
@@ -62,7 +63,7 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
 
     @Override
     protected void releaseFromUse() {
-        if (REFERENCE_COUNT.decrementAndGet() == 0){
+        if (REFERENCE_COUNT.decrementAndGet() == 0) {
             cacheManager = null;
         }
     }
@@ -74,9 +75,9 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
                 sessionFactory.getSessionFactoryOptions()
         );
 
-        final Cache cache = cacheManager.getCache( qualifiedRegionName );
-        if ( cache == null ) {
-            throw new CacheException( "未成功获取区域 [" + qualifiedRegionName + "]" );
+        final Cache cache = cacheManager.getCache(qualifiedRegionName);
+        if (cache == null) {
+            throw new CacheException("未成功获取区域 [" + qualifiedRegionName + "]");
         }
         return cache;
     }
@@ -87,14 +88,14 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
 
     private CacheManager useExplicitCacheManager() {
         try {
-            if(LoggerFactory.CACHE_LOG.isDebugEnabled()){
+            if (LoggerFactory.CACHE_LOG.isDebugEnabled()) {
                 LoggerFactory.CACHE_LOG.debug("初始化Redis二级缓存区域");
             }
             initConnectionFactory();
             REFERENCE_COUNT.incrementAndGet();
             return redisCacheManager;
-        }catch (Exception e){
-            if(LoggerFactory.CACHE_LOG.isDebugEnabled()){
+        } catch (Exception e) {
+            if (LoggerFactory.CACHE_LOG.isDebugEnabled()) {
                 LoggerFactory.CACHE_LOG.error("初始化Redis二级缓存区域失败");
                 e.printStackTrace();
             }
@@ -103,7 +104,7 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
         }
     }
 
-    private void initConnectionFactory(){
+    private void initConnectionFactory() {
         RedisConfig redisConfig = new RedisConfig();
         JedisPoolConfig jedisPoolConfig = redisConfig.redisPool();
         RedisConnectionFactory jedisConnectionFactory = redisConfig.jedisConnectionFactory(jedisPoolConfig);

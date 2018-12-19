@@ -10,7 +10,7 @@ public abstract class AbstractCustomException extends Exception {
         return params;
     }
 
-    public AbstractCustomException(Object... params){
+    public AbstractCustomException(Object... params) {
         this.params = params;
     }
 }

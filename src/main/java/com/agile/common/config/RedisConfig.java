@@ -14,6 +14,7 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import redis.clients.jedis.JedisPoolConfig;
+
 import java.time.Duration;
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
 public class RedisConfig {
 
     @Bean
-    public JedisPoolConfig redisPool(){
+    public JedisPoolConfig redisPool() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxIdle(RedisConfigProperties.getMaxIdle());
         jedisPoolConfig.setMinIdle(RedisConfigProperties.getMinIdle());
@@ -35,17 +36,17 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisConnectionFactory jedisConnectionFactory(JedisPoolConfig redisPool){
+    public RedisConnectionFactory jedisConnectionFactory(JedisPoolConfig redisPool) {
         List<String> hosts = RedisConfigProperties.getHost();
         List<Integer> ports = RedisConfigProperties.getPort();
-        if(hosts.size()>1){
+        if (hosts.size() > 1) {
             RedisSentinelConfiguration config = new RedisSentinelConfiguration()
                     .master("master");
-            for(int i = 0 ; i < hosts.size();i++){
-                config.sentinel(hosts.get(i),ports.get(i));
+            for (int i = 0; i < hosts.size(); i++) {
+                config.sentinel(hosts.get(i), ports.get(i));
             }
-            return new JedisConnectionFactory(config,redisPool);
-        }else{
+            return new JedisConnectionFactory(config, redisPool);
+        } else {
             RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
             JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisPool);
             jedisConnectionFactory.afterPropertiesSet();
@@ -57,7 +58,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate redisTemplate(RedisConnectionFactory jedisConnectionFactory){
+    public RedisTemplate redisTemplate(RedisConnectionFactory jedisConnectionFactory) {
         JdkSerializationRedisSerializer jdkSerializationRedisSerializer = new JdkSerializationRedisSerializer();
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory);

@@ -44,7 +44,7 @@ public class Swagger2Config {
 
     @Bean
     @Primary
-    public ApiListingScanner customApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver){
-        return new ApiListingScanner(apiDescriptionReader,apiModelReader,pluginsManager,typeResolver);
+    public ApiListingScanner customApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
+        return new ApiListingScanner(apiDescriptionReader, apiModelReader, pluginsManager, typeResolver);
     }
 }

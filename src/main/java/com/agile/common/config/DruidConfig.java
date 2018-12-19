@@ -2,10 +2,12 @@ package com.agile.common.config;
 
 import com.agile.common.exception.NonSupportDBException;
 import com.agile.common.filter.DruidFilter;
-import com.agile.common.properties.*;
+import com.agile.common.properties.DBConfigProperties;
+import com.agile.common.properties.DruidConfigProperty;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.sql.SQLException;
 import java.util.Collections;
 
@@ -22,13 +24,13 @@ public class DruidConfig {
         this.druidConfigProperty = DBConfigProperties.getDruid().get(index);
     }
 
-    @Bean(initMethod = "init",destroyMethod = "close")
+    @Bean(initMethod = "init", destroyMethod = "close")
     DruidDataSource dataSource() throws SQLException {
         DruidDataSource druidDataSource = new DruidDataSource();
 
         StringBuilder druidUrl = new StringBuilder();
         String db = druidConfigProperty.getType().toLowerCase();
-        switch (db){
+        switch (db) {
             case "mysql":
                 druidDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
                 druidDataSource.setValidationQuery("SELECT 1");

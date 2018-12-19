@@ -43,14 +43,14 @@ public final class RETURN {
         return this;
     }
 
-    public static RETURN getMessage(String key,Object... params){
+    public static RETURN getMessage(String key, Object... params) {
         try {
-            String message = PropertiesUtil.getMessage(key,params);
-            if(message !=null && message.contains(Constant.RegularAbout.COLON)){
+            String message = PropertiesUtil.getMessage(key, params);
+            if (message != null && message.contains(Constant.RegularAbout.COLON)) {
                 int splitIndex = message.indexOf(Constant.RegularAbout.COLON);
-                return new RETURN(message.substring(0,splitIndex),message.substring(splitIndex+1));
+                return new RETURN(message.substring(0, splitIndex), message.substring(splitIndex + 1));
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
         return null;

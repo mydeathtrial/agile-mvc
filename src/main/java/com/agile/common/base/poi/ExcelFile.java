@@ -14,13 +14,13 @@ public class ExcelFile {
         this.workbook = workbook;
 
         String suffix;
-        if(workbook instanceof HSSFWorkbook){
+        if (workbook instanceof HSSFWorkbook) {
             suffix = "xls";
-        }else {
+        } else {
             suffix = "xlsx";
         }
 
-        this.fileName = String.format("%s.%s",fileName,suffix);
+        this.fileName = String.format("%s.%s", fileName, suffix);
     }
 
     public String getFileName() {

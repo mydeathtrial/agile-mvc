@@ -9,6 +9,7 @@ import com.agile.common.util.ViewUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,14 +26,14 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
         assert RETURN.SUCCESS != null;
         Head head = new Head(RETURN.SUCCESS);
         AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
-        if(abstractResponseFormat!=null){
-            modelAndView = FactoryUtil.getBean(AbstractResponseFormat.class).buildResponse(head,null);
-        }else{
+        if (abstractResponseFormat != null) {
+            modelAndView = FactoryUtil.getBean(AbstractResponseFormat.class).buildResponse(head, null);
+        } else {
             modelAndView = new ModelAndView();
-            modelAndView.addObject(Constant.ResponseAbout.HEAD,head);
+            modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
         }
         try {
-            ViewUtil.render(modelAndView,request,response);
+            ViewUtil.render(modelAndView, request, response);
         } catch (Exception e) {
             e.printStackTrace();
         }

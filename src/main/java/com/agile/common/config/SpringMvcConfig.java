@@ -1,9 +1,9 @@
 package com.agile.common.config;
 
 import com.agile.common.properties.SpringMVCProperties;
-import com.agile.common.viewResolver.PlainViewResolver;
 import com.agile.common.viewResolver.JsonViewResolver;
 import com.agile.common.viewResolver.JumpViewResolver;
+import com.agile.common.viewResolver.PlainViewResolver;
 import com.agile.common.viewResolver.XmlViewResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,8 +13,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,23 +32,26 @@ import java.util.Map;
 public class SpringMvcConfig implements WebMvcConfigurer {
 
     private static Map<String, MediaType> map = new HashMap<>();
+
     static {
-        map.put("plain",MediaType.TEXT_PLAIN);
+        map.put("plain", MediaType.TEXT_PLAIN);
     }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.setOrder(-1).addResourceHandler("/static/**","/favicon.ico")
-                .addResourceLocations("classpath:com/agile/static/","classpath:com/agile/static/img/","classpath:com/agile/static/plus/jquery/","classpath:com/agile/static/plus/swagger/");
+        registry.setOrder(-1).addResourceHandler("/static/**", "/favicon.ico")
+                .addResourceLocations("classpath:com/agile/static/", "classpath:com/agile/static/img/", "classpath:com/agile/static/plus/jquery/", "classpath:com/agile/static/plus/swagger/");
     }
 
     /**
      * 视图解析器
      * 配置视图解析器视图列表
+     *
      * @param manager 略
      * @return 视图解析器
      */
     @Bean
-    public ViewResolver contentNegotiatingViewResolver(ContentNegotiationManager manager){
+    public ViewResolver contentNegotiatingViewResolver(ContentNegotiationManager manager) {
         List<ViewResolver> list = new ArrayList<>();
         list.add(new JsonViewResolver());
         list.add(new XmlViewResolver());
@@ -59,10 +66,11 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 
     /**
      * 文件上传配置
+     *
      * @return 文件上传下载解析器
      */
     @Bean
-    public CommonsMultipartResolver contentCommonsMultipartResolver(){
+    public CommonsMultipartResolver contentCommonsMultipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
         resolver.setMaxUploadSize(SpringMVCProperties.getUpload().getMaxUploadSize());
         resolver.setDefaultEncoding(SpringMVCProperties.getUpload().getDefaultEncoding());
@@ -79,12 +87,12 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    ThreadPoolTaskScheduler threadPoolTaskScheduler(){
+    ThreadPoolTaskScheduler threadPoolTaskScheduler() {
         return new ThreadPoolTaskScheduler();
     }
 
     @Bean
-    ResourceBundleMessageSource resourceBundleMessageSource(){
+    ResourceBundleMessageSource resourceBundleMessageSource() {
         ResourceBundleMessageSource resourceBundleMessageSource = new ResourceBundleMessageSource();
         resourceBundleMessageSource.setDefaultEncoding("UTF-8");
         resourceBundleMessageSource.setBasename("com.agile.conf.message");

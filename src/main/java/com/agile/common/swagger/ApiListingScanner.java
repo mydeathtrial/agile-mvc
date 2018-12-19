@@ -14,7 +14,11 @@ import org.springframework.web.method.HandlerMethod;
 import springfox.documentation.PathProvider;
 import springfox.documentation.builders.ApiListingBuilder;
 import springfox.documentation.schema.Model;
-import springfox.documentation.service.*;
+import springfox.documentation.service.ApiDescription;
+import springfox.documentation.service.ApiListing;
+import springfox.documentation.service.PathAdjuster;
+import springfox.documentation.service.ResourceGroup;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.service.contexts.ApiListingContext;
 import springfox.documentation.spi.service.contexts.DocumentationContext;
 import springfox.documentation.spi.service.contexts.RequestMappingContext;
@@ -27,7 +31,14 @@ import springfox.documentation.spring.web.scanners.ApiDescriptionReader;
 import springfox.documentation.spring.web.scanners.ApiListingScanningContext;
 import springfox.documentation.spring.web.scanners.ApiModelReader;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -40,15 +51,15 @@ import static springfox.documentation.spi.service.contexts.Orderings.resourceGro
 /**
  * Created by 佟盟 on 2018/11/23
  */
-public class ApiListingScanner extends springfox.documentation.spring.web.scanners.ApiListingScanner{
+public class ApiListingScanner extends springfox.documentation.spring.web.scanners.ApiListingScanner {
     private final ApiDescriptionReader apiDescriptionReader;
     private final ApiModelReader apiModelReader;
     private final DocumentationPluginsManager pluginsManager;
     private final TypeResolver typeResolver;
 
     @Autowired
-    public ApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager,TypeResolver typeResolver) {
-        super(apiDescriptionReader,apiModelReader,pluginsManager);
+    public ApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
+        super(apiDescriptionReader, apiModelReader, pluginsManager);
         this.apiDescriptionReader = apiDescriptionReader;
         this.apiModelReader = apiModelReader;
         this.pluginsManager = pluginsManager;
@@ -63,31 +74,31 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         Collection<ApiDescription> additionalListings = pluginsManager.additionalListings(context);
         List<APIInfo> list = APIUtil.getApiInfoCache();
 
-        Map<String,ResourceGroup> resourceGroupCache = new HashMap<>();
-        Map<ResourceGroup,List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>();
-        for (APIInfo apiInfo:list) {
-            if(apiInfo.getRequestMappingInfo() == null) {
+        Map<String, ResourceGroup> resourceGroupCache = new HashMap<>();
+        Map<ResourceGroup, List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>();
+        for (APIInfo apiInfo : list) {
+            if (apiInfo.getRequestMappingInfo() == null) {
                 continue;
             }
-            RequestMappingContext requestMappingContext = new RequestMappingContext(context.getDocumentationContext(),new WebMvcRequestHandler(new HandlerMethodResolver(typeResolver),apiInfo.getRequestMappingInfo(),new HandlerMethod(apiInfo.getBean(),apiInfo.getMethod())));
+            RequestMappingContext requestMappingContext = new RequestMappingContext(context.getDocumentationContext(), new WebMvcRequestHandler(new HandlerMethodResolver(typeResolver), apiInfo.getRequestMappingInfo(), new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())));
 
             String groupName = requestMappingContext.getGroupName();
             Class<?> bean = AopUtils.getTargetClass(apiInfo.getBean());
 
             ResourceGroup currentResourceGroup;
-            if(resourceGroupCache.containsKey(groupName)){
+            if (resourceGroupCache.containsKey(groupName)) {
                 currentResourceGroup = resourceGroupCache.get(groupName);
-            }else{
-                currentResourceGroup = new ResourceGroup(groupName,bean);
-                resourceGroupCache.put(groupName,currentResourceGroup);
+            } else {
+                currentResourceGroup = new ResourceGroup(groupName, bean);
+                resourceGroupCache.put(groupName, currentResourceGroup);
             }
 
             List<RequestMappingContext> currentRequestMappings;
-            if(requestMappingContextListCache.containsKey(currentResourceGroup)){
+            if (requestMappingContextListCache.containsKey(currentResourceGroup)) {
                 currentRequestMappings = requestMappingContextListCache.get(currentResourceGroup);
-            }else{
+            } else {
                 currentRequestMappings = new ArrayList<>();
-                requestMappingContextListCache.put(currentResourceGroup,currentRequestMappings);
+                requestMappingContextListCache.put(currentResourceGroup, currentRequestMappings);
             }
             currentRequestMappings.add(requestMappingContext);
         }

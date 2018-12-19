@@ -1,40 +1,46 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "log_table",  catalog = "agile_db")
+@Table(name = "log_table", catalog = "agile_db")
 @Remark("[系统管理]日志相关表变动信息")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class LogTableEntity implements Serializable,Cloneable {
+public class LogTableEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String logTableId ;
+    private String logTableId;
     @Remark("日志标识")
-    private String logMainId ;
+    private String logMainId;
     @Remark("数据库")
-    private String tableSchema ;
+    private String tableSchema;
     @Remark("表名")
-    private String tableName ;
+    private String tableName;
     @Remark("操作类型")
-    private String operationType ;
+    private String operationType;
     @Remark("操作顺序")
-    private Integer operationOrder ;
+    private Integer operationOrder;
 
     //无参构造器
-    public LogTableEntity(){}
+    public LogTableEntity() {
+    }
 
     //有参构造器
-    public LogTableEntity(String logTableId,String logMainId,String tableSchema,String tableName,String operationType,Integer operationOrder){
+    public LogTableEntity(String logTableId, String logMainId, String tableSchema, String tableName, String operationType, Integer operationOrder) {
         this.logTableId = logTableId;
         this.logMainId = logMainId;
         this.tableSchema = tableSchema;
@@ -44,7 +50,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Id
-    @Column(name = "log_table_id" , nullable = false  )
+    @Column(name = "log_table_id", nullable = false)
     public String getLogTableId() {
         return logTableId;
     }
@@ -54,7 +60,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "log_main_id" , nullable = false  )
+    @Column(name = "log_main_id", nullable = false)
     public String getLogMainId() {
         return logMainId;
     }
@@ -64,7 +70,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "table_schema" , nullable = false  )
+    @Column(name = "table_schema", nullable = false)
     public String getTableSchema() {
         return tableSchema;
     }
@@ -74,7 +80,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "table_name" , nullable = false  )
+    @Column(name = "table_name", nullable = false)
     public String getTableName() {
         return tableName;
     }
@@ -84,7 +90,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "operation_type" , nullable = false  )
+    @Column(name = "operation_type", nullable = false)
     public String getOperationType() {
         return operationType;
     }
@@ -94,7 +100,7 @@ public class LogTableEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "operation_order" , nullable = false  )
+    @Column(name = "operation_order", nullable = false)
     public Integer getOperationOrder() {
         return operationOrder;
     }
@@ -114,11 +120,11 @@ public class LogTableEntity implements Serializable,Cloneable {
         }
         LogTableEntity that = (LogTableEntity) object;
         return Objects.equals(getLogTableId(), that.getLogTableId()) &&
-            Objects.equals(getLogMainId(), that.getLogMainId()) &&
-            Objects.equals(getTableSchema(), that.getTableSchema()) &&
-            Objects.equals(getTableName(), that.getTableName()) &&
-            Objects.equals(getOperationType(), that.getOperationType()) &&
-            Objects.equals(getOperationOrder(), that.getOperationOrder());
+                Objects.equals(getLogMainId(), that.getLogMainId()) &&
+                Objects.equals(getTableSchema(), that.getTableSchema()) &&
+                Objects.equals(getTableName(), that.getTableName()) &&
+                Objects.equals(getOperationType(), that.getOperationType()) &&
+                Objects.equals(getOperationOrder(), that.getOperationOrder());
     }
 
     @Override
@@ -129,16 +135,16 @@ public class LogTableEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "LogTableEntity{" +
-        "logTableId='" + logTableId + '\'' +
-        ",logMainId='" + logMainId + '\'' +
-        ",tableSchema='" + tableSchema + '\'' +
-        ",tableName='" + tableName + '\'' +
-        ",operationType='" + operationType + '\'' +
-        ",operationOrder=" + operationOrder +
-        '}';
+                "logTableId='" + logTableId + '\'' +
+                ",logMainId='" + logMainId + '\'' +
+                ",tableSchema='" + tableSchema + '\'' +
+                ",tableName='" + tableName + '\'' +
+                ",operationType='" + operationType + '\'' +
+                ",operationOrder=" + operationOrder +
+                '}';
     }
 
-    private LogTableEntity(Builder builder){
+    private LogTableEntity(Builder builder) {
         this.logTableId = builder.logTableId;
         this.logMainId = builder.logMainId;
         this.tableSchema = builder.tableSchema;
@@ -147,52 +153,58 @@ public class LogTableEntity implements Serializable,Cloneable {
         this.operationOrder = builder.operationOrder;
     }
 
-    public static class Builder{
-        private String logTableId ;
-        private String logMainId ;
-        private String tableSchema ;
-        private String tableName ;
-        private String operationType ;
-        private Integer operationOrder ;
+    public static class Builder {
+        private String logTableId;
+        private String logMainId;
+        private String tableSchema;
+        private String tableName;
+        private String operationType;
+        private Integer operationOrder;
 
         public Builder setLogTableId(String logTableId) {
             this.logTableId = logTableId;
             return this;
         }
+
         public Builder setLogMainId(String logMainId) {
             this.logMainId = logMainId;
             return this;
         }
+
         public Builder setTableSchema(String tableSchema) {
             this.tableSchema = tableSchema;
             return this;
         }
+
         public Builder setTableName(String tableName) {
             this.tableName = tableName;
             return this;
         }
+
         public Builder setOperationType(String operationType) {
             this.operationType = operationType;
             return this;
         }
+
         public Builder setOperationOrder(Integer operationOrder) {
             this.operationOrder = operationOrder;
             return this;
         }
-        public LogTableEntity build(){
+
+        public LogTableEntity build() {
             return new LogTableEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public LogTableEntity clone() {
         try {
-            return (LogTableEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (LogTableEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

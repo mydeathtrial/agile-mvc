@@ -5,8 +5,11 @@ import com.agile.common.exception.VerificationCodeException;
 import com.agile.common.exception.VerificationCodeNon;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.*;
-import org.springframework.security.authentication.*;
+import com.agile.common.util.CacheUtil;
+import com.agile.common.util.StringUtil;
+import com.agile.common.util.TokenUtil;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
@@ -43,7 +46,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    public void afterPropertiesSet(){
+    public void afterPropertiesSet() {
         this.setAuthenticationSuccessHandler(SuccessHandler);
         this.setAuthenticationFailureHandler(failureHandler);
         ProviderManager providerManager = new ProviderManager(Collections.singletonList(loginStrategyProvider));
@@ -53,21 +56,21 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
         String username = request.getParameter(USERNAME);
         String password = request.getParameter(PASSWORD);
 
-        if(StringUtil.isEmpty(username)){
+        if (StringUtil.isEmpty(username)) {
             throw new NoCompleteFormSign();
         }
-        if(StringUtil.isEmpty(password)){
+        if (StringUtil.isEmpty(password)) {
             throw new NoCompleteFormSign();
         }
 
         //验证验证码
-        if(KaptchaConfigProperties.isEnable()){
-            validateCode(request,response);
+        if (KaptchaConfigProperties.isEnable()) {
+            validateCode(request, response);
         }
 
         //生成认证信息
@@ -80,17 +83,17 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
     }
 
-    private void validateCode(HttpServletRequest request, HttpServletResponse response){
+    private void validateCode(HttpServletRequest request, HttpServletResponse response) {
         String inCode = request.getParameter(SecurityProperties.getVerificationCode());
-        if(inCode==null){
+        if (inCode == null) {
             throw new VerificationCodeNon(null);
         }
         String codeToken = TokenUtil.getToken(request, KaptchaConfigProperties.getKey());
-        if(codeToken==null){
+        if (codeToken == null) {
             throw new VerificationCodeException(null);
         }
         Object code = CacheUtil.get(codeToken);
-        if(code==null || !code.toString().equalsIgnoreCase(inCode)){
+        if (code == null || !code.toString().equalsIgnoreCase(inCode)) {
             throw new VerificationCodeException(null);
         }
         Cookie cookie = new Cookie(KaptchaConfigProperties.getKey(), null);

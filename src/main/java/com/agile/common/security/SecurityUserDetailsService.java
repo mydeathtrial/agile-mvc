@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUsersEntity user = null;
         user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
-        if(ObjectUtil.isEmpty(user)) {
+        if (ObjectUtil.isEmpty(user)) {
             throw new UsernameNotFoundException(null);
         }
         String sql = "SELECT\n" +
@@ -56,14 +57,14 @@ public class SecurityUserDetailsService implements UserDetailsService {
                 "\tsys_users.SALT_KEY = '%s'";
         sql = String.format(sql, username);
         List<SysAuthoritiesEntity> sysAuthoritiesEntities = dao.findAll(sql, SysAuthoritiesEntity.class);
-        if(ObjectUtil.isEmpty(sysAuthoritiesEntities)) {
-            return new SecurityUser(user,null);
+        if (ObjectUtil.isEmpty(sysAuthoritiesEntities)) {
+            return new SecurityUser(user, null);
         }
-        return new SecurityUser(user,sysAuthoritiesEntities);
+        return new SecurityUser(user, sysAuthoritiesEntities);
     }
 
     @Transactional
-    public void addLoginInfo(SysLoginEntity user){
+    public void addLoginInfo(SysLoginEntity user) {
         dao.save(user);
     }
 
@@ -81,16 +82,16 @@ public class SecurityUserDetailsService implements UserDetailsService {
         dao.update(sysLoginEntity);
     }
 
-    public void validate(UserDetails securityUser)throws AuthenticationException {
-        if(securityUser == null) {
+    public void validate(UserDetails securityUser) throws AuthenticationException {
+        if (securityUser == null) {
             throw new UsernameNotFoundException(null);
-        }else if (!securityUser.isEnabled()){
+        } else if (!securityUser.isEnabled()) {
             throw new DisabledException(null);
-        }else if (!securityUser.isAccountNonExpired()) {
+        } else if (!securityUser.isAccountNonExpired()) {
             throw new AccountExpiredException(null);
-        }else if (!securityUser.isAccountNonLocked()) {
+        } else if (!securityUser.isAccountNonLocked()) {
             throw new LockedException(null);
-        }else if (!securityUser.isCredentialsNonExpired()) {
+        } else if (!securityUser.isCredentialsNonExpired()) {
             throw new CredentialsExpiredException(null);
         }
     }

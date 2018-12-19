@@ -21,7 +21,7 @@ import java.net.URI;
 @Plugin(name = "LoggerFactoryConfig", category = ConfigurationFactory.CATEGORY)
 public class LoggerFactoryConfig extends ConfigurationFactory {
 
-    private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder){
+    private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder) {
         builder.setConfigurationName(name);
 
         //log4j2自身内部日志级别
@@ -39,7 +39,7 @@ public class LoggerFactoryConfig extends ConfigurationFactory {
 
     @Override
     protected String[] getSupportedTypes() {
-        return new String[] {"*"};
+        return new String[]{"*"};
     }
 
     @Override

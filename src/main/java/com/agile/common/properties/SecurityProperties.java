@@ -16,7 +16,7 @@ public class SecurityProperties {
     private static int tokenTimeout = 1800;
     private static String tokenHeader = "AGILE_TOKEN";
     private static String loginUsername = "username";
-    private static String loginPassword= "password";
+    private static String loginPassword = "password";
 
     public static boolean isEnable() {
         return enable;

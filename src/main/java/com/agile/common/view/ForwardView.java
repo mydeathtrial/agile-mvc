@@ -2,6 +2,7 @@ package com.agile.common.view;
 
 import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.view.AbstractView;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,13 +22,13 @@ public class ForwardView extends AbstractView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        for (Map.Entry<String,Object> entity:model.entrySet()) {
+        for (Map.Entry<String, Object> entity : model.entrySet()) {
             request.setAttribute(PREFIX + entity.getKey(), entity.getValue());
         }
         //处理参数
         RequestDispatcher rd = this.getRequestDispatcher(request, getUrl());
         if (rd == null) {
-            throw new ServletException("转发失败，地址:"+getUrl());
+            throw new ServletException("转发失败，地址:" + getUrl());
         }
         rd.forward(request, response);
     }

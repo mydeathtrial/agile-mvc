@@ -51,6 +51,6 @@ public class RedisCacheManager extends org.springframework.data.redis.cache.Redi
 
     @Override
     public Cache getCustomCache(String cacheName) {
-        return (Cache)getCache(cacheName);
+        return (Cache) getCache(cacheName);
     }
 }

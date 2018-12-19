@@ -12,13 +12,13 @@ import com.agile.common.util.PropertiesUtil;
  * @since 1.0
  */
 public class ConfigProcessor {
-    private enum ConfigInfo{
-        Swagger2Config("agile.swagger.enable",Swagger2Config.class),
-        KaptchaConfig("agile.kaptcha.enable",KaptchaConfig.class),
-        TaskConfig("agile.task.enable",TaskConfig.class),
-        ESConfig("agile.elasticsearch.enable",ESConfig.class),
-        ActivitiConfig("agile.activiti.enable",ActivitiConfig.class),
-        SecurityConfig("agile.security.enable",SecurityConfig.class);
+    private enum ConfigInfo {
+        Swagger2Config("agile.swagger.enable", Swagger2Config.class),
+        KaptchaConfig("agile.kaptcha.enable", KaptchaConfig.class),
+        TaskConfig("agile.task.enable", TaskConfig.class),
+        ESConfig("agile.elasticsearch.enable", ESConfig.class),
+        ActivitiConfig("agile.activiti.enable", ActivitiConfig.class),
+        SecurityConfig("agile.security.enable", SecurityConfig.class);
 
         private String propKey;
         private Class[] configClass;
@@ -37,24 +37,24 @@ public class ConfigProcessor {
         }
     }
 
-    public static String contextConfigLocation(){
+    public static String contextConfigLocation() {
         StringBuilder builder = new StringBuilder("com.agile.common.config.SpringConfig;com.agile.common.config.SpringMvcConfig;");
-        for (ConfigInfo configInfo:ConfigInfo.values()) {
-            if(PropertiesUtil.getProperty(configInfo.getPropKey(),boolean.class,"false")){
+        for (ConfigInfo configInfo : ConfigInfo.values()) {
+            if (PropertiesUtil.getProperty(configInfo.getPropKey(), boolean.class, "false")) {
                 Class[] classes = configInfo.getConfigClass();
-                for (Class clazz:classes){
-                    builder.append(clazz.getName()+ Constant.RegularAbout.SEMICOLON);
+                for (Class clazz : classes) {
+                    builder.append(clazz.getName() + Constant.RegularAbout.SEMICOLON);
                 }
             }
         }
 
         String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy").toLowerCase();
-        switch (cacheProxy){
+        switch (cacheProxy) {
             case "redis":
-                builder.append(RedisConfig.class.getName()+ Constant.RegularAbout.SEMICOLON);
+                builder.append(RedisConfig.class.getName() + Constant.RegularAbout.SEMICOLON);
                 break;
             case "ehcache":
-                builder.append(EhCacheConfig.class.getName()+ Constant.RegularAbout.SEMICOLON);
+                builder.append(EhCacheConfig.class.getName() + Constant.RegularAbout.SEMICOLON);
                 break;
         }
         return builder.toString();

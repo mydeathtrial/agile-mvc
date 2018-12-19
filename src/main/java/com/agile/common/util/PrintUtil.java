@@ -76,6 +76,7 @@ public class PrintUtil {
     public static void write(String txt, int... codes) {
         System.out.print(FMT(txt, codes));
     }
+
     /**
      * 默认打印红色文字
      */

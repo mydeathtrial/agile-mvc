@@ -7,6 +7,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationTar
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,8 +22,9 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject(RETURN.LOGOUT_SUCCESS);
         try {
-            ViewUtil.render(modelAndView,request,response);
+            ViewUtil.render(modelAndView, request, response);
         } catch (Exception e) {
             e.printStackTrace();
-        }    }
+        }
+    }
 }

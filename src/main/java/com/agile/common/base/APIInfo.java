@@ -13,7 +13,7 @@ public class APIInfo {
     private String beanName;
     private RequestMappingInfo requestMappingInfo;
 
-    public APIInfo(Object bean, Method method,String beanName) {
+    public APIInfo(Object bean, Method method, String beanName) {
         this.bean = bean;
         this.method = method;
         this.beanName = beanName;

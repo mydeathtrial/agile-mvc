@@ -37,8 +37,8 @@ public class BusinessService<T> extends MainService {
         }
         Field idField = dao.getIdField(entityClass);
         idField.setAccessible(true);
-        if(!ObjectUtil.haveId(idField,entity)) {
-            idField.set(entity, RandomStringUtil.getRandom(8,"ID-", RandomStringUtil.Random.MIX_1));
+        if (!ObjectUtil.haveId(idField, entity)) {
+            idField.set(entity, RandomStringUtil.getRandom(8, "ID-", RandomStringUtil.Random.MIX_1));
         }
         dao.save(entity);
         return RETURN.SUCCESS;
@@ -50,25 +50,25 @@ public class BusinessService<T> extends MainService {
     public RETURN delete() throws NoSuchIDException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         boolean require = this.containsKey("id");
-        if (require && ObjectUtil.isEmpty(entity)){
+        if (require && ObjectUtil.isEmpty(entity)) {
             List<String> list = getIds();
             dao.deleteInBatch(entityClass, list.toArray());
             return RETURN.SUCCESS;
-        }else if(!require && !ObjectUtil.isEmpty(entity)){
+        } else if (!require && !ObjectUtil.isEmpty(entity)) {
             dao.delete(entity);
             return RETURN.SUCCESS;
-        }else if(require && !ObjectUtil.isEmpty(entity)){
+        } else if (require && !ObjectUtil.isEmpty(entity)) {
             List<String> list = getIds();
             List<T> entityList = dao.findAllById(entityClass, list);
             Iterator<T> it = entityList.iterator();
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 T o = it.next();
-                if(ObjectUtil.compareOfNotNull(entity,o)){
+                if (ObjectUtil.compareOfNotNull(entity, o)) {
                     dao.delete(o);
                 }
             }
             return RETURN.SUCCESS;
-        }else{
+        } else {
             return RETURN.PARAMETER_ERROR;
         }
     }
@@ -78,15 +78,15 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN update() throws NoSuchIDException, IllegalAccessException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
-        if(ObjectUtil.isEmpty(entity)) {
+        if (ObjectUtil.isEmpty(entity)) {
             return RETURN.PARAMETER_ERROR;
         }
 
         Field field = dao.getIdField(entityClass);
         field.setAccessible(true);
 
-        if(containsKey("id")){
-            field.set(entity,getInParam("id",String.class));
+        if (containsKey("id")) {
+            field.set(entity, getInParam("id", String.class));
         }
         if (ObjectUtil.isEmpty(field.get(entity)) || !ObjectUtil.isValidity(entity)) {
             return RETURN.PARAMETER_ERROR;
@@ -101,10 +101,10 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN pageQuery() throws IllegalAccessException, InstantiationException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
-        if(entity==null){
+        if (entity == null) {
             entity = entityClass.newInstance();
         }
-        setOutParam(Constant.ResponseAbout.RESULT,dao.findAll(entity,getInParam("page",Integer.class,0),getInParam("size",Integer.class,10),getSort()));
+        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam("page", Integer.class, 0), getInParam("size", Integer.class, 10), getSort()));
         return RETURN.SUCCESS;
     }
 
@@ -114,48 +114,48 @@ public class BusinessService<T> extends MainService {
     public RETURN query() throws NoSuchIDException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         boolean require = this.containsKey("id");
-        if (require && ObjectUtil.isEmpty(entity)){
+        if (require && ObjectUtil.isEmpty(entity)) {
             List<String> list = getIds();
-            setOutParam(Constant.ResponseAbout.RESULT,dao.findAllById(entityClass,list));
-        }else if(!require && !ObjectUtil.isEmpty(entity)){
-            setOutParam(Constant.ResponseAbout.RESULT,dao.findAll(entity,getSort()));
-        }else if(require && !ObjectUtil.isEmpty(entity)){
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAllById(entityClass, list));
+        } else if (!require && !ObjectUtil.isEmpty(entity)) {
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getSort()));
+        } else if (require && !ObjectUtil.isEmpty(entity)) {
             List<String> list = getIds();
             List<T> entityList = dao.findAllById(entityClass, list);
             Iterator<T> it = entityList.iterator();
-            while (it.hasNext()){
+            while (it.hasNext()) {
                 T o = it.next();
-                if(!ObjectUtil.compareOfNotNull(entity,o)){
+                if (!ObjectUtil.compareOfNotNull(entity, o)) {
                     it.remove();
                 }
             }
 
-            setOutParam(Constant.ResponseAbout.RESULT,entityList);
-        }else{
-            setOutParam(Constant.ResponseAbout.RESULT,dao.findAll(entityClass));
+            setOutParam(Constant.ResponseAbout.RESULT, entityList);
+        } else {
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entityClass));
         }
         return RETURN.SUCCESS;
     }
 
-    private List<String> getIds(){
+    private List<String> getIds() {
         List<String> list = new ArrayList<>();
         String[] ids = this.getInParamOfArray("id");
-        for (int i = 0 ; i < ids.length;i++){
+        for (int i = 0; i < ids.length; i++) {
             String id = ids[i];
-            if(id.contains(",")){
+            if (id.contains(",")) {
                 String[] s = id.split(",");
                 list.addAll(Arrays.asList(s));
-            }else{
+            } else {
                 list.add(id);
             }
         }
         return list;
     }
 
-    private Sort getSort(){
-        Sort.Direction sortDirection = Sort.Direction.fromString(getInParam("sort-direction",String.class,"asc"));
+    private Sort getSort() {
+        Sort.Direction sortDirection = Sort.Direction.fromString(getInParam("sort-direction", String.class, "asc"));
         Sort sort = Sort.unsorted();
-        if(this.containsKey("sort-column")){
+        if (this.containsKey("sort-column")) {
             List<String> sortColumn = Arrays.asList(getInParamOfArray("sort-column"));
             sort = new Sort(sortDirection, sortColumn);
         }
@@ -167,17 +167,17 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN queryById() {
         boolean require = this.containsKey("id");
-        if(!require) {
+        if (!require) {
             return RETURN.PARAMETER_ERROR;
         }
 
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         T target = dao.findOne(entityClass, getInParam("id", String.class));
-        if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity,target)){
+        if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity, target)) {
             target = null;
         }
 
-        setOutParam(Constant.ResponseAbout.RESULT,target);
+        setOutParam(Constant.ResponseAbout.RESULT, target);
         return RETURN.SUCCESS;
     }
 }

@@ -50,15 +50,15 @@ public class SheetData {
         cells = cells;
     }
 
-    public SheetData addCell(Cell cell){
-        if(cells==null){
+    public SheetData addCell(Cell cell) {
+        if (cells == null) {
             cells = new ArrayList<>();
         }
         this.cells.add(cell);
         return this;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String name;
         private List<Cell> cells;
         private List data;
@@ -77,12 +77,13 @@ public class SheetData {
             this.data = data;
             return this;
         }
-        public SheetData build(){
+
+        public SheetData build() {
             return new SheetData(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 }

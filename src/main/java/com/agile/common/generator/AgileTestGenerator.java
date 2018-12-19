@@ -10,7 +10,10 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mydeathtrial on 2017/5/10.
@@ -23,15 +26,15 @@ public class AgileTestGenerator {
     private static void creatTest(String path) throws IOException, TemplateException {
         File directory = new File(path);
         String packageName = AgileGenerator.getPackPath(path);
-        if (directory.isDirectory()){
+        if (directory.isDirectory()) {
             String[] files = directory.list();
-            if(files == null) {
+            if (files == null) {
                 return;
             }
             for (String fileName : files) {
                 if (!"java".equals(StringUtils.getFilenameExtension(fileName))) {
                     creatTest(path + "/" + fileName);
-                }else{
+                } else {
                     //分割获取类名
                     String serviceName = fileName.replaceAll(".java$", "");
                     String entityName = null;
@@ -79,7 +82,8 @@ public class AgileTestGenerator {
                                     propertyList.add(StringUtil.toLowerName(entityMethodName));
                                 }
                             }
-                        }catch (Exception ignored){}
+                        } catch (Exception ignored) {
+                        }
                     } catch (ClassNotFoundException ignored) {
                     }
                     //数据装填

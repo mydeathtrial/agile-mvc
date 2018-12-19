@@ -1,41 +1,47 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_bt_roles_authorities",  catalog = "agile_db")
+@Table(name = "sys_bt_roles_authorities", catalog = "agile_db")
 @Remark("[系统管理]角色权限表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysBtRolesAuthoritiesEntity implements Serializable,Cloneable {
+public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysBtRolesAuthoritiesId ;
+    private String sysBtRolesAuthoritiesId;
     @Remark("权限唯一标识")
-    private String authorityId ;
+    private String authorityId;
     @Remark("角色唯一标识")
-    private String roleId ;
+    private String roleId;
 
     //无参构造器
-    public SysBtRolesAuthoritiesEntity(){}
+    public SysBtRolesAuthoritiesEntity() {
+    }
 
     //有参构造器
-    public SysBtRolesAuthoritiesEntity(String sysBtRolesAuthoritiesId,String authorityId,String roleId){
+    public SysBtRolesAuthoritiesEntity(String sysBtRolesAuthoritiesId, String authorityId, String roleId) {
         this.sysBtRolesAuthoritiesId = sysBtRolesAuthoritiesId;
         this.authorityId = authorityId;
         this.roleId = roleId;
     }
 
     @Id
-    @Column(name = "sys_bt_roles_authorities_id" , nullable = false  )
+    @Column(name = "sys_bt_roles_authorities_id", nullable = false)
     public String getSysBtRolesAuthoritiesId() {
         return sysBtRolesAuthoritiesId;
     }
@@ -45,7 +51,7 @@ public class SysBtRolesAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "authority_id" , nullable = false  )
+    @Column(name = "authority_id", nullable = false)
     public String getAuthorityId() {
         return authorityId;
     }
@@ -55,7 +61,7 @@ public class SysBtRolesAuthoritiesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "role_id" , nullable = false  )
+    @Column(name = "role_id", nullable = false)
     public String getRoleId() {
         return roleId;
     }
@@ -75,8 +81,8 @@ public class SysBtRolesAuthoritiesEntity implements Serializable,Cloneable {
         }
         SysBtRolesAuthoritiesEntity that = (SysBtRolesAuthoritiesEntity) object;
         return Objects.equals(getSysBtRolesAuthoritiesId(), that.getSysBtRolesAuthoritiesId()) &&
-            Objects.equals(getAuthorityId(), that.getAuthorityId()) &&
-            Objects.equals(getRoleId(), that.getRoleId());
+                Objects.equals(getAuthorityId(), that.getAuthorityId()) &&
+                Objects.equals(getRoleId(), that.getRoleId());
     }
 
     @Override
@@ -87,19 +93,19 @@ public class SysBtRolesAuthoritiesEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysBtRolesAuthoritiesEntity{" +
-        "sysBtRolesAuthoritiesId='" + sysBtRolesAuthoritiesId + '\'' +
-        ",authorityId='" + authorityId + '\'' +
-        ",roleId='" + roleId + '\'' +
-        '}';
+                "sysBtRolesAuthoritiesId='" + sysBtRolesAuthoritiesId + '\'' +
+                ",authorityId='" + authorityId + '\'' +
+                ",roleId='" + roleId + '\'' +
+                '}';
     }
 
-    private SysBtRolesAuthoritiesEntity(Builder builder){
+    private SysBtRolesAuthoritiesEntity(Builder builder) {
         this.sysBtRolesAuthoritiesId = builder.sysBtRolesAuthoritiesId;
         this.authorityId = builder.authorityId;
         this.roleId = builder.roleId;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysBtRolesAuthoritiesId;
         private String authorityId;
         private String roleId;
@@ -108,28 +114,31 @@ public class SysBtRolesAuthoritiesEntity implements Serializable,Cloneable {
             this.sysBtRolesAuthoritiesId = sysBtRolesAuthoritiesId;
             return this;
         }
+
         public Builder setAuthorityId(String authorityId) {
             this.authorityId = authorityId;
             return this;
         }
+
         public Builder setRoleId(String roleId) {
             this.roleId = roleId;
             return this;
         }
-        public SysBtRolesAuthoritiesEntity build(){
+
+        public SysBtRolesAuthoritiesEntity build() {
             return new SysBtRolesAuthoritiesEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysBtRolesAuthoritiesEntity clone() {
         try {
-            return (SysBtRolesAuthoritiesEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysBtRolesAuthoritiesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

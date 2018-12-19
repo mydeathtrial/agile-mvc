@@ -1,7 +1,6 @@
 package com.agile.common.filter;
 
 import com.agile.common.factory.LoggerFactory;
-import com.alibaba.druid.filter.FilterChain;
 import com.alibaba.druid.filter.FilterEventAdapter;
 import com.alibaba.druid.proxy.jdbc.CallableStatementProxy;
 import com.alibaba.druid.proxy.jdbc.PreparedStatementProxy;
@@ -75,11 +74,11 @@ public class DruidFilter extends FilterEventAdapter {
 
     @Override
     protected void statement_executeErrorAfter(StatementProxy statement, String sql, Throwable error) {
-        printLog(statement.getRawObject(),error);
+        printLog(statement.getRawObject(), error);
     }
 
-    private void printLog(Statement statement){
-        if(statement instanceof ClientPreparedStatement){
+    private void printLog(Statement statement) {
+        if (statement instanceof ClientPreparedStatement) {
             try {
                 LoggerFactory.DAO_LOG.info(((ClientPreparedStatement) statement).asSql());
             } catch (SQLException e) {
@@ -88,10 +87,10 @@ public class DruidFilter extends FilterEventAdapter {
         }
     }
 
-    private void printLog(Statement statement,Throwable error){
-        if(statement instanceof ClientPreparedStatement){
+    private void printLog(Statement statement, Throwable error) {
+        if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.DAO_LOG.error(((ClientPreparedStatement) statement).asSql(),error);
+                LoggerFactory.DAO_LOG.error(((ClientPreparedStatement) statement).asSql(), error);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

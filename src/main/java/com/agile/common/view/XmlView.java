@@ -9,6 +9,7 @@ import net.sf.json.xml.XMLSerializer;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -31,9 +32,9 @@ public class XmlView extends AbstractView {
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         ViewUtil.Model target = ViewUtil.modelProcessing(model);
         List<Object> files = target.getFiles();
-        if(files.size()>0){
+        if (files.size() > 0) {
             FileUtil.downloadFile(files, request, response);
-        }else{
+        } else {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
             model.entrySet().removeIf(o -> o.getValue() instanceof BindingResult);
 
@@ -46,7 +47,7 @@ public class XmlView extends AbstractView {
             String xml;
             try {
                 xml = xmlSerializer.write(JSONUtil.toJSON(model));
-            }catch (Exception e){
+            } catch (Exception e) {
                 assert RETURN.XML_SERIALIZER_ERROR != null;
                 xml = xmlSerializer.write(JSONUtil.toJSON(new Head(RETURN.XML_SERIALIZER_ERROR)));
             }

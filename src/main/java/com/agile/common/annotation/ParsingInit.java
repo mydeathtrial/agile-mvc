@@ -19,8 +19,8 @@ import java.lang.reflect.Method;
 @Component
 public class ParsingInit implements ParsingMethodAfter {
     @Override
-    public void parsing(String beanName,Object bean, Method method){
-        parse(bean,method);
+    public void parsing(String beanName, Object bean, Method method) {
+        parse(bean, method);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.TokenUtil;
 import com.google.code.kaptcha.Producer;
+
 import javax.imageio.ImageIO;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -27,37 +28,40 @@ public class KaptchaServlet extends HttpServlet implements Servlet {
     public void init(ServletConfig conf) {
         this.kaptchaProducer = FactoryUtil.getBean(Producer.class);
     }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         initResponse(resp);
-        String capText = createCode(req,resp);
+        String capText = createCode(req, resp);
         BufferedImage bi = this.kaptchaProducer.createImage(capText);
         ServletOutputStream out = resp.getOutputStream();
         ImageIO.write(bi, "jpg", out);
     }
 
-    private void initResponse(HttpServletResponse resp){
+    private void initResponse(HttpServletResponse resp) {
         resp.setDateHeader("Expires", 0L);
         resp.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
         resp.addHeader("Cache-Control", "post-check=0, pre-check=0");
         resp.setHeader("Pragma", "no-cache");
         resp.setContentType("image/jpeg");
     }
-    private String createCode(HttpServletRequest req, HttpServletResponse resp){
+
+    private String createCode(HttpServletRequest req, HttpServletResponse resp) {
         String capText = this.kaptchaProducer.createText();
         String codeToken = TokenUtil.getToken(req, KaptchaConfigProperties.getKey());
-        if(codeToken == null){
+        if (codeToken == null) {
             codeToken = RandomStringUtil.getRandom(20, RandomStringUtil.Random.LETTER_UPPER);
         }
-        CacheUtil.put(codeToken,capText,KaptchaConfigProperties.getLiveTime());
-        setOutParam(KaptchaConfigProperties.getKey(),codeToken,resp);
+        CacheUtil.put(codeToken, capText, KaptchaConfigProperties.getLiveTime());
+        setOutParam(KaptchaConfigProperties.getKey(), codeToken, resp);
         return capText;
     }
-    private void setOutParam(String codeToken,String value,HttpServletResponse response){
-        Cookie cookie = new Cookie(codeToken,value);
+
+    private void setOutParam(String codeToken, String value, HttpServletResponse response) {
+        Cookie cookie = new Cookie(codeToken, value);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
-        response.setHeader(codeToken,value);
+        response.setHeader(codeToken, value);
     }
 }

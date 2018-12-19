@@ -1,7 +1,6 @@
 package com.agile.common.mvc.service;
 
 import com.agile.common.util.ObjectUtil;
-import com.agile.mvc.entity.LogMainEntity;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -17,14 +16,14 @@ import java.util.Map;
  * Created by mydeathtrial on 2017/3/21
  */
 public class LogService {
-    public static void createLog(String businessCode, Object oldObject, Object newObject, String targetType, String targetCode){
+    public static void createLog(String businessCode, Object oldObject, Object newObject, String targetType, String targetCode) {
         try {
-            if ((ObjectUtil.compareClass(oldObject, newObject) && !ObjectUtil.compareValue(oldObject, newObject) || ObjectUtil.isEmpty(oldObject)) != ObjectUtil.isEmpty(newObject) && oldObject.getClass().getAnnotation(Table.class)!=null){
+            if ((ObjectUtil.compareClass(oldObject, newObject) && !ObjectUtil.compareValue(oldObject, newObject) || ObjectUtil.isEmpty(oldObject)) != ObjectUtil.isEmpty(newObject) && oldObject.getClass().getAnnotation(Table.class) != null) {
 
                 HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
                 Thread thread = Thread.currentThread();
                 Object logId = request.getAttribute(String.valueOf(thread.getId()));
-                if(ObjectUtil.isEmpty(logId)){
+                if (ObjectUtil.isEmpty(logId)) {
 //                    LogMainEntity logEntity = new LogMainEntity();
 //                    logEntity.setBusinessCode(businessCode);
 //
@@ -39,7 +38,7 @@ public class LogService {
 
 
                 List<Map<String, Object>> propertiesList = ObjectUtil.getDifferenceProperties(oldObject, newObject);
-                for (Map<String,Object> map:propertiesList) {
+                for (Map<String, Object> map : propertiesList) {
 //                    TSysLogDetailEntity logDetailEntity = new TSysLogDetailEntity();
 //                    logDetailEntity.setLogId(Integer.parseInt(logId.toString()));
 //                    logDetailEntity.setTableName(oldObject.getClass().getName());
@@ -51,7 +50,7 @@ public class LogService {
             }
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
 //            return null;
         }
 //        return null;

@@ -1,41 +1,47 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import javax.persistence.*;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * Created by 佟盟
  */
 @Entity
-@Table(name = "sys_bt_roles_moudles",  catalog = "agile_db")
+@Table(name = "sys_bt_roles_moudles", catalog = "agile_db")
 @Remark("[系统管理]角色模块表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
+public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
 
     //序列
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysBtRolesMoudlesId ;
+    private String sysBtRolesMoudlesId;
     @Remark("模块唯一标识")
-    private String moduleId ;
+    private String moduleId;
     @Remark("角色唯一标识")
-    private String roleId ;
+    private String roleId;
 
     //无参构造器
-    public SysBtRolesMoudlesEntity(){}
+    public SysBtRolesMoudlesEntity() {
+    }
 
     //有参构造器
-    public SysBtRolesMoudlesEntity(String sysBtRolesMoudlesId,String moduleId,String roleId){
+    public SysBtRolesMoudlesEntity(String sysBtRolesMoudlesId, String moduleId, String roleId) {
         this.sysBtRolesMoudlesId = sysBtRolesMoudlesId;
         this.moduleId = moduleId;
         this.roleId = roleId;
     }
 
     @Id
-    @Column(name = "sys_bt_roles_moudles_id" , nullable = false  )
+    @Column(name = "sys_bt_roles_moudles_id", nullable = false)
     public String getSysBtRolesMoudlesId() {
         return sysBtRolesMoudlesId;
     }
@@ -45,7 +51,7 @@ public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "module_id" , nullable = false  )
+    @Column(name = "module_id", nullable = false)
     public String getModuleId() {
         return moduleId;
     }
@@ -55,7 +61,7 @@ public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
     }
 
     @Basic
-    @Column(name = "role_id" , nullable = false  )
+    @Column(name = "role_id", nullable = false)
     public String getRoleId() {
         return roleId;
     }
@@ -75,8 +81,8 @@ public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
         }
         SysBtRolesMoudlesEntity that = (SysBtRolesMoudlesEntity) object;
         return Objects.equals(getSysBtRolesMoudlesId(), that.getSysBtRolesMoudlesId()) &&
-            Objects.equals(getModuleId(), that.getModuleId()) &&
-            Objects.equals(getRoleId(), that.getRoleId());
+                Objects.equals(getModuleId(), that.getModuleId()) &&
+                Objects.equals(getRoleId(), that.getRoleId());
     }
 
     @Override
@@ -87,19 +93,19 @@ public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
     @Override
     public String toString() {
         return "SysBtRolesMoudlesEntity{" +
-        "sysBtRolesMoudlesId='" + sysBtRolesMoudlesId + '\'' +
-        ",moduleId='" + moduleId + '\'' +
-        ",roleId='" + roleId + '\'' +
-        '}';
+                "sysBtRolesMoudlesId='" + sysBtRolesMoudlesId + '\'' +
+                ",moduleId='" + moduleId + '\'' +
+                ",roleId='" + roleId + '\'' +
+                '}';
     }
 
-    private SysBtRolesMoudlesEntity(Builder builder){
+    private SysBtRolesMoudlesEntity(Builder builder) {
         this.sysBtRolesMoudlesId = builder.sysBtRolesMoudlesId;
         this.moduleId = builder.moduleId;
         this.roleId = builder.roleId;
     }
 
-    public static class Builder{
+    public static class Builder {
         private String sysBtRolesMoudlesId;
         private String moduleId;
         private String roleId;
@@ -108,28 +114,31 @@ public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
             this.sysBtRolesMoudlesId = sysBtRolesMoudlesId;
             return this;
         }
+
         public Builder setModuleId(String moduleId) {
             this.moduleId = moduleId;
             return this;
         }
+
         public Builder setRoleId(String roleId) {
             this.roleId = roleId;
             return this;
         }
-        public SysBtRolesMoudlesEntity build(){
+
+        public SysBtRolesMoudlesEntity build() {
             return new SysBtRolesMoudlesEntity(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 
     @Override
     public SysBtRolesMoudlesEntity clone() {
         try {
-            return (SysBtRolesMoudlesEntity)super.clone();
-        }catch (CloneNotSupportedException e){
+            return (SysBtRolesMoudlesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
             return null;
         }
 

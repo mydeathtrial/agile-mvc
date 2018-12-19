@@ -38,7 +38,7 @@ public class Cell {
         this.showName = showName;
     }
 
-    public static class Builder{
+    public static class Builder {
         private int sort;
         private String key;
         private String showName;
@@ -57,12 +57,13 @@ public class Cell {
             this.showName = showName;
             return this;
         }
-        public Cell build(){
+
+        public Cell build() {
             return new Cell(this);
         }
     }
 
-    public static Builder builder(){
+    public static Builder builder() {
         return new Builder();
     }
 }
