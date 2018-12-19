@@ -6,7 +6,7 @@
 <module name="Checker">
 
     <!-- 检查文件是否以一个空行结束 -->
-    <module name="NewlineAtEndOfFile"/>
+    <!--<module name="NewlineAtEndOfFile"/>-->
 
     <!-- 文件长度不超过1500行 -->
     <module name="FileLength">
@@ -86,7 +86,7 @@
         <!-- 长度检查 -->
         <!-- 每行不超过200个字符 -->
         <module name="LineLength">
-            <property name="max" value="200"/>
+            <property name="max" value="250"/>
         </module>
         <!-- 方法不超过100行 -->
         <module name="MethodLength">
@@ -95,7 +95,7 @@
         </module>
         <!-- 方法的参数个数不超过5个。 并且不对构造方法进行检查-->
         <module name="ParameterNumber">
-            <property name="max" value="5"/>
+            <property name="max" value="7"/>
             <property name="ignoreOverriddenMethods" value="true"/>
             <property name="tokens" value="METHOD_DEF"/>
         </module>

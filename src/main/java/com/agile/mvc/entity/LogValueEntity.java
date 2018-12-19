@@ -1,26 +1,28 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Created by 佟盟
+ * 描述：[系统管理]日志相关字段值变动信息
+ * @author agile gennerator
  */
 @Entity
-@Table(name = "log_value", catalog = "agile_db")
+@Table(name = "log_value")
 @Remark("[系统管理]日志相关字段值变动信息")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class LogValueEntity implements Serializable, Cloneable {
 
-    //序列
+    /**
+     * 序列化参数
+     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String logValueId;
@@ -37,11 +39,14 @@ public class LogValueEntity implements Serializable, Cloneable {
     @Remark("字段含义")
     private String columnInfo;
 
-    //无参构造器
-    public LogValueEntity() {
-    }
+    /**
+     * 无参构造器
+     */
+    public LogValueEntity() { }
 
-    //有参构造器
+    /**
+     * 带参构造器
+     */
     public LogValueEntity(String logValueId, String logTableId, String columnName, String columnType, String newValue, String oldValue, String columnInfo) {
         this.logValueId = logValueId;
         this.logTableId = logTableId;
@@ -50,6 +55,112 @@ public class LogValueEntity implements Serializable, Cloneable {
         this.newValue = newValue;
         this.oldValue = oldValue;
         this.columnInfo = columnInfo;
+    }
+
+    @Id
+    @Column(name = "log_value_id", nullable = false)
+    public String getLogValueId() {
+        return logValueId;
+    }
+
+    public void setLogValueId(String logValueId) {
+    this.logValueId = logValueId;
+    }
+
+    @Basic
+    @Column(name = "log_table_id", nullable = false)
+    public String getLogTableId() {
+        return logTableId;
+    }
+
+    public void setLogTableId(String logTableId) {
+    this.logTableId = logTableId;
+    }
+
+    @Basic
+    @Column(name = "column_name", nullable = false)
+    public String getColumnName() {
+        return columnName;
+    }
+
+    public void setColumnName(String columnName) {
+    this.columnName = columnName;
+    }
+
+    @Basic
+    @Column(name = "column_type", nullable = false)
+    public String getColumnType() {
+        return columnType;
+    }
+
+    public void setColumnType(String columnType) {
+    this.columnType = columnType;
+    }
+
+    @Basic
+    @Column(name = "new_value")
+    public String getNewValue() {
+        return newValue;
+    }
+
+    public void setNewValue(String newValue) {
+    this.newValue = newValue;
+    }
+
+    @Basic
+    @Column(name = "old_value")
+    public String getOldValue() {
+        return oldValue;
+    }
+
+    public void setOldValue(String oldValue) {
+    this.oldValue = oldValue;
+    }
+
+    @Basic
+    @Column(name = "column_info")
+    public String getColumnInfo() {
+        return columnInfo;
+    }
+
+    public void setColumnInfo(String columnInfo) {
+    this.columnInfo = columnInfo;
+    }
+
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LogValueEntity)) {
+            return false;
+        }
+        LogValueEntity that = (LogValueEntity) object;
+        return Objects.equals(getLogValueId(), that.getLogValueId())
+        && Objects.equals(getLogTableId(), that.getLogTableId())
+        && Objects.equals(getColumnName(), that.getColumnName())
+        && Objects.equals(getColumnType(), that.getColumnType())
+        && Objects.equals(getNewValue(), that.getNewValue())
+        && Objects.equals(getOldValue(), that.getOldValue())
+        && Objects.equals(getColumnInfo(), that.getColumnInfo());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getLogValueId(), getLogTableId(), getColumnName(), getColumnType(), getNewValue(), getOldValue(), getColumnInfo());
+    }
+
+    @Override
+    public String toString() {
+    return "LogValueEntity{"
+            + "logValueId='" + logValueId + '\''
+            + ",logTableId='" + logTableId + '\''
+            + ",columnName='" + columnName + '\''
+            + ",columnType='" + columnType + '\''
+            + ",newValue='" + newValue + '\''
+            + ",oldValue='" + oldValue + '\''
+            + ",columnInfo='" + columnInfo + '\'' + '}';
     }
 
     private LogValueEntity(Builder builder) {
@@ -62,126 +173,9 @@ public class LogValueEntity implements Serializable, Cloneable {
         this.columnInfo = builder.columnInfo;
     }
 
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Id
-    @Column(name = "log_value_id", nullable = false)
-    public String getLogValueId() {
-        return logValueId;
-    }
-
-    public void setLogValueId(String logValueId) {
-        this.logValueId = logValueId;
-    }
-
-    @Basic
-    @Column(name = "log_table_id", nullable = false)
-    public String getLogTableId() {
-        return logTableId;
-    }
-
-    public void setLogTableId(String logTableId) {
-        this.logTableId = logTableId;
-    }
-
-    @Basic
-    @Column(name = "column_name", nullable = false)
-    public String getColumnName() {
-        return columnName;
-    }
-
-    public void setColumnName(String columnName) {
-        this.columnName = columnName;
-    }
-
-    @Basic
-    @Column(name = "column_type", nullable = false)
-    public String getColumnType() {
-        return columnType;
-    }
-
-    public void setColumnType(String columnType) {
-        this.columnType = columnType;
-    }
-
-    @Basic
-    @Column(name = "new_value")
-    public String getNewValue() {
-        return newValue;
-    }
-
-    public void setNewValue(String newValue) {
-        this.newValue = newValue;
-    }
-
-    @Basic
-    @Column(name = "old_value")
-    public String getOldValue() {
-        return oldValue;
-    }
-
-    public void setOldValue(String oldValue) {
-        this.oldValue = oldValue;
-    }
-
-    @Basic
-    @Column(name = "column_info")
-    public String getColumnInfo() {
-        return columnInfo;
-    }
-
-    public void setColumnInfo(String columnInfo) {
-        this.columnInfo = columnInfo;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof LogValueEntity)) {
-            return false;
-        }
-        LogValueEntity that = (LogValueEntity) object;
-        return Objects.equals(getLogValueId(), that.getLogValueId()) &&
-                Objects.equals(getLogTableId(), that.getLogTableId()) &&
-                Objects.equals(getColumnName(), that.getColumnName()) &&
-                Objects.equals(getColumnType(), that.getColumnType()) &&
-                Objects.equals(getNewValue(), that.getNewValue()) &&
-                Objects.equals(getOldValue(), that.getOldValue()) &&
-                Objects.equals(getColumnInfo(), that.getColumnInfo());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getLogValueId(), getLogTableId(), getColumnName(), getColumnType(), getNewValue(), getOldValue(), getColumnInfo());
-    }
-
-    @Override
-    public String toString() {
-        return "LogValueEntity{" +
-                "logValueId='" + logValueId + '\'' +
-                ",logTableId='" + logTableId + '\'' +
-                ",columnName='" + columnName + '\'' +
-                ",columnType='" + columnType + '\'' +
-                ",newValue='" + newValue + '\'' +
-                ",oldValue='" + oldValue + '\'' +
-                ",columnInfo='" + columnInfo + '\'' +
-                '}';
-    }
-
-    @Override
-    public LogValueEntity clone() {
-        try {
-            return (LogValueEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
-    }
-
+    /**
+     * 建造者
+     */
     public static class Builder {
         private String logValueId;
         private String logTableId;
@@ -195,39 +189,45 @@ public class LogValueEntity implements Serializable, Cloneable {
             this.logValueId = logValueId;
             return this;
         }
-
         public Builder setLogTableId(String logTableId) {
             this.logTableId = logTableId;
             return this;
         }
-
         public Builder setColumnName(String columnName) {
             this.columnName = columnName;
             return this;
         }
-
         public Builder setColumnType(String columnType) {
             this.columnType = columnType;
             return this;
         }
-
         public Builder setNewValue(String newValue) {
             this.newValue = newValue;
             return this;
         }
-
         public Builder setOldValue(String oldValue) {
             this.oldValue = oldValue;
             return this;
         }
-
         public Builder setColumnInfo(String columnInfo) {
             this.columnInfo = columnInfo;
             return this;
         }
-
         public LogValueEntity build() {
             return new LogValueEntity(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    public LogValueEntity clone() {
+        try {
+            return (LogValueEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
     }
 }

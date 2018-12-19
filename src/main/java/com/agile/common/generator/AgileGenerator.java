@@ -54,6 +54,8 @@ public class AgileGenerator {
 
             if ("TIMESTAMP".equals(columnType) || "DATE".equals(columnType) || "TIME".equals(columnType)) {
                 param.put("isTimeStamp", String.format("@Temporal(TemporalType.%s)", columnType));
+                importList.add("javax.persistence.Temporal");
+                importList.add("javax.persistence.TemporalType");
             }
 
             //属性名
@@ -81,7 +83,10 @@ public class AgileGenerator {
 
             //是否自增长
             param.put("isAutoincrement", MapUtil.getString(column, "IS_AUTOINCREMENT"));
-
+            if("YES".equals(param.get("isAutoincrement"))){
+                importList.add("javax.persistence.GenerationType");
+                importList.add("javax.persistence.GeneratedValue");
+            }
             //字段大小
             param.put("columnSize", MapUtil.getString(column, "COLUMN_SIZE"));
 
@@ -154,9 +159,11 @@ public class AgileGenerator {
                     break;
                 case "Clob":
                     importList.add("java.sql.Clob");
+                    importList.add("javax.persistence.Lob");
                     break;
                 case "Blob":
                     importList.add("java.sql.Blob");
+                    importList.add("javax.persistence.Lob");
                     break;
                 case "Time":
                     importList.add("java.sql.Time");
@@ -164,6 +171,7 @@ public class AgileGenerator {
                 case "Date":
                     importList.add("java.util.Date");
                     break;
+                default:
             }
 
             columnList.add(param);

@@ -1,26 +1,28 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Created by 佟盟
+ * 描述：[系统管理]角色
+ * @author agile gennerator
  */
 @Entity
-@Table(name = "sys_roles", catalog = "agile_db")
+@Table(name = "sys_roles")
 @Remark("[系统管理]角色")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysRolesEntity implements Serializable, Cloneable {
 
-    //序列
+    /**
+     * 序列化参数
+     */
     private static final long serialVersionUID = 1L;
     @Remark("角色唯一标识")
     private String sysRolesId;
@@ -31,27 +33,19 @@ public class SysRolesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
-    //无参构造器
-    public SysRolesEntity() {
-    }
+    /**
+     * 无参构造器
+     */
+    public SysRolesEntity() { }
 
-    //有参构造器
+    /**
+     * 带参构造器
+     */
     public SysRolesEntity(String sysRolesId, String roleName, String roleDesc, Boolean enable) {
         this.sysRolesId = sysRolesId;
         this.roleName = roleName;
         this.roleDesc = roleDesc;
         this.enable = enable;
-    }
-
-    private SysRolesEntity(Builder builder) {
-        this.sysRolesId = builder.sysRolesId;
-        this.roleName = builder.roleName;
-        this.roleDesc = builder.roleDesc;
-        this.enable = builder.enable;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     @Id
@@ -61,7 +55,7 @@ public class SysRolesEntity implements Serializable, Cloneable {
     }
 
     public void setSysRolesId(String sysRolesId) {
-        this.sysRolesId = sysRolesId;
+    this.sysRolesId = sysRolesId;
     }
 
     @Basic
@@ -71,7 +65,7 @@ public class SysRolesEntity implements Serializable, Cloneable {
     }
 
     public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    this.roleName = roleName;
     }
 
     @Basic
@@ -81,7 +75,7 @@ public class SysRolesEntity implements Serializable, Cloneable {
     }
 
     public void setRoleDesc(String roleDesc) {
-        this.roleDesc = roleDesc;
+    this.roleDesc = roleDesc;
     }
 
     @Basic
@@ -91,8 +85,9 @@ public class SysRolesEntity implements Serializable, Cloneable {
     }
 
     public void setEnable(Boolean enable) {
-        this.enable = enable;
+    this.enable = enable;
     }
+
 
     @Override
     public boolean equals(Object object) {
@@ -103,10 +98,10 @@ public class SysRolesEntity implements Serializable, Cloneable {
             return false;
         }
         SysRolesEntity that = (SysRolesEntity) object;
-        return Objects.equals(getSysRolesId(), that.getSysRolesId()) &&
-                Objects.equals(getRoleName(), that.getRoleName()) &&
-                Objects.equals(getRoleDesc(), that.getRoleDesc()) &&
-                Objects.equals(getEnable(), that.getEnable());
+        return Objects.equals(getSysRolesId(), that.getSysRolesId())
+        && Objects.equals(getRoleName(), that.getRoleName())
+        && Objects.equals(getRoleDesc(), that.getRoleDesc())
+        && Objects.equals(getEnable(), that.getEnable());
     }
 
     @Override
@@ -116,24 +111,23 @@ public class SysRolesEntity implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "SysRolesEntity{" +
-                "sysRolesId='" + sysRolesId + '\'' +
-                ",roleName='" + roleName + '\'' +
-                ",roleDesc='" + roleDesc + '\'' +
-                ",enable=" + enable +
-                '}';
+    return "SysRolesEntity{"
+            + "sysRolesId='" + sysRolesId + '\''
+            + ",roleName='" + roleName + '\''
+            + ",roleDesc='" + roleDesc + '\''
+            + ",enable=" + enable + '}';
     }
 
-    @Override
-    public SysRolesEntity clone() {
-        try {
-            return (SysRolesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
+    private SysRolesEntity(Builder builder) {
+        this.sysRolesId = builder.sysRolesId;
+        this.roleName = builder.roleName;
+        this.roleDesc = builder.roleDesc;
+        this.enable = builder.enable;
     }
 
+    /**
+     * 建造者
+     */
     public static class Builder {
         private String sysRolesId;
         private String roleName;
@@ -144,24 +138,33 @@ public class SysRolesEntity implements Serializable, Cloneable {
             this.sysRolesId = sysRolesId;
             return this;
         }
-
         public Builder setRoleName(String roleName) {
             this.roleName = roleName;
             return this;
         }
-
         public Builder setRoleDesc(String roleDesc) {
             this.roleDesc = roleDesc;
             return this;
         }
-
         public Builder setEnable(Boolean enable) {
             this.enable = enable;
             return this;
         }
-
         public SysRolesEntity build() {
             return new SysRolesEntity(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    public SysRolesEntity clone() {
+        try {
+            return (SysRolesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
     }
 }

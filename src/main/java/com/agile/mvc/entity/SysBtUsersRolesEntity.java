@@ -1,26 +1,28 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Created by 佟盟
+ * 描述：[系统管理]用户角色表
+ * @author agile gennerator
  */
 @Entity
-@Table(name = "sys_bt_users_roles", catalog = "agile_db")
+@Table(name = "sys_bt_users_roles")
 @Remark("[系统管理]用户角色表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysBtUsersRolesEntity implements Serializable, Cloneable {
 
-    //序列
+    /**
+     * 序列化参数
+     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysBtUsersRolesId;
@@ -29,25 +31,18 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
     @Remark("用户唯一标识")
     private String userId;
 
-    //无参构造器
-    public SysBtUsersRolesEntity() {
-    }
+    /**
+     * 无参构造器
+     */
+    public SysBtUsersRolesEntity() { }
 
-    //有参构造器
+    /**
+     * 带参构造器
+     */
     public SysBtUsersRolesEntity(String sysBtUsersRolesId, String roleId, String userId) {
         this.sysBtUsersRolesId = sysBtUsersRolesId;
         this.roleId = roleId;
         this.userId = userId;
-    }
-
-    private SysBtUsersRolesEntity(Builder builder) {
-        this.sysBtUsersRolesId = builder.sysBtUsersRolesId;
-        this.roleId = builder.roleId;
-        this.userId = builder.userId;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     @Id
@@ -57,7 +52,7 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
     }
 
     public void setSysBtUsersRolesId(String sysBtUsersRolesId) {
-        this.sysBtUsersRolesId = sysBtUsersRolesId;
+    this.sysBtUsersRolesId = sysBtUsersRolesId;
     }
 
     @Basic
@@ -67,7 +62,7 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
     }
 
     public void setRoleId(String roleId) {
-        this.roleId = roleId;
+    this.roleId = roleId;
     }
 
     @Basic
@@ -77,8 +72,9 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+    this.userId = userId;
     }
+
 
     @Override
     public boolean equals(Object object) {
@@ -89,9 +85,9 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
             return false;
         }
         SysBtUsersRolesEntity that = (SysBtUsersRolesEntity) object;
-        return Objects.equals(getSysBtUsersRolesId(), that.getSysBtUsersRolesId()) &&
-                Objects.equals(getRoleId(), that.getRoleId()) &&
-                Objects.equals(getUserId(), that.getUserId());
+        return Objects.equals(getSysBtUsersRolesId(), that.getSysBtUsersRolesId())
+        && Objects.equals(getRoleId(), that.getRoleId())
+        && Objects.equals(getUserId(), that.getUserId());
     }
 
     @Override
@@ -101,23 +97,21 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "SysBtUsersRolesEntity{" +
-                "sysBtUsersRolesId='" + sysBtUsersRolesId + '\'' +
-                ",roleId='" + roleId + '\'' +
-                ",userId='" + userId + '\'' +
-                '}';
+    return "SysBtUsersRolesEntity{"
+            + "sysBtUsersRolesId='" + sysBtUsersRolesId + '\''
+            + ",roleId='" + roleId + '\''
+            + ",userId='" + userId + '\'' + '}';
     }
 
-    @Override
-    public SysBtUsersRolesEntity clone() {
-        try {
-            return (SysBtUsersRolesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
+    private SysBtUsersRolesEntity(Builder builder) {
+        this.sysBtUsersRolesId = builder.sysBtUsersRolesId;
+        this.roleId = builder.roleId;
+        this.userId = builder.userId;
     }
 
+    /**
+     * 建造者
+     */
     public static class Builder {
         private String sysBtUsersRolesId;
         private String roleId;
@@ -127,19 +121,29 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
             this.sysBtUsersRolesId = sysBtUsersRolesId;
             return this;
         }
-
         public Builder setRoleId(String roleId) {
             this.roleId = roleId;
             return this;
         }
-
         public Builder setUserId(String userId) {
             this.userId = userId;
             return this;
         }
-
         public SysBtUsersRolesEntity build() {
             return new SysBtUsersRolesEntity(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    public SysBtUsersRolesEntity clone() {
+        try {
+            return (SysBtUsersRolesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
     }
 }

@@ -86,7 +86,7 @@ agile:
     test_prefix: ''
     test_suffix: ServiceTest
     test_url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table_name: 'dictionary_data'
+    table_name: 'log_%,dictionary_%,sys_%'
   jpa:
     current_session_context_class: thread
     format_sql: true

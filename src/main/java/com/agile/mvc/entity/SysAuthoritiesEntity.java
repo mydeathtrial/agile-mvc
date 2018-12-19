@@ -1,26 +1,28 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Created by 佟盟
+ * 描述：[系统管理]权限
+ * @author agile gennerator
  */
 @Entity
-@Table(name = "sys_authorities", catalog = "agile_db")
+@Table(name = "sys_authorities")
 @Remark("[系统管理]权限")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysAuthoritiesEntity implements Serializable, Cloneable {
 
-    //序列
+    /**
+     * 序列化参数
+     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysAuthorityId;
@@ -33,29 +35,20 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
-    //无参构造器
-    public SysAuthoritiesEntity() {
-    }
+    /**
+     * 无参构造器
+     */
+    public SysAuthoritiesEntity() { }
 
-    //有参构造器
+    /**
+     * 带参构造器
+     */
     public SysAuthoritiesEntity(String sysAuthorityId, String mark, String name, String desc, Boolean enable) {
         this.sysAuthorityId = sysAuthorityId;
         this.mark = mark;
         this.name = name;
         this.desc = desc;
         this.enable = enable;
-    }
-
-    private SysAuthoritiesEntity(Builder builder) {
-        this.sysAuthorityId = builder.sysAuthorityId;
-        this.mark = builder.mark;
-        this.name = builder.name;
-        this.desc = builder.desc;
-        this.enable = builder.enable;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     @Id
@@ -65,7 +58,7 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     public void setSysAuthorityId(String sysAuthorityId) {
-        this.sysAuthorityId = sysAuthorityId;
+    this.sysAuthorityId = sysAuthorityId;
     }
 
     @Basic
@@ -75,7 +68,7 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     public void setMark(String mark) {
-        this.mark = mark;
+    this.mark = mark;
     }
 
     @Basic
@@ -85,7 +78,7 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     public void setName(String name) {
-        this.name = name;
+    this.name = name;
     }
 
     @Basic
@@ -95,7 +88,7 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     public void setDesc(String desc) {
-        this.desc = desc;
+    this.desc = desc;
     }
 
     @Basic
@@ -105,8 +98,9 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     public void setEnable(Boolean enable) {
-        this.enable = enable;
+    this.enable = enable;
     }
+
 
     @Override
     public boolean equals(Object object) {
@@ -117,11 +111,11 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
             return false;
         }
         SysAuthoritiesEntity that = (SysAuthoritiesEntity) object;
-        return Objects.equals(getSysAuthorityId(), that.getSysAuthorityId()) &&
-                Objects.equals(getMark(), that.getMark()) &&
-                Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getDesc(), that.getDesc()) &&
-                Objects.equals(getEnable(), that.getEnable());
+        return Objects.equals(getSysAuthorityId(), that.getSysAuthorityId())
+        && Objects.equals(getMark(), that.getMark())
+        && Objects.equals(getName(), that.getName())
+        && Objects.equals(getDesc(), that.getDesc())
+        && Objects.equals(getEnable(), that.getEnable());
     }
 
     @Override
@@ -131,25 +125,25 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "SysAuthoritiesEntity{" +
-                "sysAuthorityId='" + sysAuthorityId + '\'' +
-                ",mark='" + mark + '\'' +
-                ",name='" + name + '\'' +
-                ",desc='" + desc + '\'' +
-                ",enable=" + enable +
-                '}';
+    return "SysAuthoritiesEntity{"
+            + "sysAuthorityId='" + sysAuthorityId + '\''
+            + ",mark='" + mark + '\''
+            + ",name='" + name + '\''
+            + ",desc='" + desc + '\''
+            + ",enable=" + enable + '}';
     }
 
-    @Override
-    public SysAuthoritiesEntity clone() {
-        try {
-            return (SysAuthoritiesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
+    private SysAuthoritiesEntity(Builder builder) {
+        this.sysAuthorityId = builder.sysAuthorityId;
+        this.mark = builder.mark;
+        this.name = builder.name;
+        this.desc = builder.desc;
+        this.enable = builder.enable;
     }
 
+    /**
+     * 建造者
+     */
     public static class Builder {
         private String sysAuthorityId;
         private String mark;
@@ -161,29 +155,37 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
             this.sysAuthorityId = sysAuthorityId;
             return this;
         }
-
         public Builder setMark(String mark) {
             this.mark = mark;
             return this;
         }
-
         public Builder setName(String name) {
             this.name = name;
             return this;
         }
-
         public Builder setDesc(String desc) {
             this.desc = desc;
             return this;
         }
-
         public Builder setEnable(Boolean enable) {
             this.enable = enable;
             return this;
         }
-
         public SysAuthoritiesEntity build() {
             return new SysAuthoritiesEntity(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    public SysAuthoritiesEntity clone() {
+        try {
+            return (SysAuthoritiesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
     }
 }

@@ -1,26 +1,28 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Created by 佟盟
+ * 描述：[系统管理]权限资源表
+ * @author agile gennerator
  */
 @Entity
-@Table(name = "sys_bt_authorities_resources", catalog = "agile_db")
+@Table(name = "sys_bt_authorities_resources")
 @Remark("[系统管理]权限资源表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable {
 
-    //序列
+    /**
+     * 序列化参数
+     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysBtAuthoritiesResourcesId;
@@ -29,25 +31,18 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     @Remark("权限唯一标识")
     private String authorityId;
 
-    //无参构造器
-    public SysBtAuthoritiesResourcesEntity() {
-    }
+    /**
+     * 无参构造器
+     */
+    public SysBtAuthoritiesResourcesEntity() { }
 
-    //有参构造器
+    /**
+     * 带参构造器
+     */
     public SysBtAuthoritiesResourcesEntity(String sysBtAuthoritiesResourcesId, String resourceId, String authorityId) {
         this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
         this.resourceId = resourceId;
         this.authorityId = authorityId;
-    }
-
-    private SysBtAuthoritiesResourcesEntity(Builder builder) {
-        this.sysBtAuthoritiesResourcesId = builder.sysBtAuthoritiesResourcesId;
-        this.resourceId = builder.resourceId;
-        this.authorityId = builder.authorityId;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     @Id
@@ -57,7 +52,7 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     }
 
     public void setSysBtAuthoritiesResourcesId(String sysBtAuthoritiesResourcesId) {
-        this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
+    this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
     }
 
     @Basic
@@ -67,7 +62,7 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     }
 
     public void setResourceId(String resourceId) {
-        this.resourceId = resourceId;
+    this.resourceId = resourceId;
     }
 
     @Basic
@@ -77,8 +72,9 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     }
 
     public void setAuthorityId(String authorityId) {
-        this.authorityId = authorityId;
+    this.authorityId = authorityId;
     }
+
 
     @Override
     public boolean equals(Object object) {
@@ -89,9 +85,9 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
             return false;
         }
         SysBtAuthoritiesResourcesEntity that = (SysBtAuthoritiesResourcesEntity) object;
-        return Objects.equals(getSysBtAuthoritiesResourcesId(), that.getSysBtAuthoritiesResourcesId()) &&
-                Objects.equals(getResourceId(), that.getResourceId()) &&
-                Objects.equals(getAuthorityId(), that.getAuthorityId());
+        return Objects.equals(getSysBtAuthoritiesResourcesId(), that.getSysBtAuthoritiesResourcesId())
+        && Objects.equals(getResourceId(), that.getResourceId())
+        && Objects.equals(getAuthorityId(), that.getAuthorityId());
     }
 
     @Override
@@ -101,23 +97,21 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
 
     @Override
     public String toString() {
-        return "SysBtAuthoritiesResourcesEntity{" +
-                "sysBtAuthoritiesResourcesId='" + sysBtAuthoritiesResourcesId + '\'' +
-                ",resourceId='" + resourceId + '\'' +
-                ",authorityId='" + authorityId + '\'' +
-                '}';
+    return "SysBtAuthoritiesResourcesEntity{"
+            + "sysBtAuthoritiesResourcesId='" + sysBtAuthoritiesResourcesId + '\''
+            + ",resourceId='" + resourceId + '\''
+            + ",authorityId='" + authorityId + '\'' + '}';
     }
 
-    @Override
-    public SysBtAuthoritiesResourcesEntity clone() {
-        try {
-            return (SysBtAuthoritiesResourcesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
+    private SysBtAuthoritiesResourcesEntity(Builder builder) {
+        this.sysBtAuthoritiesResourcesId = builder.sysBtAuthoritiesResourcesId;
+        this.resourceId = builder.resourceId;
+        this.authorityId = builder.authorityId;
     }
 
+    /**
+     * 建造者
+     */
     public static class Builder {
         private String sysBtAuthoritiesResourcesId;
         private String resourceId;
@@ -127,19 +121,29 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
             this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
             return this;
         }
-
         public Builder setResourceId(String resourceId) {
             this.resourceId = resourceId;
             return this;
         }
-
         public Builder setAuthorityId(String authorityId) {
             this.authorityId = authorityId;
             return this;
         }
-
         public SysBtAuthoritiesResourcesEntity build() {
             return new SysBtAuthoritiesResourcesEntity(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    public SysBtAuthoritiesResourcesEntity clone() {
+        try {
+            return (SysBtAuthoritiesResourcesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
     }
 }

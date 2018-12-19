@@ -1,6 +1,7 @@
 package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
+import com.agile.common.config.SpringConfig;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.PropertiesUtil;

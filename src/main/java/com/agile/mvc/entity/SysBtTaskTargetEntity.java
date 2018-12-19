@@ -1,26 +1,28 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.Column;
+import javax.persistence.Basic;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * Created by 佟盟
+ * 描述：[系统管理]定时任务目标任务表
+ * @author agile gennerator
  */
 @Entity
-@Table(name = "sys_bt_task_target", catalog = "agile_db")
+@Table(name = "sys_bt_task_target")
 @Remark("[系统管理]定时任务目标任务表")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysBtTaskTargetEntity implements Serializable, Cloneable {
 
-    //序列
+    /**
+     * 序列化参数
+     */
     private static final long serialVersionUID = 1L;
     @Remark("主键")
     private String sysBtTaskTargetId;
@@ -29,29 +31,21 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     @Remark("目标方法主键")
     private String sysTaskTargetId;
     @Remark("优先级")
-    private Boolean order;
+    private Integer order;
 
-    //无参构造器
-    public SysBtTaskTargetEntity() {
-    }
+    /**
+     * 无参构造器
+     */
+    public SysBtTaskTargetEntity() { }
 
-    //有参构造器
-    public SysBtTaskTargetEntity(String sysBtTaskTargetId, String sysTaskId, String sysTaskTargetId, Boolean order) {
+    /**
+     * 带参构造器
+     */
+    public SysBtTaskTargetEntity(String sysBtTaskTargetId, String sysTaskId, String sysTaskTargetId, Integer order) {
         this.sysBtTaskTargetId = sysBtTaskTargetId;
         this.sysTaskId = sysTaskId;
         this.sysTaskTargetId = sysTaskTargetId;
         this.order = order;
-    }
-
-    private SysBtTaskTargetEntity(Builder builder) {
-        this.sysBtTaskTargetId = builder.sysBtTaskTargetId;
-        this.sysTaskId = builder.sysTaskId;
-        this.sysTaskTargetId = builder.sysTaskTargetId;
-        this.order = builder.order;
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     @Id
@@ -61,7 +55,7 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     }
 
     public void setSysBtTaskTargetId(String sysBtTaskTargetId) {
-        this.sysBtTaskTargetId = sysBtTaskTargetId;
+    this.sysBtTaskTargetId = sysBtTaskTargetId;
     }
 
     @Basic
@@ -71,7 +65,7 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     }
 
     public void setSysTaskId(String sysTaskId) {
-        this.sysTaskId = sysTaskId;
+    this.sysTaskId = sysTaskId;
     }
 
     @Basic
@@ -81,18 +75,19 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     }
 
     public void setSysTaskTargetId(String sysTaskTargetId) {
-        this.sysTaskTargetId = sysTaskTargetId;
+    this.sysTaskTargetId = sysTaskTargetId;
     }
 
     @Basic
     @Column(name = "order", nullable = false)
-    public Boolean getOrder() {
+    public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(Boolean order) {
-        this.order = order;
+    public void setOrder(Integer order) {
+    this.order = order;
     }
+
 
     @Override
     public boolean equals(Object object) {
@@ -103,10 +98,10 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
             return false;
         }
         SysBtTaskTargetEntity that = (SysBtTaskTargetEntity) object;
-        return Objects.equals(getSysBtTaskTargetId(), that.getSysBtTaskTargetId()) &&
-                Objects.equals(getSysTaskId(), that.getSysTaskId()) &&
-                Objects.equals(getSysTaskTargetId(), that.getSysTaskTargetId()) &&
-                Objects.equals(getOrder(), that.getOrder());
+        return Objects.equals(getSysBtTaskTargetId(), that.getSysBtTaskTargetId())
+        && Objects.equals(getSysTaskId(), that.getSysTaskId())
+        && Objects.equals(getSysTaskTargetId(), that.getSysTaskTargetId())
+        && Objects.equals(getOrder(), that.getOrder());
     }
 
     @Override
@@ -116,12 +111,52 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "SysBtTaskTargetEntity{" +
-                "sysBtTaskTargetId='" + sysBtTaskTargetId + '\'' +
-                ",sysTaskId='" + sysTaskId + '\'' +
-                ",sysTaskTargetId='" + sysTaskTargetId + '\'' +
-                ",order=" + order +
-                '}';
+    return "SysBtTaskTargetEntity{"
+            + "sysBtTaskTargetId='" + sysBtTaskTargetId + '\''
+            + ",sysTaskId='" + sysTaskId + '\''
+            + ",sysTaskTargetId='" + sysTaskTargetId + '\''
+            + ",order=" + order + '}';
+    }
+
+    private SysBtTaskTargetEntity(Builder builder) {
+        this.sysBtTaskTargetId = builder.sysBtTaskTargetId;
+        this.sysTaskId = builder.sysTaskId;
+        this.sysTaskTargetId = builder.sysTaskTargetId;
+        this.order = builder.order;
+    }
+
+    /**
+     * 建造者
+     */
+    public static class Builder {
+        private String sysBtTaskTargetId;
+        private String sysTaskId;
+        private String sysTaskTargetId;
+        private Integer order;
+
+        public Builder setSysBtTaskTargetId(String sysBtTaskTargetId) {
+            this.sysBtTaskTargetId = sysBtTaskTargetId;
+            return this;
+        }
+        public Builder setSysTaskId(String sysTaskId) {
+            this.sysTaskId = sysTaskId;
+            return this;
+        }
+        public Builder setSysTaskTargetId(String sysTaskTargetId) {
+            this.sysTaskTargetId = sysTaskTargetId;
+            return this;
+        }
+        public Builder setOrder(Integer order) {
+            this.order = order;
+            return this;
+        }
+        public SysBtTaskTargetEntity build() {
+            return new SysBtTaskTargetEntity(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -130,38 +165,6 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
             return (SysBtTaskTargetEntity) super.clone();
         } catch (CloneNotSupportedException e) {
             return null;
-        }
-
-    }
-
-    public static class Builder {
-        private String sysBtTaskTargetId;
-        private String sysTaskId;
-        private String sysTaskTargetId;
-        private Boolean order;
-
-        public Builder setSysBtTaskTargetId(String sysBtTaskTargetId) {
-            this.sysBtTaskTargetId = sysBtTaskTargetId;
-            return this;
-        }
-
-        public Builder setSysTaskId(String sysTaskId) {
-            this.sysTaskId = sysTaskId;
-            return this;
-        }
-
-        public Builder setSysTaskTargetId(String sysTaskTargetId) {
-            this.sysTaskTargetId = sysTaskTargetId;
-            return this;
-        }
-
-        public Builder setOrder(Boolean order) {
-            this.order = order;
-            return this;
-        }
-
-        public SysBtTaskTargetEntity build() {
-            return new SysBtTaskTargetEntity(this);
         }
     }
 }
