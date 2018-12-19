@@ -21,7 +21,9 @@ import java.util.Map;
  */
 @Component
 public class XmlView extends AbstractView {
+
     public static final String DEFAULT_CONTENT_TYPE = "application/xml";
+    private final int byteSize = 1024;
 
     public XmlView() {
         this.setContentType(DEFAULT_CONTENT_TYPE);
@@ -35,7 +37,7 @@ public class XmlView extends AbstractView {
         if (files.size() > 0) {
             FileUtil.downloadFile(files, request, response);
         } else {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(1024);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(byteSize);
             model.entrySet().removeIf(o -> o.getValue() instanceof BindingResult);
 
             XMLSerializer xmlSerializer = new XMLSerializer();

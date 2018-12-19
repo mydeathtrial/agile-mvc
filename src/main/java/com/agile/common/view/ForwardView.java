@@ -11,9 +11,12 @@ import java.util.Map;
 
 /**
  * Created by 佟盟 on 2018/3/26
+ *
+ * @author 佟盟
  */
 public class ForwardView extends AbstractView {
-    private final static String PREFIX = "Parameter_";
+
+    private static final String PREFIX = "Parameter_";
     private String url;
 
     public ForwardView(String url) {

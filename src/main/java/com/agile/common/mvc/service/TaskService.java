@@ -31,6 +31,8 @@ import java.util.concurrent.ScheduledFuture;
 
 /**
  * Created by 佟盟 on 2018/2/2
+ *
+ * @author 佟盟
  */
 public class TaskService extends BusinessService<SysTaskEntity> {
     private Log log = LoggerFactory.TASK_LOG;
@@ -48,8 +50,14 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      * 定时任务信息
      */
     public class TaskInfo {
-        private TaskTrigger trigger; //触发器
-        private TaskService.Job job; //任务
+        /**
+         * 触发器
+         */
+        private TaskTrigger trigger;
+        /**
+         * 任务
+         */
+        private TaskService.Job job;
         private ScheduledFuture scheduledFuture;
 
         TaskInfo(SysTaskEntity sysTaskEntity, TaskTrigger trigger, TaskService.Job job, ScheduledFuture scheduledFuture) {
@@ -141,7 +149,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
                 //判断是否需要同步，同步情况下获取同步锁后方可执行，非同步情况下直接运行
                 if (this.trigger.isSync()) {
                     //获取下次执行时间（秒）
-                    long nextTime = (this.trigger.nextExecutionTime(new SimpleTriggerContext()).getTime() - new Date().getTime()) / 1000;
+                    long nextTime = (this.trigger.nextExecutionTime(new SimpleTriggerContext()).getTime() - System.currentTimeMillis()) / 1000;
 
                     //如果抢到同步锁，设置锁定时间并直接运行
                     if (setNxLock(this.taskName, (int) nextTime)) {

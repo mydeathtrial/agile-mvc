@@ -22,7 +22,6 @@ import com.alibaba.druid.util.JdbcUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,17 +36,17 @@ import java.util.Map;
  * @since 1.0
  */
 public class SqlUtil {
-    private static final String CurlyBracesLeft = "'\\W*\\{";
-    private static final String CurlyBracesRight = "}\\W*'";
-    private static final String CurlyBracesLeft2 = "'{";
-    private static final String CurlyBracesRight2 = "}'";
-    private static final String CurlyBracesLeft3 = "{";
-    private static final String CurlyBracesRight3 = "}";
-    private static final String ParamFormat = "{%s}";
-    private static final String StringParamFormat = "'%s'";
-    private static final String ReplaceNullCondition = " 1=1 ";
-    private static final String ReplaceNull = "null";
-    private static final String ReplaceCount = "count(1)";
+    private static final String CURLY_BRACES_LEFT = "'\\W*\\{";
+    private static final String CURLY_BRACES_RIGHT = "}\\W*'";
+    private static final String CURLY_BRACES_LEFT_2 = "'{";
+    private static final String CURLY_BRACES_RIGHT_2 = "}'";
+    private static final String CURLY_BRACES_LEFT_3 = "{";
+    private static final String CURLY_BRACES_RIGHT_3 = "}";
+    private static final String PARAM_FORMAT = "{%s}";
+    private static final String STRING_PARAM_FORMAT = "'%s'";
+    private static final String REPLACE_NULL_CONDITION = " 1=1 ";
+    private static final String REPLACE_NULL = "null";
+    private static final String REPLACE_COUNT = "count(1)";
 
     /**
      * 根据给定参数动态生成完成参数占位的查询条数sql语句
@@ -65,7 +64,7 @@ public class SqlUtil {
         SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
         List<SQLSelectItem> items = sqlSelectQueryBlock.getSelectList();
         items.removeAll(items);
-        items.add(new SQLSelectItem(SQLUtils.toSQLExpr(ReplaceCount)));
+        items.add(new SQLSelectItem(SQLUtils.toSQLExpr(REPLACE_COUNT)));
         return sqlSelectQueryBlock.toString();
     }
 
@@ -84,7 +83,10 @@ public class SqlUtil {
         if (!sql.contains("{")) {
             return sql;
         }
-        sql = sql.replaceAll(CurlyBracesLeft, CurlyBracesLeft3).replaceAll(CurlyBracesRight, CurlyBracesRight3).replace(CurlyBracesLeft3, CurlyBracesLeft2).replace(CurlyBracesRight3, CurlyBracesRight2);
+        sql = sql.replaceAll(CURLY_BRACES_LEFT, CURLY_BRACES_LEFT_3)
+                .replaceAll(CURLY_BRACES_RIGHT, CURLY_BRACES_RIGHT_3)
+                .replace(CURLY_BRACES_LEFT_3, CURLY_BRACES_LEFT_2)
+                .replace(CURLY_BRACES_RIGHT_3, CURLY_BRACES_RIGHT_2);
 
         // 新建 MySQL Parser
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
@@ -137,7 +139,7 @@ public class SqlUtil {
     private static void parsingTableSource(SQLTableSource from, Map<String, Object> parameters) {
         if (from instanceof SQLSubqueryTableSource) {
             String s = ((SQLSubqueryTableSource) from).getSelect().toString();
-            String l = parserSQL(s.replace(CurlyBracesLeft2, CurlyBracesLeft3).replace(CurlyBracesRight2, CurlyBracesRight3), parameters);
+            String l = parserSQL(s.replace(CURLY_BRACES_LEFT_2, CURLY_BRACES_LEFT_3).replace(CURLY_BRACES_RIGHT_2, CURLY_BRACES_RIGHT_3), parameters);
             SQLStatement se = SQLParserUtils.createSQLStatementParser(l, JdbcUtils.MYSQL).parseStatement();
             ((SQLSubqueryTableSource) from).setSelect(((SQLSelectStatement) se).getSelect());
         } else if (from instanceof SQLJoinTableSource) {
@@ -216,9 +218,9 @@ public class SqlUtil {
                 if (parameters.get(key) == null || StringUtil.isEmpty(String.valueOf(value))) {
                     return false;
                 } else {
-                    String format = item.toString().replace(String.format(ParamFormat, key), ParamFormat);
+                    String format = item.toString().replace(String.format(PARAM_FORMAT, key), PARAM_FORMAT);
                     Object param = parameters.get(key);
-                    SQLUtils.replaceInParent(item, SQLUtils.toSQLExpr(format.replace(ParamFormat, param.toString())));
+                    SQLUtils.replaceInParent(item, SQLUtils.toSQLExpr(format.replace(PARAM_FORMAT, param.toString())));
                 }
             }
         }
@@ -246,11 +248,11 @@ public class SqlUtil {
                     if (param instanceof Iterable) {
                         Iterator it = ((Iterable) param).iterator();
                         while (it.hasNext()) {
-                            list.add(SQLUtils.toSQLExpr(String.format(StringParamFormat, String.valueOf(it.next()))));
+                            list.add(SQLUtils.toSQLExpr(String.format(STRING_PARAM_FORMAT, String.valueOf(it.next()))));
                         }
                     } else if (param.getClass().isArray()) {
                         for (Object o : (Object[]) param) {
-                            list.add(SQLUtils.toSQLExpr(String.format(StringParamFormat, String.valueOf(o))));
+                            list.add(SQLUtils.toSQLExpr(String.format(STRING_PARAM_FORMAT, String.valueOf(o))));
                         }
                     }
                 }
@@ -261,9 +263,9 @@ public class SqlUtil {
         } else {
             if (!(c.getParent() instanceof SQLReplaceable)) {
                 c.setNot(!c.isNot());
-                c.setTargetList(Collections.singletonList(SQLUtils.toSQLExpr(ReplaceNull)));
+                c.setTargetList(Collections.singletonList(SQLUtils.toSQLExpr(REPLACE_NULL)));
             } else {
-                SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(ReplaceNullCondition));
+                SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
             }
 
         }
@@ -279,20 +281,21 @@ public class SqlUtil {
         boolean isParsing = parser(SQLBinaryOpExpr.split(c), parameters);
         if (!isParsing) {
             if (!SQLUtils.replaceInParent(c, null)) {
-                SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(ReplaceNullCondition));
+                SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
             }
         }
     }
 
-    public static void main(String[] args) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("ids", new String[]{"1", "123"});
-        map.put("name", "222");
-        map.put("id", "111");
-        map.put("aaa", "sys_users_id");
-        map.put("bbb", "name");
-        map.put("ccc", "tutors");
-        SqlUtil.parserSQL("select * from sys_users where sys_users_id in ({ids})", map);
+
+//    public static void main(String[] args) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("ids", new String[]{"1", "123"});
+//        map.put("name", "222");
+//        map.put("id", "111");
+//        map.put("aaa", "sys_users_id");
+//        map.put("bbb", "name");
+//        map.put("ccc", "tutors");
+//        SqlUtil.parserSQL("select * from sys_users where sys_users_id in ({ids})", map);
 //        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name = {name}",map);
 //        parserSQL("\tSELECT {aaa},{bbb1}\n" +
 //                "FROM sys_users\n" +
@@ -300,8 +303,9 @@ public class SqlUtil {
 //        parserSQL("SELECT\n" +
 //                "\tt.{bbb} as q \n" +
 //                "FROM\n" +
-//                "\tsys_users,( SELECT * FROM sys_users WHERE sys_users_id IN ( {ids} ) AND NAME = {name} ),sys_users1,( SELECT * FROM sys_users WHERE sys_users_id IN ( {ids} ) AND NAME = {name} ) t \n" +
+//                "\tsys_users,( SELECT * FROM sys_users WHERE sys_users_id IN ( {ids} ) AND NAME = {name} ),sys_users1,
+//                +( SELECT * FROM sys_users WHERE sys_users_id IN ( {ids} ) AND NAME = {name} ) t \n"
 //                "WHERE\n" +
 //                "\tt.NAME = {name}",map);
-    }
+//    }
 }
