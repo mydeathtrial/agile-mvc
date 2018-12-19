@@ -42,6 +42,14 @@ public class ParsingProperties implements ParsingBeanBefore {
         return Properties.class;
     }
 
+    /**
+     * Properties注解解析器的解析过程
+     *
+     * @param target 目标对象
+     * @param prefix 配置文件前缀
+     * @throws IllegalAccessException 异常
+     * @throws InstantiationException 异常
+     */
     private void setProperties(Object target, String prefix) throws IllegalAccessException, InstantiationException {
         if (ObjectUtil.isEmpty(target)) {
             return;
@@ -101,7 +109,6 @@ public class ParsingProperties implements ParsingBeanBefore {
                     if (PropertiesUtil.properties.containsKey(key)) {
                         field.set(target, PropertiesUtil.getProperty(key, type));
                     }
-                    ;
                 } else {
                     Object temp = type.newInstance();
                     setProperties(temp, key);

@@ -138,12 +138,8 @@ public class SysModulesEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysModulesEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysModulesEntity)) return false;
         SysModulesEntity that = (SysModulesEntity) object;
         return Objects.equals(getSysModulesId(), that.getSysModulesId()) &&
                 Objects.equals(getName(), that.getName()) &&

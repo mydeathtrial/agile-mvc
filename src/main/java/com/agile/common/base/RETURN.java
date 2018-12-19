@@ -7,12 +7,12 @@ import com.agile.common.util.PropertiesUtil;
  */
 public final class RETURN {
 
-    public final static RETURN SUCCESS = getMessage("agile.response.success");
-    public final static RETURN LOGOUT_SUCCESS = getMessage("agile.response.logout_success");
-    public final static RETURN EXPRESSION = getMessage("agile.response.expression");
-    public final static RETURN UNKNOWN_STATE = getMessage("agile.response.unknown_state");
-    public final static RETURN PARAMETER_ERROR = getMessage("agile.response.param_error");
-    public final static RETURN XML_SERIALIZER_ERROR = getMessage("agile.response.xml_serializer_error");
+    public static final RETURN SUCCESS = getMessage("agile.response.success");
+    public static final RETURN LOGOUT_SUCCESS = getMessage("agile.response.logout_success");
+    public static final RETURN EXPRESSION = getMessage("agile.response.expression");
+    public static final RETURN UNKNOWN_STATE = getMessage("agile.response.unknown_state");
+    public static final RETURN PARAMETER_ERROR = getMessage("agile.response.param_error");
+    public static final RETURN XML_SERIALIZER_ERROR = getMessage("agile.response.xml_serializer_error");
 
     //响应状态码
     private String code;
@@ -43,6 +43,13 @@ public final class RETURN {
         return this;
     }
 
+    /**
+     * 根据国际化文件当中的key值与占位参数，获取国际化文，返回RETURN
+     *
+     * @param key    国际化文档中的key值
+     * @param params 占位参数
+     * @return 返回RETURN结果
+     */
     public static RETURN getMessage(String key, Object... params) {
         try {
             String message = PropertiesUtil.getMessage(key, params);

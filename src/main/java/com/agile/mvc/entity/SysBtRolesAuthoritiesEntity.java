@@ -73,12 +73,8 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysBtRolesAuthoritiesEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysBtRolesAuthoritiesEntity)) return false;
         SysBtRolesAuthoritiesEntity that = (SysBtRolesAuthoritiesEntity) object;
         return Objects.equals(getSysBtRolesAuthoritiesId(), that.getSysBtRolesAuthoritiesId()) &&
                 Objects.equals(getAuthorityId(), that.getAuthorityId()) &&

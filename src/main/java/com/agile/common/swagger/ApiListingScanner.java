@@ -77,9 +77,7 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         Map<String, ResourceGroup> resourceGroupCache = new HashMap<>();
         Map<ResourceGroup, List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>();
         for (APIInfo apiInfo : list) {
-            if (apiInfo.getRequestMappingInfo() == null) {
-                continue;
-            }
+            if (apiInfo.getRequestMappingInfo() == null) continue;
             RequestMappingContext requestMappingContext = new RequestMappingContext(context.getDocumentationContext(), new WebMvcRequestHandler(new HandlerMethodResolver(typeResolver), apiInfo.getRequestMappingInfo(), new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())));
 
             String groupName = requestMappingContext.getGroupName();

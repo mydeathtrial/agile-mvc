@@ -47,7 +47,6 @@ public class MainService implements ServiceInterface {
      * @param object 服务子类对象，为解决Hystrix组件无法识别服务子类问题（识别成了父类）
      * @return 返回执行结果
      */
-    @Override
     @Transactional
     public Object executeMethod(Object object, Method method, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
 
@@ -59,9 +58,8 @@ public class MainService implements ServiceInterface {
             } else if (returnData instanceof RETURN) {//如果是头信息，则交给控制层处理
                 return returnData;
             } else {//其他类型数据直接放入返回参数
-                if (returnData != null) {
+                if (returnData != null)
                     setOutParam(Constant.ResponseAbout.RESULT, returnData);
-                }
             }
             return returnData;
         } catch (InvocationTargetException e) {
@@ -74,7 +72,6 @@ public class MainService implements ServiceInterface {
      *
      * @param inParam 参数集
      */
-    @Override
     public void setInParam(Map<String, Object> inParam) {
         MainService.inParam.set(inParam);
     }
@@ -85,7 +82,6 @@ public class MainService implements ServiceInterface {
      * @param key 参数key
      * @param o   参数value
      */
-    @Override
     public void setInParam(String key, Object o) {
         MainService.inParam.get().put(key, o);
     }
@@ -161,11 +157,8 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    @Override
     public <T> T getInParam(String key, Class<T> clazz) {
-        if (!containsKey(key)) {
-            return null;
-        }
+        if (!containsKey(key)) return null;
         Object v = getInParam(key);
         T value;
         if (v instanceof JSONObject) {
@@ -189,9 +182,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
-        if (!inParam.get().containsKey(key)) {
-            return defaultValue;
-        }
+        if (!inParam.get().containsKey(key)) return defaultValue;
         Object o;
         try {
             Object[] value = (Object[]) inParam.get().get(key);
@@ -242,7 +233,6 @@ public class MainService implements ServiceInterface {
      *
      * @return 入参集合
      */
-    @Override
     public Map<String, Object> getInParam() {
         return inParam.get();
     }
@@ -252,7 +242,6 @@ public class MainService implements ServiceInterface {
      *
      * @return 响应参数集
      */
-    @Override
     public Map<String, Object> getOutParam() {
         return outParam.get();
     }
@@ -263,7 +252,6 @@ public class MainService implements ServiceInterface {
      * @param key   参数索引字符串
      * @param value 参数值
      */
-    @Override
     public void setOutParam(String key, Object value) {
         outParam.get().put(key, value);
     }
@@ -278,7 +266,6 @@ public class MainService implements ServiceInterface {
     /**
      * 清理
      */
-    @Override
     public void initInParam() {
         inParam.remove();
     }
@@ -286,7 +273,6 @@ public class MainService implements ServiceInterface {
     /**
      * 清理
      */
-    @Override
     public void initOutParam() {
         outParam.remove();
     }

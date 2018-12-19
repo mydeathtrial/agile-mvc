@@ -15,11 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * Created by 佟盟 on 2017/12/22
- *
- * @author 佟盟
  */
 public class MapUtil extends MapUtils {
     /**
@@ -56,7 +53,7 @@ public class MapUtil extends MapUtils {
      * 将List中的Key转换为小写
      *
      * @param list 返回新对象
-     * @return List
+     * @return
      */
     public static List<Map<String, Object>> convertKeyList2LowerCase(List<Map<String, Object>> list) {
         if (null == list) {
@@ -77,7 +74,7 @@ public class MapUtil extends MapUtils {
      * 转换单个map,将key转换为小写.
      *
      * @param map 返回新对象
-     * @return Map
+     * @return
      */
     public static Map<String, Object> convertKey2LowerCase(Map<String, Object> map) {
         if (null == map) {
@@ -170,9 +167,7 @@ public class MapUtil extends MapUtils {
      * @return
      */
     public static String getString(Map<String, Object> map, String key) {
-        if (map.get(key) != null) {
-            return map.get(key).toString();
-        }
+        if (map.get(key) != null) return map.get(key).toString();
         return null;
     }
 

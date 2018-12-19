@@ -176,9 +176,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
                 if (log.isInfoEnabled()) {
                     log.info("开始定时任务:" + sysTaskTargetEntity.getName());
                 }
-                if (ObjectUtil.isEmpty(sysTaskTargetEntity)) {
-                    return;
-                }
+                if (ObjectUtil.isEmpty(sysTaskTargetEntity)) return;
                 String className = sysTaskTargetEntity.getTargetPackage() + "." + sysTaskTargetEntity.getTargetClass();
                 Class<?> clazz = Class.forName(className);
                 Object targetBaen = FactoryUtil.getBean(clazz);
@@ -225,16 +223,12 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         }
         for (String beanName : beans) {
             Object bean = applicationContext.getBean(beanName);
-            if (bean == null) {
-                continue;
-            }
+            if (bean == null) continue;
             Class<?> clazz = ProxyUtils.getUserClass(bean.getClass());
             Method[] methods = clazz.getDeclaredMethods();
             for (int i = 0; i < methods.length; i++) {
                 Method method = methods[i];
-                if (method.getParameterCount() > 0) {
-                    continue;
-                }
+                if (method.getParameterCount() > 0) continue;
                 String methodName = method.getName();
 
                 String id = clazz.getName() + "." + methodName;
@@ -294,9 +288,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      */
     public RETURN addTask() {
         SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
-        if (!ObjectUtil.isValidity(entity)) {
-            return RETURN.PARAMETER_ERROR;
-        }
+        if (!ObjectUtil.isValidity(entity)) return RETURN.PARAMETER_ERROR;
         dao.save(entity);
         if (this.addTask(entity)) {
             return RETURN.SUCCESS;
@@ -320,9 +312,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
 
     private boolean removeTask(String id) {
         if (taskInfoMap.containsKey(id)) {
-            if (!stopTask(id)) {
-                return false;
-            }
+            if (!stopTask(id)) return false;
             taskInfoMap.remove(id);
         }
         return true;
@@ -347,13 +337,9 @@ public class TaskService extends BusinessService<SysTaskEntity> {
     private boolean stopTask(String id) {
         try {
             TaskInfo taskInfo = taskInfoMap.get(id);
-            if (ObjectUtil.isEmpty(taskInfo)) {
-                return true;
-            }
+            if (ObjectUtil.isEmpty(taskInfo)) return true;
             ScheduledFuture future = taskInfo.getScheduledFuture();
-            if (ObjectUtil.isEmpty(future)) {
-                return true;
-            }
+            if (ObjectUtil.isEmpty(future)) return true;
             future.cancel(Boolean.TRUE);
         } catch (Exception e) {
             return false;
@@ -371,9 +357,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         try {
             String id = this.getInParam("id", String.class);
             TaskInfo taskInfo = taskInfoMap.get(id);
-            if (ObjectUtil.isEmpty(taskInfo)) {
-                return RETURN.EXPRESSION;
-            }
+            if (ObjectUtil.isEmpty(taskInfo)) return RETURN.EXPRESSION;
             ScheduledFuture future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
             taskInfo.setScheduledFuture(future);
 
@@ -394,9 +378,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      */
     public RETURN updateTask() {
         SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
-        if (ObjectUtil.isEmpty(entity.getSysTaskId())) {
-            return RETURN.PARAMETER_ERROR;
-        }
+        if (ObjectUtil.isEmpty(entity.getSysTaskId())) return RETURN.PARAMETER_ERROR;
         dao.update(entity);
         if (this.updateTask(entity)) {
             return RETURN.SUCCESS;
@@ -406,16 +388,13 @@ public class TaskService extends BusinessService<SysTaskEntity> {
 
     private boolean updateTask(SysTaskEntity sysTaskEntity) {
         try {
-            if (!removeTask(sysTaskEntity.getSysTaskId())) {
-                return false;
-            }
+            if (!removeTask(sysTaskEntity.getSysTaskId())) return false;
             return addTask(sysTaskEntity);
         } catch (Exception e) {
             return false;
         }
     }
 
-    @Override
     public RETURN query() throws NoSuchIDException {
         int page = this.getInParam("page", Integer.class, 0);
         int size = this.getInParam("size", Integer.class, 10);

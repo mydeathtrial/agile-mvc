@@ -102,9 +102,7 @@ public class POIUtil {
     private static void createRow(Sheet sheet, Object rowData, int rowIndex) {
         Row row = sheet.createRow(rowIndex);
         int currentColumnIndex = 0;
-        if (rowData == null) {
-            return;
-        }
+        if (rowData == null) return;
         if (rowData instanceof Map) {
             for (Object cell : ((Map) rowData).values()) {
                 row.createCell(currentColumnIndex++).setCellValue(ObjectUtil.cast(String.class, cell));
@@ -304,9 +302,7 @@ public class POIUtil {
     }
 
     private static Workbook excuteVersion(Object file) {
-        if (file == null) {
-            return null;
-        }
+        if (file == null) return null;
         if (file instanceof File) {
             String[] s = ((File) file).getName().split("[.]");
             String suffix;

@@ -126,7 +126,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
     //
 
 
-    @Override
     public void handleOutputParameters(CallableStatement cs) throws SQLException {
         final Object parameterObject = parameterHandler.getParameterObject();
         final MetaObject metaParam = configuration.newMetaObject(parameterObject);
@@ -165,7 +164,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
     // HANDLE RESULT SETS
     //
 
-    @Override
     public List<Object> handleResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
 
@@ -204,7 +202,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
     }
 
 
-    @Override
     public <E> Cursor<E> handleCursorResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling cursor results").object(mappedStatement.getId());
 
@@ -513,9 +510,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
                 }
             }
         }
-        if (ObjectUtil.isAllNullValidity(entity)) {
-            return null;
-        }
+        if (ObjectUtil.isAllNullValidity(entity)) return null;
         return entity;
     }
 

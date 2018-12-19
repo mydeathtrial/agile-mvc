@@ -33,9 +33,7 @@ public class RandomStringUtil extends RandomStringUtils {
         pre = StringUtil.isEmpty(pre) ? "" : pre;
         suffix = StringUtil.isEmpty(suffix) ? "" : suffix;
         int count = digit - pre.length() - suffix.length();
-        if (count < 0) {
-            return null;
-        }
+        if (count < 0) return null;
         StringBuilder result = new StringBuilder(pre);
         Object[] temp = null;
         switch (random) {

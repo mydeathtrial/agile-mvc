@@ -86,12 +86,8 @@ public class SysRolesEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysRolesEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysRolesEntity)) return false;
         SysRolesEntity that = (SysRolesEntity) object;
         return Objects.equals(getSysRolesId(), that.getSysRolesId()) &&
                 Objects.equals(getRoleName(), that.getRoleName()) &&

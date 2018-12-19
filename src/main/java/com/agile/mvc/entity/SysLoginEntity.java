@@ -113,12 +113,8 @@ public class SysLoginEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysLoginEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysLoginEntity)) return false;
         SysLoginEntity that = (SysLoginEntity) object;
         return Objects.equals(getSysLoginId(), that.getSysLoginId()) &&
                 Objects.equals(getSysUserId(), that.getSysUserId()) &&

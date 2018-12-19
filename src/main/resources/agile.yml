@@ -9,7 +9,7 @@ agile:
       server_host: 123
       server_post: ''
   cache:
-    proxy: redis
+    proxy: ehcache
   druid:
     data_base_ip: 127.0.0.1
     data_base_name: agile_db
@@ -97,6 +97,11 @@ agile:
     use_second_level_cache: false
     use_structured_entries: false
     use_sql_comments: false
+  ehcache:
+    max_entries_local_heap: 10000
+    time_to_idle_seconds: 300
+    time_to_live_seconds: 600
+    disk_expiry_thread_interval_seconds: 600
   kaptcha:
     enable: false
     border: 'no'
@@ -114,12 +119,12 @@ agile:
     trigger_type: size
     trigger_value: 1M
     package:
-#      org: debug,info,error
-#      org.springframework: debug,info,error
-#      org.hibernate: debug,info,error
-#      io.sringfox: debug,info,error
-#      redis: debug,info,error
-#      com.alibaba: debug,info,error
+  #      org: debug,info,error
+  #      org.springframework: debug,info,error
+  #      org.hibernate: debug,info,error
+  #      io.sringfox: debug,info,error
+  #      redis: debug,info,error
+  #      com.alibaba: debug,info,error
   redis:
     host: 127.0.0.1
     max_idle: 300

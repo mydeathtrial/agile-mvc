@@ -99,12 +99,8 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysAuthoritiesEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysAuthoritiesEntity)) return false;
         SysAuthoritiesEntity that = (SysAuthoritiesEntity) object;
         return Objects.equals(getSysAuthorityId(), that.getSysAuthorityId()) &&
                 Objects.equals(getMark(), that.getMark()) &&

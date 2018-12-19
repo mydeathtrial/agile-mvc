@@ -211,12 +211,8 @@ public class SysUsersEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysUsersEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysUsersEntity)) return false;
         SysUsersEntity that = (SysUsersEntity) object;
         return Objects.equals(getSysUsersId(), that.getSysUsersId()) &&
                 Objects.equals(getSaltKey(), that.getSaltKey()) &&

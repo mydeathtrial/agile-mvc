@@ -176,9 +176,7 @@ public class ViewUtil {
         m.setModel(model);
         for (Map.Entry<String, Object> entry : model.entrySet()) {
             Object value = entry.getValue();
-            if (value == null) {
-                continue;
-            }
+            if (value == null) continue;
             if (FileUtil.isFile(value)) {
                 m.addFile(value);
             } else if (value instanceof Page) {

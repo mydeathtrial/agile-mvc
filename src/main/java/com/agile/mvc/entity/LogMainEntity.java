@@ -116,12 +116,8 @@ public class LogMainEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof LogMainEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof LogMainEntity)) return false;
         LogMainEntity that = (LogMainEntity) object;
         return Objects.equals(getLogMainId(), that.getLogMainId()) &&
                 Objects.equals(getBusinessCode(), that.getBusinessCode()) &&

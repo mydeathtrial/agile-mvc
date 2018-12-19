@@ -130,12 +130,8 @@ public class SysTaskEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysTaskEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysTaskEntity)) return false;
         SysTaskEntity that = (SysTaskEntity) object;
         return Objects.equals(getSysTaskId(), that.getSysTaskId()) &&
                 Objects.equals(getName(), that.getName()) &&

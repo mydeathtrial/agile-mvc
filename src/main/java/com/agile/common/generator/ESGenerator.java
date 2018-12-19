@@ -29,9 +29,7 @@ public class ESGenerator {
         data.put("className", className);
         Map<String, Object> sources = typeInfo.value.getSourceAsMap();
         Object properties = sources.get("properties");
-        if (!(properties instanceof Map)) {
-            return null;
-        }
+        if (!(properties instanceof Map)) return null;
 
         List<Map<String, String>> params = new LinkedList<>();
         //导入集
@@ -40,9 +38,7 @@ public class ESGenerator {
 
             Map<String, String> param = new HashMap<>();
             String paramName = (String) property.getKey();
-            if ("id".equals(paramName)) {
-                continue;
-            }
+            if ("id".equals(paramName)) continue;
             param.put("paramName", paramName);
             param.put("getMethod", "get" + StringUtil.toUpperName(paramName));
             param.put("setMethod", "set" + StringUtil.toUpperName(paramName));

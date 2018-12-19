@@ -9,4 +9,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DictionaryDataService extends BusinessService<DictionaryDataEntity> {
+    public void test() {
+        this.logger.error("出错了", new NullPointerException());
+    }
 }

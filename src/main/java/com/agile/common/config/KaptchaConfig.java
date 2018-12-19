@@ -42,9 +42,7 @@ public class KaptchaConfig extends Configurable implements TextProducer {
     public String getText() {
         int length = getConfig().getTextProducerCharLength();
         String text = KaptchaConfigProperties.getText();
-        if (text == null) {
-            return defaultGetText();
-        }
+        if (text == null) return defaultGetText();
         char[] s = text.toCharArray();
         Random rand = new Random();
         StringBuilder sb = new StringBuilder();

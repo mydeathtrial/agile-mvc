@@ -28,9 +28,7 @@ public class AgileTestGenerator {
         String packageName = AgileGenerator.getPackPath(path);
         if (directory.isDirectory()) {
             String[] files = directory.list();
-            if (files == null) {
-                return;
-            }
+            if (files == null) return;
             for (String fileName : files) {
                 if (!"java".equals(StringUtils.getFilenameExtension(fileName))) {
                     creatTest(path + "/" + fileName);
@@ -47,9 +45,7 @@ public class AgileTestGenerator {
                         Method[] methods = clazz.getDeclaredMethods();
                         Method[] methods1 = clazz.getMethods();
                         for (Method method : methods) {
-                            if (!ArrayUtil.contains(methods1, method)) {
-                                continue;
-                            }
+                            if (!ArrayUtil.contains(methods1, method)) continue;
                             String methodName = method.getName();
                             Map<String, String> map = new HashMap<>();
                             map.put("methodName", methodName);
