@@ -16,46 +16,52 @@ import java.util.Map;
  * @since 1.0
  */
 public class AnnotationProcessor {
-    public static void methodAnnotationProcessor(ApplicationContext applicationContext,String beanName,Object bean, Class annotationClass){
+    public static void methodAnnotationProcessor(ApplicationContext applicationContext, String beanName, Object bean, Class annotationClass) {
         String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
-        for (String parsingName:annotationParsings){
-            Parsing parsing = (Parsing)applicationContext.getBean(parsingName);
+        for (String parsingName : annotationParsings) {
+            Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
             Class<? extends Annotation> annotation = parsing.getAnnotation();
-            if(annotation==null)continue;
-            methodAnnotationProcessor(beanName,bean, ProxyUtils.getUserClass(bean),parsing);
+            if (annotation == null) {
+                continue;
+            }
+            methodAnnotationProcessor(beanName, bean, ProxyUtils.getUserClass(bean), parsing);
         }
 
     }
 
-    public static void beanAnnotationProcessor(ApplicationContext applicationContext, Class annotationClass){
+    public static void beanAnnotationProcessor(ApplicationContext applicationContext, Class annotationClass) {
         String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
-        for (String parsingName:annotationParsings) {
-            Parsing parsing = (Parsing)applicationContext.getBean(parsingName);
+        for (String parsingName : annotationParsings) {
+            Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
             Class<? extends Annotation> annotation = parsing.getAnnotation();
-            if(annotation==null)continue;
+            if (annotation == null) {
+                continue;
+            }
 
             Map<String, Object> beans = applicationContext.getBeansWithAnnotation(annotation);
-            for(Map.Entry<String, Object> map: beans.entrySet()){
+            for (Map.Entry<String, Object> map : beans.entrySet()) {
                 String beanName = map.getKey();
                 Object bean = map.getValue();
-                if(parsing instanceof ParsingBeanAfter){
-                    ((ParsingBeanAfter) parsing).parsing(beanName,bean);
-                }else if(parsing instanceof ParsingBeanBefore){
-                    ((ParsingBeanBefore) parsing).parsing(beanName,bean);
+                if (parsing instanceof ParsingBeanAfter) {
+                    ((ParsingBeanAfter) parsing).parsing(beanName, bean);
+                } else if (parsing instanceof ParsingBeanBefore) {
+                    ((ParsingBeanBefore) parsing).parsing(beanName, bean);
                 }
             }
         }
     }
 
-    private static void methodAnnotationProcessor(String beanName, Object bean, Class realClass, Parsing parsing){
-        Method[] methods =  realClass.getDeclaredMethods();
+    private static void methodAnnotationProcessor(String beanName, Object bean, Class realClass, Parsing parsing) {
+        Method[] methods = realClass.getDeclaredMethods();
         for (Method method : methods) {
             method.setAccessible(true);
             Class<? extends Annotation> annotation = parsing.getAnnotation();
-            if (annotation == null || method.getAnnotation(annotation) == null) continue;
-            if (parsing instanceof ParsingMethodAfter){
+            if (annotation == null || method.getAnnotation(annotation) == null) {
+                continue;
+            }
+            if (parsing instanceof ParsingMethodAfter) {
                 ((ParsingMethodAfter) parsing).parsing(beanName, bean, method);
-            }else if(parsing instanceof ParsingMethodBefore){
+            } else if (parsing instanceof ParsingMethodBefore) {
                 ((ParsingMethodBefore) parsing).parsing(beanName, bean, method);
             }
         }

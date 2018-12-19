@@ -67,8 +67,12 @@ public class DictionaryMainEntity implements Serializable,Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof DictionaryMainEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof DictionaryMainEntity)) {
+            return false;
+        }
         DictionaryMainEntity that = (DictionaryMainEntity) object;
         return Objects.equals(getDictionaryMainId(), that.getDictionaryMainId()) &&
             Objects.equals(getCode(), that.getCode()) &&

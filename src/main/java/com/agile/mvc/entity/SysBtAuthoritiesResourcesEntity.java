@@ -67,8 +67,12 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable,Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtAuthoritiesResourcesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtAuthoritiesResourcesEntity)) {
+            return false;
+        }
         SysBtAuthoritiesResourcesEntity that = (SysBtAuthoritiesResourcesEntity) object;
         return Objects.equals(getSysBtAuthoritiesResourcesId(), that.getSysBtAuthoritiesResourcesId()) &&
             Objects.equals(getResourceId(), that.getResourceId()) &&

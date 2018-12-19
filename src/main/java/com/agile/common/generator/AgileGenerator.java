@@ -170,7 +170,9 @@ public class AgileGenerator {
 
     public static void generateFile(Map<String, Object> data,String filePathKey,String fileNameKey,String templateName,String packNameCacheKey) throws IOException, TemplateException {
         String url = PropertiesUtil.getProperty(filePathKey).trim().replaceAll("[\\\\]+","/");
-        if(!url.endsWith("/"))url += "/";
+        if(!url.endsWith("/")) {
+            url += "/";
+        }
         String fileName = data.get(fileNameKey) + ".java";
         data.put(packNameCacheKey, getPackPath(url));
         FreemarkerUtil.generatorProxy(templateName,url,fileName,data,false);
@@ -183,13 +185,17 @@ public class AgileGenerator {
      */
     public static String getPackPath(String url){
         String javaPath = "src/main/java";
-        if(!url.contains(javaPath))return null;
+        if(!url.contains(javaPath)) {
+            return null;
+        }
         int endIndex = 0;
         if(url.endsWith("/")){
             endIndex = 1;
         }
         String packPath = url.substring(url.indexOf(javaPath) + javaPath.length() + 1, url.length() - endIndex).replaceAll("/",".");
-        if(packPath.isEmpty())return null;
+        if(packPath.isEmpty()) {
+            return null;
+        }
         return packPath;
     }
 

@@ -3,7 +3,6 @@ package com.agile.common.util;
 import com.agile.common.base.Constant;
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
-import com.agile.common.factory.LoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,13 +17,25 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -120,9 +131,13 @@ public class FileUtil extends FileUtils {
             if(StringUtil.isEmpty(extension)){
                 byte[] header = new byte[20];
                 int i = inputStream.read(header);
-                if(i<=0)return null;
+                if(i<=0) {
+                    return null;
+                }
                 String headerHex = StringUtil.coverToHex(header);
-                if(StringUtil.isEmpty(headerHex))return null;
+                if(StringUtil.isEmpty(headerHex)) {
+                    return null;
+                }
                 for(Map.Entry<String,Object> map:FILE_FORMAT_MAP.entrySet()){
                     if(headerHex.contains(map.getKey())){
                         Object value = map.getValue();
@@ -171,7 +186,9 @@ public class FileUtil extends FileUtils {
      */
     public static boolean checkFileFormat(File file){
         String format = PropertiesUtil.getProperty("agile.upload.include_format");
-        if(format.isEmpty())return true;
+        if(format.isEmpty()) {
+            return true;
+        }
         String[] formats = format.split(Constant.RegularAbout.COMMA, -1);
         return ArrayUtil.contains(formats,FileUtil.getFormat(file));
     }
@@ -237,7 +254,9 @@ public class FileUtil extends FileUtils {
     }
 
     public static void downloadFile(Object value, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if(value==null)return ;
+        if(value==null) {
+            return ;
+        }
         Object v = null;
         if(List.class.isAssignableFrom(value.getClass())){
             int size = ((List) value).size();
@@ -342,7 +361,9 @@ public class FileUtil extends FileUtils {
     }
 
     public static boolean isFile(Object value){
-        if(value==null)return false;
+        if(value==null) {
+            return false;
+        }
         return value instanceof ExcelFile || ResponseFile.class.isAssignableFrom(value.getClass()) || File.class.isAssignableFrom(value.getClass());
     }
 }

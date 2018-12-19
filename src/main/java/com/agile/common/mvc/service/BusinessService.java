@@ -32,10 +32,14 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN save() throws IllegalAccessException, NoSuchIDException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
-        if (ObjectUtil.isEmpty(entity) || !ObjectUtil.isValidity(entity)) return RETURN.PARAMETER_ERROR;
+        if (ObjectUtil.isEmpty(entity) || !ObjectUtil.isValidity(entity)) {
+            return RETURN.PARAMETER_ERROR;
+        }
         Field idField = dao.getIdField(entityClass);
         idField.setAccessible(true);
-        if(!ObjectUtil.haveId(idField,entity)) idField.set(entity, RandomStringUtil.getRandom(8,"ID-", RandomStringUtil.Random.MIX_1));
+        if(!ObjectUtil.haveId(idField,entity)) {
+            idField.set(entity, RandomStringUtil.getRandom(8,"ID-", RandomStringUtil.Random.MIX_1));
+        }
         dao.save(entity);
         return RETURN.SUCCESS;
     }
@@ -74,7 +78,9 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN update() throws NoSuchIDException, IllegalAccessException {
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
-        if(ObjectUtil.isEmpty(entity)) return RETURN.PARAMETER_ERROR;
+        if(ObjectUtil.isEmpty(entity)) {
+            return RETURN.PARAMETER_ERROR;
+        }
 
         Field field = dao.getIdField(entityClass);
         field.setAccessible(true);
@@ -82,7 +88,9 @@ public class BusinessService<T> extends MainService {
         if(containsKey("id")){
             field.set(entity,getInParam("id",String.class));
         }
-        if (ObjectUtil.isEmpty(field.get(entity)) || !ObjectUtil.isValidity(entity)) return RETURN.PARAMETER_ERROR;
+        if (ObjectUtil.isEmpty(field.get(entity)) || !ObjectUtil.isValidity(entity)) {
+            return RETURN.PARAMETER_ERROR;
+        }
 
         dao.update(entity);
         return RETURN.SUCCESS;
@@ -159,7 +167,9 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN queryById() {
         boolean require = this.containsKey("id");
-        if(!require)return RETURN.PARAMETER_ERROR;
+        if(!require) {
+            return RETURN.PARAMETER_ERROR;
+        }
 
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         T target = dao.findOne(entityClass, getInParam("id", String.class));

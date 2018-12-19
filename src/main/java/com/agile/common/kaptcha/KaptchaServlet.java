@@ -23,6 +23,7 @@ import java.io.IOException;
 public class KaptchaServlet extends HttpServlet implements Servlet {
     private Producer kaptchaProducer;
 
+    @Override
     public void init(ServletConfig conf) {
         this.kaptchaProducer = FactoryUtil.getBean(Producer.class);
     }

@@ -50,15 +50,18 @@ public class RedisCache extends org.springframework.data.redis.cache.RedisCache 
         }
     }
 
-    public Long setNx(String key,String value){
+    @Override
+    public Long setNx(String key, String value){
         return getJedis().setnx(key,value);
     }
 
+    @Override
     public void expire(String name, int time){
         getJedis().expire(name, time);
     }
 
-    public <T>T getCollection(Object o1,Class<T> o2){
+    @Override
+    public <T>T getCollection(Object o1, Class<T> o2){
         try {
             if(o2 == Map.class){
                 return (T) getRedisTemplate().opsForHash().entries(o1);

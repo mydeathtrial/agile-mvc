@@ -57,9 +57,13 @@ public class ClassUtil extends ClassUtils {
     }
 
     public static boolean isWrapOrPrimitive(Class clazz){
-        if(clazz.isPrimitive())return true;
+        if(clazz.isPrimitive()) {
+            return true;
+        }
         try {
-            if(((Class)clazz.getDeclaredField("TYPE").get(null)).isPrimitive())return true;
+            if(((Class)clazz.getDeclaredField("TYPE").get(null)).isPrimitive()) {
+                return true;
+            }
         } catch (NoSuchFieldException e) {
             return false;
         } catch (IllegalAccessException e) {
@@ -69,7 +73,9 @@ public class ClassUtil extends ClassUtils {
     }
 
     public static boolean isCustomClass(Class clazz){
-        if(isWrapOrPrimitive(clazz))return true;
+        if(isWrapOrPrimitive(clazz)) {
+            return true;
+        }
         return String.class == clazz || BigDecimal.class == clazz || Date.class == clazz;
     }
 

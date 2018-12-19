@@ -54,10 +54,13 @@ public enum ValidateType implements ValidateInterface {
         List<ValidateMsg> list = new ArrayList<>();
         for (String o:value) {
             ValidateMsg v = validate(key,o,validate);
-            if(v!=null)
-            list.add(v);
+            if(v!=null) {
+                list.add(v);
+            }
         }
-        if(list.size()==0)return null;
+        if(list.size()==0) {
+            return null;
+        }
         return list;
     }
 
@@ -115,7 +118,9 @@ public enum ValidateType implements ValidateInterface {
                     }
             }
         }else{
-            if(validate.nullable())return null;
+            if(validate.nullable()) {
+                return null;
+            }
             v.setState(false);
             v.setMessage("不允许为空值");
             return v;

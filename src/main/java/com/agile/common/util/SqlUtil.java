@@ -66,7 +66,9 @@ public class SqlUtil{
      * @return 生成的sql结果
      */
     public static String parserSQL(String sql,Map<String,Object> parameters){
-        if(!sql.contains("{"))return sql;
+        if(!sql.contains("{")) {
+            return sql;
+        }
         sql = sql.replaceAll(CurlyBracesLeft,CurlyBracesLeft3).replaceAll(CurlyBracesRight,CurlyBracesRight3).replace(CurlyBracesLeft3,CurlyBracesLeft2).replace(CurlyBracesRight3,CurlyBracesRight2);
 
         // 新建 MySQL Parser
@@ -168,7 +170,9 @@ public class SqlUtil{
             SQLSelectGroupByClause proxy = ((SQLSelectGroupByClause) sqlObject);
             sqlPartInfo = getMuchPart(proxy.getHaving());
         }
-        if(sqlPartInfo == null)return;
+        if(sqlPartInfo == null) {
+            return;
+        }
         for (SQLObject part:sqlPartInfo) {
             if(part instanceof SQLInListExpr){
                 parsingInList((SQLInListExpr)part,parameters);
@@ -208,7 +212,9 @@ public class SqlUtil{
      */
     private static void parsingInList(SQLInListExpr c,Map<String,Object> parameters){
         List<SQLExpr> items = c.getTargetList();
-        if(items == null)return;
+        if(items == null) {
+            return;
+        }
         List<SQLExpr> list = new ArrayList<>();
         for (SQLExpr item:items) {
             String key = StringUtil.getMatchedString(Constant.RegularAbout.URL_PARAM,item.toString(),0);

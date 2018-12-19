@@ -92,8 +92,9 @@ public class PageExecutor implements Executor {
             stmt = connection.prepareStatement(countSql);
             setParameters(stmt, ms, bsql, parameter);
             rs = stmt.executeQuery();
-            if (rs.next())
+            if (rs.next()) {
                 return rs.getInt(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

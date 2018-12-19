@@ -67,8 +67,12 @@ public class SysBtRolesMoudlesEntity implements Serializable,Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtRolesMoudlesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtRolesMoudlesEntity)) {
+            return false;
+        }
         SysBtRolesMoudlesEntity that = (SysBtRolesMoudlesEntity) object;
         return Objects.equals(getSysBtRolesMoudlesId(), that.getSysBtRolesMoudlesId()) &&
             Objects.equals(getModuleId(), that.getModuleId()) &&

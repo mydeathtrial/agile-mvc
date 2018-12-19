@@ -145,8 +145,12 @@ public class SysResourcesEntity implements Serializable,Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysResourcesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysResourcesEntity)) {
+            return false;
+        }
         SysResourcesEntity that = (SysResourcesEntity) object;
         return Objects.equals(getSysResourcesId(), that.getSysResourcesId()) &&
             Objects.equals(getType(), that.getType()) &&

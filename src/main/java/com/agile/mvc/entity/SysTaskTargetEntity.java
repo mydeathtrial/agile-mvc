@@ -106,8 +106,12 @@ public class SysTaskTargetEntity implements Serializable,Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysTaskTargetEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysTaskTargetEntity)) {
+            return false;
+        }
         SysTaskTargetEntity that = (SysTaskTargetEntity) object;
         return Objects.equals(getSysTaskTargetId(), that.getSysTaskTargetId()) &&
             Objects.equals(getName(), that.getName()) &&

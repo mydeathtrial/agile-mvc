@@ -106,8 +106,12 @@ public class LogTableEntity implements Serializable,Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof LogTableEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LogTableEntity)) {
+            return false;
+        }
         LogTableEntity that = (LogTableEntity) object;
         return Objects.equals(getLogTableId(), that.getLogTableId()) &&
             Objects.equals(getLogMainId(), that.getLogMainId()) &&

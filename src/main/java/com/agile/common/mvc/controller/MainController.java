@@ -177,8 +177,9 @@ public class MainController {
         if(abstractResponseFormat!=null){
             modelAndView = abstractResponseFormat.buildResponse(head,result);
         }else{
-            if(head!=null)
-            modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
+            if(head!=null) {
+                modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
+            }
             if(Map.class.isAssignableFrom(result.getClass())){
                 modelAndView.addAllObjects((Map)result);
             }else{
@@ -204,8 +205,9 @@ public class MainController {
         if(v != null){
             List<ValidateMsg> rs = handleValidateAnnotation(v);
             if(rs!=null){
-                if(list!=null)
-                list.addAll(rs);
+                if(list!=null) {
+                    list.addAll(rs);
+                }
                 list = rs;
             }
         }
@@ -220,7 +222,9 @@ public class MainController {
      * @throws InstantiationException 异常
      */
     private List<ValidateMsg> handleValidateAnnotation(Validate v) throws IllegalAccessException, InstantiationException {
-        if(v==null || v.value().equals(""))return null;
+        if(v==null || v.value().equals("")) {
+            return null;
+        }
         String key = v.value();
         Object value = getService().getInParam().get(key);
         List<ValidateMsg> list = null;
@@ -250,8 +254,9 @@ public class MainController {
         ValidateType validateType = v.validateType();
         if(value!= null && value.getClass().isArray()){
             List<ValidateMsg> rs = validateType.validateArray(key, (String[]) value,v);
-            if(rs != null)
-            list = rs;
+            if(rs != null) {
+                list = rs;
+            }
         }else{
             ValidateMsg r = validateType.validateParam(key,value,v);
             if(r != null){
@@ -461,8 +466,9 @@ public class MainController {
         //处理Mapping参数
         String uri = currentRequest.getRequestURI();
         String extension = UriUtils.extractFileExtension(uri);
-        if("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension))
-        uri = uri.replaceAll("."+extension,"");
+        if("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension)) {
+            uri = uri.replaceAll("."+extension,"");
+        }
         HandlerMethod info = APIUtil.getApiCache(currentRequest);
 
         //处理路径入参

@@ -76,7 +76,9 @@ public class JSONUtil{
      * @return json串
      */
     public static String toJSONString(Object object) {
-        if(StringUtil.isString(object)) return object.toString();
+        if(StringUtil.isString(object)) {
+            return object.toString();
+        }
         if(JSONUtils.isArray(object)){
             return JSONArray.fromObject(object).toString();
         }else {
