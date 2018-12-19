@@ -34,9 +34,6 @@ import java.nio.charset.StandardCharsets;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private LoginFilter loginFilter;
-    private TokenFilter tokenFilter;
-    private LogoutHandler logoutHandler;
     public static String[] immuneUrl = new String[]{
             "/static/**",
             "/favicon.ico",
@@ -51,6 +48,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     static {
         immuneUrl = (String[]) ArrayUtil.addAll(immuneUrl, SecurityProperties.getExcludeUrl().split(Constant.RegularAbout.COMMA));
     }
+
+    private LoginFilter loginFilter;
+    private TokenFilter tokenFilter;
+    private LogoutHandler logoutHandler;
 
     @Autowired
     public SecurityConfig(LoginFilter loginFilter, TokenFilter tokenFilter, LogoutHandler logoutHandler) {

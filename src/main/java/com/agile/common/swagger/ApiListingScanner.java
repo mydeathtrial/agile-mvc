@@ -66,6 +66,57 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         this.typeResolver = typeResolver;
     }
 
+    static Iterable<ResourceGroup> collectResourceGroups(Collection<ApiDescription> apiDescriptions) {
+        return apiDescriptions.stream().map(toResourceGroups()).collect(Collectors.toList());
+    }
+
+    static Iterable<ResourceGroup> sortedByName(Set<ResourceGroup> resourceGroups) {
+        return resourceGroups.stream().sorted(resourceGroupComparator()).collect(Collectors.toList());
+    }
+
+    static Predicate<ApiDescription> belongsTo(final String groupName) {
+        return input -> !input.getGroupName().isPresent()
+                || groupName.equals(input.getGroupName().get());
+    }
+
+    private static Function<ApiDescription, ResourceGroup> toResourceGroups() {
+        return input -> new ResourceGroup(
+                input.getGroupName().or(Docket.DEFAULT_GROUP_NAME),
+                null);
+    }
+
+    static Optional<String> longestCommonPath(List<ApiDescription> apiDescriptions) {
+        List<String> commons = newArrayList();
+        if (null == apiDescriptions || apiDescriptions.isEmpty()) {
+            return Optional.absent();
+        }
+        List<String> firstWords = urlParts(apiDescriptions.get(0));
+
+        for (int position = 0; position < firstWords.size(); position++) {
+            String word = firstWords.get(position);
+            boolean allContain = true;
+            for (int i = 1; i < apiDescriptions.size(); i++) {
+                List<String> words = urlParts(apiDescriptions.get(i));
+                if (words.size() < position + 1 || !words.get(position).equals(word)) {
+                    allContain = false;
+                    break;
+                }
+            }
+            if (allContain) {
+                commons.add(word);
+            }
+        }
+        Joiner joiner = Joiner.on("/").skipNulls();
+        return Optional.of("/" + joiner.join(commons));
+    }
+
+    static List<String> urlParts(ApiDescription apiDescription) {
+        return Splitter.on('/')
+                .omitEmptyStrings()
+                .trimResults()
+                .splitToList(apiDescription.getPath());
+    }
+
     @Override
     public Multimap<String, ApiListing> scan(ApiListingScanningContext context) {
         final Multimap<String, ApiListing> apiListingMap = LinkedListMultimap.create();
@@ -77,7 +128,9 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         Map<String, ResourceGroup> resourceGroupCache = new HashMap<>();
         Map<ResourceGroup, List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>();
         for (APIInfo apiInfo : list) {
-            if (apiInfo.getRequestMappingInfo() == null) continue;
+            if (apiInfo.getRequestMappingInfo() == null) {
+                continue;
+            }
             RequestMappingContext requestMappingContext = new RequestMappingContext(context.getDocumentationContext(), new WebMvcRequestHandler(new HandlerMethodResolver(typeResolver), apiInfo.getRequestMappingInfo(), new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())));
 
             String groupName = requestMappingContext.getGroupName();
@@ -154,62 +207,11 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         return apiListingMap;
     }
 
-    static Iterable<ResourceGroup> collectResourceGroups(Collection<ApiDescription> apiDescriptions) {
-        return apiDescriptions.stream().map(toResourceGroups()).collect(Collectors.toList());
-    }
-
-    static Iterable<ResourceGroup> sortedByName(Set<ResourceGroup> resourceGroups) {
-        return resourceGroups.stream().sorted(resourceGroupComparator()).collect(Collectors.toList());
-    }
-
-    static Predicate<ApiDescription> belongsTo(final String groupName) {
-        return input -> !input.getGroupName().isPresent()
-                || groupName.equals(input.getGroupName().get());
-    }
-
-    private static Function<ApiDescription, ResourceGroup> toResourceGroups() {
-        return input -> new ResourceGroup(
-                input.getGroupName().or(Docket.DEFAULT_GROUP_NAME),
-                null);
-    }
-
     private Iterable<RequestMappingContext> sortedByMethods(List<RequestMappingContext> contexts) {
         return contexts.stream().sorted(methodComparator()).collect(Collectors.toList());
     }
 
     private Predicate<ApiDescription> onlySelectedApis(final DocumentationContext context) {
         return input -> context.getApiSelector().getPathSelector().apply(input.getPath());
-    }
-
-    static Optional<String> longestCommonPath(List<ApiDescription> apiDescriptions) {
-        List<String> commons = newArrayList();
-        if (null == apiDescriptions || apiDescriptions.isEmpty()) {
-            return Optional.absent();
-        }
-        List<String> firstWords = urlParts(apiDescriptions.get(0));
-
-        for (int position = 0; position < firstWords.size(); position++) {
-            String word = firstWords.get(position);
-            boolean allContain = true;
-            for (int i = 1; i < apiDescriptions.size(); i++) {
-                List<String> words = urlParts(apiDescriptions.get(i));
-                if (words.size() < position + 1 || !words.get(position).equals(word)) {
-                    allContain = false;
-                    break;
-                }
-            }
-            if (allContain) {
-                commons.add(word);
-            }
-        }
-        Joiner joiner = Joiner.on("/").skipNulls();
-        return Optional.of("/" + joiner.join(commons));
-    }
-
-    static List<String> urlParts(ApiDescription apiDescription) {
-        return Splitter.on('/')
-                .omitEmptyStrings()
-                .trimResults()
-                .splitToList(apiDescription.getPath());
     }
 }

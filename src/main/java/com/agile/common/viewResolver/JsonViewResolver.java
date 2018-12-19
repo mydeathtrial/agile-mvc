@@ -15,7 +15,9 @@ public class JsonViewResolver extends AbstractCachingViewResolver {
 
     @Override
     protected View loadView(String s, Locale locale) {
-        if (s.startsWith(FORWARD_URL_PREFIX) || s.startsWith(REDIRECT_URL_PREFIX)) return null;
+        if (s.startsWith(FORWARD_URL_PREFIX) || s.startsWith(REDIRECT_URL_PREFIX)) {
+            return null;
+        }
         return new JsonView();
     }
 }

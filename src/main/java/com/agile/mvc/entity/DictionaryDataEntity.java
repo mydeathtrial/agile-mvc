@@ -50,6 +50,19 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         this.isFixed = isFixed;
     }
 
+    private DictionaryDataEntity(Builder builder) {
+        this.dictionaryDataId = builder.dictionaryDataId;
+        this.dictionaryMainId = builder.dictionaryMainId;
+        this.parentId = builder.parentId;
+        this.key = builder.key;
+        this.value = builder.value;
+        this.isFixed = builder.isFixed;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "dictionary_data_id", nullable = false)
     public String getDictionaryDataId() {
@@ -110,7 +123,6 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         this.isFixed = isFixed;
     }
 
-
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -145,13 +157,14 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private DictionaryDataEntity(Builder builder) {
-        this.dictionaryDataId = builder.dictionaryDataId;
-        this.dictionaryMainId = builder.dictionaryMainId;
-        this.parentId = builder.parentId;
-        this.key = builder.key;
-        this.value = builder.value;
-        this.isFixed = builder.isFixed;
+    @Override
+    public DictionaryDataEntity clone() {
+        try {
+            return (DictionaryDataEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -195,19 +208,5 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         public DictionaryDataEntity build() {
             return new DictionaryDataEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public DictionaryDataEntity clone() {
-        try {
-            return (DictionaryDataEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

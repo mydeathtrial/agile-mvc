@@ -43,6 +43,17 @@ public class SysRolesEntity implements Serializable, Cloneable {
         this.enable = enable;
     }
 
+    private SysRolesEntity(Builder builder) {
+        this.sysRolesId = builder.sysRolesId;
+        this.roleName = builder.roleName;
+        this.roleDesc = builder.roleDesc;
+        this.enable = builder.enable;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_roles_id", nullable = false)
     public String getSysRolesId() {
@@ -83,11 +94,14 @@ public class SysRolesEntity implements Serializable, Cloneable {
         this.enable = enable;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysRolesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysRolesEntity)) {
+            return false;
+        }
         SysRolesEntity that = (SysRolesEntity) object;
         return Objects.equals(getSysRolesId(), that.getSysRolesId()) &&
                 Objects.equals(getRoleName(), that.getRoleName()) &&
@@ -110,11 +124,14 @@ public class SysRolesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysRolesEntity(Builder builder) {
-        this.sysRolesId = builder.sysRolesId;
-        this.roleName = builder.roleName;
-        this.roleDesc = builder.roleDesc;
-        this.enable = builder.enable;
+    @Override
+    public SysRolesEntity clone() {
+        try {
+            return (SysRolesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -146,19 +163,5 @@ public class SysRolesEntity implements Serializable, Cloneable {
         public SysRolesEntity build() {
             return new SysRolesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysRolesEntity clone() {
-        try {
-            return (SysRolesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

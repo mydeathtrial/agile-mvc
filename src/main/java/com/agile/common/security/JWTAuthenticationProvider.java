@@ -33,8 +33,11 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     /**
      * 登录验证
      */
+    @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if (authentication.getDetails() instanceof SecurityUser) return authentication;
+        if (authentication.getDetails() instanceof SecurityUser) {
+            return authentication;
+        }
 
         String username = authentication.getPrincipal() == null ? "NONE_PROVIDED" : authentication.getName();
 
@@ -56,6 +59,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         return authentication;
     }
 
+    @Override
     public boolean supports(Class<?> authentication) {
         return UsernamePasswordAuthenticationToken.class.equals(authentication);
     }

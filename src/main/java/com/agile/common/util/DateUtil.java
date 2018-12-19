@@ -13,6 +13,175 @@ import java.util.GregorianCalendar;
  */
 public class DateUtil extends DateUtils {
     /**
+     * 5.2.ES 日期格式指定（yyyy.MM.dd）
+     */
+    public static final String ES_YYYYMMDD = "yyyy.MM.dd";
+    /**
+     * 日期格式指定（yyyy）
+     */
+    public static final String YYYY = "yyyy";
+    /**
+     * 日期格式指定（yyyyMM）
+     */
+    public static final String YYYYMM = "yyyyMM";
+    /**
+     * 日期格式指定（yyyy-MM）
+     */
+    public static final String YYYYMM_HYPHEN = "yyyy-MM";
+    /**
+     * 日期格式指定（yyyy/MM）
+     */
+    public static final String YYYYMM_SLASH = "yyyy/MM";
+    /**
+     * 日期格式指定（yyyyMMdd）
+     */
+    public static final String YYYYMMDD = "yyyyMMdd";
+    /**
+     * 日期格式指定(yyyy-MM-dd)
+     */
+    public final static String YYYYMMDD_HYPHEN = "yyyy-MM-dd";
+    /**
+     * 日期格式指定(MM-dd)
+     */
+    public final static String MMDD_HYPHEN = "MM-dd";
+    /**
+     * 日期格式指定(MM/dd)
+     */
+    public final static String MMDD_SLASH = "MM/dd";
+    /**
+     * 日期格式指定（yyyyMMddHHmmss）
+     */
+    public static final String YMD_HMS_NOSLASH = "yyyyMMddHHmmss";
+    /**
+     * 日期格式指定（yyMMddHHmmss）
+     */
+    public static final String YYMMDD_HMS_NOSLASH = "yyMMddHHmmss";
+    /**
+     * 日期格式指定（yyyy/MM/dd）
+     */
+    public static final String YYYYMMDD_SLASH = "yyyy/MM/dd";
+    /**
+     * 日期格式指定（HH:mm:ss）
+     */
+    public static final String HHMMSS_COLON = "HH:mm:ss";
+    /**
+     * 日期格式指定（HH:mm）
+     */
+    public static final String HHMM_COLON = "HH:mm";
+    /**
+     * 日期格式指定（yyyyMMddHHmm）
+     */
+    public static final String YYYYMMDDHHMM = "yyyyMMddHHmm";
+    /**
+     * 日期格式指定（yyyy-MM-dd HH:mm）
+     */
+    public static final String YYYYMMDDHHMM_HYPHEN = "yyyy-MM-dd HH:mm";
+    /**
+     * 日期格式指定（yyyy/MM/dd HH:mm）
+     */
+    public static final String YYYYMMDDHHMM_SLASH = "yyyy/MM/dd HH:mm";
+    /**
+     * 日期格式指定（yyyy/MM/ddHHmm）
+     */
+    public static final String YYYYMMDDHHMM_SLASA = "yyyy/MM/ddHHmm";
+    /**
+     * 日期格式指定（yyyyMMddHHmmssSSS）
+     */
+    public static final String YYYYMMDDHHMMSSSSS = "yyyyMMddHHmmssSSS";
+    /**
+     * 日期格式指定（YYYYMMDDHHMMSS_HYPHEN_SSSSSS）
+     */
+    public static final String YYYYMMDDHHMMSS_HYPHEN_SSSSSS = "yyyy-MM-dd HH:mm:ss.SSSSSS";
+    /**
+     * 日期格式指定（yyyy-MM-dd HH:mm:ss）
+     */
+    public static final String YYYYMMDDHHMMSS_HYPHEN = "yyyy-MM-dd HH:mm:ss";
+    /**
+     * 日期格式指定（yyyy-MM-dd HH:mm:ss.SSS）
+     */
+    public static final String YYYYMMDDHHMMSS_HYPHEN_SSS = "yyyy-MM-dd HH:mm:ss.SSS";
+    /**
+     * 日期格式指定（yyyy/MM/dd HH:mm:ss）
+     */
+    public static final String YYYYMMDDHHMMSS_SLASH = "yyyy/MM/dd HH:mm:ss";
+    /**
+     * 日期格式指定（yyyy/MM/dd HH:mm:ss）
+     */
+    public static final String YYMMDDHHMMSS_SLASH = "yy-MM-dd HH:mm:ss";
+    /**
+     * 日期格式指定（yyyy年）
+     */
+    public static final String YYYY_KANNJI = "yyyy年";
+    /**
+     * *日期格式指定（dd）
+     */
+    public static final String DD_KANNJI = "dd";
+    /**
+     * *日期格式指定（EEEEs）
+     */
+    public static final String EEEE_KANNJI = "EEEE";
+    /**
+     * 日期格式指定（yyyy年MM月）
+     */
+    public static final String YYYYMM_KANNJI = "yyyy年MM月";
+    /**
+     * 日期格式指定（yyyy年MM月dd日）
+     */
+    public static final String YYYYMMDD_KANNJI = "yyyy年MM月dd日";
+    /**
+     * 日期格式指定（yyyy/MM/dd (E)）
+     */
+    public static final String YYYYMMDD_E = "yyyy/MM/dd (E)";
+    /**
+     * 日期格式指定（yyyy年MM月dd日）
+     */
+    public static final String YYYYMMDD_KANNJI_E = "yyyy年MM月dd日 (E)";
+    /**
+     * 日期格式指定（yyyy/MM/dd(E)）
+     */
+    public static final String YYYYMMDDE = "yyyy/MM/dd(E)";
+    /**
+     * 日期格式指定（yyyy年MM月dd日(E)）
+     */
+    public static final String YYYYMMDD_KANNJIE = "yyyy年MM月dd日(E)";
+    /**
+     * 日期格式指定（yyyy年MM月dd日(E) HH:mm）
+     */
+    public static final String YYYYMMDDHHMM_KANNJIE = "yyyy年MM月dd日(E) HH:mm";
+    /**
+     * 日期格式指定（yyyy/MM/dd（E））
+     */
+    public static final String YYYYMMDD_ZENNKAKU_E = "yyyy/MM/dd（E）";
+    /**
+     * 日期格式指定（yyyy-MM-dd'T'HH:mm:ss.SSS'Z'）
+     */
+    public static final String YYYYMMDDTHHMMSSSSSZ = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+    /**
+     * 日期格式指定（yyyy-MM-dd'T'HH:mm:ss.SSS+mm:ss）
+     */
+    public static final String YYYYMMDDTHHMMSSSSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    /**
+     * mysql查询日期格式指定（%Y-%m）
+     */
+    public static final String YYYYMM_MYSQL = "%Y-%m";
+    /**
+     * mysql查询日期格式指定（%Y-%m-%d）
+     */
+    public static final String YYYYMMDD_MYSQL = "%Y-%m-%d";
+    /**
+     * mysql查询日期格式指定（%Y-%m-%d %H）
+     */
+    public static final String YYYYMMDDHH_MYSQL = "%Y-%m-%d %H";
+    /**
+     * mysql查询日期格式指定（%Y-%m-%d %H:%M）
+     */
+    public static final String YYYYMMDDHHII_MYSQL = "%Y-%m-%d %H:%i";
+    /**
+     * mysql查询日期格式指定（%Y-%m-%d %H:%M:%S）
+     */
+    public static final String YYYYMMDDHHIISS_MYSQL = "%Y-%m-%d %H:%i:%s";
+
+    /**
      * 获取Long型时间戳
      */
     public static long getTimeStamp() {
@@ -62,215 +231,6 @@ public class DateUtil extends DateUtils {
         SimpleDateFormat dateFormat = new SimpleDateFormat(format);
         return dateFormat.format(date);
     }
-
-    /**
-     * 5.2.ES 日期格式指定（yyyy.MM.dd）
-     */
-    public static final String ES_YYYYMMDD = "yyyy.MM.dd";
-
-    /**
-     * 日期格式指定（yyyy）
-     */
-    public static final String YYYY = "yyyy";
-
-    /**
-     * 日期格式指定（yyyyMM）
-     */
-    public static final String YYYYMM = "yyyyMM";
-
-    /**
-     * 日期格式指定（yyyy-MM）
-     */
-    public static final String YYYYMM_HYPHEN = "yyyy-MM";
-
-    /**
-     * 日期格式指定（yyyy/MM）
-     */
-    public static final String YYYYMM_SLASH = "yyyy/MM";
-
-    /**
-     * 日期格式指定（yyyyMMdd）
-     */
-    public static final String YYYYMMDD = "yyyyMMdd";
-
-    /**
-     * 日期格式指定(yyyy-MM-dd)
-     */
-    public final static String YYYYMMDD_HYPHEN = "yyyy-MM-dd";
-
-    /**
-     * 日期格式指定(MM-dd)
-     */
-    public final static String MMDD_HYPHEN = "MM-dd";
-
-    /**
-     * 日期格式指定(MM/dd)
-     */
-    public final static String MMDD_SLASH = "MM/dd";
-
-    /**
-     * 日期格式指定（yyyyMMddHHmmss）
-     */
-    public static final String YMD_HMS_NOSLASH = "yyyyMMddHHmmss";
-
-    /**
-     * 日期格式指定（yyMMddHHmmss）
-     */
-    public static final String YYMMDD_HMS_NOSLASH = "yyMMddHHmmss";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd）
-     */
-    public static final String YYYYMMDD_SLASH = "yyyy/MM/dd";
-
-    /**
-     * 日期格式指定（HH:mm:ss）
-     */
-    public static final String HHMMSS_COLON = "HH:mm:ss";
-
-    /**
-     * 日期格式指定（HH:mm）
-     */
-    public static final String HHMM_COLON = "HH:mm";
-
-    /**
-     * 日期格式指定（yyyyMMddHHmm）
-     */
-    public static final String YYYYMMDDHHMM = "yyyyMMddHHmm";
-
-    /**
-     * 日期格式指定（yyyy-MM-dd HH:mm）
-     */
-    public static final String YYYYMMDDHHMM_HYPHEN = "yyyy-MM-dd HH:mm";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd HH:mm）
-     */
-    public static final String YYYYMMDDHHMM_SLASH = "yyyy/MM/dd HH:mm";
-
-    /**
-     * 日期格式指定（yyyy/MM/ddHHmm）
-     */
-    public static final String YYYYMMDDHHMM_SLASA = "yyyy/MM/ddHHmm";
-
-    /**
-     * 日期格式指定（yyyyMMddHHmmssSSS）
-     */
-    public static final String YYYYMMDDHHMMSSSSS = "yyyyMMddHHmmssSSS";
-
-    /**
-     * 日期格式指定（YYYYMMDDHHMMSS_HYPHEN_SSSSSS）
-     */
-    public static final String YYYYMMDDHHMMSS_HYPHEN_SSSSSS = "yyyy-MM-dd HH:mm:ss.SSSSSS";
-
-    /**
-     * 日期格式指定（yyyy-MM-dd HH:mm:ss）
-     */
-    public static final String YYYYMMDDHHMMSS_HYPHEN = "yyyy-MM-dd HH:mm:ss";
-
-    /**
-     * 日期格式指定（yyyy-MM-dd HH:mm:ss.SSS）
-     */
-    public static final String YYYYMMDDHHMMSS_HYPHEN_SSS = "yyyy-MM-dd HH:mm:ss.SSS";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd HH:mm:ss）
-     */
-    public static final String YYYYMMDDHHMMSS_SLASH = "yyyy/MM/dd HH:mm:ss";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd HH:mm:ss）
-     */
-    public static final String YYMMDDHHMMSS_SLASH = "yy-MM-dd HH:mm:ss";
-
-    /**
-     * 日期格式指定（yyyy年）
-     */
-    public static final String YYYY_KANNJI = "yyyy年";
-
-    /**
-     * *日期格式指定（dd）
-     */
-    public static final String DD_KANNJI = "dd";
-
-    /**
-     * *日期格式指定（EEEEs）
-     */
-    public static final String EEEE_KANNJI = "EEEE";
-
-
-    /**
-     * 日期格式指定（yyyy年MM月）
-     */
-    public static final String YYYYMM_KANNJI = "yyyy年MM月";
-
-    /**
-     * 日期格式指定（yyyy年MM月dd日）
-     */
-    public static final String YYYYMMDD_KANNJI = "yyyy年MM月dd日";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd (E)）
-     */
-    public static final String YYYYMMDD_E = "yyyy/MM/dd (E)";
-
-    /**
-     * 日期格式指定（yyyy年MM月dd日）
-     */
-    public static final String YYYYMMDD_KANNJI_E = "yyyy年MM月dd日 (E)";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd(E)）
-     */
-    public static final String YYYYMMDDE = "yyyy/MM/dd(E)";
-
-    /**
-     * 日期格式指定（yyyy年MM月dd日(E)）
-     */
-    public static final String YYYYMMDD_KANNJIE = "yyyy年MM月dd日(E)";
-
-    /**
-     * 日期格式指定（yyyy年MM月dd日(E) HH:mm）
-     */
-    public static final String YYYYMMDDHHMM_KANNJIE = "yyyy年MM月dd日(E) HH:mm";
-
-    /**
-     * 日期格式指定（yyyy/MM/dd（E））
-     */
-    public static final String YYYYMMDD_ZENNKAKU_E = "yyyy/MM/dd（E）";
-
-    /**
-     * 日期格式指定（yyyy-MM-dd'T'HH:mm:ss.SSS'Z'）
-     */
-    public static final String YYYYMMDDTHHMMSSSSSZ = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
-    /**
-     * 日期格式指定（yyyy-MM-dd'T'HH:mm:ss.SSS+mm:ss）
-     */
-    public static final String YYYYMMDDTHHMMSSSSSXXX = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
-    /**
-     * mysql查询日期格式指定（%Y-%m）
-     */
-    public static final String YYYYMM_MYSQL = "%Y-%m";
-    /**
-     * mysql查询日期格式指定（%Y-%m-%d）
-     */
-    public static final String YYYYMMDD_MYSQL = "%Y-%m-%d";
-
-    /**
-     * mysql查询日期格式指定（%Y-%m-%d %H）
-     */
-    public static final String YYYYMMDDHH_MYSQL = "%Y-%m-%d %H";
-
-    /**
-     * mysql查询日期格式指定（%Y-%m-%d %H:%M）
-     */
-    public static final String YYYYMMDDHHII_MYSQL = "%Y-%m-%d %H:%i";
-
-    /**
-     * mysql查询日期格式指定（%Y-%m-%d %H:%M:%S）
-     */
-    public static final String YYYYMMDDHHIISS_MYSQL = "%Y-%m-%d %H:%i:%s";
 
     /**
      * 获取系统时间

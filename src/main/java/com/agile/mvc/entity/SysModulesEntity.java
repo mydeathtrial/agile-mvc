@@ -55,6 +55,21 @@ public class SysModulesEntity implements Serializable, Cloneable {
         this.order = order;
     }
 
+    private SysModulesEntity(Builder builder) {
+        this.sysModulesId = builder.sysModulesId;
+        this.name = builder.name;
+        this.desc = builder.desc;
+        this.parentId = builder.parentId;
+        this.url = builder.url;
+        this.level = builder.level;
+        this.enable = builder.enable;
+        this.order = builder.order;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_modules_id", nullable = false)
     public String getSysModulesId() {
@@ -135,11 +150,14 @@ public class SysModulesEntity implements Serializable, Cloneable {
         this.order = order;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysModulesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysModulesEntity)) {
+            return false;
+        }
         SysModulesEntity that = (SysModulesEntity) object;
         return Objects.equals(getSysModulesId(), that.getSysModulesId()) &&
                 Objects.equals(getName(), that.getName()) &&
@@ -170,15 +188,14 @@ public class SysModulesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysModulesEntity(Builder builder) {
-        this.sysModulesId = builder.sysModulesId;
-        this.name = builder.name;
-        this.desc = builder.desc;
-        this.parentId = builder.parentId;
-        this.url = builder.url;
-        this.level = builder.level;
-        this.enable = builder.enable;
-        this.order = builder.order;
+    @Override
+    public SysModulesEntity clone() {
+        try {
+            return (SysModulesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -234,19 +251,5 @@ public class SysModulesEntity implements Serializable, Cloneable {
         public SysModulesEntity build() {
             return new SysModulesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysModulesEntity clone() {
-        try {
-            return (SysModulesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

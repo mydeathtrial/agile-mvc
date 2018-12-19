@@ -48,26 +48,6 @@ public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
     private CursorStatus status = CursorStatus.CREATED;
     private int indexWithRowBound = -1;
 
-    private enum CursorStatus {
-
-        /**
-         * A freshly created cursor, database ResultSet consuming has not started
-         */
-        CREATED,
-        /**
-         * A cursor currently in use, database ResultSet consuming has started
-         */
-        OPEN,
-        /**
-         * A closed cursor, not fully consumed
-         */
-        CLOSED,
-        /**
-         * A fully consumed cursor, a consumed cursor is always closed
-         */
-        CONSUMED
-    }
-
     public CustomCursor(CustomResultSetHandler resultSetHandler, ResultMap resultMap, ResultSetWrapper rsw, RowBounds rowBounds) {
         this.resultSetHandler = resultSetHandler;
         this.resultMap = resultMap;
@@ -161,6 +141,26 @@ public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
 
     private int getReadItemsCount() {
         return indexWithRowBound + 1;
+    }
+
+    private enum CursorStatus {
+
+        /**
+         * A freshly created cursor, database ResultSet consuming has not started
+         */
+        CREATED,
+        /**
+         * A cursor currently in use, database ResultSet consuming has started
+         */
+        OPEN,
+        /**
+         * A closed cursor, not fully consumed
+         */
+        CLOSED,
+        /**
+         * A fully consumed cursor, a consumed cursor is always closed
+         */
+        CONSUMED
     }
 
     private static class ObjectWrapperResultHandler<T> implements ResultHandler<T> {

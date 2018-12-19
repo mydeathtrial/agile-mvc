@@ -43,6 +43,17 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
         this.order = order;
     }
 
+    private SysBtTaskTargetEntity(Builder builder) {
+        this.sysBtTaskTargetId = builder.sysBtTaskTargetId;
+        this.sysTaskId = builder.sysTaskId;
+        this.sysTaskTargetId = builder.sysTaskTargetId;
+        this.order = builder.order;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_bt_task_target_id", nullable = false)
     public String getSysBtTaskTargetId() {
@@ -83,11 +94,14 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
         this.order = order;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtTaskTargetEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtTaskTargetEntity)) {
+            return false;
+        }
         SysBtTaskTargetEntity that = (SysBtTaskTargetEntity) object;
         return Objects.equals(getSysBtTaskTargetId(), that.getSysBtTaskTargetId()) &&
                 Objects.equals(getSysTaskId(), that.getSysTaskId()) &&
@@ -110,11 +124,14 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysBtTaskTargetEntity(Builder builder) {
-        this.sysBtTaskTargetId = builder.sysBtTaskTargetId;
-        this.sysTaskId = builder.sysTaskId;
-        this.sysTaskTargetId = builder.sysTaskTargetId;
-        this.order = builder.order;
+    @Override
+    public SysBtTaskTargetEntity clone() {
+        try {
+            return (SysBtTaskTargetEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -146,19 +163,5 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
         public SysBtTaskTargetEntity build() {
             return new SysBtTaskTargetEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysBtTaskTargetEntity clone() {
-        try {
-            return (SysBtTaskTargetEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

@@ -211,8 +211,8 @@
         <module name="SuperFinalize"/>
         <!-- 正则注解 -->
         <!--<module name="Regexp">-->
-            <!--<property name="format" value="@Mapping\(value = \W/api/[a-z]*\W\)"/>-->
-            <!--<property name="illegalPattern" value="false"/>-->
+        <!--<property name="format" value="@Mapping\(value = \W/api/[a-z]*\W\)"/>-->
+        <!--<property name="illegalPattern" value="false"/>-->
         <!--</module>-->
     </module>
 </module>

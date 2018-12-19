@@ -35,10 +35,10 @@ import java.util.Objects;
  */
 @Component
 public class TokenFilter extends OncePerRequestFilter {
-    private RequestMatcher[] matches;
     private final FailureHandler failureHandler;
-    private AntPathRequestMatcher SignOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
     private final SecurityUserDetailsService securityUserDetailsService;
+    private RequestMatcher[] matches;
+    private AntPathRequestMatcher SignOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
 
     @Autowired
     public TokenFilter(SecurityUserDetailsService securityUserDetailsService) {

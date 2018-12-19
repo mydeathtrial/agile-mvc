@@ -49,6 +49,19 @@ public class LogTableEntity implements Serializable, Cloneable {
         this.operationOrder = operationOrder;
     }
 
+    private LogTableEntity(Builder builder) {
+        this.logTableId = builder.logTableId;
+        this.logMainId = builder.logMainId;
+        this.tableSchema = builder.tableSchema;
+        this.tableName = builder.tableName;
+        this.operationType = builder.operationType;
+        this.operationOrder = builder.operationOrder;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "log_table_id", nullable = false)
     public String getLogTableId() {
@@ -109,11 +122,14 @@ public class LogTableEntity implements Serializable, Cloneable {
         this.operationOrder = operationOrder;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof LogTableEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LogTableEntity)) {
+            return false;
+        }
         LogTableEntity that = (LogTableEntity) object;
         return Objects.equals(getLogTableId(), that.getLogTableId()) &&
                 Objects.equals(getLogMainId(), that.getLogMainId()) &&
@@ -140,13 +156,14 @@ public class LogTableEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private LogTableEntity(Builder builder) {
-        this.logTableId = builder.logTableId;
-        this.logMainId = builder.logMainId;
-        this.tableSchema = builder.tableSchema;
-        this.tableName = builder.tableName;
-        this.operationType = builder.operationType;
-        this.operationOrder = builder.operationOrder;
+    @Override
+    public LogTableEntity clone() {
+        try {
+            return (LogTableEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -190,19 +207,5 @@ public class LogTableEntity implements Serializable, Cloneable {
         public LogTableEntity build() {
             return new LogTableEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public LogTableEntity clone() {
-        try {
-            return (LogTableEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

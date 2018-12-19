@@ -40,6 +40,16 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
         this.authorityId = authorityId;
     }
 
+    private SysBtAuthoritiesResourcesEntity(Builder builder) {
+        this.sysBtAuthoritiesResourcesId = builder.sysBtAuthoritiesResourcesId;
+        this.resourceId = builder.resourceId;
+        this.authorityId = builder.authorityId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_bt_authorities_resources_id", nullable = false)
     public String getSysBtAuthoritiesResourcesId() {
@@ -70,11 +80,14 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
         this.authorityId = authorityId;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtAuthoritiesResourcesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtAuthoritiesResourcesEntity)) {
+            return false;
+        }
         SysBtAuthoritiesResourcesEntity that = (SysBtAuthoritiesResourcesEntity) object;
         return Objects.equals(getSysBtAuthoritiesResourcesId(), that.getSysBtAuthoritiesResourcesId()) &&
                 Objects.equals(getResourceId(), that.getResourceId()) &&
@@ -95,10 +108,14 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
                 '}';
     }
 
-    private SysBtAuthoritiesResourcesEntity(Builder builder) {
-        this.sysBtAuthoritiesResourcesId = builder.sysBtAuthoritiesResourcesId;
-        this.resourceId = builder.resourceId;
-        this.authorityId = builder.authorityId;
+    @Override
+    public SysBtAuthoritiesResourcesEntity clone() {
+        try {
+            return (SysBtAuthoritiesResourcesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -124,19 +141,5 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
         public SysBtAuthoritiesResourcesEntity build() {
             return new SysBtAuthoritiesResourcesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysBtAuthoritiesResourcesEntity clone() {
-        try {
-            return (SysBtAuthoritiesResourcesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

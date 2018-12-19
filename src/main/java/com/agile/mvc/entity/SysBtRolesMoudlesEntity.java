@@ -40,6 +40,16 @@ public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
         this.roleId = roleId;
     }
 
+    private SysBtRolesMoudlesEntity(Builder builder) {
+        this.sysBtRolesMoudlesId = builder.sysBtRolesMoudlesId;
+        this.moduleId = builder.moduleId;
+        this.roleId = builder.roleId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_bt_roles_moudles_id", nullable = false)
     public String getSysBtRolesMoudlesId() {
@@ -70,11 +80,14 @@ public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
         this.roleId = roleId;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtRolesMoudlesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtRolesMoudlesEntity)) {
+            return false;
+        }
         SysBtRolesMoudlesEntity that = (SysBtRolesMoudlesEntity) object;
         return Objects.equals(getSysBtRolesMoudlesId(), that.getSysBtRolesMoudlesId()) &&
                 Objects.equals(getModuleId(), that.getModuleId()) &&
@@ -95,10 +108,14 @@ public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysBtRolesMoudlesEntity(Builder builder) {
-        this.sysBtRolesMoudlesId = builder.sysBtRolesMoudlesId;
-        this.moduleId = builder.moduleId;
-        this.roleId = builder.roleId;
+    @Override
+    public SysBtRolesMoudlesEntity clone() {
+        try {
+            return (SysBtRolesMoudlesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -124,19 +141,5 @@ public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
         public SysBtRolesMoudlesEntity build() {
             return new SysBtRolesMoudlesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysBtRolesMoudlesEntity clone() {
-        try {
-            return (SysBtRolesMoudlesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

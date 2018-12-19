@@ -55,6 +55,20 @@ public class SysTaskEntity implements Serializable, Cloneable {
         this.createTime = createTime;
     }
 
+    private SysTaskEntity(Builder builder) {
+        this.sysTaskId = builder.sysTaskId;
+        this.name = builder.name;
+        this.state = builder.state;
+        this.cron = builder.cron;
+        this.sync = builder.sync;
+        this.updateTime = builder.updateTime;
+        this.createTime = builder.createTime;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_task_id", nullable = false)
     public String getSysTaskId() {
@@ -127,11 +141,14 @@ public class SysTaskEntity implements Serializable, Cloneable {
         this.createTime = createTime;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysTaskEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysTaskEntity)) {
+            return false;
+        }
         SysTaskEntity that = (SysTaskEntity) object;
         return Objects.equals(getSysTaskId(), that.getSysTaskId()) &&
                 Objects.equals(getName(), that.getName()) &&
@@ -160,14 +177,14 @@ public class SysTaskEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysTaskEntity(Builder builder) {
-        this.sysTaskId = builder.sysTaskId;
-        this.name = builder.name;
-        this.state = builder.state;
-        this.cron = builder.cron;
-        this.sync = builder.sync;
-        this.updateTime = builder.updateTime;
-        this.createTime = builder.createTime;
+    @Override
+    public SysTaskEntity clone() {
+        try {
+            return (SysTaskEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -217,19 +234,5 @@ public class SysTaskEntity implements Serializable, Cloneable {
         public SysTaskEntity build() {
             return new SysTaskEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysTaskEntity clone() {
-        try {
-            return (SysTaskEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

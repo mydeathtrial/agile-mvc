@@ -52,6 +52,20 @@ public class LogValueEntity implements Serializable, Cloneable {
         this.columnInfo = columnInfo;
     }
 
+    private LogValueEntity(Builder builder) {
+        this.logValueId = builder.logValueId;
+        this.logTableId = builder.logTableId;
+        this.columnName = builder.columnName;
+        this.columnType = builder.columnType;
+        this.newValue = builder.newValue;
+        this.oldValue = builder.oldValue;
+        this.columnInfo = builder.columnInfo;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "log_value_id", nullable = false)
     public String getLogValueId() {
@@ -122,11 +136,14 @@ public class LogValueEntity implements Serializable, Cloneable {
         this.columnInfo = columnInfo;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof LogValueEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LogValueEntity)) {
+            return false;
+        }
         LogValueEntity that = (LogValueEntity) object;
         return Objects.equals(getLogValueId(), that.getLogValueId()) &&
                 Objects.equals(getLogTableId(), that.getLogTableId()) &&
@@ -155,14 +172,14 @@ public class LogValueEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private LogValueEntity(Builder builder) {
-        this.logValueId = builder.logValueId;
-        this.logTableId = builder.logTableId;
-        this.columnName = builder.columnName;
-        this.columnType = builder.columnType;
-        this.newValue = builder.newValue;
-        this.oldValue = builder.oldValue;
-        this.columnInfo = builder.columnInfo;
+    @Override
+    public LogValueEntity clone() {
+        try {
+            return (LogValueEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -212,19 +229,5 @@ public class LogValueEntity implements Serializable, Cloneable {
         public LogValueEntity build() {
             return new LogValueEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public LogValueEntity clone() {
-        try {
-            return (LogValueEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

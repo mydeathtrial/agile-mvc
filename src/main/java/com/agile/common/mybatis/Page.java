@@ -19,13 +19,13 @@ public class Page<T> extends LinkedList<T> {
     private PageRequest pageRequest;
     private long total;
 
-    public org.springframework.data.domain.Page<T> getPage() {
-        return new PageImpl(this, pageRequest, total);
-    }
-
     public Page(@NotNull Collection<? extends T> c, PageRequest pageRequest, long total) {
         super(c);
         this.pageRequest = pageRequest;
         this.total = total;
+    }
+
+    public org.springframework.data.domain.Page<T> getPage() {
+        return new PageImpl(this, pageRequest, total);
     }
 }

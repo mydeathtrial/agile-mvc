@@ -49,6 +49,19 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
         this.remarks = remarks;
     }
 
+    private SysTaskTargetEntity(Builder builder) {
+        this.sysTaskTargetId = builder.sysTaskTargetId;
+        this.name = builder.name;
+        this.targetPackage = builder.targetPackage;
+        this.targetClass = builder.targetClass;
+        this.targetMethod = builder.targetMethod;
+        this.remarks = builder.remarks;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_task_target_id", nullable = false)
     public String getSysTaskTargetId() {
@@ -109,11 +122,14 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
         this.remarks = remarks;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysTaskTargetEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysTaskTargetEntity)) {
+            return false;
+        }
         SysTaskTargetEntity that = (SysTaskTargetEntity) object;
         return Objects.equals(getSysTaskTargetId(), that.getSysTaskTargetId()) &&
                 Objects.equals(getName(), that.getName()) &&
@@ -140,13 +156,14 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysTaskTargetEntity(Builder builder) {
-        this.sysTaskTargetId = builder.sysTaskTargetId;
-        this.name = builder.name;
-        this.targetPackage = builder.targetPackage;
-        this.targetClass = builder.targetClass;
-        this.targetMethod = builder.targetMethod;
-        this.remarks = builder.remarks;
+    @Override
+    public SysTaskTargetEntity clone() {
+        try {
+            return (SysTaskTargetEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -190,19 +207,5 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
         public SysTaskTargetEntity build() {
             return new SysTaskTargetEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysTaskTargetEntity clone() {
-        try {
-            return (SysTaskTargetEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

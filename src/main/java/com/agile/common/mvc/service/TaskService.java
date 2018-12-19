@@ -35,15 +35,295 @@ import java.util.concurrent.ScheduledFuture;
  * @author 佟盟
  */
 public class TaskService extends BusinessService<SysTaskEntity> {
-    private Log log = LoggerFactory.TASK_LOG;
+    private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
-
-    private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
+    private Log log = LoggerFactory.TASK_LOG;
 
     public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
         this.applicationContext = applicationContext;
+    }
+
+    /**
+     * 逐个执行定时任务目标方法
+     *
+     * @param sysTaskTargetEntityList 定时任务详情数据集
+     */
+    @Transactional
+    public void invoke(List<SysTaskTargetEntity> sysTaskTargetEntityList) {
+        try {
+            //逐个执行定时任务目标方法
+            for (int i = 0; i < sysTaskTargetEntityList.size(); i++) {
+                SysTaskTargetEntity sysTaskTargetEntity = sysTaskTargetEntityList.get(i);
+                if (log.isInfoEnabled()) {
+                    log.info("开始定时任务:" + sysTaskTargetEntity.getName());
+                }
+                if (ObjectUtil.isEmpty(sysTaskTargetEntity)) {
+                    return;
+                }
+                String className = sysTaskTargetEntity.getTargetPackage() + "." + sysTaskTargetEntity.getTargetClass();
+                Class<?> clazz = Class.forName(className);
+                Object targetBaen = FactoryUtil.getBean(clazz);
+                Method taretMethod = clazz.getDeclaredMethod(sysTaskTargetEntity.getTargetMethod());
+                taretMethod.setAccessible(true);
+                taretMethod.invoke(targetBaen);
+            }
+        } catch (Exception e) {
+            if (log.isErrorEnabled()) {
+                if (e instanceof ClassNotFoundException | e instanceof IllegalAccessException) {
+                    log.error("定时任务中描述的Class类没有找到");
+                } else if (e instanceof NoSuchMethodException) {
+                    log.error("定时任务中描述的目标方法没有找到");
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    /**
+     * spring容器初始化时初始化全部定时任务
+     */
+    @Init
+    public void init() throws NoSuchIDException {
+//        initTaskTarget();
+//        //获取持久层定时任务数据集
+//        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
+//        for (int i = 0 ; i < list.size();i++ ) {
+//            SysTaskEntity sysTaskEntity = list.get(i);
+//            addTask(sysTaskEntity);
+//        }
+    }
+
+    /**
+     * 初始化全部任务目标方法
+     */
+    private void initTaskTarget() throws NoSuchIDException {
+        String[] beans = applicationContext.getBeanNamesForAnnotation(Service.class);
+        List<SysTaskTargetEntity> list = dao.findAll(SysTaskTargetEntity.class);
+        Map<String, SysTaskTargetEntity> mapCache = new HashMap<>();
+        for (SysTaskTargetEntity entity : list) {
+            mapCache.put(entity.getSysTaskTargetId(), entity);
+        }
+        for (String beanName : beans) {
+            Object bean = applicationContext.getBean(beanName);
+            if (bean == null) {
+                continue;
+            }
+            Class<?> clazz = ProxyUtils.getUserClass(bean.getClass());
+            Method[] methods = clazz.getDeclaredMethods();
+            for (int i = 0; i < methods.length; i++) {
+                Method method = methods[i];
+                if (method.getParameterCount() > 0) {
+                    continue;
+                }
+                String methodName = method.getName();
+
+                String id = clazz.getName() + "." + methodName;
+                SysTaskTargetEntity newData = SysTaskTargetEntity.builder().setSysTaskTargetId(id)
+                        .setTargetPackage(clazz.getPackage().getName())
+                        .setTargetClass(clazz.getSimpleName())
+                        .setTargetMethod(methodName)
+                        .setName(id).build();
+                SysTaskTargetEntity oldData = mapCache.get(id);
+                if (oldData == null) {
+                    dao.save(newData);
+                } else if (!ObjectUtil.compareValue(newData, oldData, "name")) {
+                    dao.update(newData);
+                }
+            }
+        }
+    }
+
+    /**
+     * 根据定时任务对象添加定时任务
+     *
+     * @return 是否添加成功
+     */
+    private boolean addTask(SysTaskEntity sysTaskEntity) {
+        try {
+            //获取定时任务详情列表
+            List<SysTaskTargetEntity> sysTaskTargetEntityList = dao.findAll("select a.* from sys_task_target a left join sys_bt_task_target b on b.sys_task_target_id = a.sys_task_target_id where b.sys_task_id = ? order by b.order", SysTaskTargetEntity.class, sysTaskEntity.getSysTaskId());
+
+            if (ObjectUtil.isEmpty(sysTaskTargetEntityList)) {
+                return true;
+            }
+
+            //新建定时任务触发器
+            TaskTrigger trigger = new TaskTrigger(sysTaskEntity.getCron(), sysTaskEntity.getSync());
+
+            //新建任务
+            TaskService.Job job = new TaskService.Job(sysTaskEntity.getName(), trigger, sysTaskTargetEntityList);
+
+            ScheduledFuture scheduledFuture = null;
+            if (sysTaskEntity.getState()) {
+                scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
+            }
+
+            //定时任务装入缓冲区
+            taskInfoMap.put(sysTaskEntity.getSysTaskId(), new TaskInfo(sysTaskEntity, trigger, job, scheduledFuture));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 根据定时任务对象添加定时任务
+     *
+     * @return 是否添加成功
+     */
+    public RETURN addTask() {
+        SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
+        if (!ObjectUtil.isValidity(entity)) {
+            return RETURN.PARAMETER_ERROR;
+        }
+        dao.save(entity);
+        if (this.addTask(entity)) {
+            return RETURN.SUCCESS;
+        }
+        return RETURN.EXPRESSION;
+    }
+
+    /**
+     * 删除定时任务
+     *
+     * @return 是否成功
+     */
+    public RETURN removeTask() throws NoSuchIDException {
+        String id = this.getInParam("id", String.class);
+        if (this.removeTask(id)) {
+            this.dao.deleteById(SysTaskEntity.class, id);
+            return RETURN.SUCCESS;
+        }
+        return RETURN.EXPRESSION;
+    }
+
+    private boolean removeTask(String id) {
+        if (taskInfoMap.containsKey(id)) {
+            if (!stopTask(id)) {
+                return false;
+            }
+            taskInfoMap.remove(id);
+        }
+        return true;
+    }
+
+    /**
+     * 停止定时任务
+     *
+     * @return 是否成功
+     */
+    public RETURN stopTask() {
+        String id = this.getInParam("id", String.class);
+        if (this.stopTask(id)) {
+            SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
+            entity.setState(false);
+            dao.update(entity);
+            return RETURN.SUCCESS;
+        }
+        return RETURN.EXPRESSION;
+    }
+
+    private boolean stopTask(String id) {
+        try {
+            TaskInfo taskInfo = taskInfoMap.get(id);
+            if (ObjectUtil.isEmpty(taskInfo)) {
+                return true;
+            }
+            ScheduledFuture future = taskInfo.getScheduledFuture();
+            if (ObjectUtil.isEmpty(future)) {
+                return true;
+            }
+            future.cancel(Boolean.TRUE);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 开启定时任务
+     *
+     * @return 是否成功
+     */
+    public RETURN startTask() {
+        try {
+            String id = this.getInParam("id", String.class);
+            TaskInfo taskInfo = taskInfoMap.get(id);
+            if (ObjectUtil.isEmpty(taskInfo)) {
+                return RETURN.EXPRESSION;
+            }
+            ScheduledFuture future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
+            taskInfo.setScheduledFuture(future);
+
+            SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
+            entity.setState(true);
+            dao.update(entity);
+            return RETURN.SUCCESS;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RETURN.EXPRESSION;
+        }
+    }
+
+    /**
+     * 更新定时任务
+     *
+     * @return 是否成功
+     */
+    public RETURN updateTask() {
+        SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
+        if (ObjectUtil.isEmpty(entity.getSysTaskId())) {
+            return RETURN.PARAMETER_ERROR;
+        }
+        dao.update(entity);
+        if (this.updateTask(entity)) {
+            return RETURN.SUCCESS;
+        }
+        return RETURN.EXPRESSION;
+    }
+
+    private boolean updateTask(SysTaskEntity sysTaskEntity) {
+        try {
+            if (!removeTask(sysTaskEntity.getSysTaskId())) {
+                return false;
+            }
+            return addTask(sysTaskEntity);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public RETURN query() throws NoSuchIDException {
+        int page = this.getInParam("page", Integer.class, 0);
+        int size = this.getInParam("size", Integer.class, 10);
+        this.setOutParam("queryList", dao.findAll(SysTaskEntity.class, page, size));
+        return RETURN.SUCCESS;
+    }
+
+    /**
+     * 获取分布式锁
+     *
+     * @param lockName 锁名称
+     * @param second   加锁时间（秒）
+     * @return 如果获取到锁，则返回lockKey值，否则为null
+     */
+    private boolean setNxLock(String lockName, int second) {
+        synchronized (this) {
+            //生成随机的Value值
+            String lockKey = UUID.randomUUID().toString();
+            //抢占锁
+            Long lock = CacheUtil.setNx(lockName, lockKey);
+            if (lock == 1) {
+                //拿到Lock，设置超时时间
+                CacheUtil.expire(lockName, second - 1);
+            }
+            return lock == 1;
+        }
     }
 
     /**
@@ -159,267 +439,6 @@ public class TaskService extends BusinessService<SysTaskEntity> {
                     invoke(sysTaskTargetEntityList);
                 }
             }
-        }
-    }
-
-    /**
-     * 逐个执行定时任务目标方法
-     *
-     * @param sysTaskTargetEntityList 定时任务详情数据集
-     */
-    @Transactional
-    public void invoke(List<SysTaskTargetEntity> sysTaskTargetEntityList) {
-        try {
-            //逐个执行定时任务目标方法
-            for (int i = 0; i < sysTaskTargetEntityList.size(); i++) {
-                SysTaskTargetEntity sysTaskTargetEntity = sysTaskTargetEntityList.get(i);
-                if (log.isInfoEnabled()) {
-                    log.info("开始定时任务:" + sysTaskTargetEntity.getName());
-                }
-                if (ObjectUtil.isEmpty(sysTaskTargetEntity)) return;
-                String className = sysTaskTargetEntity.getTargetPackage() + "." + sysTaskTargetEntity.getTargetClass();
-                Class<?> clazz = Class.forName(className);
-                Object targetBaen = FactoryUtil.getBean(clazz);
-                Method taretMethod = clazz.getDeclaredMethod(sysTaskTargetEntity.getTargetMethod());
-                taretMethod.setAccessible(true);
-                taretMethod.invoke(targetBaen);
-            }
-        } catch (Exception e) {
-            if (log.isErrorEnabled()) {
-                if (e instanceof ClassNotFoundException | e instanceof IllegalAccessException) {
-                    log.error("定时任务中描述的Class类没有找到");
-                } else if (e instanceof NoSuchMethodException) {
-                    log.error("定时任务中描述的目标方法没有找到");
-                } else {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    /**
-     * spring容器初始化时初始化全部定时任务
-     */
-    @Init
-    public void init() throws NoSuchIDException {
-//        initTaskTarget();
-//        //获取持久层定时任务数据集
-//        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
-//        for (int i = 0 ; i < list.size();i++ ) {
-//            SysTaskEntity sysTaskEntity = list.get(i);
-//            addTask(sysTaskEntity);
-//        }
-    }
-
-    /**
-     * 初始化全部任务目标方法
-     */
-    private void initTaskTarget() throws NoSuchIDException {
-        String[] beans = applicationContext.getBeanNamesForAnnotation(Service.class);
-        List<SysTaskTargetEntity> list = dao.findAll(SysTaskTargetEntity.class);
-        Map<String, SysTaskTargetEntity> mapCache = new HashMap<>();
-        for (SysTaskTargetEntity entity : list) {
-            mapCache.put(entity.getSysTaskTargetId(), entity);
-        }
-        for (String beanName : beans) {
-            Object bean = applicationContext.getBean(beanName);
-            if (bean == null) continue;
-            Class<?> clazz = ProxyUtils.getUserClass(bean.getClass());
-            Method[] methods = clazz.getDeclaredMethods();
-            for (int i = 0; i < methods.length; i++) {
-                Method method = methods[i];
-                if (method.getParameterCount() > 0) continue;
-                String methodName = method.getName();
-
-                String id = clazz.getName() + "." + methodName;
-                SysTaskTargetEntity newData = SysTaskTargetEntity.builder().setSysTaskTargetId(id)
-                        .setTargetPackage(clazz.getPackage().getName())
-                        .setTargetClass(clazz.getSimpleName())
-                        .setTargetMethod(methodName)
-                        .setName(id).build();
-                SysTaskTargetEntity oldData = mapCache.get(id);
-                if (oldData == null) {
-                    dao.save(newData);
-                } else if (!ObjectUtil.compareValue(newData, oldData, "name")) {
-                    dao.update(newData);
-                }
-            }
-        }
-    }
-
-    /**
-     * 根据定时任务对象添加定时任务
-     *
-     * @return 是否添加成功
-     */
-    private boolean addTask(SysTaskEntity sysTaskEntity) {
-        try {
-            //获取定时任务详情列表
-            List<SysTaskTargetEntity> sysTaskTargetEntityList = dao.findAll("select a.* from sys_task_target a left join sys_bt_task_target b on b.sys_task_target_id = a.sys_task_target_id where b.sys_task_id = ? order by b.order", SysTaskTargetEntity.class, sysTaskEntity.getSysTaskId());
-
-            if (ObjectUtil.isEmpty(sysTaskTargetEntityList)) {
-                return true;
-            }
-
-            //新建定时任务触发器
-            TaskTrigger trigger = new TaskTrigger(sysTaskEntity.getCron(), sysTaskEntity.getSync());
-
-            //新建任务
-            TaskService.Job job = new TaskService.Job(sysTaskEntity.getName(), trigger, sysTaskTargetEntityList);
-
-            ScheduledFuture scheduledFuture = null;
-            if (sysTaskEntity.getState()) {
-                scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
-            }
-
-            //定时任务装入缓冲区
-            taskInfoMap.put(sysTaskEntity.getSysTaskId(), new TaskInfo(sysTaskEntity, trigger, job, scheduledFuture));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * 根据定时任务对象添加定时任务
-     *
-     * @return 是否添加成功
-     */
-    public RETURN addTask() {
-        SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
-        if (!ObjectUtil.isValidity(entity)) return RETURN.PARAMETER_ERROR;
-        dao.save(entity);
-        if (this.addTask(entity)) {
-            return RETURN.SUCCESS;
-        }
-        return RETURN.EXPRESSION;
-    }
-
-    /**
-     * 删除定时任务
-     *
-     * @return 是否成功
-     */
-    public RETURN removeTask() throws NoSuchIDException {
-        String id = this.getInParam("id", String.class);
-        if (this.removeTask(id)) {
-            this.dao.deleteById(SysTaskEntity.class, id);
-            return RETURN.SUCCESS;
-        }
-        return RETURN.EXPRESSION;
-    }
-
-    private boolean removeTask(String id) {
-        if (taskInfoMap.containsKey(id)) {
-            if (!stopTask(id)) return false;
-            taskInfoMap.remove(id);
-        }
-        return true;
-    }
-
-    /**
-     * 停止定时任务
-     *
-     * @return 是否成功
-     */
-    public RETURN stopTask() {
-        String id = this.getInParam("id", String.class);
-        if (this.stopTask(id)) {
-            SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-            entity.setState(false);
-            dao.update(entity);
-            return RETURN.SUCCESS;
-        }
-        return RETURN.EXPRESSION;
-    }
-
-    private boolean stopTask(String id) {
-        try {
-            TaskInfo taskInfo = taskInfoMap.get(id);
-            if (ObjectUtil.isEmpty(taskInfo)) return true;
-            ScheduledFuture future = taskInfo.getScheduledFuture();
-            if (ObjectUtil.isEmpty(future)) return true;
-            future.cancel(Boolean.TRUE);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * 开启定时任务
-     *
-     * @return 是否成功
-     */
-    public RETURN startTask() {
-        try {
-            String id = this.getInParam("id", String.class);
-            TaskInfo taskInfo = taskInfoMap.get(id);
-            if (ObjectUtil.isEmpty(taskInfo)) return RETURN.EXPRESSION;
-            ScheduledFuture future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
-            taskInfo.setScheduledFuture(future);
-
-            SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-            entity.setState(true);
-            dao.update(entity);
-            return RETURN.SUCCESS;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return RETURN.EXPRESSION;
-        }
-    }
-
-    /**
-     * 更新定时任务
-     *
-     * @return 是否成功
-     */
-    public RETURN updateTask() {
-        SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
-        if (ObjectUtil.isEmpty(entity.getSysTaskId())) return RETURN.PARAMETER_ERROR;
-        dao.update(entity);
-        if (this.updateTask(entity)) {
-            return RETURN.SUCCESS;
-        }
-        return RETURN.EXPRESSION;
-    }
-
-    private boolean updateTask(SysTaskEntity sysTaskEntity) {
-        try {
-            if (!removeTask(sysTaskEntity.getSysTaskId())) return false;
-            return addTask(sysTaskEntity);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public RETURN query() throws NoSuchIDException {
-        int page = this.getInParam("page", Integer.class, 0);
-        int size = this.getInParam("size", Integer.class, 10);
-        this.setOutParam("queryList", dao.findAll(SysTaskEntity.class, page, size));
-        return RETURN.SUCCESS;
-    }
-
-    /**
-     * 获取分布式锁
-     *
-     * @param lockName 锁名称
-     * @param second   加锁时间（秒）
-     * @return 如果获取到锁，则返回lockKey值，否则为null
-     */
-    private boolean setNxLock(String lockName, int second) {
-        synchronized (this) {
-            //生成随机的Value值
-            String lockKey = UUID.randomUUID().toString();
-            //抢占锁
-            Long lock = CacheUtil.setNx(lockName, lockKey);
-            if (lock == 1) {
-                //拿到Lock，设置超时时间
-                CacheUtil.expire(lockName, second - 1);
-            }
-            return lock == 1;
         }
     }
 

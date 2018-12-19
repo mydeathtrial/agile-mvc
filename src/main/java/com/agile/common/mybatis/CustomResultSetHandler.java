@@ -77,36 +77,14 @@ public class CustomResultSetHandler implements ResultSetHandler {
     // nested resultmaps
     private final Map<CacheKey, Object> nestedResultObjects = new HashMap<CacheKey, Object>();
     private final Map<String, Object> ancestorObjects = new HashMap<String, Object>();
-    private Object previousRowValue;
-
     // multiple resultsets
     private final Map<String, ResultMapping> nextResultMaps = new HashMap<String, ResultMapping>();
     private final Map<CacheKey, List<CustomResultSetHandler.PendingRelation>> pendingRelations = new HashMap<CacheKey, List<CustomResultSetHandler.PendingRelation>>();
-
     // Cached Automappings
     private final Map<String, List<CustomResultSetHandler.UnMappedColumnAutoMapping>> autoMappingsCache = new HashMap<String, List<CustomResultSetHandler.UnMappedColumnAutoMapping>>();
-
+    private Object previousRowValue;
     // temporary marking flag that indicate using constructor mapping (use field to reduce memory usage)
     private boolean useConstructorMappings;
-
-    private static class PendingRelation {
-        public MetaObject metaObject;
-        public ResultMapping propertyMapping;
-    }
-
-    private static class UnMappedColumnAutoMapping {
-        private final String column;
-        private final String property;
-        private final TypeHandler<?> typeHandler;
-        private final boolean primitive;
-
-        public UnMappedColumnAutoMapping(String column, String property, TypeHandler<?> typeHandler, boolean primitive) {
-            this.column = column;
-            this.property = property;
-            this.typeHandler = typeHandler;
-            this.primitive = primitive;
-        }
-    }
 
     public CustomResultSetHandler(Executor executor, MappedStatement mappedStatement, ParameterHandler parameterHandler, ResultHandler<?> resultHandler, BoundSql boundSql, RowBounds rowBounds) {
         this.executor = executor;
@@ -121,11 +99,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         this.resultHandler = resultHandler;
     }
 
-    //
-    // HANDLE OUTPUT PARAMETER
-    //
-
-
+    @Override
     public void handleOutputParameters(CallableStatement cs) throws SQLException {
         final Object parameterObject = parameterHandler.getParameterObject();
         final MetaObject metaParam = configuration.newMetaObject(parameterObject);
@@ -161,9 +135,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
     }
 
     //
-    // HANDLE RESULT SETS
+    // HANDLE OUTPUT PARAMETER
     //
 
+    @Override
     public List<Object> handleResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
 
@@ -201,7 +176,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return collapseSingleResultList(multipleResults);
     }
 
-
+    @Override
     public <E> Cursor<E> handleCursorResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling cursor results").object(mappedStatement.getId());
 
@@ -218,6 +193,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
         ResultMap resultMap = resultMaps.get(0);
         return new CustomCursor<E>(this, resultMap, rsw, rowBounds);
     }
+
+    //
+    // HANDLE RESULT SETS
+    //
 
     private ResultSetWrapper getFirstResultSet(Statement stmt) throws SQLException {
         ResultSet rs = stmt.getResultSet();
@@ -297,10 +276,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return multipleResults.size() == 1 ? (List<Object>) multipleResults.get(0) : multipleResults;
     }
 
-    //
-    // HANDLE ROWS FOR SIMPLE RESULTMAP
-    //
-
     public void handleRowValues(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler, RowBounds rowBounds, ResultMapping parentMapping) throws SQLException {
         if (resultMap.hasNestedResultMaps()) {
             ensureNoRowBounds();
@@ -317,6 +292,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
                     + "Use safeRowBoundsEnabled=false setting to bypass this check.");
         }
     }
+
+    //
+    // HANDLE ROWS FOR SIMPLE RESULTMAP
+    //
 
     protected void checkResultHandler() {
         if (resultHandler != null && configuration.isSafeResultHandlerEnabled() && !mappedStatement.isResultOrdered()) {
@@ -367,10 +346,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
     }
 
-    //
-    // GET VALUE FROM ROW FOR SIMPLE RESULT MAP
-    //
-
     private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
         final ResultLoaderMap lazyLoader = new ResultLoaderMap();
         Object rowValue = createResultObject(rsw, resultMap, lazyLoader, null);
@@ -400,7 +375,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
     }
 
     //
-    // PROPERTY MAPPINGS
+    // GET VALUE FROM ROW FOR SIMPLE RESULT MAP
     //
 
     private boolean applyPropertyMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, ResultLoaderMap lazyLoader, String columnPrefix)
@@ -451,6 +426,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
             return typeHandler.getResult(rs, column);
         }
     }
+
+    //
+    // PROPERTY MAPPINGS
+    //
 
     private List<CustomResultSetHandler.UnMappedColumnAutoMapping> createAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String columnPrefix) throws SQLException {
         final String mapKey = resultMap.getId() + ":" + columnPrefix;
@@ -510,7 +489,9 @@ public class CustomResultSetHandler implements ResultSetHandler {
                 }
             }
         }
-        if (ObjectUtil.isAllNullValidity(entity)) return null;
+        if (ObjectUtil.isAllNullValidity(entity)) {
+            return null;
+        }
         return entity;
     }
 
@@ -537,8 +518,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         coverObject(rsw, metaObject);
         return foundValues;
     }
-
-    // MULTIPLE RESULT SETS
 
     private void linkToParents(ResultSet rs, ResultMapping parentMapping, Object rowValue) throws SQLException {
         CacheKey parentKey = createKeyForMultipleResults(rs, parentMapping, parentMapping.getColumn(), parentMapping.getForeignColumn());
@@ -574,6 +553,8 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
     }
 
+    // MULTIPLE RESULT SETS
+
     private CacheKey createKeyForMultipleResults(ResultSet rs, ResultMapping resultMapping, String names, String columns) throws SQLException {
         CacheKey cacheKey = new CacheKey();
         cacheKey.update(resultMapping);
@@ -590,10 +571,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
         return cacheKey;
     }
-
-    //
-    // INSTANTIATION & CONSTRUCTOR MAPPING
-    //
 
     private Object createResultObject(ResultSetWrapper rsw, ResultMap resultMap, ResultLoaderMap lazyLoader, String columnPrefix) throws SQLException {
         this.useConstructorMappings = false; // reset previous mapping result
@@ -633,6 +610,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
         throw new ExecutorException("Do not know how to create an instance of " + resultType);
     }
+
+    //
+    // INSTANTIATION & CONSTRUCTOR MAPPING
+    //
 
     Object createParameterizedResultObject(ResultSetWrapper rsw, Class<?> resultType, List<ResultMapping> constructorMappings,
                                            List<Class<?>> constructorArgTypes, List<Object> constructorArgs, String columnPrefix) {
@@ -705,10 +686,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return typeHandler.getResult(rsw.getResultSet(), columnName);
     }
 
-    //
-    // NESTED QUERY
-    //
-
     private Object getNestedQueryConstructorValue(ResultSet rs, ResultMapping constructorMapping, String columnPrefix) throws SQLException {
         final String nestedQueryId = constructorMapping.getNestedQueryId();
         final MappedStatement nestedQuery = configuration.getMappedStatement(nestedQueryId);
@@ -752,6 +729,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
         return value;
     }
+
+    //
+    // NESTED QUERY
+    //
 
     private Object prepareParameterForNestedQuery(ResultSet rs, ResultMapping resultMapping, Class<?> parameterType, String columnPrefix) throws SQLException {
         if (resultMapping.isCompositeResult()) {
@@ -798,10 +779,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
     }
 
-    //
-    // DISCRIMINATOR
-    //
-
     public ResultMap resolveDiscriminatedResultMap(ResultSet rs, ResultMap resultMap, String columnPrefix) throws SQLException {
         Set<String> pastDiscriminators = new HashSet<String>();
         Discriminator discriminator = resultMap.getDiscriminator();
@@ -828,16 +805,16 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return typeHandler.getResult(rs, prependPrefix(resultMapping.getColumn(), columnPrefix));
     }
 
+    //
+    // DISCRIMINATOR
+    //
+
     private String prependPrefix(String columnName, String prefix) {
         if (columnName == null || columnName.length() == 0 || prefix == null || prefix.length() == 0) {
             return columnName;
         }
         return prefix + columnName;
     }
-
-    //
-    // HANDLE NESTED RESULT MAPS
-    //
 
     private void handleRowValuesForNestedResultMap(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler, RowBounds rowBounds, ResultMapping parentMapping) throws SQLException {
         final DefaultResultContext<Object> resultContext = new DefaultResultContext<Object>();
@@ -868,10 +845,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
             previousRowValue = rowValue;
         }
     }
-
-    //
-    // GET VALUE FROM ROW FOR NESTED RESULT MAP
-    //
 
     private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap, CacheKey combinedKey, String columnPrefix, Object partialObject) throws SQLException {
         final String resultMapId = resultMap.getId();
@@ -904,12 +877,16 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return rowValue;
     }
 
+    //
+    // HANDLE NESTED RESULT MAPS
+    //
+
     private void putAncestor(Object resultObject, String resultMapId, String columnPrefix) {
         ancestorObjects.put(resultMapId, resultObject);
     }
 
     //
-    // NESTED RESULT MAP (JOIN MAPPING)
+    // GET VALUE FROM ROW FOR NESTED RESULT MAP
     //
 
     private boolean applyNestedResultMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject, String parentPrefix, CacheKey parentRowKey, boolean newObject) {
@@ -962,6 +939,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
         return columnPrefixBuilder.length() == 0 ? null : columnPrefixBuilder.toString().toUpperCase(Locale.ENGLISH);
     }
 
+    //
+    // NESTED RESULT MAP (JOIN MAPPING)
+    //
+
     private boolean anyNotNullColumnHasValue(ResultMapping resultMapping, String columnPrefix, ResultSetWrapper rsw) throws SQLException {
         Set<String> notNullColumns = resultMapping.getNotNullColumns();
         if (notNullColumns != null && !notNullColumns.isEmpty()) {
@@ -988,10 +969,6 @@ public class CustomResultSetHandler implements ResultSetHandler {
         ResultMap nestedResultMap = configuration.getResultMap(nestedResultMapId);
         return resolveDiscriminatedResultMap(rs, nestedResultMap, columnPrefix);
     }
-
-    //
-    // UNIQUE RESULT KEY
-    //
 
     private CacheKey createRowKey(ResultMap resultMap, ResultSetWrapper rsw, String columnPrefix) throws SQLException {
         final CacheKey cacheKey = new CacheKey();
@@ -1025,6 +1002,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
         }
         return CacheKey.NULL_CACHE_KEY;
     }
+
+    //
+    // UNIQUE RESULT KEY
+    //
 
     private List<ResultMapping> getResultMappingsForRowKey(ResultMap resultMap) {
         List<ResultMapping> resultMappings = resultMap.getIdResultMappings();
@@ -1129,5 +1110,24 @@ public class CustomResultSetHandler implements ResultSetHandler {
             return typeHandlerRegistry.hasTypeHandler(resultType, rsw.getJdbcType(rsw.getColumnNames().get(0)));
         }
         return typeHandlerRegistry.hasTypeHandler(resultType);
+    }
+
+    private static class PendingRelation {
+        public MetaObject metaObject;
+        public ResultMapping propertyMapping;
+    }
+
+    private static class UnMappedColumnAutoMapping {
+        private final String column;
+        private final String property;
+        private final TypeHandler<?> typeHandler;
+        private final boolean primitive;
+
+        public UnMappedColumnAutoMapping(String column, String property, TypeHandler<?> typeHandler, boolean primitive) {
+            this.column = column;
+            this.property = property;
+            this.typeHandler = typeHandler;
+            this.primitive = primitive;
+        }
     }
 }

@@ -50,9 +50,8 @@ import java.util.Map;
 @Lazy
 @Component
 public class Dao {
-    private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);
     private static Map<String, Object> map = new HashMap<>();
-
+    private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -153,7 +152,9 @@ public class Dao {
         if (iterator.hasNext()) {
             T obj = iterator.next();
             List result = getRepository(obj.getClass()).saveAll(list);
-            if (result != null) return result;
+            if (result != null) {
+                return result;
+            }
         }
         return new ArrayList<>();
     }
@@ -305,20 +306,22 @@ public class Dao {
             Method method = methods[i];
             method.setAccessible(true);
             Id id = method.getAnnotation(Id.class);
-            if (!ObjectUtil.isEmpty(id))
+            if (!ObjectUtil.isEmpty(id)) {
                 try {
                     return clazz.getDeclaredField(StringUtil.toLowerName(method.getName().replaceFirst("get", "")));
                 } catch (Exception e) {
                     throw new NoSuchIDException();
                 }
+            }
         }
         Field[] fields = clazz.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             field.setAccessible(true);
             Id id = field.getAnnotation(Id.class);
-            if (!ObjectUtil.isEmpty(id))
+            if (!ObjectUtil.isEmpty(id)) {
                 return field;
+            }
         }
         throw new NoSuchIDException();
     }
@@ -334,7 +337,9 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T, ID> void deleteAll(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
-        if (ArrayUtil.isEmpty(ids) || ids.length < 1) return;
+        if (ArrayUtil.isEmpty(ids) || ids.length < 1) {
+            return;
+        }
         List list = createObjectList(tableClass, ids);
         if (!ObjectUtil.isEmpty(list) && list.size() > 0) {
             getRepository(tableClass).deleteAll(list);
@@ -353,7 +358,9 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T, ID> void deleteInBatch(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
-        if (ArrayUtil.isEmpty(ids) || ids.length < 1) return;
+        if (ArrayUtil.isEmpty(ids) || ids.length < 1) {
+            return;
+        }
         List list = createObjectList(tableClass, ids);
         if (!ObjectUtil.isEmpty(list) && list.size() > 0) {
             getRepository(tableClass).deleteInBatch(list);
@@ -436,7 +443,9 @@ public class Dao {
      */
     public <T> List findAll(T object) {
         List result = findAll(object, Sort.unsorted());
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList();
     }
 
@@ -451,7 +460,9 @@ public class Dao {
     public <T> List findAll(T object, Sort sort) {
         Example<T> example = Example.of(object);
         List result = this.getRepository(object.getClass()).findAll(example, sort);
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList();
     }
 
@@ -498,7 +509,9 @@ public class Dao {
             getIdField(clazz);
             Query query = creatClassQuery(sql, clazz, parameters);
             List result = query.getResultList();
-            if (result != null) return result;
+            if (result != null) {
+                return result;
+            }
         } catch (NoSuchIDException e) {
             List<Map<String, Object>> list = findAllBySQL(sql, parameters);
             if (list != null && list.size() > 0) {
@@ -506,8 +519,9 @@ public class Dao {
                 if (ClassUtil.isCustomClass(clazz)) {
                     for (Map<String, Object> entity : list) {
                         T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));
-                        if (node != null)
+                        if (node != null) {
                             result.add(node);
+                        }
                     }
                 } else {
                     for (Map<String, Object> entity : list) {
@@ -525,7 +539,9 @@ public class Dao {
 
     public <T> List<T> findAll(String sql, Class<T> clazz, Map<String, Object> parameters) {
         List result = findAll(SqlUtil.parserSQL(sql, parameters), clazz);
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList<>();
     }
 
@@ -633,13 +649,17 @@ public class Dao {
         Query query = creatQuery(sql, parameters);
         ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         List result = query.getResultList();
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList<>();
     }
 
     public List<Map<String, Object>> findAllBySQL(String sql, Map<String, Object> parameters) {
         List result = findAllBySQL(SqlUtil.parserSQL(sql, parameters));
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList<>();
     }
 
@@ -679,7 +699,9 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T, ID> List<T> findAllById(Class<T> tableClass, Iterable<ID> ids) {
         List result = getRepository(tableClass).findAllById(ids);
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList<>();
     }
 
@@ -689,7 +711,9 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T, ID> List<T> findAllByArrayId(Class<T> tableClass, ID... ids) {
         List result = getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList<>();
     }
 
@@ -707,7 +731,9 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(Class<T> tableClass) {
         List result = getRepository(tableClass).findAll();
-        if (result != null) return result;
+        if (result != null) {
+            return result;
+        }
         return new ArrayList<>();
     }
 

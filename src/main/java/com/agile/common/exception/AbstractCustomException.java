@@ -6,11 +6,11 @@ package com.agile.common.exception;
 public abstract class AbstractCustomException extends Exception {
     private Object[] params;
 
-    public Object[] getParams() {
-        return params;
-    }
-
     public AbstractCustomException(Object... params) {
         this.params = params;
+    }
+
+    public Object[] getParams() {
+        return params;
     }
 }

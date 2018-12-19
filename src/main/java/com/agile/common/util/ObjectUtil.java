@@ -24,12 +24,10 @@ import java.util.Set;
  * Created by 佟盟 on 2017/1/9
  */
 public class ObjectUtil extends ObjectUtils {
-    public enum ContainOrExclude {
-        INCLUDE, EXCLUDE
-    }
-
     public static void copyPropertiesOfNotNull(Object source, Object target) {
-        if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) return;
+        if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) {
+            return;
+        }
         Set<Field> sourceFields = getAllField(source.getClass());
         List<String> arguments = new ArrayList<>();
         for (Field field : sourceFields) {
@@ -54,7 +52,9 @@ public class ObjectUtil extends ObjectUtils {
      * @param containOrExclude 包含或排除
      */
     public static void copyProperties(Object source, Object target, String[] arguments, ContainOrExclude containOrExclude) {
-        if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) return;
+        if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) {
+            return;
+        }
 
         Set<Field> sourceFields = ObjectUtil.getAllField(source.getClass());
         for (Field field : sourceFields) {
@@ -64,10 +64,14 @@ public class ObjectUtil extends ObjectUtils {
             if (!ObjectUtil.isEmpty(arguments)) {
                 switch (containOrExclude) {
                     case EXCLUDE:
-                        if (ArrayUtil.contains(arguments, propertyName)) continue;
+                        if (ArrayUtil.contains(arguments, propertyName)) {
+                            continue;
+                        }
                         break;
                     case INCLUDE:
-                        if (!ArrayUtil.contains(arguments, propertyName)) continue;
+                        if (!ArrayUtil.contains(arguments, propertyName)) {
+                            continue;
+                        }
                         break;
                 }
             }
@@ -76,7 +80,9 @@ public class ObjectUtil extends ObjectUtils {
                 Object value = field.get(source);
                 Field targetProperty;
                 targetProperty = getField(target.getClass(), propertyName);
-                if (targetProperty == null) continue;
+                if (targetProperty == null) {
+                    continue;
+                }
 
                 targetProperty.setAccessible(true);
                 targetProperty.set(target, value);
@@ -94,7 +100,6 @@ public class ObjectUtil extends ObjectUtils {
     public static void copyProperties(Object source, Object target) {
         copyProperties(source, target, null, null);
     }
-
 
     /**
      * 比较两个对象是否继承于同一个类
@@ -129,10 +134,14 @@ public class ObjectUtil extends ObjectUtils {
         if (isEmpty(source)) {
             return isEmpty(target);
         } else {
-            if (isEmpty(target)) return false;
+            if (isEmpty(target)) {
+                return false;
+            }
             try {
                 List<Map<String, Object>> list = getDifferenceProperties(source, target, excludeProperty);
-                if (list != null && list.size() > 0) return false;
+                if (list != null && list.size() > 0) {
+                    return false;
+                }
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
@@ -149,8 +158,9 @@ public class ObjectUtil extends ObjectUtils {
      * @throws IllegalAccessException 调用过程异常
      */
     public static List<Map<String, Object>> getDifferenceProperties(Object source, Object target, String... excludeProperty) throws IllegalAccessException {
-        if ((!compareClass(source, target) || compare(source, target) || isEmpty(source)) != isEmpty(target))
+        if ((!compareClass(source, target) || compare(source, target) || isEmpty(source)) != isEmpty(target)) {
             return null;
+        }
         List<Map<String, Object>> result = new ArrayList<>();
         Object sourceObject = isEmpty(source) ? target : source;
         Object targetObject = isEmpty(source) ? source : target;
@@ -158,7 +168,9 @@ public class ObjectUtil extends ObjectUtils {
         Set<Field> fields = getAllField(sourceClass);
         for (Field field : fields) {
             field.setAccessible(true);
-            if (excludeProperty != null && ArrayUtil.contains(excludeProperty, field.getName())) continue;
+            if (excludeProperty != null && ArrayUtil.contains(excludeProperty, field.getName())) {
+                continue;
+            }
             Object sourceValue = field.get(sourceObject);
             Object targetValue = field.get(targetObject);
             if (compare(sourceValue, targetValue)) {
@@ -211,7 +223,9 @@ public class ObjectUtil extends ObjectUtils {
     public static <T> T getObjectFromMap(Class<T> clazz, Map<String, Object> map, String prefix, String suffix) {
 
         try {
-            if (ObjectUtil.isEmpty(map)) return null;
+            if (ObjectUtil.isEmpty(map)) {
+                return null;
+            }
             T object = clazz.newInstance();
             boolean notNull = true;
             Set<Field> fields = getAllField(clazz);
@@ -243,7 +257,9 @@ public class ObjectUtil extends ObjectUtils {
                     }
                 }
             }
-            if (notNull) return null;
+            if (notNull) {
+                return null;
+            }
             return object;
         } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
@@ -254,16 +270,19 @@ public class ObjectUtil extends ObjectUtils {
     public static Method getMethod(Class clazz, String fieldName) {
         Set<Method> methods = getAllMethod(clazz);
         for (Method method : methods) {
-            if (method.getName().equals(fieldName)) return method;
+            if (method.getName().equals(fieldName)) {
+                return method;
+            }
         }
         return null;
     }
 
-
     public static Field getField(Class clazz, String fieldName) {
         Set<Field> fields = getAllField(clazz);
         for (Field field : fields) {
-            if (field.getName().equals(fieldName)) return field;
+            if (field.getName().equals(fieldName)) {
+                return field;
+            }
         }
         return null;
     }
@@ -349,44 +368,22 @@ public class ObjectUtil extends ObjectUtils {
         return fieldAnnotation;
     }
 
-    public static class Target {
-        private Member member;
-        private Annotation annotation;
-
-        public Target(Member member, Annotation annotation) {
-            this.member = member;
-            this.annotation = annotation;
-        }
-
-        public Member getMember() {
-            return member;
-        }
-
-        public void setMember(Member member) {
-            this.member = member;
-        }
-
-        public Annotation getAnnotation() {
-            return annotation;
-        }
-
-        public void setAnnotation(Annotation annotation) {
-            this.annotation = annotation;
-        }
-    }
-
     /**
      * 判断对象非空属性是否存值（排除主键）
      * 判断对象非空属性是否存值（排除主键）
      */
     public static boolean isValidity(Object object) {
         boolean result = true;
-        if (object == null) return result;
+        if (object == null) {
+            return result;
+        }
         Class<?> clazz = object.getClass();
         Method[] methods = clazz.getDeclaredMethods();
         for (int i = 0; i < methods.length; i++) {
             Method method = methods[i];
-            if (!method.getName().startsWith("get")) continue;
+            if (!method.getName().startsWith("get")) {
+                continue;
+            }
             try {
                 if (isEmpty(method.getAnnotation(Id.class))) {
                     Column columInfo = method.getAnnotation(Column.class);
@@ -425,7 +422,9 @@ public class ObjectUtil extends ObjectUtils {
             Field field = fields[i];
             field.setAccessible(true);
             try {
-                if (!isEmpty(field.get(object))) result = false;
+                if (!isEmpty(field.get(object))) {
+                    result = false;
+                }
             } catch (Exception e) {
                 continue;
             }
@@ -441,7 +440,9 @@ public class ObjectUtil extends ObjectUtils {
      * @return 转换后的值
      */
     public static <T> T cast(Class<T> clazz, Object value) {
-        if (ObjectUtil.isEmpty(value)) return null;
+        if (ObjectUtil.isEmpty(value)) {
+            return null;
+        }
 
         Object temp = null;
         String valueStr = String.valueOf(value);
@@ -505,16 +506,52 @@ public class ObjectUtil extends ObjectUtils {
         for (int i = 0; i < fields.length; i++) {
             Field field = fields[i];
             field.setAccessible(true);
-            if ("serialVersionUID".equals(field.getName())) continue;
+            if ("serialVersionUID".equals(field.getName())) {
+                continue;
+            }
             try {
                 Object sourceValue = field.get(source);
-                if (sourceValue == null) continue;
+                if (sourceValue == null) {
+                    continue;
+                }
                 Object targetValue = field.get(target);
-                if (!sourceValue.equals(targetValue)) return false;
+                if (!sourceValue.equals(targetValue)) {
+                    return false;
+                }
             } catch (Exception e) {
                 continue;
             }
         }
         return true;
+    }
+
+    public enum ContainOrExclude {
+        INCLUDE, EXCLUDE
+    }
+
+    public static class Target {
+        private Member member;
+        private Annotation annotation;
+
+        public Target(Member member, Annotation annotation) {
+            this.member = member;
+            this.annotation = annotation;
+        }
+
+        public Member getMember() {
+            return member;
+        }
+
+        public void setMember(Member member) {
+            this.member = member;
+        }
+
+        public Annotation getAnnotation() {
+            return annotation;
+        }
+
+        public void setAnnotation(Annotation annotation) {
+            this.annotation = annotation;
+        }
     }
 }

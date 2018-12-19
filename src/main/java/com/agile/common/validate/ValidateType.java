@@ -60,6 +60,14 @@ public enum ValidateType implements ValidateInterface {
     private String regex;
     private String info;
 
+    ValidateType() {
+    }
+
+    ValidateType(String regex, String info) {
+        this.regex = regex;
+        this.info = info;
+    }
+
     @Override
     public ValidateMsg validateParam(String key, Object value, Validate validate) {
         if (value instanceof JSONNull) {
@@ -73,10 +81,13 @@ public enum ValidateType implements ValidateInterface {
         List<ValidateMsg> list = new ArrayList<>();
         for (String o : value) {
             ValidateMsg v = validate(key, o, validate);
-            if (v != null)
+            if (v != null) {
                 list.add(v);
+            }
         }
-        if (list.size() == 0) return null;
+        if (list.size() == 0) {
+            return null;
+        }
         return list;
     }
 
@@ -130,18 +141,12 @@ public enum ValidateType implements ValidateInterface {
             }
             return v;
         } else {
-            if (validate.nullable()) return null;
+            if (validate.nullable()) {
+                return null;
+            }
             v.setState(false);
             v.setMessage("不允许为空值");
             return v;
         }
-    }
-
-    ValidateType() {
-    }
-
-    ValidateType(String regex, String info) {
-        this.regex = regex;
-        this.info = info;
     }
 }

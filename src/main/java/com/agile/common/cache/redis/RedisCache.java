@@ -20,13 +20,30 @@ import java.util.Set;
  * Created by 佟盟 on 2018/9/6
  */
 public class RedisCache extends org.springframework.data.redis.cache.RedisCache implements Cache {
-    private String name;
     private static RedisTemplate redisTemplate;
     private static Jedis jedis;
+    private String name;
 
     protected RedisCache(String name, RedisCacheWriter cacheWriter, RedisCacheConfiguration cacheConfig) {
         super(name, cacheWriter, cacheConfig);
         this.name = name;
+    }
+
+    private static RedisTemplate getRedisTemplate() {
+        if (ObjectUtil.isEmpty(redisTemplate)) {
+            redisTemplate = FactoryUtil.getBean(RedisTemplate.class);
+        }
+        return redisTemplate;
+    }
+
+    public static Jedis getJedis() {
+        if (ObjectUtil.isEmpty(jedis)) {
+            JedisConnectionFactory jedisConnectionFactory = FactoryUtil.getBean(JedisConnectionFactory.class);
+            if (!ObjectUtil.isEmpty(jedisConnectionFactory)) {
+                jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection();
+            }
+        }
+        return jedis;
     }
 
     @Override
@@ -77,22 +94,5 @@ public class RedisCache extends org.springframework.data.redis.cache.RedisCache 
         } catch (Exception e) {
             return null;
         }
-    }
-
-    private static RedisTemplate getRedisTemplate() {
-        if (ObjectUtil.isEmpty(redisTemplate)) {
-            redisTemplate = FactoryUtil.getBean(RedisTemplate.class);
-        }
-        return redisTemplate;
-    }
-
-    public static Jedis getJedis() {
-        if (ObjectUtil.isEmpty(jedis)) {
-            JedisConnectionFactory jedisConnectionFactory = FactoryUtil.getBean(JedisConnectionFactory.class);
-            if (!ObjectUtil.isEmpty(jedisConnectionFactory)) {
-                jedis = (Jedis) jedisConnectionFactory.getConnection().getNativeConnection();
-            }
-        }
-        return jedis;
     }
 }

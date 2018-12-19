@@ -26,6 +26,10 @@ public class SheetData {
         this.data = builder.data;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public String getName() {
         return name;
     }
@@ -81,9 +85,5 @@ public class SheetData {
         public SheetData build() {
             return new SheetData(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 }

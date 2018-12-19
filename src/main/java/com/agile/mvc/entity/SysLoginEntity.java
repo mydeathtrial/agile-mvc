@@ -50,6 +50,19 @@ public class SysLoginEntity implements Serializable, Cloneable {
         this.token = token;
     }
 
+    private SysLoginEntity(Builder builder) {
+        this.sysLoginId = builder.sysLoginId;
+        this.sysUserId = builder.sysUserId;
+        this.loginTime = builder.loginTime;
+        this.logoutTime = builder.logoutTime;
+        this.loginIp = builder.loginIp;
+        this.token = builder.token;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_login_id", nullable = false)
     public String getSysLoginId() {
@@ -110,11 +123,14 @@ public class SysLoginEntity implements Serializable, Cloneable {
         this.token = token;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysLoginEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysLoginEntity)) {
+            return false;
+        }
         SysLoginEntity that = (SysLoginEntity) object;
         return Objects.equals(getSysLoginId(), that.getSysLoginId()) &&
                 Objects.equals(getSysUserId(), that.getSysUserId()) &&
@@ -141,13 +157,14 @@ public class SysLoginEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysLoginEntity(Builder builder) {
-        this.sysLoginId = builder.sysLoginId;
-        this.sysUserId = builder.sysUserId;
-        this.loginTime = builder.loginTime;
-        this.logoutTime = builder.logoutTime;
-        this.loginIp = builder.loginIp;
-        this.token = builder.token;
+    @Override
+    public SysLoginEntity clone() {
+        try {
+            return (SysLoginEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -191,19 +208,5 @@ public class SysLoginEntity implements Serializable, Cloneable {
         public SysLoginEntity build() {
             return new SysLoginEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysLoginEntity clone() {
-        try {
-            return (SysLoginEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

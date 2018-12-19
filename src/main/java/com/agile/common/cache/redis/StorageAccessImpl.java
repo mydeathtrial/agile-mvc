@@ -95,8 +95,9 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
             if (e instanceof RedisConnectionFailureException) {
                 LoggerFactory.CACHE_LOG.error("redis连接失败");
             } else {
-                if (LoggerFactory.CACHE_LOG.isErrorEnabled())
+                if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
                     LoggerFactory.CACHE_LOG.error("redis缓存删除数据失败");
+                }
             }
             throw new CacheException(e);
         }

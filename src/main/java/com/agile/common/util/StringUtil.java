@@ -22,7 +22,9 @@ public final class StringUtil extends StringUtils {
      */
     public static String camelToUnderline(String text) {
         String regex = Constant.RegularAbout.UPER;
-        if (!haveMatchedString(regex, text)) return text;
+        if (!haveMatchedString(regex, text)) {
+            return text;
+        }
 
         StringBuilder cacheStr = new StringBuilder(text);
         Matcher matcher = Pattern.compile(regex).matcher(text);
@@ -51,7 +53,9 @@ public final class StringUtil extends StringUtils {
             String first = step.substring(0, 1);
 
             s.append(String.format("[%s]", first.toLowerCase() + first.toUpperCase()) + step.substring(1));
-            if (i == setps.length - 1) continue;
+            if (i == setps.length - 1) {
+                continue;
+            }
             s.append(Constant.RegularAbout.URL_REGEX);
         }
         return s.toString();
@@ -65,7 +69,9 @@ public final class StringUtil extends StringUtils {
      */
     public static String signToCamel(String text) {
         String regex = Constant.RegularAbout.HUMP;
-        if (!haveMatchedString(regex, text)) return text;
+        if (!haveMatchedString(regex, text)) {
+            return text;
+        }
 
         StringBuilder cacheStr = new StringBuilder(text);
         Matcher matcher = Pattern.compile(regex).matcher(text);
@@ -88,7 +94,9 @@ public final class StringUtil extends StringUtils {
      * @return 返回首字母大写的驼峰字符串
      */
     public static String toUpperName(String text) {
-        if (isEmpty(text)) return "";
+        if (isEmpty(text)) {
+            return "";
+        }
         String camelString = signToCamel(text);
         return camelString.substring(0, 1).toUpperCase() + camelString.substring(1);
     }
@@ -100,7 +108,9 @@ public final class StringUtil extends StringUtils {
      * @return 返回首字母小写的驼峰字符串
      */
     public static String toLowerName(String text) {
-        if (isEmpty(text)) return "";
+        if (isEmpty(text)) {
+            return "";
+        }
         String camelString = signToCamel(text);
         return camelString.substring(0, 1).toLowerCase() + camelString.substring(1);
     }
@@ -210,7 +220,9 @@ public final class StringUtil extends StringUtils {
     public static Map<String, String> getGroupByStartEnd(String el, String startChar, String endChar, String equalChar) {
         Map<String, String> map = new LinkedHashMap<>();
         int index = el.indexOf(startChar);
-        if (index == -1) return map;
+        if (index == -1) {
+            return map;
+        }
 
         String last = el;
         while (index > -1 && index < el.length()) {
@@ -219,13 +231,17 @@ public final class StringUtil extends StringUtils {
             last = last.substring(first + startChar.length());
             index += (first + startChar.length());
             end = last.indexOf(equalChar);
-            if (end == -1) return map;
+            if (end == -1) {
+                return map;
+            }
             String key = last.substring(0, end);
             index += end;
             last = last.substring(end + equalChar.length());
             index += equalChar.length();
             end = last.indexOf(endChar);
-            if (end == -1) return map;
+            if (end == -1) {
+                return map;
+            }
             String value = last.substring(0, end);
             index += end;
             last = last.substring(end + endChar.length());
@@ -310,7 +326,9 @@ public final class StringUtil extends StringUtils {
      */
     public static String coverToHex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
-        if (ArrayUtil.isEmpty(bytes)) return null;
+        if (ArrayUtil.isEmpty(bytes)) {
+            return null;
+        }
 
         for (int i = 0; i < bytes.length; i++) {
             int v = bytes[i] & 0xFF;

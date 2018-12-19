@@ -30,7 +30,9 @@ public class ESConfig {
             String[] nodes = nodeInfo.split(",");
             for (String node : nodes) {
                 String[] info = node.split(":");
-                if (info.length != 2) continue;
+                if (info.length != 2) {
+                    continue;
+                }
                 client.addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(info[0]), Integer.parseInt(info[1])));
             }
         }

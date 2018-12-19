@@ -167,7 +167,9 @@ public class MapUtil extends MapUtils {
      * @return
      */
     public static String getString(Map<String, Object> map, String key) {
-        if (map.get(key) != null) return map.get(key).toString();
+        if (map.get(key) != null) {
+            return map.get(key).toString();
+        }
         return null;
     }
 

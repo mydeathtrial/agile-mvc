@@ -132,9 +132,13 @@ public class FileUtil extends FileUtils {
             if (StringUtil.isEmpty(extension)) {
                 byte[] header = new byte[20];
                 int i = inputStream.read(header);
-                if (i <= 0) return null;
+                if (i <= 0) {
+                    return null;
+                }
                 String headerHex = StringUtil.coverToHex(header);
-                if (StringUtil.isEmpty(headerHex)) return null;
+                if (StringUtil.isEmpty(headerHex)) {
+                    return null;
+                }
                 for (Map.Entry<String, Object> map : FILE_FORMAT_MAP.entrySet()) {
                     if (headerHex.contains(map.getKey())) {
                         Object value = map.getValue();
@@ -185,7 +189,9 @@ public class FileUtil extends FileUtils {
      */
     public static boolean checkFileFormat(File file) {
         String format = PropertiesUtil.getProperty("agile.upload.include_format");
-        if (format.isEmpty()) return true;
+        if (format.isEmpty()) {
+            return true;
+        }
         String[] formats = format.split(Constant.RegularAbout.COMMA, -1);
         return ArrayUtil.contains(formats, FileUtil.getFormat(file));
     }
@@ -253,7 +259,9 @@ public class FileUtil extends FileUtils {
     }
 
     public static void downloadFile(Object value, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (value == null) return;
+        if (value == null) {
+            return;
+        }
         Object v = null;
         if (List.class.isAssignableFrom(value.getClass())) {
             int size = ((List) value).size();
@@ -358,7 +366,9 @@ public class FileUtil extends FileUtils {
     }
 
     public static boolean isFile(Object value) {
-        if (value == null) return false;
+        if (value == null) {
+            return false;
+        }
         return value instanceof ExcelFile || ResponseFile.class.isAssignableFrom(value.getClass()) || File.class.isAssignableFrom(value.getClass());
     }
 }

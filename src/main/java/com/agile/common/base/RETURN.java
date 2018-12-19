@@ -25,24 +25,6 @@ public final class RETURN {
         this.msg = msg;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public RETURN setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public RETURN setMsg(String msg) {
-        this.msg = msg;
-        return this;
-    }
-
     /**
      * 根据国际化文件当中的key值与占位参数，获取国际化文，返回RETURN
      *
@@ -61,5 +43,23 @@ public final class RETURN {
             return null;
         }
         return null;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public RETURN setCode(String code) {
+        this.code = code;
+        return this;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public RETURN setMsg(String msg) {
+        this.msg = msg;
+        return this;
     }
 }

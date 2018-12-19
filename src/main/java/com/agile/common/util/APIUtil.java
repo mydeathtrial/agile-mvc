@@ -26,7 +26,9 @@ public class APIUtil {
     private static MappingHandlerMapping mappingHandlerMapping;
 
     public static HandlerMethod getApiCache(HttpServletRequest request) {
-        if (mappingHandlerMapping == null) return null;
+        if (mappingHandlerMapping == null) {
+            return null;
+        }
         try {
             HandlerExecutionChain handlerExecutionChain = getMappingHandlerMapping().getHandler(request);
             if (handlerExecutionChain != null) {
@@ -57,12 +59,18 @@ public class APIUtil {
 
     public static void addMappingInfoCache(String beanName, Object bean) {
         Class<?> realClass = ProxyUtils.getUserClass(bean);
-        if (realClass == null) return;
+        if (realClass == null) {
+            return;
+        }
         Service service = realClass.getAnnotation(Service.class);
-        if (service == null) return;
+        if (service == null) {
+            return;
+        }
         Method[] methods = realClass.getDeclaredMethods();
         for (Method method : methods) {
-            if (method.getParameters().length > 0) continue;
+            if (method.getParameters().length > 0) {
+                continue;
+            }
             addMappingInfoCache(beanName, bean, method, realClass);
         }
     }

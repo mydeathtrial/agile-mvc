@@ -52,6 +52,19 @@ public class LogMainEntity implements Serializable, Cloneable {
         this.createTime = createTime;
     }
 
+    private LogMainEntity(Builder builder) {
+        this.logMainId = builder.logMainId;
+        this.businessCode = builder.businessCode;
+        this.targetType = builder.targetType;
+        this.targetCode = builder.targetCode;
+        this.userId = builder.userId;
+        this.createTime = builder.createTime;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "log_main_id", nullable = false)
     public String getLogMainId() {
@@ -113,11 +126,14 @@ public class LogMainEntity implements Serializable, Cloneable {
         this.createTime = createTime;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof LogMainEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof LogMainEntity)) {
+            return false;
+        }
         LogMainEntity that = (LogMainEntity) object;
         return Objects.equals(getLogMainId(), that.getLogMainId()) &&
                 Objects.equals(getBusinessCode(), that.getBusinessCode()) &&
@@ -144,13 +160,14 @@ public class LogMainEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private LogMainEntity(Builder builder) {
-        this.logMainId = builder.logMainId;
-        this.businessCode = builder.businessCode;
-        this.targetType = builder.targetType;
-        this.targetCode = builder.targetCode;
-        this.userId = builder.userId;
-        this.createTime = builder.createTime;
+    @Override
+    public LogMainEntity clone() {
+        try {
+            return (LogMainEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -194,19 +211,5 @@ public class LogMainEntity implements Serializable, Cloneable {
         public LogMainEntity build() {
             return new LogMainEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public LogMainEntity clone() {
-        try {
-            return (LogMainEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

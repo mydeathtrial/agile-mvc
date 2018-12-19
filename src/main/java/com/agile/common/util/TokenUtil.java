@@ -92,7 +92,9 @@ public class TokenUtil {
 
     public static boolean validateToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        if (ObjectUtil.isEmpty(claims)) return false;
+        if (ObjectUtil.isEmpty(claims)) {
+            return false;
+        }
         return claims.getExpiration().after(DateUtil.getCurrentDate());
     }
 }

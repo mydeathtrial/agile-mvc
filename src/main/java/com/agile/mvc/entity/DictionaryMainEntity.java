@@ -40,6 +40,16 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
         this.name = name;
     }
 
+    private DictionaryMainEntity(Builder builder) {
+        this.dictionaryMainId = builder.dictionaryMainId;
+        this.code = builder.code;
+        this.name = builder.name;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "dictionary_main_id", nullable = false)
     public String getDictionaryMainId() {
@@ -70,11 +80,14 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
         this.name = name;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof DictionaryMainEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof DictionaryMainEntity)) {
+            return false;
+        }
         DictionaryMainEntity that = (DictionaryMainEntity) object;
         return Objects.equals(getDictionaryMainId(), that.getDictionaryMainId()) &&
                 Objects.equals(getCode(), that.getCode()) &&
@@ -95,10 +108,14 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private DictionaryMainEntity(Builder builder) {
-        this.dictionaryMainId = builder.dictionaryMainId;
-        this.code = builder.code;
-        this.name = builder.name;
+    @Override
+    public DictionaryMainEntity clone() {
+        try {
+            return (DictionaryMainEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -124,19 +141,5 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
         public DictionaryMainEntity build() {
             return new DictionaryMainEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public DictionaryMainEntity clone() {
-        try {
-            return (DictionaryMainEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

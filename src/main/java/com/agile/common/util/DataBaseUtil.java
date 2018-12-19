@@ -23,18 +23,6 @@ import java.util.Properties;
  */
 public class DataBaseUtil {
     private static Log logger = LoggerFactory.createLogger("sql", DataBaseUtil.class);
-
-    /**
-     * 数据库类型,枚举
-     */
-    public enum DB {
-        ORACLE, MYSQL, SQL_SERVER, SQL_SERVER2005, DB2, INFORMIX, SYBASE, OTHER, EMPTY
-    }
-
-    public enum PATTERN {
-        TABLE, COLUMN, PRIMARY_KEY
-    }
-
     private static Connection conn;
 
     /**
@@ -461,6 +449,17 @@ public class DataBaseUtil {
             System.out.println("获得列" + i + "是否为只读:" + isReadOnly);
             System.out.println("获得列" + i + "能否出现在where中:" + isSearchable);
         }
+    }
+
+    /**
+     * 数据库类型,枚举
+     */
+    public enum DB {
+        ORACLE, MYSQL, SQL_SERVER, SQL_SERVER2005, DB2, INFORMIX, SYBASE, OTHER, EMPTY
+    }
+
+    public enum PATTERN {
+        TABLE, COLUMN, PRIMARY_KEY
     }
 
 }

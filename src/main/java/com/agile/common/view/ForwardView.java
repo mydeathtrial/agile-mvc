@@ -23,6 +23,10 @@ public class ForwardView extends AbstractView {
         this.url = url;
     }
 
+    public static String getPrefix() {
+        return PREFIX;
+    }
+
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         for (Map.Entry<String, Object> entity : model.entrySet()) {
@@ -47,9 +51,5 @@ public class ForwardView extends AbstractView {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public static String getPrefix() {
-        return PREFIX;
     }
 }

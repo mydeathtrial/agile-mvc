@@ -42,6 +42,25 @@ public class PageExecutor implements Executor {
         this.executor = executor;
     }
 
+    public static PageRequest getPageRequest(Object paramerObject) {
+        if (paramerObject == null) {
+            return null;
+        }
+
+        if (paramerObject instanceof Map) {
+            Map<String, Object> params = (Map<String, Object>) paramerObject;
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                if (entry.getValue() instanceof PageRequest) {
+                    return (PageRequest) entry.getValue();
+                }
+            }
+        } else if (paramerObject instanceof PageRequest) {
+            return (PageRequest) paramerObject;
+
+        }
+        return null;
+    }
+
     @Override
     public int update(MappedStatement ms, Object parameter) throws SQLException {
         return executor.update(ms, parameter);
@@ -61,25 +80,6 @@ public class PageExecutor implements Executor {
             return new Page<>(rows, pageRequest, count);
         }
         return rows;
-    }
-
-    public static PageRequest getPageRequest(Object paramerObject) {
-        if (paramerObject == null) {
-            return null;
-        }
-
-        if (paramerObject instanceof Map) {
-            Map<String, Object> params = (Map<String, Object>) paramerObject;
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                if (entry.getValue() instanceof PageRequest) {
-                    return (PageRequest) entry.getValue();
-                }
-            }
-        } else if (paramerObject instanceof PageRequest) {
-            return (PageRequest) paramerObject;
-
-        }
-        return null;
     }
 
     private int getCount(MappedStatement ms, Object parameter) {

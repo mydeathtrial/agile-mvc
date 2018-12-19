@@ -28,12 +28,12 @@ import java.util.Collections;
 @Component
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
+    private static final String USERNAME = SecurityProperties.getLoginUsername();
+    private static final String PASSWORD = SecurityProperties.getLoginPassword();
     private final FailureHandler failureHandler;
     private final SuccessHandler SuccessHandler;
     private final JWTAuthenticationProvider loginStrategyProvider;
     private final SessionAuthenticationStrategy tokenStrategy;
-    private static final String USERNAME = SecurityProperties.getLoginUsername();
-    private static final String PASSWORD = SecurityProperties.getLoginPassword();
 
     public LoginFilter(JWTAuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy) {
         super(new AntPathRequestMatcher(SecurityProperties.getLoginUrl()));
@@ -45,6 +45,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         afterPropertiesSet();
     }
 
+    @Override
     public void afterPropertiesSet() {
         this.setAuthenticationSuccessHandler(SuccessHandler);
         this.setAuthenticationFailureHandler(failureHandler);
@@ -54,6 +55,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         this.setSessionAuthenticationStrategy(tokenStrategy);
     }
 
+    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
         String username = request.getParameter(USERNAME);

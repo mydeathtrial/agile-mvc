@@ -75,6 +75,26 @@ public class SysUsersEntity implements Serializable, Cloneable {
         this.enabled = enabled;
     }
 
+    private SysUsersEntity(Builder builder) {
+        this.sysUsersId = builder.sysUsersId;
+        this.saltKey = builder.saltKey;
+        this.saltValue = builder.saltValue;
+        this.name = builder.name;
+        this.vQzjgid = builder.vQzjgid;
+        this.vQzjgmc = builder.vQzjgmc;
+        this.areaId = builder.areaId;
+        this.expiredTime = builder.expiredTime;
+        this.isLocked = builder.isLocked;
+        this.onLineStrategy = builder.onLineStrategy;
+        this.createTime = builder.createTime;
+        this.updateTime = builder.updateTime;
+        this.enabled = builder.enabled;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_users_id", nullable = false)
     public String getSysUsersId() {
@@ -208,11 +228,14 @@ public class SysUsersEntity implements Serializable, Cloneable {
         this.enabled = enabled;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysUsersEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysUsersEntity)) {
+            return false;
+        }
         SysUsersEntity that = (SysUsersEntity) object;
         return Objects.equals(getSysUsersId(), that.getSysUsersId()) &&
                 Objects.equals(getSaltKey(), that.getSaltKey()) &&
@@ -253,20 +276,14 @@ public class SysUsersEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysUsersEntity(Builder builder) {
-        this.sysUsersId = builder.sysUsersId;
-        this.saltKey = builder.saltKey;
-        this.saltValue = builder.saltValue;
-        this.name = builder.name;
-        this.vQzjgid = builder.vQzjgid;
-        this.vQzjgmc = builder.vQzjgmc;
-        this.areaId = builder.areaId;
-        this.expiredTime = builder.expiredTime;
-        this.isLocked = builder.isLocked;
-        this.onLineStrategy = builder.onLineStrategy;
-        this.createTime = builder.createTime;
-        this.updateTime = builder.updateTime;
-        this.enabled = builder.enabled;
+    @Override
+    public SysUsersEntity clone() {
+        try {
+            return (SysUsersEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -352,19 +369,5 @@ public class SysUsersEntity implements Serializable, Cloneable {
         public SysUsersEntity build() {
             return new SysUsersEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysUsersEntity clone() {
-        try {
-            return (SysUsersEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

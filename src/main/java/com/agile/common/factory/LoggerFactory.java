@@ -43,7 +43,24 @@ import java.util.Properties;
 public class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
+    public static Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
+    public static Log TASK_LOG = createPlugLogger("task", "agile.task.enable", Client.class, Level.INFO, Level.ERROR);
     private static String path = PropertiesUtil.getProperty("agile.log.package_uri", System.getProperty("webapp.root", "") + "logs\\");
+    public static Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
+    public static Log CACHE_LOG = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
+    public static Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
+    private static Map<Class, Log> ServiceCacheLogs = new HashMap<>();
+
+    static {
+        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
+        String prefix = "agile.log.package.";
+        Properties properties = PropertiesUtil.getPropertyByPrefix(prefix);
+        for (String key : properties.stringPropertyNames()) {
+            String[] levels = PropertiesUtil.getProperty(key).split(Constant.RegularAbout.COMMA);
+            String packageName = key.replaceFirst(prefix, "");
+            createLogger(packageName, packageName, coverLevel(levels));
+        }
+    }
 
     private LoggerFactory() {
     }
@@ -67,7 +84,9 @@ public class LoggerFactory {
         }
         LoggerConfig loggerConfig = AsyncLoggerConfig.createLogger(Boolean.FALSE, Level.ALL, packagePath, "true", refs, null, config, null);
         for (int i = 0; i < levels.length; i++) {
-            if (ObjectUtil.isEmpty(appenders[i])) break;
+            if (ObjectUtil.isEmpty(appenders[i])) {
+                break;
+            }
             Filter filter = LevelRangeFilter.createFilter(levels[i], levels[i], Filter.Result.ACCEPT, Filter.Result.DENY);
             loggerConfig.addAppender(config.getAppender(appenders[i * 2]), levels[i], filter);
             loggerConfig.addAppender(config.getAppender(appenders[i * 2 + 1]), levels[i], filter);
@@ -134,7 +153,9 @@ public class LoggerFactory {
     }
 
     private static Log createPlugLogger(String fileName, String plugKey, Class clazz, Level... levels) {
-        if (!PropertiesUtil.getProperty(plugKey, boolean.class, "false")) return null;
+        if (!PropertiesUtil.getProperty(plugKey, boolean.class, "false")) {
+            return null;
+        }
         return createLogger(fileName, clazz, levels);
     }
 
@@ -181,24 +202,6 @@ public class LoggerFactory {
         }
         return list.toArray(new Level[]{});
     }
-
-    static {
-        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
-        String prefix = "agile.log.package.";
-        Properties properties = PropertiesUtil.getPropertyByPrefix(prefix);
-        for (String key : properties.stringPropertyNames()) {
-            String[] levels = PropertiesUtil.getProperty(key).split(Constant.RegularAbout.COMMA);
-            String packageName = key.replaceFirst(prefix, "");
-            createLogger(packageName, packageName, coverLevel(levels));
-        }
-    }
-
-    public static Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
-    public static Log CACHE_LOG = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
-    public static Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
-    public static Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
-    public static Log TASK_LOG = createPlugLogger("task", "agile.task.enable", Client.class, Level.INFO, Level.ERROR);
-    private static Map<Class, Log> ServiceCacheLogs = new HashMap<>();
 
     public static Log getServiceLog(Class clazz) {
         Log log = ServiceCacheLogs.get(clazz);

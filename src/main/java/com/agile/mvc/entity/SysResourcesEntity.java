@@ -58,6 +58,22 @@ public class SysResourcesEntity implements Serializable, Cloneable {
         this.moduleId = moduleId;
     }
 
+    private SysResourcesEntity(Builder builder) {
+        this.sysResourcesId = builder.sysResourcesId;
+        this.type = builder.type;
+        this.name = builder.name;
+        this.desc = builder.desc;
+        this.path = builder.path;
+        this.priority = builder.priority;
+        this.enable = builder.enable;
+        this.issys = builder.issys;
+        this.moduleId = builder.moduleId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_resources_id", nullable = false)
     public String getSysResourcesId() {
@@ -148,11 +164,14 @@ public class SysResourcesEntity implements Serializable, Cloneable {
         this.moduleId = moduleId;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysResourcesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysResourcesEntity)) {
+            return false;
+        }
         SysResourcesEntity that = (SysResourcesEntity) object;
         return Objects.equals(getSysResourcesId(), that.getSysResourcesId()) &&
                 Objects.equals(getType(), that.getType()) &&
@@ -185,16 +204,14 @@ public class SysResourcesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysResourcesEntity(Builder builder) {
-        this.sysResourcesId = builder.sysResourcesId;
-        this.type = builder.type;
-        this.name = builder.name;
-        this.desc = builder.desc;
-        this.path = builder.path;
-        this.priority = builder.priority;
-        this.enable = builder.enable;
-        this.issys = builder.issys;
-        this.moduleId = builder.moduleId;
+    @Override
+    public SysResourcesEntity clone() {
+        try {
+            return (SysResourcesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -256,19 +273,5 @@ public class SysResourcesEntity implements Serializable, Cloneable {
         public SysResourcesEntity build() {
             return new SysResourcesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysResourcesEntity clone() {
-        try {
-            return (SysResourcesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

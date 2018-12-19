@@ -37,6 +37,10 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         map.put("plain", MediaType.TEXT_PLAIN);
     }
 
+    public static Map<String, MediaType> getMap() {
+        return map;
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.setOrder(-1).addResourceHandler("/static/**", "/favicon.ico")
@@ -97,9 +101,5 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         resourceBundleMessageSource.setDefaultEncoding("UTF-8");
         resourceBundleMessageSource.setBasename("com.agile.conf.message");
         return resourceBundleMessageSource;
-    }
-
-    public static Map<String, MediaType> getMap() {
-        return map;
     }
 }

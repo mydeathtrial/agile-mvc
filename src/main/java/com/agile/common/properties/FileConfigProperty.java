@@ -15,7 +15,7 @@ public class FileConfigProperty {
     }
 
     public void setMaxUploadSize(long maxUploadSize) {
-        this.maxUploadSize = maxUploadSize;
+        FileConfigProperty.maxUploadSize = maxUploadSize;
     }
 
     public String getDefaultEncoding() {
@@ -23,7 +23,7 @@ public class FileConfigProperty {
     }
 
     public void setDefaultEncoding(String defaultEncoding) {
-        this.defaultEncoding = defaultEncoding;
+        FileConfigProperty.defaultEncoding = defaultEncoding;
     }
 
     public String getIncludeFormat() {
@@ -31,6 +31,6 @@ public class FileConfigProperty {
     }
 
     public void setIncludeFormat(String includeFormat) {
-        this.includeFormat = includeFormat;
+        FileConfigProperty.includeFormat = includeFormat;
     }
 }

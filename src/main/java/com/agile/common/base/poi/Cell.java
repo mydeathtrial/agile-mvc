@@ -14,6 +14,10 @@ public final class Cell {
         this.showName = builder.showName;
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public int getSort() {
         return sort;
     }
@@ -61,9 +65,5 @@ public final class Cell {
         public Cell build() {
             return new Cell(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
     }
 }

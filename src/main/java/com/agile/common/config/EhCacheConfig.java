@@ -15,19 +15,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EhCacheConfig {
 
-    @Bean
-    public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean ehCacheManagerFactoryBean) {
-        return new EhCacheCacheManager(ehCacheManagerFactoryBean.getObject());
-    }
-
-    @Bean
-    EhCacheManagerFactoryBean ehCacheManagerFactoryBean() {
-        EhCacheManagerFactoryBean ehCacheManagerFactoryBean = new EhCacheManagerFactoryBean();
-        ehCacheManagerFactoryBean.setAcceptExisting(true);
-        ehCacheManagerFactoryBean.setConfigLocation(configuration());
-        return ehCacheManagerFactoryBean;
-    }
-
     public static net.sf.ehcache.config.Configuration configuration() {
         String path = System.getProperty("agile.root") + "temp";
         DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration().path(path);
@@ -85,5 +72,18 @@ public class EhCacheConfig {
                         .eternal(true));
         configuration.setName("agileManager");
         return configuration;
+    }
+
+    @Bean
+    public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean ehCacheManagerFactoryBean) {
+        return new EhCacheCacheManager(ehCacheManagerFactoryBean.getObject());
+    }
+
+    @Bean
+    EhCacheManagerFactoryBean ehCacheManagerFactoryBean() {
+        EhCacheManagerFactoryBean ehCacheManagerFactoryBean = new EhCacheManagerFactoryBean();
+        ehCacheManagerFactoryBean.setAcceptExisting(true);
+        ehCacheManagerFactoryBean.setConfigLocation(configuration());
+        return ehCacheManagerFactoryBean;
     }
 }

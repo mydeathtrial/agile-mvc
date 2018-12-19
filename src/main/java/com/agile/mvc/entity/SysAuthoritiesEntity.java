@@ -46,6 +46,18 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
         this.enable = enable;
     }
 
+    private SysAuthoritiesEntity(Builder builder) {
+        this.sysAuthorityId = builder.sysAuthorityId;
+        this.mark = builder.mark;
+        this.name = builder.name;
+        this.desc = builder.desc;
+        this.enable = builder.enable;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_authority_id", nullable = false)
     public String getSysAuthorityId() {
@@ -96,11 +108,14 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
         this.enable = enable;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysAuthoritiesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysAuthoritiesEntity)) {
+            return false;
+        }
         SysAuthoritiesEntity that = (SysAuthoritiesEntity) object;
         return Objects.equals(getSysAuthorityId(), that.getSysAuthorityId()) &&
                 Objects.equals(getMark(), that.getMark()) &&
@@ -125,12 +140,14 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysAuthoritiesEntity(Builder builder) {
-        this.sysAuthorityId = builder.sysAuthorityId;
-        this.mark = builder.mark;
-        this.name = builder.name;
-        this.desc = builder.desc;
-        this.enable = builder.enable;
+    @Override
+    public SysAuthoritiesEntity clone() {
+        try {
+            return (SysAuthoritiesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -168,19 +185,5 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
         public SysAuthoritiesEntity build() {
             return new SysAuthoritiesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysAuthoritiesEntity clone() {
-        try {
-            return (SysAuthoritiesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

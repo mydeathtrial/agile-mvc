@@ -34,10 +34,13 @@ public class SecurityUserDetailsService implements UserDetailsService {
         this.dao = dao;
     }
 
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUsersEntity user = null;
         user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
-        if (ObjectUtil.isEmpty(user)) throw new UsernameNotFoundException(null);
+        if (ObjectUtil.isEmpty(user)) {
+            throw new UsernameNotFoundException(null);
+        }
         String sql = "SELECT\n" +
                 "\tsys_authorities.SYS_AUTHORITY_ID,\n" +
                 "\tsys_authorities.MARK,\n" +
@@ -54,7 +57,9 @@ public class SecurityUserDetailsService implements UserDetailsService {
                 "\tsys_users.SALT_KEY = '%s'";
         sql = String.format(sql, username);
         List<SysAuthoritiesEntity> sysAuthoritiesEntities = dao.findAll(sql, SysAuthoritiesEntity.class);
-        if (ObjectUtil.isEmpty(sysAuthoritiesEntities)) return new SecurityUser(user, null);
+        if (ObjectUtil.isEmpty(sysAuthoritiesEntities)) {
+            return new SecurityUser(user, null);
+        }
         return new SecurityUser(user, sysAuthoritiesEntities);
     }
 

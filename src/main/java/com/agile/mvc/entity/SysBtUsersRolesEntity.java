@@ -40,6 +40,16 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
         this.userId = userId;
     }
 
+    private SysBtUsersRolesEntity(Builder builder) {
+        this.sysBtUsersRolesId = builder.sysBtUsersRolesId;
+        this.roleId = builder.roleId;
+        this.userId = builder.userId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_bt_users_roles_id", nullable = false)
     public String getSysBtUsersRolesId() {
@@ -70,11 +80,14 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
         this.userId = userId;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtUsersRolesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtUsersRolesEntity)) {
+            return false;
+        }
         SysBtUsersRolesEntity that = (SysBtUsersRolesEntity) object;
         return Objects.equals(getSysBtUsersRolesId(), that.getSysBtUsersRolesId()) &&
                 Objects.equals(getRoleId(), that.getRoleId()) &&
@@ -95,10 +108,14 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysBtUsersRolesEntity(Builder builder) {
-        this.sysBtUsersRolesId = builder.sysBtUsersRolesId;
-        this.roleId = builder.roleId;
-        this.userId = builder.userId;
+    @Override
+    public SysBtUsersRolesEntity clone() {
+        try {
+            return (SysBtUsersRolesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -124,19 +141,5 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
         public SysBtUsersRolesEntity build() {
             return new SysBtUsersRolesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysBtUsersRolesEntity clone() {
-        try {
-            return (SysBtUsersRolesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

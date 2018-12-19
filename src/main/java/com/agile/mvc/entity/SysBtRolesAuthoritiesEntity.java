@@ -40,6 +40,16 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
         this.roleId = roleId;
     }
 
+    private SysBtRolesAuthoritiesEntity(Builder builder) {
+        this.sysBtRolesAuthoritiesId = builder.sysBtRolesAuthoritiesId;
+        this.authorityId = builder.authorityId;
+        this.roleId = builder.roleId;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Id
     @Column(name = "sys_bt_roles_authorities_id", nullable = false)
     public String getSysBtRolesAuthoritiesId() {
@@ -70,11 +80,14 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
         this.roleId = roleId;
     }
 
-
     @Override
     public boolean equals(Object object) {
-        if (this == object) return true;
-        if (!(object instanceof SysBtRolesAuthoritiesEntity)) return false;
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof SysBtRolesAuthoritiesEntity)) {
+            return false;
+        }
         SysBtRolesAuthoritiesEntity that = (SysBtRolesAuthoritiesEntity) object;
         return Objects.equals(getSysBtRolesAuthoritiesId(), that.getSysBtRolesAuthoritiesId()) &&
                 Objects.equals(getAuthorityId(), that.getAuthorityId()) &&
@@ -95,10 +108,14 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
                 '}';
     }
 
-    private SysBtRolesAuthoritiesEntity(Builder builder) {
-        this.sysBtRolesAuthoritiesId = builder.sysBtRolesAuthoritiesId;
-        this.authorityId = builder.authorityId;
-        this.roleId = builder.roleId;
+    @Override
+    public SysBtRolesAuthoritiesEntity clone() {
+        try {
+            return (SysBtRolesAuthoritiesEntity) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+
     }
 
     public static class Builder {
@@ -124,19 +141,5 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
         public SysBtRolesAuthoritiesEntity build() {
             return new SysBtRolesAuthoritiesEntity(this);
         }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    @Override
-    public SysBtRolesAuthoritiesEntity clone() {
-        try {
-            return (SysBtRolesAuthoritiesEntity) super.clone();
-        } catch (CloneNotSupportedException e) {
-            return null;
-        }
-
     }
 }

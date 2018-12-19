@@ -49,11 +49,6 @@ public class ViewUtil {
     @Nullable
     private RequestToViewNameTranslator viewNameTranslator;
 
-    @PostConstruct
-    void init() {
-        viewUtil = this;
-    }
-
     public static void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
 
@@ -176,7 +171,9 @@ public class ViewUtil {
         m.setModel(model);
         for (Map.Entry<String, Object> entry : model.entrySet()) {
             Object value = entry.getValue();
-            if (value == null) continue;
+            if (value == null) {
+                continue;
+            }
             if (FileUtil.isFile(value)) {
                 m.addFile(value);
             } else if (value instanceof Page) {
@@ -192,6 +189,11 @@ public class ViewUtil {
             }
         }
         return m;
+    }
+
+    @PostConstruct
+    void init() {
+        viewUtil = this;
     }
 
     public static class Model extends LinkedHashMap<String, Object> {

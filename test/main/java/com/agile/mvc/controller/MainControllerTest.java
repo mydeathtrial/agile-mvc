@@ -1,7 +1,6 @@
 package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
-import com.agile.common.config.*;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.PropertiesUtil;
@@ -28,17 +27,18 @@ import java.nio.charset.StandardCharsets;
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = {SpringConfig.class})
-@Transactional(transactionManager = "transactionManager",isolation = Isolation.READ_COMMITTED)
+@Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
 public class MainControllerTest {
+    private static RequestMappingHandlerMapping handlerMapping;
+    private static RequestMappingHandlerAdapter handlerAdapter;
+    private static MockHttpServletRequest request;
+
     static {
         PropertiesUtil.merge("test.yml");
     }
 
     //日志工具
     private Logger logger = LogManager.getLogger(this.getClass());
-    private static RequestMappingHandlerMapping handlerMapping;
-    private static RequestMappingHandlerAdapter handlerAdapter;
-    private static MockHttpServletRequest request;
 
     /**
      * 启动测试之前，需要获取springMVC的请求映射与请求适配器，以便模拟服务器请求
@@ -46,7 +46,7 @@ public class MainControllerTest {
     @Before
     public void setUp() {
         handlerMapping = FactoryUtil.getBean(RequestMappingHandlerMapping.class);
-        if(handlerMapping==null){
+        if (handlerMapping == null) {
             handlerMapping = (RequestMappingHandlerMapping) FactoryUtil.getBean("requestMappingHandlerMapping");
         }
         handlerAdapter = FactoryUtil.getBean(RequestMappingHandlerAdapter.class);
@@ -55,23 +55,26 @@ public class MainControllerTest {
 
     /**
      * 提供给每个测试用例，用于设置请求服务的地址路径
+     *
      * @param url 地址
      */
-    protected void setUrl(String url){
+    protected void setUrl(String url) {
         request.setServletPath(url);
     }
 
     /**
      * 提供给每个测试用例，用于设置请求参数
-     * @param key 索引字符串
+     *
+     * @param key   索引字符串
      * @param value 值
      */
-    protected void setParameter(String key,String value){
-        request.setParameter(key,value);
+    protected void setParameter(String key, String value) {
+        request.setParameter(key, value);
     }
 
     /**
      * 设置body参数
+     *
      * @param value 参数
      */
     protected void setBody(String value) {
@@ -80,15 +83,17 @@ public class MainControllerTest {
 
     /**
      * 提供给每个测试用力，用于设置请求POST/GET方法
+     *
      * @param method emn：post,get
      */
-    protected void setMethod(String method){
+    protected void setMethod(String method) {
         request.setMethod(method);
     }
 
     /**
      * 测试用例核心处理器
      * 每个测试用例将继承于主测试控制器，并最终通过该核心处理器将测试请求发送至指定服务，并打印服务响应信息
+     *
      * @throws Exception 异常
      */
     @Transactional

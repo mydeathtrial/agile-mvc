@@ -9,10 +9,6 @@ import java.util.UUID;
  */
 public class RandomStringUtil extends RandomStringUtils {
 
-    public enum Random {
-        NUMBER, LETTER, LETTER_LOWER, LETTER_UPPER, MIX_1, MIX_2, ROUTINE, ROUTINE_NO_LINE, TIME_STAMP
-    }
-
     private static String[] lettersOfLowers = {"q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "a", "s", "d", "f", "g", "h", "j", "k", "l", "z", "x", "c", "v", "b", "n", "m"};
     private static String[] lettersOfUppers = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Z", "X", "C", "V", "B", "N", "M"};
     private static String[] symbols = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "{", "}", "|", "}", "[", "]", "\\", ":", "\"", ";", "'", "<", ">", ",", ".", "?", "/", "~", "`"};
@@ -33,7 +29,9 @@ public class RandomStringUtil extends RandomStringUtils {
         pre = StringUtil.isEmpty(pre) ? "" : pre;
         suffix = StringUtil.isEmpty(suffix) ? "" : suffix;
         int count = digit - pre.length() - suffix.length();
-        if (count < 0) return null;
+        if (count < 0) {
+            return null;
+        }
         StringBuilder result = new StringBuilder(pre);
         Object[] temp = null;
         switch (random) {
@@ -104,6 +102,10 @@ public class RandomStringUtil extends RandomStringUtils {
      */
     public static String routine(boolean haveLine) {
         return haveLine ? UUID.randomUUID().toString() : UUID.randomUUID().toString().replace("-", "");
+    }
+
+    public enum Random {
+        NUMBER, LETTER, LETTER_LOWER, LETTER_UPPER, MIX_1, MIX_2, ROUTINE, ROUTINE_NO_LINE, TIME_STAMP
     }
 
 }

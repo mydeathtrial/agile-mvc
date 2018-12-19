@@ -7,9 +7,6 @@ import java.util.Map;
 
 public interface ServiceInterface {
     //设置请求参数
-    void setInParam(Map<String, Object> inParam);
-
-    //设置请求参数
     void setInParam(String key, Object o);
 
     //设置响应参数
@@ -20,6 +17,9 @@ public interface ServiceInterface {
 
     //提取响应参数
     Map<String, Object> getInParam();
+
+    //设置请求参数
+    void setInParam(Map<String, Object> inParam);
 
     //从入参中提取对象
     <T> T getInParam(String key, Class<T> clazz);
