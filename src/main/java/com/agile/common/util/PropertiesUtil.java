@@ -11,24 +11,12 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mydeathtrial on 2017/3/11
@@ -121,9 +109,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
     public static void merge(String fileName) {
         try {
 
-            if (ObjectUtil.isEmpty(fileName)) {
-                return;
-            }
+            if (ObjectUtil.isEmpty(fileName)) return;
             if (fileName.endsWith("properties")) {
                 merge(PropertiesUtil.class.getResourceAsStream(fileName));
             } else if (fileName.endsWith("yml")) {
@@ -138,9 +124,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
 
     public static void merge(InputStream in) {
         try {
-            if (ObjectUtil.isEmpty(in)) {
-                return;
-            }
+            if (ObjectUtil.isEmpty(in)) return;
             properties.load(in);
             in.close();
         } catch (Exception e) {
@@ -166,9 +150,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
 
     public static void mergeProperties(File file) {
         try {
-            if (ObjectUtil.isEmpty(file) || !file.getName().endsWith(".properties")) {
-                return;
-            }
+            if (ObjectUtil.isEmpty(file) || !file.getName().endsWith(".properties")) return;
             merge(new BufferedInputStream(new FileInputStream(file)));
         } catch (Exception ignored) {
         }
@@ -176,14 +158,10 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
 
     public static void mergeYml(String classPathResource) {
         try {
-            if (classPathResource == null || !classPathResource.endsWith(".yml")) {
-                return;
-            }
+            if (classPathResource == null || !classPathResource.endsWith(".yml")) return;
             YamlPropertiesFactoryBean yml = new YamlPropertiesFactoryBean();
             ClassPathResource resource = new ClassPathResource(classPathResource);
-            if (!resource.exists()) {
-                return;
-            }
+            if (!resource.exists()) return;
             yml.setResources(resource);
             merge(Objects.requireNonNull(yml.getObject()));
         } catch (Exception ignored) {
@@ -192,9 +170,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
 
     public static void mergeJson(File file) {
         try {
-            if (ObjectUtil.isEmpty(file) || !file.getName().endsWith(".json")) {
-                return;
-            }
+            if (ObjectUtil.isEmpty(file) || !file.getName().endsWith(".json")) return;
             String data = FileUtils.readFileToString(file, "UTF-8");
             JSON json = JSONUtil.toJSON(data);
             properties.put(file.getName(), json == null ? json_file_error : json);
@@ -204,9 +180,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
 
     private static void mergeJson(String fileName, InputStream in) {
         try {
-            if (ObjectUtil.isEmpty(fileName) || !fileName.endsWith(".json")) {
-                return;
-            }
+            if (ObjectUtil.isEmpty(fileName) || !fileName.endsWith(".json")) return;
             String data = IOUtils.toString(in, "UTF-8");
             properties.put(fileName, JSONUtil.toJSON(data));
         } catch (Exception ignored) {
@@ -255,9 +229,8 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
         String message = null;
         try {
             ResourceBundleMessageSource resourceBundleMessageSource = FactoryUtil.getBean(ResourceBundleMessageSource.class);
-            if (resourceBundleMessageSource != null) {
+            if (resourceBundleMessageSource != null)
                 message = resourceBundleMessageSource.getMessage(key, params, locale);
-            }
         } catch (Exception ignored) {
         }
 
@@ -296,9 +269,8 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
             String key = String.valueOf(keys.nextElement());
             if (key.endsWith(fileNameSuffix)) {
                 JSONObject node = properties.get(key) instanceof JSONObject ? (JSONObject) properties.get(key) : null;
-                if (node != null) {
+                if (node != null)
                     list.add(node);
-                }
             }
         }
 
@@ -362,9 +334,8 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
                 JSONObject json = getJson(key.substring(0, key.length() - 5));
                 try {
                     T node = (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
-                    if (node != null) {
+                    if (node != null)
                         list.add(node);
-                    }
                 } catch (Exception ignored) {
                 }
             }
@@ -386,13 +357,10 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
                 Type genericType = field.getGenericType();
                 ParameterizedType parameterizedType = (ParameterizedType) genericType;
                 Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                if (ArrayUtil.isEmpty(typeArguments) || typeArguments.length > 1) {
-                    continue;
-                }
+                if (ArrayUtil.isEmpty(typeArguments) || typeArguments.length > 1) continue;
                 map.put(field.getName(), (Class) typeArguments[0]);
-                if (!ClassUtil.isCustomClass((Class) typeArguments[0])) {
+                if (!ClassUtil.isCustomClass((Class) typeArguments[0]))
                     map.putAll(getClassMap((Class) typeArguments[0]));
-                }
             } else if (!ClassUtil.isCustomClass(field.getType())) {
                 map.putAll(getClassMap(field.getType()));
             }
@@ -407,9 +375,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
      * @return 值
      */
     public static String getProperty(String key, String defaultValue) {
-        if (!properties.containsKey(key)) {
-            return defaultValue;
-        }
+        if (!properties.containsKey(key)) return defaultValue;
         return getProperty(key);
     }
 

@@ -1,10 +1,6 @@
 package com.agile.common.annotation;
 
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.ClassUtil;
-import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.PropertiesUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.*;
 import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
@@ -28,9 +24,7 @@ public class ParsingProperties implements ParsingBeanBefore {
     @Override
     public void parsing(String beanName, Object bean) {
         Properties annotation = (Properties) bean.getClass().getAnnotation(getAnnotation());
-        if (annotation == null) {
-            return;
-        }
+        if (annotation == null) return;
         try {
             setProperties(bean, annotation.prefix());
         } catch (Exception ignored) {
@@ -43,9 +37,7 @@ public class ParsingProperties implements ParsingBeanBefore {
     }
 
     private void setProperties(Object target, String prefix) throws IllegalAccessException, InstantiationException {
-        if (ObjectUtil.isEmpty(target)) {
-            return;
-        }
+        if (ObjectUtil.isEmpty(target)) return;
         Class<?> targetClass = target.getClass();
         Field[] fields = targetClass.getDeclaredFields();
         for (int i = 0; i < fields.length; i++) {
@@ -57,9 +49,7 @@ public class ParsingProperties implements ParsingBeanBefore {
                 Type genericType = field.getGenericType();
                 ParameterizedType parameterizedType = (ParameterizedType) genericType;
                 Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                if (ArrayUtil.isEmpty(typeArguments)) {
-                    continue;
-                }
+                if (ArrayUtil.isEmpty(typeArguments)) continue;
                 Class innerClass = (Class) typeArguments[0];
 
                 List<Object> list = new ArrayList<>();

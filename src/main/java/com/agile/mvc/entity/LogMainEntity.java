@@ -5,11 +5,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -116,12 +112,8 @@ public class LogMainEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof LogMainEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof LogMainEntity)) return false;
         LogMainEntity that = (LogMainEntity) object;
         return Objects.equals(getLogMainId(), that.getLogMainId()) &&
                 Objects.equals(getBusinessCode(), that.getBusinessCode()) &&

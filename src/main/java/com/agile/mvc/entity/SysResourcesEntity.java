@@ -3,11 +3,7 @@ package com.agile.mvc.entity;
 import com.agile.common.annotation.Remark;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -151,12 +147,8 @@ public class SysResourcesEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysResourcesEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysResourcesEntity)) return false;
         SysResourcesEntity that = (SysResourcesEntity) object;
         return Objects.equals(getSysResourcesId(), that.getSysResourcesId()) &&
                 Objects.equals(getType(), that.getType()) &&

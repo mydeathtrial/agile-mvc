@@ -5,13 +5,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.GenerationTime;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -211,12 +205,8 @@ public class SysUsersEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysUsersEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof SysUsersEntity)) return false;
         SysUsersEntity that = (SysUsersEntity) object;
         return Objects.equals(getSysUsersId(), that.getSysUsersId()) &&
                 Objects.equals(getSaltKey(), that.getSaltKey()) &&

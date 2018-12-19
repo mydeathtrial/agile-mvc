@@ -3,11 +3,7 @@ package com.agile.mvc.entity;
 import com.agile.common.annotation.Remark;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -125,12 +121,8 @@ public class LogValueEntity implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof LogValueEntity)) {
-            return false;
-        }
+        if (this == object) return true;
+        if (!(object instanceof LogValueEntity)) return false;
         LogValueEntity that = (LogValueEntity) object;
         return Objects.equals(getLogValueId(), that.getLogValueId()) &&
                 Objects.equals(getLogTableId(), that.getLogTableId()) &&

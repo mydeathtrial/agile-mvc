@@ -29,9 +29,7 @@ public class CacheUtil {
     }
 
     public static Object get(Object o) {
-        if (!containKey(o)) {
-            return null;
-        }
+        if (!containKey(o)) return null;
         return Objects.requireNonNull(getCache().get(o)).get();
     }
 

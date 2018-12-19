@@ -61,7 +61,6 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         return requestMapping != null ? this.createMappingInfo(element, requestMapping, condition) : createMappingInfo(element, condition);
     }
 
-    @Override
     public RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
         RequestMappingInfo info = this.createMappingInfo(method);
         if (info != null) {
@@ -74,7 +73,6 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         return info;
     }
 
-    @Override
     public void afterPropertiesSet() {
         this.config = new RequestMappingInfo.BuilderConfiguration();
         this.config.setUrlPathHelper(this.getUrlPathHelper());
@@ -85,7 +83,6 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         this.config.setContentNegotiationManager(this.getContentNegotiationManager());
     }
 
-    @Override
     public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
         if (mapping != null && mapping.getPatternsCondition() != null) {
             for (String path : mapping.getPatternsCondition().getPatterns()) {

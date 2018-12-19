@@ -67,9 +67,7 @@ public class LoggerFactory {
         }
         LoggerConfig loggerConfig = AsyncLoggerConfig.createLogger(Boolean.FALSE, Level.ALL, packagePath, "true", refs, null, config, null);
         for (int i = 0; i < levels.length; i++) {
-            if (ObjectUtil.isEmpty(appenders[i])) {
-                break;
-            }
+            if (ObjectUtil.isEmpty(appenders[i])) break;
             Filter filter = LevelRangeFilter.createFilter(levels[i], levels[i], Filter.Result.ACCEPT, Filter.Result.DENY);
             loggerConfig.addAppender(config.getAppender(appenders[i * 2]), levels[i], filter);
             loggerConfig.addAppender(config.getAppender(appenders[i * 2 + 1]), levels[i], filter);
@@ -136,9 +134,7 @@ public class LoggerFactory {
     }
 
     private static Log createPlugLogger(String fileName, String plugKey, Class clazz, Level... levels) {
-        if (!PropertiesUtil.getProperty(plugKey, boolean.class, "false")) {
-            return null;
-        }
+        if (!PropertiesUtil.getProperty(plugKey, boolean.class, "false")) return null;
         return createLogger(fileName, clazz, levels);
     }
 

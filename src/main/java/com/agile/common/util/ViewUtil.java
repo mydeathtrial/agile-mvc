@@ -14,25 +14,13 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.RequestToViewNameTranslator;
-import org.springframework.web.servlet.View;
-import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.*;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by 佟盟 on 2018/8/22
@@ -174,9 +162,7 @@ public class ViewUtil {
         m.setModel(model);
         for (Map.Entry<String, Object> entry : model.entrySet()) {
             Object value = entry.getValue();
-            if (value == null) {
-                continue;
-            }
+            if (value == null) continue;
             if (FileUtil.isFile(value)) {
                 m.addFile(value);
             } else if (value instanceof Page) {

@@ -114,12 +114,12 @@ agile:
     trigger_type: size
     trigger_value: 1M
     package:
-#      org: debug,info,error
-#      org.springframework: debug,info,error
-#      org.hibernate: debug,info,error
-#      io.sringfox: debug,info,error
-#      redis: debug,info,error
-#      com.alibaba: debug,info,error
+  #      org: debug,info,error
+  #      org.springframework: debug,info,error
+  #      org.hibernate: debug,info,error
+  #      io.sringfox: debug,info,error
+  #      redis: debug,info,error
+  #      com.alibaba: debug,info,error
   redis:
     host: 127.0.0.1
     max_idle: 300

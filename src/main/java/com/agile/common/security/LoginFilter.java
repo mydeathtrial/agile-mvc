@@ -45,7 +45,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         afterPropertiesSet();
     }
 
-    @Override
     public void afterPropertiesSet() {
         this.setAuthenticationSuccessHandler(SuccessHandler);
         this.setAuthenticationFailureHandler(failureHandler);
@@ -55,7 +54,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         this.setSessionAuthenticationStrategy(tokenStrategy);
     }
 
-    @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
         String username = request.getParameter(USERNAME);

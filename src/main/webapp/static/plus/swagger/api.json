@@ -1,1383 +1,1704 @@
 {
-"swagger" : "2.0",
-    "info" : {
-        "version" : "1.0.0",
-        "title" : "Agile API平台",
-        "contact" : {
-            "email" : "mydeathtrial@163.com"
-        }
-    },
-    "tags" : [
-        {
-            "name" : "LogMainService",
-            "description" : "[系统管理]日志表"
-        },        {
-            "name" : "LogTableService",
-            "description" : "[系统管理]日志相关表变动信息"
-        },        {
-            "name" : "LogValueService",
-            "description" : "[系统管理]日志相关字段值变动信息"
-        }
-    ],
-    "schemes" : [ "http", "https" ],
-    "paths" : {
-        "/LogMainService/save" :{
-            "get" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_save",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "businessCode",
-                        "in" : "formData",
-                        "description" : "业务编码",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetType",
-                        "in" : "formData",
-                        "description" : "业务对象类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetCode",
-                        "in" : "formData",
-                        "description" : "业务对象标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "userId",
-                        "in" : "formData",
-                        "description" : "操作人",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "createTime",
-                        "in" : "formData",
-                        "description" : "操作时间",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "保存[系统管理]日志表"
-            }
-        },
-        "/LogMainEntity" :{
-            "post" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainEntity_save",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded"],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "businessCode",
-                        "in" : "formData",
-                        "description" : "业务编码",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetType",
-                        "in" : "formData",
-                        "description" : "业务对象类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetCode",
-                        "in" : "formData",
-                        "description" : "业务对象标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "userId",
-                        "in" : "formData",
-                        "description" : "操作人",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "createTime",
-                        "in" : "formData",
-                        "description" : "操作时间",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "保存[系统管理]日志表"
-            }
-        },
-        "/LogMainService/delete" :{
-            "get" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_delete",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "ids",
-                    "in" : "formData",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "string"
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志表"
-            }
-        },
-        "/LogMainEntity" :{
-            "delete" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainEntity_delete",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "id",
-                    "in" : "query",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "array",
-                    "items":{
-                            "type": "string"
-                        }
-
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志表"
-            }
-        },
-        "/LogMainEntity/{id}" :{
-            "delete" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainEntity_delete3",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "id",
-                    "in" : "path",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "string"
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志表"
-            }
-        },
-        "/LogMainService/update" :{
-            "get" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_update",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logMainId",
-                        "in" : "formData",
-                        "description" : "唯一标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "businessCode",
-                        "in" : "formData",
-                        "description" : "业务编码",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetType",
-                        "in" : "formData",
-                        "description" : "业务对象类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetCode",
-                        "in" : "formData",
-                        "description" : "业务对象标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "userId",
-                        "in" : "formData",
-                        "description" : "操作人",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "createTime",
-                        "in" : "formData",
-                        "description" : "操作时间",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "更新[系统管理]日志表"
-            }
-        },
-        "/LogMainService" :{
-            "put" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_update",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logMainId",
-                        "in" : "formData",
-                        "description" : "唯一标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "businessCode",
-                        "in" : "formData",
-                        "description" : "业务编码",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetType",
-                        "in" : "formData",
-                        "description" : "业务对象类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "targetCode",
-                        "in" : "formData",
-                        "description" : "业务对象标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "userId",
-                        "in" : "formData",
-                        "description" : "操作人",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "createTime",
-                        "in" : "formData",
-                        "description" : "操作时间",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "更新[系统管理]日志表"
-            }
-        },
-        "/LogMainService/query" :{
-            "get" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "page",
-                        "in" : "query",
-                        "description" : "第几页",
-                        "required" : false,
-                        "type" : "integer"
-                    },{
-                        "name" : "size",
-                        "in" : "query",
-                        "description" : "每页条数",
-                        "required" : false,
-                        "type" : "integer"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogMainEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志表"
-            }
-        },
-        "/LogMainService" :{
-            "get" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "page",
-                        "in" : "query",
-                        "description" : "第几页",
-                        "required" : false,
-                        "type" : "integer"
-                    },{
-                        "name" : "size",
-                        "in" : "query",
-                        "description" : "每页条数",
-                        "required" : false,
-                        "type" : "integer"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogMainEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志表"
-            }
-        },
-        "/LogMainService/{id}" :{
-            "get" : {
-                "tags":["LogMainService"],
-                "summary" : "[系统管理]日志表",
-                "operationId" : "LogMainService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "id",
-                        "in" : "path",
-                        "description" : "主键字符串",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogMainEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志表"
-            }
-        }
-    ,
-        "/LogTableService/save" :{
-            "get" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_save",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logMainId",
-                        "in" : "formData",
-                        "description" : "日志标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableSchema",
-                        "in" : "formData",
-                        "description" : "数据库",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableName",
-                        "in" : "formData",
-                        "description" : "表名",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationType",
-                        "in" : "formData",
-                        "description" : "操作类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationOrder",
-                        "in" : "formData",
-                        "description" : "操作顺序",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "保存[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableEntity" :{
-            "post" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableEntity_save",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded"],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logMainId",
-                        "in" : "formData",
-                        "description" : "日志标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableSchema",
-                        "in" : "formData",
-                        "description" : "数据库",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableName",
-                        "in" : "formData",
-                        "description" : "表名",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationType",
-                        "in" : "formData",
-                        "description" : "操作类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationOrder",
-                        "in" : "formData",
-                        "description" : "操作顺序",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "保存[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableService/delete" :{
-            "get" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_delete",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "ids",
-                    "in" : "formData",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "string"
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableEntity" :{
-            "delete" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableEntity_delete",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "id",
-                    "in" : "query",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "array",
-                    "items":{
-                            "type": "string"
-                        }
-
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableEntity/{id}" :{
-            "delete" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableEntity_delete3",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "id",
-                    "in" : "path",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "string"
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableService/update" :{
-            "get" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_update",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logTableId",
-                        "in" : "formData",
-                        "description" : "唯一标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "logMainId",
-                        "in" : "formData",
-                        "description" : "日志标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableSchema",
-                        "in" : "formData",
-                        "description" : "数据库",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableName",
-                        "in" : "formData",
-                        "description" : "表名",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationType",
-                        "in" : "formData",
-                        "description" : "操作类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationOrder",
-                        "in" : "formData",
-                        "description" : "操作顺序",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "更新[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableService" :{
-            "put" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_update",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logTableId",
-                        "in" : "formData",
-                        "description" : "唯一标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "logMainId",
-                        "in" : "formData",
-                        "description" : "日志标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableSchema",
-                        "in" : "formData",
-                        "description" : "数据库",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "tableName",
-                        "in" : "formData",
-                        "description" : "表名",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationType",
-                        "in" : "formData",
-                        "description" : "操作类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "operationOrder",
-                        "in" : "formData",
-                        "description" : "操作顺序",
-                        "required" : false,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "更新[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableService/query" :{
-            "get" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "page",
-                        "in" : "query",
-                        "description" : "第几页",
-                        "required" : false,
-                        "type" : "integer"
-                    },{
-                        "name" : "size",
-                        "in" : "query",
-                        "description" : "每页条数",
-                        "required" : false,
-                        "type" : "integer"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogTableEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableService" :{
-            "get" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "page",
-                        "in" : "query",
-                        "description" : "第几页",
-                        "required" : false,
-                        "type" : "integer"
-                    },{
-                        "name" : "size",
-                        "in" : "query",
-                        "description" : "每页条数",
-                        "required" : false,
-                        "type" : "integer"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogTableEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志相关表变动信息"
-            }
-        },
-        "/LogTableService/{id}" :{
-            "get" : {
-                "tags":["LogTableService"],
-                "summary" : "[系统管理]日志相关表变动信息",
-                "operationId" : "LogTableService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "id",
-                        "in" : "path",
-                        "description" : "主键字符串",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogTableEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志相关表变动信息"
-            }
-        }
-    ,
-        "/LogValueService/save" :{
-            "get" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_save",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logTableId",
-                        "in" : "formData",
-                        "description" : "日志相关表标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnName",
-                        "in" : "formData",
-                        "description" : "字段",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnType",
-                        "in" : "formData",
-                        "description" : "字段类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "newValue",
-                        "in" : "formData",
-                        "description" : "新值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "oldValue",
-                        "in" : "formData",
-                        "description" : "旧值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnInfo",
-                        "in" : "formData",
-                        "description" : "字段含义",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "保存[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueEntity" :{
-            "post" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueEntity_save",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded"],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logTableId",
-                        "in" : "formData",
-                        "description" : "日志相关表标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnName",
-                        "in" : "formData",
-                        "description" : "字段",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnType",
-                        "in" : "formData",
-                        "description" : "字段类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "newValue",
-                        "in" : "formData",
-                        "description" : "新值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "oldValue",
-                        "in" : "formData",
-                        "description" : "旧值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnInfo",
-                        "in" : "formData",
-                        "description" : "字段含义",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "保存[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueService/delete" :{
-            "get" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_delete",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "ids",
-                    "in" : "formData",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "string"
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueEntity" :{
-            "delete" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueEntity_delete",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "id",
-                    "in" : "query",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "array",
-                    "items":{
-                            "type": "string"
-                        }
-
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueEntity/{id}" :{
-            "delete" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueEntity_delete3",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [ {
-                    "name" : "id",
-                    "in" : "path",
-                    "description" : "主键字符串",
-                    "required" : true,
-                    "type" : "string"
-                } ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "删除[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueService/update" :{
-            "get" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_update",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logValueId",
-                        "in" : "formData",
-                        "description" : "唯一标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "logTableId",
-                        "in" : "formData",
-                        "description" : "日志相关表标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnName",
-                        "in" : "formData",
-                        "description" : "字段",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnType",
-                        "in" : "formData",
-                        "description" : "字段类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "newValue",
-                        "in" : "formData",
-                        "description" : "新值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "oldValue",
-                        "in" : "formData",
-                        "description" : "旧值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnInfo",
-                        "in" : "formData",
-                        "description" : "字段含义",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "更新[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueService" :{
-            "put" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_update",
-                "consumes" : [ "multipart/form-data","application/x-www-form-urlencoded" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "logValueId",
-                        "in" : "formData",
-                        "description" : "唯一标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "logTableId",
-                        "in" : "formData",
-                        "description" : "日志相关表标识",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnName",
-                        "in" : "formData",
-                        "description" : "字段",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnType",
-                        "in" : "formData",
-                        "description" : "字段类型",
-                        "required" : false,
-                        "type" : "string"
-                    },                    {
-                        "name" : "newValue",
-                        "in" : "formData",
-                        "description" : "新值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "oldValue",
-                        "in" : "formData",
-                        "description" : "旧值",
-                        "required" : true,
-                        "type" : "string"
-                    },                    {
-                        "name" : "columnInfo",
-                        "in" : "formData",
-                        "description" : "字段含义",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功"
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "更新[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueService/query" :{
-            "get" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "page",
-                        "in" : "query",
-                        "description" : "第几页",
-                        "required" : false,
-                        "type" : "integer"
-                    },{
-                        "name" : "size",
-                        "in" : "query",
-                        "description" : "每页条数",
-                        "required" : false,
-                        "type" : "integer"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogValueEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueService" :{
-            "get" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "page",
-                        "in" : "query",
-                        "description" : "第几页",
-                        "required" : false,
-                        "type" : "integer"
-                    },{
-                        "name" : "size",
-                        "in" : "query",
-                        "description" : "每页条数",
-                        "required" : false,
-                        "type" : "integer"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogValueEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志相关字段值变动信息"
-            }
-        },
-        "/LogValueService/{id}" :{
-            "get" : {
-                "tags":["LogValueService"],
-                "summary" : "[系统管理]日志相关字段值变动信息",
-                "operationId" : "LogValueService_query",
-                "consumes" : [ "application/json","application/xml" ],
-                "produces" : [ "application/json","application/xml" ],
-                "parameters" : [
-                    {
-                        "name" : "id",
-                        "in" : "path",
-                        "description" : "主键字符串",
-                        "required" : true,
-                        "type" : "string"
-                    }
-                ],
-                "responses" : {
-                    "200" : {
-                        "description" : "成功",
-                        "schema" : {
-                            "type" : "array",
-                            "items" : {
-                                "$ref" : "#/definitions/LogValueEntity"
-                            }
-                        }
-                    },
-                    "500" : {
-                        "description" : "系统程序异常"
-                    }
-                },
-                "description" : "查询[系统管理]日志相关字段值变动信息"
-            }
-        }
-    
-    },
-    "securityDefinitions" : {
-        "petstore_auth" : {
-            "type" : "oauth2",
-            "authorizationUrl" : "http://petstore.swagger.io/oauth/dialog",
-            "flow" : "implicit",
-            "scopes" : {
-                "write:pets" : "modify pets in your account",
-                "read:pets" : "read your pets"
-            }
-        },
-        "api_key" : {
-            "type" : "apiKey",
-            "name" : "api_key",
-            "in" : "header"
-        }
-    },
-    "definitions" : {
-        "LogMainEntity" : {
-            "type" : "object",
-            "properties" : {
-                "logMainId" : {
-                    "type" : "string",
-                    "description" : "唯一标识"
-                },
-                "businessCode" : {
-                    "type" : "string",
-                    "description" : "业务编码"
-                },
-                "targetType" : {
-                    "type" : "string",
-                    "description" : "业务对象类型"
-                },
-                "targetCode" : {
-                    "type" : "string",
-                    "description" : "业务对象标识"
-                },
-                "userId" : {
-                    "type" : "integer",
-                    "description" : "操作人"
-                },
-                "createTime" : {
-                    "type" : "string",
-                    "description" : "操作时间"
-                }
-            }
-        },
-        "LogTableEntity" : {
-            "type" : "object",
-            "properties" : {
-                "logTableId" : {
-                    "type" : "string",
-                    "description" : "唯一标识"
-                },
-                "logMainId" : {
-                    "type" : "string",
-                    "description" : "日志标识"
-                },
-                "tableSchema" : {
-                    "type" : "string",
-                    "description" : "数据库"
-                },
-                "tableName" : {
-                    "type" : "string",
-                    "description" : "表名"
-                },
-                "operationType" : {
-                    "type" : "string",
-                    "description" : "操作类型"
-                },
-                "operationOrder" : {
-                    "type" : "integer",
-                    "description" : "操作顺序"
-                }
-            }
-        },
-        "LogValueEntity" : {
-            "type" : "object",
-            "properties" : {
-                "logValueId" : {
-                    "type" : "string",
-                    "description" : "唯一标识"
-                },
-                "logTableId" : {
-                    "type" : "string",
-                    "description" : "日志相关表标识"
-                },
-                "columnName" : {
-                    "type" : "string",
-                    "description" : "字段"
-                },
-                "columnType" : {
-                    "type" : "string",
-                    "description" : "字段类型"
-                },
-                "newValue" : {
-                    "type" : "string",
-                    "description" : "新值"
-                },
-                "oldValue" : {
-                    "type" : "string",
-                    "description" : "旧值"
-                },
-                "columnInfo" : {
-                    "type" : "string",
-                    "description" : "字段含义"
-                }
-            }
-        }
-    },
-    "externalDocs" : {
-        "description" : "",
-        "url" : "http://127.0.0.1:8080"
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Agile API平台",
+    "contact": {
+      "email": "mydeathtrial@163.com"
     }
+  },
+  "tags": [
+    {
+      "name": "LogMainService",
+      "description": "[系统管理]日志表"
+    },
+    {
+      "name": "LogTableService",
+      "description": "[系统管理]日志相关表变动信息"
+    },
+    {
+      "name": "LogValueService",
+      "description": "[系统管理]日志相关字段值变动信息"
+    }
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {
+    "/LogMainService/save": {
+      "get": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_save",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "businessCode",
+            "in": "formData",
+            "description": "业务编码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetType",
+            "in": "formData",
+            "description": "业务对象类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetCode",
+            "in": "formData",
+            "description": "业务对象标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "formData",
+            "description": "操作人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "formData",
+            "description": "操作时间",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "保存[系统管理]日志表"
+      }
+    },
+    "/LogMainEntity": {
+      "post": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainEntity_save",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "businessCode",
+            "in": "formData",
+            "description": "业务编码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetType",
+            "in": "formData",
+            "description": "业务对象类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetCode",
+            "in": "formData",
+            "description": "业务对象标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "formData",
+            "description": "操作人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "formData",
+            "description": "操作时间",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "保存[系统管理]日志表"
+      }
+    },
+    "/LogMainService/delete": {
+      "get": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_delete",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "formData",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志表"
+      }
+    },
+    "/LogMainEntity": {
+      "delete": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainEntity_delete",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键字符串",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志表"
+      }
+    },
+    "/LogMainEntity/{id}": {
+      "delete": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainEntity_delete3",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志表"
+      }
+    },
+    "/LogMainService/update": {
+      "get": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_update",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logMainId",
+            "in": "formData",
+            "description": "唯一标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "businessCode",
+            "in": "formData",
+            "description": "业务编码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetType",
+            "in": "formData",
+            "description": "业务对象类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetCode",
+            "in": "formData",
+            "description": "业务对象标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "formData",
+            "description": "操作人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "formData",
+            "description": "操作时间",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "更新[系统管理]日志表"
+      }
+    },
+    "/LogMainService": {
+      "put": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_update",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logMainId",
+            "in": "formData",
+            "description": "唯一标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "businessCode",
+            "in": "formData",
+            "description": "业务编码",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetType",
+            "in": "formData",
+            "description": "业务对象类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "targetCode",
+            "in": "formData",
+            "description": "业务对象标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "formData",
+            "description": "操作人",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "createTime",
+            "in": "formData",
+            "description": "操作时间",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "更新[系统管理]日志表"
+      }
+    },
+    "/LogMainService/query": {
+      "get": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogMainEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志表"
+      }
+    },
+    "/LogMainService": {
+      "get": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogMainEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志表"
+      }
+    },
+    "/LogMainService/{id}": {
+      "get": {
+        "tags": [
+          "LogMainService"
+        ],
+        "summary": "[系统管理]日志表",
+        "operationId": "LogMainService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogMainEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志表"
+      }
+    },
+    "/LogTableService/save": {
+      "get": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_save",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logMainId",
+            "in": "formData",
+            "description": "日志标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableSchema",
+            "in": "formData",
+            "description": "数据库",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableName",
+            "in": "formData",
+            "description": "表名",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationType",
+            "in": "formData",
+            "description": "操作类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationOrder",
+            "in": "formData",
+            "description": "操作顺序",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "保存[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableEntity": {
+      "post": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableEntity_save",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logMainId",
+            "in": "formData",
+            "description": "日志标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableSchema",
+            "in": "formData",
+            "description": "数据库",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableName",
+            "in": "formData",
+            "description": "表名",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationType",
+            "in": "formData",
+            "description": "操作类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationOrder",
+            "in": "formData",
+            "description": "操作顺序",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "保存[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableService/delete": {
+      "get": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_delete",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "formData",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableEntity": {
+      "delete": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableEntity_delete",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键字符串",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableEntity/{id}": {
+      "delete": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableEntity_delete3",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableService/update": {
+      "get": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_update",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logTableId",
+            "in": "formData",
+            "description": "唯一标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "logMainId",
+            "in": "formData",
+            "description": "日志标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableSchema",
+            "in": "formData",
+            "description": "数据库",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableName",
+            "in": "formData",
+            "description": "表名",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationType",
+            "in": "formData",
+            "description": "操作类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationOrder",
+            "in": "formData",
+            "description": "操作顺序",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "更新[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableService": {
+      "put": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_update",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logTableId",
+            "in": "formData",
+            "description": "唯一标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "logMainId",
+            "in": "formData",
+            "description": "日志标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableSchema",
+            "in": "formData",
+            "description": "数据库",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "tableName",
+            "in": "formData",
+            "description": "表名",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationType",
+            "in": "formData",
+            "description": "操作类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "operationOrder",
+            "in": "formData",
+            "description": "操作顺序",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "更新[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableService/query": {
+      "get": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogTableEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableService": {
+      "get": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogTableEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogTableService/{id}": {
+      "get": {
+        "tags": [
+          "LogTableService"
+        ],
+        "summary": "[系统管理]日志相关表变动信息",
+        "operationId": "LogTableService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogTableEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志相关表变动信息"
+      }
+    },
+    "/LogValueService/save": {
+      "get": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_save",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logTableId",
+            "in": "formData",
+            "description": "日志相关表标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnName",
+            "in": "formData",
+            "description": "字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnType",
+            "in": "formData",
+            "description": "字段类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "newValue",
+            "in": "formData",
+            "description": "新值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "oldValue",
+            "in": "formData",
+            "description": "旧值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "columnInfo",
+            "in": "formData",
+            "description": "字段含义",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "保存[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueEntity": {
+      "post": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueEntity_save",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logTableId",
+            "in": "formData",
+            "description": "日志相关表标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnName",
+            "in": "formData",
+            "description": "字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnType",
+            "in": "formData",
+            "description": "字段类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "newValue",
+            "in": "formData",
+            "description": "新值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "oldValue",
+            "in": "formData",
+            "description": "旧值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "columnInfo",
+            "in": "formData",
+            "description": "字段含义",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "保存[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueService/delete": {
+      "get": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_delete",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "formData",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueEntity": {
+      "delete": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueEntity_delete",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "description": "主键字符串",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueEntity/{id}": {
+      "delete": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueEntity_delete3",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "删除[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueService/update": {
+      "get": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_update",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logValueId",
+            "in": "formData",
+            "description": "唯一标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "logTableId",
+            "in": "formData",
+            "description": "日志相关表标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnName",
+            "in": "formData",
+            "description": "字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnType",
+            "in": "formData",
+            "description": "字段类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "newValue",
+            "in": "formData",
+            "description": "新值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "oldValue",
+            "in": "formData",
+            "description": "旧值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "columnInfo",
+            "in": "formData",
+            "description": "字段含义",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "更新[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueService": {
+      "put": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_update",
+        "consumes": [
+          "multipart/form-data",
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "logValueId",
+            "in": "formData",
+            "description": "唯一标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "logTableId",
+            "in": "formData",
+            "description": "日志相关表标识",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnName",
+            "in": "formData",
+            "description": "字段",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "columnType",
+            "in": "formData",
+            "description": "字段类型",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "newValue",
+            "in": "formData",
+            "description": "新值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "oldValue",
+            "in": "formData",
+            "description": "旧值",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "columnInfo",
+            "in": "formData",
+            "description": "字段含义",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功"
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "更新[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueService/query": {
+      "get": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogValueEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueService": {
+      "get": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "第几页",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogValueEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志相关字段值变动信息"
+      }
+    },
+    "/LogValueService/{id}": {
+      "get": {
+        "tags": [
+          "LogValueService"
+        ],
+        "summary": "[系统管理]日志相关字段值变动信息",
+        "operationId": "LogValueService_query",
+        "consumes": [
+          "application/json",
+          "application/xml"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键字符串",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/LogValueEntity"
+              }
+            }
+          },
+          "500": {
+            "description": "系统程序异常"
+          }
+        },
+        "description": "查询[系统管理]日志相关字段值变动信息"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "petstore_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "http://petstore.swagger.io/oauth/dialog",
+      "flow": "implicit",
+      "scopes": {
+        "write:pets": "modify pets in your account",
+        "read:pets": "read your pets"
+      }
+    },
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "LogMainEntity": {
+      "type": "object",
+      "properties": {
+        "logMainId": {
+          "type": "string",
+          "description": "唯一标识"
+        },
+        "businessCode": {
+          "type": "string",
+          "description": "业务编码"
+        },
+        "targetType": {
+          "type": "string",
+          "description": "业务对象类型"
+        },
+        "targetCode": {
+          "type": "string",
+          "description": "业务对象标识"
+        },
+        "userId": {
+          "type": "integer",
+          "description": "操作人"
+        },
+        "createTime": {
+          "type": "string",
+          "description": "操作时间"
+        }
+      }
+    },
+    "LogTableEntity": {
+      "type": "object",
+      "properties": {
+        "logTableId": {
+          "type": "string",
+          "description": "唯一标识"
+        },
+        "logMainId": {
+          "type": "string",
+          "description": "日志标识"
+        },
+        "tableSchema": {
+          "type": "string",
+          "description": "数据库"
+        },
+        "tableName": {
+          "type": "string",
+          "description": "表名"
+        },
+        "operationType": {
+          "type": "string",
+          "description": "操作类型"
+        },
+        "operationOrder": {
+          "type": "integer",
+          "description": "操作顺序"
+        }
+      }
+    },
+    "LogValueEntity": {
+      "type": "object",
+      "properties": {
+        "logValueId": {
+          "type": "string",
+          "description": "唯一标识"
+        },
+        "logTableId": {
+          "type": "string",
+          "description": "日志相关表标识"
+        },
+        "columnName": {
+          "type": "string",
+          "description": "字段"
+        },
+        "columnType": {
+          "type": "string",
+          "description": "字段类型"
+        },
+        "newValue": {
+          "type": "string",
+          "description": "新值"
+        },
+        "oldValue": {
+          "type": "string",
+          "description": "旧值"
+        },
+        "columnInfo": {
+          "type": "string",
+          "description": "字段含义"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "",
+    "url": "http://127.0.0.1:8080"
+  }
 }
