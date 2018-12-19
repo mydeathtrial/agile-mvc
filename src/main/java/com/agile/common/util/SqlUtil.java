@@ -116,7 +116,7 @@ public class SqlUtil {
         if (groupBy != null) {
             parserSQLObject(groupBy, parameters);
         }
-        System.out.println(sqlSelectQueryBlock.toString());
+//        System.out.println(sqlSelectQueryBlock.toString());
         return sqlSelectQueryBlock.toString();
     }
 

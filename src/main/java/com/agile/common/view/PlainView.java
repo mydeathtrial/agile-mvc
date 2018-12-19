@@ -19,6 +19,8 @@ import java.util.Map;
 public class PlainView extends AbstractView {
     public static final String DEFAULT_CONTENT_TYPE = "text/plain";
 
+    private final Integer byteSize = 1024;
+
     public PlainView() {
         this.setContentType(DEFAULT_CONTENT_TYPE);
         this.setExposePathVariables(false);
@@ -26,7 +28,7 @@ public class PlainView extends AbstractView {
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(byteSize);
         if (model.containsKey(Constant.ResponseAbout.RESULT)) {
             Object r = model.get(Constant.ResponseAbout.RESULT);
             if (MapUtil.isMap(r)) {

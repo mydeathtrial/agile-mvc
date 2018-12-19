@@ -22,6 +22,8 @@ public class TokenUtil {
     public static final String AUTHENTICATION_CREATE_SALT_VALUE = "AUTHENTICATION_CACHE_SALT_VALUE";
     public static final String AUTHENTICATION_CREATE_TIME = "created";
 
+    private static final int SECOND = 1000;
+
     /**
      * 根据 TokenDetail 生成 Token
      */
@@ -59,7 +61,7 @@ public class TokenUtil {
      * token 过期时间
      */
     public static Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + SecurityProperties.getTokenTimeout() * 1000);
+        return new Date(System.currentTimeMillis() + SecurityProperties.getTokenTimeout() * SECOND);
     }
 
     /**

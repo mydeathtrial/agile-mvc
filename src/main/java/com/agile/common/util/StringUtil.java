@@ -265,9 +265,9 @@ public final class StringUtil extends StringUtils {
         return result;
     }
 
-    public static void main(String[] args) {
-        getGroupByStartEnd("{service:[dD]ictionary[\\W_]{0,1}[dD]ata[\\W_]{0,1}[sS]ervice}", "{", "}", ":");
-    }
+//    public static void main(String[] args) {
+//        getGroupByStartEnd("{service:[dD]ictionary[\\W_]{0,1}[dD]ata[\\W_]{0,1}[sS]ervice}", "{", "}", ":");
+//    }
 
     /**
      * 获取字符串中匹配正则表达式的部分

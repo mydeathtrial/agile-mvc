@@ -432,5 +432,4 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
     public static <T> T getProperty(String var1, Class<T> var2, String defaultValue) {
         return ObjectUtil.cast(var2, getProperty(var1, defaultValue));
     }
-
 }

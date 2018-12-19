@@ -13,7 +13,8 @@ public class RandomStringUtil extends RandomStringUtils {
     private static String[] lettersOfUppers = {"Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Z", "X", "C", "V", "B", "N", "M"};
     private static String[] symbols = {"!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "_", "+", "{", "}", "|", "}", "[", "]", "\\", ":", "\"", ";", "'", "<", ">", ",", ".", "?", "/", "~", "`"};
     private static String[] numbers = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
-    private static int digit = 32;
+
+    private static final int DIGIT = 32;
 
     /**
      * 获取随机码
@@ -92,7 +93,7 @@ public class RandomStringUtil extends RandomStringUtils {
     }
 
     public static String getRandom(Random random) {
-        return getRandom(digit, 0, null, null, null, random);
+        return getRandom(DIGIT, 0, null, null, null, random);
     }
 
     /**
