@@ -95,7 +95,7 @@
         </module>
         <!-- 方法的参数个数不超过5个。 并且不对构造方法进行检查-->
         <module name="ParameterNumber">
-            <property name="max" value="7"/>
+            <property name="max" value="8"/>
             <property name="ignoreOverriddenMethods" value="true"/>
             <property name="tokens" value="METHOD_DEF"/>
         </module>

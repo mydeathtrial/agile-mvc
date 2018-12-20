@@ -13,6 +13,7 @@ import freemarker.template.TemplateException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,140 +50,7 @@ public class AgileGenerator {
                 tableName);
 
         for (Map<String, Object> column : columns) {
-            //参数容器
-            HashMap<String, String> param = new HashMap<>();
-            String isPrimaryKey = "false"; //是否为主键
-
-            //字段名称
-            String columnName = Objects.requireNonNull(MapUtil.getString(column, "COLUMN_NAME")).toLowerCase();
-
-            //字段类型
-            String columnType = MapUtil.getString(column, "TYPE_NAME");
-
-            if ("TIMESTAMP".equals(columnType) || "DATE".equals(columnType) || "TIME".equals(columnType)) {
-                param.put("isTimeStamp", String.format("@Temporal(TemporalType.%s)", columnType));
-                importList.add("javax.persistence.Temporal");
-                importList.add("javax.persistence.TemporalType");
-            }
-
-            //属性名
-            String propertyName = StringUtil.toLowerName(columnName);
-
-            //属性名
-            assert columnType != null;
-            String propertyType = PropertiesUtil.getProperty("agile.generator.column_type." + columnType.split(" ")[0].toLowerCase());
-
-            if (propertyType == null) {
-                LoggerFactory.getDaoLog().error(String.format("字段类型[%s]没有配置映射", columnType.toLowerCase()));
-                System.exit(0);
-            }
-            //处理主键
-            try {
-                if (Boolean.valueOf(column.get("IS_PRIMARY_KEY").toString())) {
-                    //是否为主键
-                    isPrimaryKey = "true";
-
-                    //转包装类
-                    propertyType = ClassUtil.toWrapperNameFromName(propertyType);
-                }
-            } catch (Exception ignored) {
-            }
-
-
-            //是否自增长
-            param.put("isAutoincrement", MapUtil.getString(column, "IS_AUTOINCREMENT"));
-            if ("YES".equals(param.get("isAutoincrement"))) {
-                importList.add("javax.persistence.GenerationType");
-                importList.add("javax.persistence.GeneratedValue");
-            }
-            //字段大小
-            param.put("columnSize", MapUtil.getString(column, "COLUMN_SIZE"));
-
-            //小数精度
-            param.put("digits", MapUtil.getString(column, "DECIMAL_DIGITS"));
-
-            //是否可为空
-            param.put("nullable", "0".equals(MapUtil.getString(column, "NULLABLE")) ? "false" : "true");
-
-            //字段默认值
-            param.put("columnDef", MapUtil.getString(column, "COLUMN_DEF"));
-
-            //表中的列的索引
-            param.put("ordinalPosition", MapUtil.getString(column, "ORDINAL_POSITION"));
-
-            //备注
-            param.put("remarks", Objects.requireNonNull(MapUtil.getString(column, "REMARKS")).replaceAll("[\\s]+", " "));
-
-            String def = MapUtil.getString(column, "COLUMN_DEF");
-
-            if ("updateTime".equals(propertyName) || "updateDate".equals(propertyName)) {
-                param.put("isUpdate", "@Generated(GenerationTime.ALWAYS)");
-                importList.add("org.hibernate.annotations.Generated");
-                importList.add("org.hibernate.annotations.GenerationTime");
-            } else if ("creatDate".equals(propertyName) || "creatTime".equals(propertyName) || "createTime".equals(propertyName) || "createDate".equals(propertyName)) {
-                param.put("isCreat", "@Generated(GenerationTime.INSERT)");
-                importList.add("org.hibernate.annotations.Generated");
-                importList.add("org.hibernate.annotations.GenerationTime");
-            } else {
-                if (def != null && !"null".equals(def.toLowerCase())) {
-                    switch (ClassUtil.toWrapperNameFromName(propertyType)) {
-                        case "Double":
-                            param.put("defValue", NumberUtil.isNumber(def) ? Double.valueOf(def).toString() : null);
-                            break;
-                        case "String":
-                            param.put("defValue", String.format("\"%s\"", def.replaceAll(Constant.RegularAbout.UP_COMMA, "")));
-                            break;
-                        case "Char":
-                            param.put("defValue", String.format("\"%s\"", def));
-                            break;
-                        case "Date":
-                            param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Date()" : null);
-                            break;
-                        case "Time":
-                            param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Time(System.currentTimeMillis())" : null);
-                            break;
-                        case "Timestamp":
-                            param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Timestamp(System.currentTimeMillis())" : null);
-                            break;
-                        default:
-                            param.put("defValue", def);
-                    }
-                }
-            }
-
-            param.put("def", StringUtil.isEmpty(def) ? null : columnType + " default " + def);
-
-            param.put("columnName", columnName);
-            param.put("columnType", columnType);
-            param.put("propertyName", propertyName);
-            param.put("propertyType", propertyType);
-            param.put("isPrimaryKey", isPrimaryKey);
-            param.put("getMethod", "get" + StringUtil.toUpperName(columnName));
-            param.put("setMethod", "set" + StringUtil.toUpperName(columnName));
-
-            //API导入
-            switch (propertyType) {
-                case "Timestamp":
-                    importList.add("java.sql.Timestamp");
-                    break;
-                case "Clob":
-                    importList.add("java.sql.Clob");
-                    importList.add("javax.persistence.Lob");
-                    break;
-                case "Blob":
-                    importList.add("java.sql.Blob");
-                    importList.add("javax.persistence.Lob");
-                    break;
-                case "Time":
-                    importList.add("java.sql.Time");
-                    break;
-                case "Date":
-                    importList.add("java.util.Date");
-                    break;
-                default:
-            }
-
-            columnList.add(param);
+            pasringColumn(column, importList, columnList);
         }
 
         //文件导入
@@ -202,6 +70,135 @@ public class AgileGenerator {
         data.put("serviceClassName", serviceClassName);
 
         return data;
+    }
+
+    private static void pasringColumn(Map<String, Object> column, Set<String> importList, List<HashMap<String, String>> columnList) {
+        //参数容器
+        HashMap<String, String> param = new HashMap<>();
+        //是否为主键
+        String isPrimaryKey = "false";
+        //字段名称
+        String columnName = Objects.requireNonNull(MapUtil.getString(column, "COLUMN_NAME")).toLowerCase();
+        //字段类型
+        String columnType = MapUtil.getString(column, "TYPE_NAME");
+
+        if ("TIMESTAMP".equals(columnType) || "DATE".equals(columnType) || "TIME".equals(columnType)) {
+            param.put("isTimeStamp", String.format("@Temporal(TemporalType.%s)", columnType));
+            addImport(importList, "javax.persistence.Temporal", "javax.persistence.TemporalType");
+        }
+
+        //属性名
+        String propertyName = StringUtil.toLowerName(columnName);
+        //属性名
+        assert columnType != null;
+        String propertyType = PropertiesUtil.getProperty("agile.generator.column_type." + columnType.split(" ")[0].toLowerCase());
+
+        if (propertyType == null) {
+            LoggerFactory.getDaoLog().error(String.format("字段类型[%s]没有配置映射", columnType.toLowerCase()));
+            System.exit(0);
+        }
+        //处理主键
+        if (Boolean.valueOf(column.get("IS_PRIMARY_KEY").toString())) {
+            //是否为主键
+            isPrimaryKey = "true";
+            //转包装类
+            propertyType = ClassUtil.toWrapperNameFromName(propertyType);
+        }
+
+        //是否自增长
+        param.put("isAutoincrement", MapUtil.getString(column, "IS_AUTOINCREMENT"));
+        if ("YES".equals(param.get("isAutoincrement"))) {
+            addImport(importList, "javax.persistence.GenerationType", "javax.persistence.GeneratedValue");
+        }
+        //字段大小
+        param.put("columnSize", MapUtil.getString(column, "COLUMN_SIZE"));
+        //小数精度
+        param.put("digits", MapUtil.getString(column, "DECIMAL_DIGITS"));
+        //是否可为空
+        param.put("nullable", "0".equals(MapUtil.getString(column, "NULLABLE")) ? "false" : "true");
+        //字段默认值
+        param.put("columnDef", MapUtil.getString(column, "COLUMN_DEF"));
+        //表中的列的索引
+        param.put("ordinalPosition", MapUtil.getString(column, "ORDINAL_POSITION"));
+        //备注
+        param.put("remarks", Objects.requireNonNull(MapUtil.getString(column, "REMARKS")).replaceAll("[\\s]+", " "));
+
+        String def = MapUtil.getString(column, "COLUMN_DEF");
+
+        if ("updateTime".equals(propertyName) || "updateDate".equals(propertyName)) {
+            param.put("isUpdate", "@Generated(GenerationTime.ALWAYS)");
+            addImport(importList, "javax.persistence.Generated", "javax.persistence.GenerationTime");
+        } else if ("creatDate".equals(propertyName) || "creatTime".equals(propertyName) || "createTime".equals(propertyName) || "createDate".equals(propertyName)) {
+            param.put("isCreat", "@Generated(GenerationTime.INSERT)");
+            addImport(importList, "javax.persistence.Generated", "javax.persistence.GenerationTime");
+        } else {
+            if (def != null && !"null".equals(def.toLowerCase())) {
+                switch (ClassUtil.toWrapperNameFromName(propertyType)) {
+                    case "Double":
+                        param.put("defValue", NumberUtil.isNumber(def) ? Double.valueOf(def).toString() : null);
+                        break;
+                    case "String":
+                        param.put("defValue", String.format("\"%s\"", def.replaceAll(Constant.RegularAbout.UP_COMMA, "")));
+                        break;
+                    case "Char":
+                        param.put("defValue", String.format("\"%s\"", def));
+                        break;
+                    case "Date":
+                        param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Date()" : null);
+                        break;
+                    case "Time":
+                        param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Time(System.currentTimeMillis())" : null);
+                        break;
+                    case "Timestamp":
+                        param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Timestamp(System.currentTimeMillis())" : null);
+                        break;
+                    default:
+                        param.put("defValue", def);
+                }
+            }
+        }
+
+        param.put("def", StringUtil.isEmpty(def) ? null : columnType + " default " + def);
+        param.put("columnName", columnName);
+        param.put("columnType", columnType);
+        param.put("propertyName", propertyName);
+        param.put("propertyType", propertyType);
+        param.put("isPrimaryKey", isPrimaryKey);
+        param.put("getMethod", "get" + StringUtil.toUpperName(columnName));
+        param.put("setMethod", "set" + StringUtil.toUpperName(columnName));
+
+        //API导入
+        addImprot(importList, propertyType);
+
+        columnList.add(param);
+    }
+
+    private static void addImport(Set<String> importList, String... packageName) {
+        importList.addAll(Arrays.asList(packageName));
+    }
+
+    private static void addImprot(Set<String> importList, String type) {
+        //API导入
+        switch (type) {
+            case "Timestamp":
+                importList.add("java.sql.Timestamp");
+                break;
+            case "Clob":
+                importList.add("java.sql.Clob");
+                importList.add("javax.persistence.Lob");
+                break;
+            case "Blob":
+                importList.add("java.sql.Blob");
+                importList.add("javax.persistence.Lob");
+                break;
+            case "Time":
+                importList.add("java.sql.Time");
+                break;
+            case "Date":
+                importList.add("java.util.Date");
+                break;
+            default:
+        }
     }
 
     /**
