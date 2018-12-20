@@ -27,6 +27,6 @@ public class Page<T> extends LinkedList<T> {
     }
 
     public org.springframework.data.domain.Page<T> getPage() {
-        return new PageImpl(this, pageRequest, total);
+        return new PageImpl<T>(this, pageRequest, total);
     }
 }

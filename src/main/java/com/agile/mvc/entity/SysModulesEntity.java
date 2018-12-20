@@ -168,14 +168,14 @@ public class SysModulesEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysModulesEntity{"
-            + "sysModulesId='" + sysModulesId + '\''
-            + ",name='" + name + '\''
-            + ",desc='" + desc + '\''
-            + ",parentId='" + parentId + '\''
-            + ",url='" + url + '\''
-            + ",level='" + level + '\''
-            + ",enable=" + enable
-            + ",order=" + order + '}';
+            + "sysModulesId ='" + sysModulesId + '\''
+            + ",name ='" + name + '\''
+            + ",desc ='" + desc + '\''
+            + ",parentId ='" + parentId + '\''
+            + ",url ='" + url + '\''
+            + ",level ='" + level + '\''
+            + ",enable =" + enable
+            + ",order =" + order + '}';
     }
 
     private SysModulesEntity(Builder builder) {

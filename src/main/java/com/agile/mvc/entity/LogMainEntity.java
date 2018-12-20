@@ -144,12 +144,12 @@ public class LogMainEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "LogMainEntity{"
-            + "logMainId='" + logMainId + '\''
-            + ",businessCode='" + businessCode + '\''
-            + ",targetType='" + targetType + '\''
-            + ",targetCode='" + targetCode + '\''
-            + ",userId=" + userId
-            + ",createTime=" + createTime + '}';
+            + "logMainId ='" + logMainId + '\''
+            + ",businessCode ='" + businessCode + '\''
+            + ",targetType ='" + targetType + '\''
+            + ",targetCode ='" + targetCode + '\''
+            + ",userId ='" + userId + '\''
+            + ",createTime =" + createTime + '}';
     }
 
     private LogMainEntity(Builder builder) {

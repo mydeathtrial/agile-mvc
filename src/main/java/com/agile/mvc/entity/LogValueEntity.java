@@ -154,13 +154,13 @@ public class LogValueEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "LogValueEntity{"
-            + "logValueId='" + logValueId + '\''
-            + ",logTableId='" + logTableId + '\''
-            + ",columnName='" + columnName + '\''
-            + ",columnType='" + columnType + '\''
-            + ",newValue='" + newValue + '\''
-            + ",oldValue='" + oldValue + '\''
-            + ",columnInfo='" + columnInfo + '\'' + '}';
+            + "logValueId ='" + logValueId + '\''
+            + ",logTableId ='" + logTableId + '\''
+            + ",columnName ='" + columnName + '\''
+            + ",columnType ='" + columnType + '\''
+            + ",newValue ='" + newValue + '\''
+            + ",oldValue ='" + oldValue + '\''
+            + ",columnInfo ='" + columnInfo + '\'' + '}';
     }
 
     private LogValueEntity(Builder builder) {

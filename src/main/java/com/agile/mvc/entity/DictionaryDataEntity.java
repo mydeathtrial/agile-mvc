@@ -140,12 +140,12 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "DictionaryDataEntity{"
-            + "dictionaryDataId='" + dictionaryDataId + '\''
-            + ",dictionaryMainId='" + dictionaryMainId + '\''
-            + ",parentId='" + parentId + '\''
-            + ",key='" + key + '\''
-            + ",value='" + value + '\''
-            + ",isFixed=" + isFixed + '}';
+            + "dictionaryDataId ='" + dictionaryDataId + '\''
+            + ",dictionaryMainId ='" + dictionaryMainId + '\''
+            + ",parentId ='" + parentId + '\''
+            + ",key ='" + key + '\''
+            + ",value ='" + value + '\''
+            + ",isFixed =" + isFixed + '}';
     }
 
     private DictionaryDataEntity(Builder builder) {

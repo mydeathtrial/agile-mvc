@@ -126,11 +126,11 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysAuthoritiesEntity{"
-            + "sysAuthorityId='" + sysAuthorityId + '\''
-            + ",mark='" + mark + '\''
-            + ",name='" + name + '\''
-            + ",desc='" + desc + '\''
-            + ",enable=" + enable + '}';
+            + "sysAuthorityId ='" + sysAuthorityId + '\''
+            + ",mark ='" + mark + '\''
+            + ",name ='" + name + '\''
+            + ",desc ='" + desc + '\''
+            + ",enable =" + enable + '}';
     }
 
     private SysAuthoritiesEntity(Builder builder) {

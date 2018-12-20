@@ -50,12 +50,12 @@ public class ${entityClassName} implements Serializable, Cloneable {
     <#if property.isPrimaryKey == "true">
     @Id
     <#elseif property.columnType == "blob" || property.columnType == "text" || property.columnType == "clob" >
-    @Basic(fetch=FetchType.LAZY)
+    @Basic(fetch = FetchType.LAZY)
     <#else>
     @Basic
     </#if>
     <#if property.isAutoincrement == "YES">
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     </#if>
     <#if property.columnType == "blob" || property.columnType == "clob" >
     @Lob
@@ -104,9 +104,9 @@ public class ${entityClassName} implements Serializable, Cloneable {
     return "${entityClassName}{"
     <#list columnList as property>
         <#if property.propertyType == "Integer" || property.propertyType == "Double" || property.propertyType == "Float" || property.propertyType == "Long" || property.propertyType == "Short" || property.propertyType == "Date" || property.propertyType == "Timestamp" || property.propertyType == "Clob" || property.propertyType == "Blob" || property.propertyType == "int" || property.propertyType == "double" || property.propertyType == "float" || property.propertyType == "long" || property.propertyType == "short" || property.propertyType == "Boolean" || property.propertyType == "boolean">
-            + "<#if property_index != 0>,</#if>${property.propertyName}=" + ${property.propertyName}<#if !property_has_next> + '}';</#if>
+            + "<#if property_index != 0>,</#if>${property.propertyName} =" + ${property.propertyName}<#if !property_has_next> + '}';</#if>
         <#else>
-            + "<#if property_index != 0>,</#if>${property.propertyName}='" + ${property.propertyName} + '\''<#if !property_has_next> + '}';</#if>
+            + "<#if property_index != 0>,</#if>${property.propertyName} ='" + ${property.propertyName} + '\''<#if !property_has_next> + '}';</#if>
         </#if>
     </#list>
     }

@@ -246,19 +246,19 @@ public class SysUsersEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysUsersEntity{"
-            + "sysUsersId='" + sysUsersId + '\''
-            + ",saltKey='" + saltKey + '\''
-            + ",saltValue='" + saltValue + '\''
-            + ",name='" + name + '\''
-            + ",vQzjgid='" + vQzjgid + '\''
-            + ",vQzjgmc='" + vQzjgmc + '\''
-            + ",areaId='" + areaId + '\''
-            + ",expiredTime=" + expiredTime
-            + ",isLocked=" + isLocked
-            + ",onLineStrategy='" + onLineStrategy + '\''
-            + ",createTime=" + createTime
-            + ",updateTime=" + updateTime
-            + ",enabled=" + enabled + '}';
+            + "sysUsersId ='" + sysUsersId + '\''
+            + ",saltKey ='" + saltKey + '\''
+            + ",saltValue ='" + saltValue + '\''
+            + ",name ='" + name + '\''
+            + ",vQzjgid ='" + vQzjgid + '\''
+            + ",vQzjgmc ='" + vQzjgmc + '\''
+            + ",areaId ='" + areaId + '\''
+            + ",expiredTime =" + expiredTime
+            + ",isLocked =" + isLocked
+            + ",onLineStrategy ='" + onLineStrategy + '\''
+            + ",createTime =" + createTime
+            + ",updateTime =" + updateTime
+            + ",enabled =" + enabled + '}';
     }
 
     private SysUsersEntity(Builder builder) {

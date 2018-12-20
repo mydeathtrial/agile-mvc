@@ -201,7 +201,7 @@ public class MainController {
                 modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
             }
             if (Map.class.isAssignableFrom(result.getClass())) {
-                modelAndView.addAllObjects((Map) result);
+                modelAndView.addAllObjects((Map<String, ?>) result);
             } else {
                 modelAndView.addObject(Constant.ResponseAbout.RESULT, result);
             }

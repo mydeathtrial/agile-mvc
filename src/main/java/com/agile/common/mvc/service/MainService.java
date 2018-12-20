@@ -259,7 +259,7 @@ public class MainService implements ServiceInterface {
     /**
      * 服务中调用该方法设置响应参数
      */
-    public void setOutParam(Map map) {
+    public <V> void setOutParam(Map<? extends String, ? extends V> map) {
         outParam.get().putAll(map);
     }
 

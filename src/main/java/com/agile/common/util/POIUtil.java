@@ -79,12 +79,12 @@ public class POIUtil {
             createRow(sheet, headerColumns, currentRowIndex++, headerColumns);
 
             //逐行创建表数据
-            Iterator<Object> it = sheetData.getData().iterator();
+            Iterator it = sheetData.getData().iterator();
             while (it.hasNext()) {
                 createRow(sheet, it.next(), currentRowIndex++, headerColumns);
             }
         } else {
-            Iterator<Object> it = sheetData.getData().iterator();
+            Iterator it = sheetData.getData().iterator();
             while (it.hasNext()) {
                 createRow(sheet, it.next(), currentRowIndex++);
             }

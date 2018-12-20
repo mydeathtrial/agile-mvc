@@ -112,10 +112,10 @@ public class SysRolesEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysRolesEntity{"
-            + "sysRolesId='" + sysRolesId + '\''
-            + ",roleName='" + roleName + '\''
-            + ",roleDesc='" + roleDesc + '\''
-            + ",enable=" + enable + '}';
+            + "sysRolesId ='" + sysRolesId + '\''
+            + ",roleName ='" + roleName + '\''
+            + ",roleDesc ='" + roleDesc + '\''
+            + ",enable =" + enable + '}';
     }
 
     private SysRolesEntity(Builder builder) {

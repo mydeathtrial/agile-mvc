@@ -140,12 +140,12 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysTaskTargetEntity{"
-            + "sysTaskTargetId='" + sysTaskTargetId + '\''
-            + ",name='" + name + '\''
-            + ",targetPackage='" + targetPackage + '\''
-            + ",targetClass='" + targetClass + '\''
-            + ",targetMethod='" + targetMethod + '\''
-            + ",remarks='" + remarks + '\'' + '}';
+            + "sysTaskTargetId ='" + sysTaskTargetId + '\''
+            + ",name ='" + name + '\''
+            + ",targetPackage ='" + targetPackage + '\''
+            + ",targetClass ='" + targetClass + '\''
+            + ",targetMethod ='" + targetMethod + '\''
+            + ",remarks ='" + remarks + '\'' + '}';
     }
 
     private SysTaskTargetEntity(Builder builder) {

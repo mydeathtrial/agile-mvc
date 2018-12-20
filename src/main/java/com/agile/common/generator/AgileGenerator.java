@@ -127,10 +127,10 @@ public class AgileGenerator {
 
         if ("updateTime".equals(propertyName) || "updateDate".equals(propertyName)) {
             param.put("isUpdate", "@Generated(GenerationTime.ALWAYS)");
-            addImport(importList, "javax.persistence.Generated", "javax.persistence.GenerationTime");
+            addImport(importList, "org.hibernate.annotations.Generated", "org.hibernate.annotations.GenerationTime");
         } else if ("creatDate".equals(propertyName) || "creatTime".equals(propertyName) || "createTime".equals(propertyName) || "createDate".equals(propertyName)) {
             param.put("isCreat", "@Generated(GenerationTime.INSERT)");
-            addImport(importList, "javax.persistence.Generated", "javax.persistence.GenerationTime");
+            addImport(importList, "org.hibernate.annotations.Generated", "org.hibernate.annotations.GenerationTime");
         } else {
             if (def != null && !"null".equals(def.toLowerCase())) {
                 switch (ClassUtil.toWrapperNameFromName(propertyType)) {
@@ -179,23 +179,24 @@ public class AgileGenerator {
 
     private static void addImprot(Set<String> importList, String type) {
         //API导入
-        switch (type) {
-            case "Timestamp":
+        switch (type.toUpperCase()) {
+            case "TIMESTAMP":
                 importList.add("java.sql.Timestamp");
                 break;
-            case "Clob":
-                importList.add("java.sql.Clob");
-                importList.add("javax.persistence.Lob");
+            case "CLOB":
+                addImport(importList, "java.sql.Clob", "javax.persistence.Lob", "javax.persistence.FetchType");
                 break;
-            case "Blob":
-                importList.add("java.sql.Blob");
-                importList.add("javax.persistence.Lob");
+            case "BLOB":
+                addImport(importList, "java.sql.Blob", "javax.persistence.Lob", "javax.persistence.FetchType");
                 break;
-            case "Time":
+            case "TIME":
                 importList.add("java.sql.Time");
                 break;
-            case "Date":
+            case "DATE":
                 importList.add("java.util.Date");
+                break;
+            case "TEXT":
+                importList.add("javax.persistence.FetchType");
                 break;
             default:
         }

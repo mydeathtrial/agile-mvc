@@ -140,12 +140,12 @@ public class LogTableEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "LogTableEntity{"
-            + "logTableId='" + logTableId + '\''
-            + ",logMainId='" + logMainId + '\''
-            + ",tableSchema='" + tableSchema + '\''
-            + ",tableName='" + tableName + '\''
-            + ",operationType='" + operationType + '\''
-            + ",operationOrder=" + operationOrder + '}';
+            + "logTableId ='" + logTableId + '\''
+            + ",logMainId ='" + logMainId + '\''
+            + ",tableSchema ='" + tableSchema + '\''
+            + ",tableName ='" + tableName + '\''
+            + ",operationType ='" + operationType + '\''
+            + ",operationOrder =" + operationOrder + '}';
     }
 
     private LogTableEntity(Builder builder) {

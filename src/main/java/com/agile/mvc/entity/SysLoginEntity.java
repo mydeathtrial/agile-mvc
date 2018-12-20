@@ -141,12 +141,12 @@ public class SysLoginEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysLoginEntity{"
-            + "sysLoginId='" + sysLoginId + '\''
-            + ",sysUserId='" + sysUserId + '\''
-            + ",loginTime=" + loginTime
-            + ",logoutTime=" + logoutTime
-            + ",loginIp='" + loginIp + '\''
-            + ",token='" + token + '\'' + '}';
+            + "sysLoginId ='" + sysLoginId + '\''
+            + ",sysUserId ='" + sysUserId + '\''
+            + ",loginTime =" + loginTime
+            + ",logoutTime =" + logoutTime
+            + ",loginIp ='" + loginIp + '\''
+            + ",token ='" + token + '\'' + '}';
     }
 
     private SysLoginEntity(Builder builder) {

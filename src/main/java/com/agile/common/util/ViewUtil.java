@@ -134,11 +134,11 @@ public class ViewUtil {
         Properties defaultStrategies = PropertiesLoaderUtils.loadProperties(resource);
         String value = defaultStrategies.getProperty(key);
         if (value == null) {
-            return new LinkedList();
+            return new LinkedList<>();
         } else {
 
             String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
-            List<T> strategies = new ArrayList(classNames.length);
+            List<T> strategies = new ArrayList<>(classNames.length);
             String[] var7 = classNames;
             int var8 = classNames.length;
 

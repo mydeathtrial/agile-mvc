@@ -89,7 +89,7 @@ public final class LoggerFactory {
 
     private static void createLogger(String baseName, String packagePath, Level... levels) {
         //创建输出格式
-        Layout layout = PatternLayout
+        PatternLayout layout = PatternLayout
                 .newBuilder()
                 .withConfiguration(config)
                 .withPattern("%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}")
@@ -121,7 +121,7 @@ public final class LoggerFactory {
         ctx.updateLoggers();
     }
 
-    private static String createFileAppender(String baseName, String fileName, Layout layout) {
+    private static String createFileAppender(String baseName, String fileName, PatternLayout layout) {
         String name = fileName + "_file";
         if (ObjectUtil.isEmpty(config.getAppender(name))) {
 

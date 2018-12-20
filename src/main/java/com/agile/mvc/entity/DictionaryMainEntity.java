@@ -98,9 +98,9 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "DictionaryMainEntity{"
-            + "dictionaryMainId='" + dictionaryMainId + '\''
-            + ",code='" + code + '\''
-            + ",name='" + name + '\'' + '}';
+            + "dictionaryMainId ='" + dictionaryMainId + '\''
+            + ",code ='" + code + '\''
+            + ",name ='" + name + '\'' + '}';
     }
 
     private DictionaryMainEntity(Builder builder) {

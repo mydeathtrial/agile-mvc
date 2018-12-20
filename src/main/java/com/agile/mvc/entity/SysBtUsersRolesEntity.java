@@ -98,9 +98,9 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysBtUsersRolesEntity{"
-            + "sysBtUsersRolesId='" + sysBtUsersRolesId + '\''
-            + ",roleId='" + roleId + '\''
-            + ",userId='" + userId + '\'' + '}';
+            + "sysBtUsersRolesId ='" + sysBtUsersRolesId + '\''
+            + ",roleId ='" + roleId + '\''
+            + ",userId ='" + userId + '\'' + '}';
     }
 
     private SysBtUsersRolesEntity(Builder builder) {

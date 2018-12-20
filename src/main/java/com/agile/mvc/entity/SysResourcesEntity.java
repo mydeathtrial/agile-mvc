@@ -182,15 +182,15 @@ public class SysResourcesEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysResourcesEntity{"
-            + "sysResourcesId='" + sysResourcesId + '\''
-            + ",type='" + type + '\''
-            + ",name='" + name + '\''
-            + ",desc='" + desc + '\''
-            + ",path='" + path + '\''
-            + ",priority='" + priority + '\''
-            + ",enable=" + enable
-            + ",issys=" + issys
-            + ",moduleId='" + moduleId + '\'' + '}';
+            + "sysResourcesId ='" + sysResourcesId + '\''
+            + ",type ='" + type + '\''
+            + ",name ='" + name + '\''
+            + ",desc ='" + desc + '\''
+            + ",path ='" + path + '\''
+            + ",priority ='" + priority + '\''
+            + ",enable =" + enable
+            + ",issys =" + issys
+            + ",moduleId ='" + moduleId + '\'' + '}';
     }
 
     private SysResourcesEntity(Builder builder) {

@@ -159,13 +159,13 @@ public class SysTaskEntity implements Serializable, Cloneable {
     @Override
     public String toString() {
     return "SysTaskEntity{"
-            + "sysTaskId='" + sysTaskId + '\''
-            + ",name='" + name + '\''
-            + ",state=" + state
-            + ",cron='" + cron + '\''
-            + ",sync=" + sync
-            + ",updateTime=" + updateTime
-            + ",createTime=" + createTime + '}';
+            + "sysTaskId ='" + sysTaskId + '\''
+            + ",name ='" + name + '\''
+            + ",state =" + state
+            + ",cron ='" + cron + '\''
+            + ",sync =" + sync
+            + ",updateTime =" + updateTime
+            + ",createTime =" + createTime + '}';
     }
 
     private SysTaskEntity(Builder builder) {

@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import ${entityPackage}.${entityClassName};
 
 /**
-* Created by 佟盟
-*/
+ * @author agile gennerator
+ */
 @Service
 public class ${serviceClassName} extends BusinessService<${entityClassName}> {
 

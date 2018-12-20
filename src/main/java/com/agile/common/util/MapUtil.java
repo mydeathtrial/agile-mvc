@@ -9,11 +9,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedHashMap;
 
 /**
  * Created by 佟盟 on 2017/12/22
@@ -179,14 +179,8 @@ public class MapUtil extends MapUtils {
      * @param map
      * @return
      */
-    public static Map<String, String> sort(Map<String, Object> map) {
-        List<Map.Entry<String, Object>> list = new ArrayList<>(map.entrySet());
-        list.sort(Comparator.comparing(Map.Entry::getKey));
-        Map linkedHashMap = new LinkedHashMap();
-        for (Map.Entry entry : list) {
-            linkedHashMap.put(entry.getKey(), entry.getValue());
-        }
-        return linkedHashMap;
+    public static Map<String, Object> sort(Map<String, Object> map) {
+        return sortByValue(map, KeyOrValue.KEY);
     }
 
     /**
@@ -195,11 +189,41 @@ public class MapUtil extends MapUtils {
      * @param map
      * @return
      */
-    public static Map<String, String> sortByValue(Map<String, String> map) {
-        List<Map.Entry<String, String>> list = new LinkedList<>(map.entrySet());
-        list.sort(Comparator.comparing(Map.Entry::getValue));
-        Map linkedHashMap = new LinkedHashMap();
-        for (Map.Entry entry : list) {
+    public static Map<String, Object> sortByValue(Map<String, Object> map) {
+        return sortByValue(map, KeyOrValue.VALUE);
+    }
+
+    /**
+     * 辅助枚举
+     */
+    private enum KeyOrValue {
+        /**
+         * key
+         */
+        KEY,
+        VALUE
+    }
+
+    /**
+     * Map排序
+     *
+     * @param map        目标map
+     * @param keyOrValue 排序key值还是排序value值
+     * @return 排序好的Map
+     */
+    private static Map<String, Object> sortByValue(Map<String, Object> map, KeyOrValue keyOrValue) {
+        List<Map.Entry<String, Object>> list = new LinkedList<>(map.entrySet());
+        switch (keyOrValue) {
+            case KEY:
+                list.sort(Comparator.comparing(Map.Entry::getKey));
+                break;
+            case VALUE:
+                list.sort(Comparator.comparing(o -> String.valueOf(o.getValue())));
+                break;
+            default:
+        }
+        Map<String, Object> linkedHashMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : list) {
             linkedHashMap.put(entry.getKey(), entry.getValue());
         }
         return linkedHashMap;

@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.annotation.NotAPI;
 import com.agile.common.base.APIInfo;
 import com.agile.common.container.MappingHandlerMapping;
 import com.agile.common.factory.LoggerFactory;
@@ -59,7 +60,7 @@ public class APIUtil {
 
     public static void addMappingInfoCache(String beanName, Object bean) {
         Class<?> realClass = ProxyUtils.getUserClass(bean);
-        if (realClass == null) {
+        if (realClass == null || realClass.getAnnotation(NotAPI.class) != null) {
             return;
         }
         Service service = realClass.getAnnotation(Service.class);
@@ -68,7 +69,7 @@ public class APIUtil {
         }
         Method[] methods = realClass.getDeclaredMethods();
         for (Method method : methods) {
-            if (method.getParameters().length > 0) {
+            if (method.getParameters().length > 0 || method.getAnnotation(NotAPI.class) != null) {
                 continue;
             }
             addMappingInfoCache(beanName, bean, method, realClass);
