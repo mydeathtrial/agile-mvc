@@ -5,7 +5,7 @@ package com.agile.common.properties;
  */
 public class MailConfigProperty {
     private static String serverHost = "smtp.163.com";
-    private static int serverPort = 25;
+    private static int serverPort;
     private static String serverDefaultFrom = "mydeathtrial@163.com";
     private static String serverUsername = "mydeathtrial@163.com";
     private static String serverPassword = "tongmeng19900905";

@@ -16,7 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2018/5/29
+ * @author 佟盟
+ * 业务service
+ * @param <T> 服务的实体类型
  */
 public class BusinessService<T> extends MainService {
     private Class<T> entityClass;
@@ -31,6 +33,7 @@ public class BusinessService<T> extends MainService {
      * 新增
      */
     public RETURN save() throws IllegalAccessException, NoSuchIDException {
+        final int idLength = 8;
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         if (ObjectUtil.isEmpty(entity) || !ObjectUtil.isValidity(entity)) {
             return RETURN.PARAMETER_ERROR;
@@ -38,7 +41,7 @@ public class BusinessService<T> extends MainService {
         Field idField = dao.getIdField(entityClass);
         idField.setAccessible(true);
         if (!ObjectUtil.haveId(idField, entity)) {
-            idField.set(entity, RandomStringUtil.getRandom(8, "ID-", RandomStringUtil.Random.MIX_1));
+            idField.set(entity, RandomStringUtil.getRandom(idLength, "ID-", RandomStringUtil.Random.MIX_1));
         }
         dao.save(entity);
         return RETURN.SUCCESS;
@@ -100,11 +103,13 @@ public class BusinessService<T> extends MainService {
      * 分页查询
      */
     public RETURN pageQuery() throws IllegalAccessException, InstantiationException {
+        final int defPage = 0;
+        final int defSize = 10;
         T entity = ObjectUtil.getObjectFromMap(entityClass, this.getInParam());
         if (entity == null) {
             entity = entityClass.newInstance();
         }
-        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam("page", Integer.class, 0), getInParam("size", Integer.class, 10), getSort()));
+        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam("page", Integer.class, defPage), getInParam("size", Integer.class, defSize), getSort()));
         return RETURN.SUCCESS;
     }
 

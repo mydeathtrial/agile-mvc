@@ -13,7 +13,6 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -73,6 +72,7 @@ public class ObjectUtil extends ObjectUtils {
                             continue;
                         }
                         break;
+                    default:
                 }
             }
 
@@ -109,7 +109,7 @@ public class ObjectUtil extends ObjectUtils {
      * @return 是否相同
      */
     public static Boolean compareClass(Object source, Object target) {
-        return isEmpty(source) ? isEmpty(target) : (!isEmpty(target) && source.getClass().equals(target.getClass()));
+        return isEmpty(source) ? isEmpty(target) : (!isEmpty(target) && source.getClass() == (target.getClass()));
     }
 
     /**
@@ -138,7 +138,7 @@ public class ObjectUtil extends ObjectUtils {
                 return false;
             }
             try {
-                List<Map<String, Object>> list = getDifferenceProperties(source, target, excludeProperty);
+                List<Different> list = getDifferenceProperties(source, target, excludeProperty);
                 if (list != null && list.size() > 0) {
                     return false;
                 }
@@ -157,11 +157,11 @@ public class ObjectUtil extends ObjectUtils {
      * @return 值不相同的属性列表
      * @throws IllegalAccessException 调用过程异常
      */
-    public static List<Map<String, Object>> getDifferenceProperties(Object source, Object target, String... excludeProperty) throws IllegalAccessException {
+    public static List<Different> getDifferenceProperties(Object source, Object target, String... excludeProperty) throws IllegalAccessException {
         if ((!compareClass(source, target) || compare(source, target) || isEmpty(source)) != isEmpty(target)) {
             return null;
         }
-        List<Map<String, Object>> result = new ArrayList<>();
+        List<Different> result = new ArrayList<>();
         Object sourceObject = isEmpty(source) ? target : source;
         Object targetObject = isEmpty(source) ? source : target;
         Class sourceClass = sourceObject.getClass();
@@ -176,19 +176,45 @@ public class ObjectUtil extends ObjectUtils {
             if (compare(sourceValue, targetValue)) {
                 continue;
             }
-            result.add(new HashMap<String, Object>() {
-                private static final long serialVersionUID = -3959176970036247143L;
 
-                {
-                    put("propertyName", field.getName());
-                    put("propertyType", field.getType());
-                    put("oldValue", sourceValue);
-                    put("newValue", targetValue);
-                }
-            });
+            result.add(new Different(field.getName(), field.getType().getTypeName(), String.valueOf(targetValue), String.valueOf(sourceValue)));
         }
         return result;
     }
+
+    /**
+     * 区别信息
+     */
+    public static class Different {
+        private String propertyName;
+        private String propertyType;
+        private String newValue;
+        private String oldValue;
+
+        public Different(String propertyName, String propertyType, String newValue, String oldValue) {
+            this.propertyName = propertyName;
+            this.propertyType = propertyType;
+            this.newValue = newValue;
+            this.oldValue = oldValue;
+        }
+
+        public String getPropertyName() {
+            return propertyName;
+        }
+
+        public String getPropertyType() {
+            return propertyType;
+        }
+
+        public String getNewValue() {
+            return newValue;
+        }
+
+        public String getOldValue() {
+            return oldValue;
+        }
+    }
+
 
     /**
      * 从Map对象中获取指定类型对象
@@ -353,6 +379,12 @@ public class ObjectUtil extends ObjectUtils {
         return set;
     }
 
+    /**
+     * 获取所有字段注解
+     *
+     * @param clazz 类
+     * @return 注解结果集
+     */
     public static Set<Target> getAllColumnAnnotation(Class clazz) {
         Set<Target> fieldAnnotation = getAllFieldAnnotation(clazz, Column.class);
         Set<Target> methodAnnotation = getAllMethodAnnotation(clazz, Column.class);
@@ -361,8 +393,9 @@ public class ObjectUtil extends ObjectUtils {
             Target target = it.next();
             String name = target.getMember().getName();
             if (name.startsWith("get")) {
-                Field field = getField(clazz, StringUtil.toLowerName(name.substring(3)));
-                fieldAnnotation.add(new Target(field, target.getAnnotation()));
+                final int length = 3;
+                Field targetField = getField(clazz, StringUtil.toLowerName(name.substring(length)));
+                fieldAnnotation.add(new Target(targetField, target.getAnnotation()));
             }
         }
         return fieldAnnotation;
@@ -525,10 +558,20 @@ public class ObjectUtil extends ObjectUtils {
         return true;
     }
 
+    /**
+     * 包含或者排除
+     */
     public enum ContainOrExclude {
-        INCLUDE, EXCLUDE
+        /**
+         * 包含
+         */
+        INCLUDE,
+        EXCLUDE
     }
 
+    /**
+     * 目标
+     */
     public static class Target {
         private Member member;
         private Annotation annotation;

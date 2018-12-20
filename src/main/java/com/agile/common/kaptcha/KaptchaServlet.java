@@ -47,10 +47,11 @@ public class KaptchaServlet extends HttpServlet implements Servlet {
     }
 
     private String createCode(HttpServletRequest req, HttpServletResponse resp) {
+        final int length = 20;
         String capText = this.kaptchaProducer.createText();
         String codeToken = TokenUtil.getToken(req, KaptchaConfigProperties.getKey());
         if (codeToken == null) {
-            codeToken = RandomStringUtil.getRandom(20, RandomStringUtil.Random.LETTER_UPPER);
+            codeToken = RandomStringUtil.getRandom(length, RandomStringUtil.Random.LETTER_UPPER);
         }
         CacheUtil.put(codeToken, capText, KaptchaConfigProperties.getLiveTime());
         setOutParam(KaptchaConfigProperties.getKey(), codeToken, resp);

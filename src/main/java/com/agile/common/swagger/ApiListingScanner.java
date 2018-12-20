@@ -131,7 +131,14 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
             if (apiInfo.getRequestMappingInfo() == null) {
                 continue;
             }
-            RequestMappingContext requestMappingContext = new RequestMappingContext(context.getDocumentationContext(), new WebMvcRequestHandler(new HandlerMethodResolver(typeResolver), apiInfo.getRequestMappingInfo(), new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())));
+            RequestMappingContext requestMappingContext = new RequestMappingContext(
+                    context.getDocumentationContext(),
+                    new WebMvcRequestHandler(
+                            new HandlerMethodResolver(typeResolver),
+                            apiInfo.getRequestMappingInfo(),
+                            new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())
+                    )
+            );
 
             String groupName = requestMappingContext.getGroupName();
             Class<?> bean = AopUtils.getTargetClass(apiInfo.getBean());

@@ -53,8 +53,8 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
             this.cacheManager = (RedisCacheManager) resolveCacheManager();
             if (this.cacheManager == null) {
                 String msg = "开启 Ehcache CacheManager 失败";
-                if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
-                    LoggerFactory.CACHE_LOG.error(msg);
+                if (LoggerFactory.getCacheLog().isErrorEnabled()) {
+                    LoggerFactory.getCacheLog().error(msg);
                 }
                 throw new CacheException(msg);
             }
@@ -88,15 +88,15 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
 
     private CacheManager useExplicitCacheManager() {
         try {
-            if (LoggerFactory.CACHE_LOG.isDebugEnabled()) {
-                LoggerFactory.CACHE_LOG.debug("初始化Redis二级缓存区域");
+            if (LoggerFactory.getCacheLog().isDebugEnabled()) {
+                LoggerFactory.getCacheLog().debug("初始化Redis二级缓存区域");
             }
             initConnectionFactory();
             REFERENCE_COUNT.incrementAndGet();
             return redisCacheManager;
         } catch (Exception e) {
-            if (LoggerFactory.CACHE_LOG.isDebugEnabled()) {
-                LoggerFactory.CACHE_LOG.error("初始化Redis二级缓存区域失败");
+            if (LoggerFactory.getCacheLog().isDebugEnabled()) {
+                LoggerFactory.getCacheLog().error("初始化Redis二级缓存区域失败");
                 e.printStackTrace();
             }
             REFERENCE_COUNT.decrementAndGet();

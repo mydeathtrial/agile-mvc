@@ -11,19 +11,19 @@ public class DruidConfigProperty {
     private String dataBaseUsername = "root";
     private String dataBasePassword;
     private String dataBaseUrlParam = "serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL";
-    private int initSize = 1;
-    private int minIdle = 1;
-    private int maxActive = 100;
-    private int maxWait = 60000;
+    private int initSize;
+    private int minIdle;
+    private int maxActive;
+    private int maxWait;
     private boolean removeAbandoned = true;
-    private int removeAbandonedTimeout = 300000;
-    private int timeBetweenEvictionRunsMillis = 60000;
-    private int minEvictableIdleTimeMillis = 300000;
+    private int removeAbandonedTimeout;
+    private int timeBetweenEvictionRunsMillis;
+    private int minEvictableIdleTimeMillis;
     private boolean testWhileIdle = true;
     private boolean testOnBorrow = false;
     private boolean testOnReturn = false;
     private boolean poolPreparedStatements = true;
-    private int maxPoolPreparedStatementPerConnectionSize = 20;
+    private int maxPoolPreparedStatementPerConnectionSize;
     private String filters = "stat,wall";
     private boolean globalDataSourceStat = true;
 

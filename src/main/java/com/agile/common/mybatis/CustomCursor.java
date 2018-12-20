@@ -32,6 +32,7 @@ import java.util.NoSuchElementException;
  * This implementation is not thread safe.
  *
  * @author Guillaume Darmont / guillaume@dropinocean.com
+ * @param <T> 游标实体泛型
  */
 public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
 
@@ -143,6 +144,9 @@ public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
         return indexWithRowBound + 1;
     }
 
+    /**
+     * 游标状态
+     */
     private enum CursorStatus {
 
         /**
@@ -163,6 +167,10 @@ public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
         CONSUMED
     }
 
+    /**
+     * 对象包装结果处理器
+     * @param <T>
+     */
     private static class ObjectWrapperResultHandler<T> implements ResultHandler<T> {
 
         private T result;
@@ -174,6 +182,9 @@ public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
         }
     }
 
+    /**
+     * 游标迭代器
+     */
     private class CursorIterator implements Iterator<T> {
 
         /**

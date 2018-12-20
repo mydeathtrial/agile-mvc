@@ -17,16 +17,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -43,7 +34,7 @@ import java.util.zip.ZipOutputStream;
  * Created by 佟盟 on 2017/12/21
  */
 public class FileUtil extends FileUtils {
-    private final static Map<String, Object> FILE_FORMAT_MAP = new HashMap<>();
+    private static final Map<String, Object> FILE_FORMAT_MAP = new HashMap<>();
 
     static {
         FILE_FORMAT_MAP.put("FFD8FFE", "JPG");
@@ -127,35 +118,39 @@ public class FileUtil extends FileUtils {
     }
 
     private static String getFormat(InputStream inputStream, String fileName) {
+        String result = null;
         try {
             String extension = StringUtils.getFilenameExtension(fileName);
-            if (StringUtil.isEmpty(extension)) {
-                byte[] header = new byte[20];
-                int i = inputStream.read(header);
-                if (i <= 0) {
-                    return null;
-                }
-                String headerHex = StringUtil.coverToHex(header);
-                if (StringUtil.isEmpty(headerHex)) {
-                    return null;
-                }
-                for (Map.Entry<String, Object> map : FILE_FORMAT_MAP.entrySet()) {
-                    if (headerHex.contains(map.getKey())) {
-                        Object value = map.getValue();
-                        if (value.getClass().isArray()) {
-                            String[] values = (String[]) value;
-                            return ArrayUtil.toString(values);
-                        }
-                        return map.getValue().toString();
-                    }
-                }
-                return null;
-            } else {
+            if (!StringUtil.isEmpty(extension)) {
                 return extension;
             }
+            final int length = 20;
+            byte[] header = new byte[length];
+            int i = inputStream.read(header);
+            if (i <= 0) {
+                result = null;
+            } else {
+                String headerHex = StringUtil.coverToHex(header);
+                if (StringUtil.isEmpty(headerHex)) {
+                    result = null;
+                } else {
+                    for (Map.Entry<String, Object> map : FILE_FORMAT_MAP.entrySet()) {
+                        if (headerHex.contains(map.getKey())) {
+                            Object value = map.getValue();
+                            if (value.getClass().isArray()) {
+                                String[] values = (String[]) value;
+                                result = ArrayUtil.toString(values);
+                            } else {
+                                result = map.getValue().toString();
+                            }
+                        }
+                    }
+                }
+            }
         } catch (Exception e) {
-            return null;
+            result = null;
         }
+        return result;
     }
 
     /**
@@ -356,8 +351,8 @@ public class FileUtil extends FileUtils {
     }
 
     public static void inWriteOut(InputStream inputStream, OutputStream outputStream) throws IOException {
-        //把流中文件写到压缩包
-        byte[] buffer = new byte[1024];
+        final int length = 1024;
+        byte[] buffer = new byte[length];
         int r;
         while ((r = inputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, r);

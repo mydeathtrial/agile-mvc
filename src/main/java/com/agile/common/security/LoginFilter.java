@@ -31,14 +31,14 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private static final String USERNAME = SecurityProperties.getLoginUsername();
     private static final String PASSWORD = SecurityProperties.getLoginPassword();
     private final FailureHandler failureHandler;
-    private final SuccessHandler SuccessHandler;
+    private final SuccessHandler successHandler;
     private final JWTAuthenticationProvider loginStrategyProvider;
     private final SessionAuthenticationStrategy tokenStrategy;
 
     public LoginFilter(JWTAuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy) {
         super(new AntPathRequestMatcher(SecurityProperties.getLoginUrl()));
         this.failureHandler = new FailureHandler();
-        this.SuccessHandler = new SuccessHandler();
+        this.successHandler = new SuccessHandler();
         this.loginStrategyProvider = loginStrategyProvider;
         this.tokenStrategy = tokenStrategy;
         setAllowSessionCreation(false);
@@ -47,7 +47,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     @Override
     public void afterPropertiesSet() {
-        this.setAuthenticationSuccessHandler(SuccessHandler);
+        this.setAuthenticationSuccessHandler(successHandler);
         this.setAuthenticationFailureHandler(failureHandler);
         ProviderManager providerManager = new ProviderManager(Collections.singletonList(loginStrategyProvider));
         providerManager.setEraseCredentialsAfterAuthentication(false);

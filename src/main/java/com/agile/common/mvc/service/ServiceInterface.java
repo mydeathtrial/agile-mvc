@@ -5,6 +5,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+/**
+ * Service 层顶级接口
+ * @author 佟盟
+ */
 public interface ServiceInterface {
     //设置请求参数
     void setInParam(String key, Object o);

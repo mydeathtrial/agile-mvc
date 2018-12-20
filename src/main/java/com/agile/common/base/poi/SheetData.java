@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2018/10/16
+ * Created by on 2018/10/16
+ * @author 佟盟
+ * sheet页信息
  */
 public class SheetData {
     private String name;
@@ -62,6 +64,9 @@ public class SheetData {
         return this;
     }
 
+    /**
+     * 建造者
+     */
     public static class Builder {
         private String name;
         private List<Cell> cells;

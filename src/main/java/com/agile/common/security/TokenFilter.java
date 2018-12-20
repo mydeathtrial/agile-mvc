@@ -38,11 +38,11 @@ public class TokenFilter extends OncePerRequestFilter {
     private final FailureHandler failureHandler;
     private final SecurityUserDetailsService securityUserDetailsService;
     private RequestMatcher[] matches;
-    private AntPathRequestMatcher SignOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
+    private AntPathRequestMatcher signOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
 
     @Autowired
     public TokenFilter(SecurityUserDetailsService securityUserDetailsService) {
-        String[] urls = SecurityConfig.immuneUrl;
+        String[] urls = SecurityConfig.getImmuneUrl();
         matches = new RequestMatcher[urls.length];
         int i = 0;
         while (i < urls.length) {
@@ -90,7 +90,7 @@ public class TokenFilter extends OncePerRequestFilter {
             if (!oldSaltValue.equals(currentSaltValue)) {
                 throw new TokenIllegalException(null);
             }
-            if (SignOutUrl.matches(request)) {
+            if (signOutUrl.matches(request)) {
                 securityUserDetailsService.updateLoginInfo(oldSalt);
                 CacheUtil.put(saltsKey, salts.replaceAll(oldSalt, ""));
             } else {
@@ -114,7 +114,8 @@ public class TokenFilter extends OncePerRequestFilter {
     private void refreshToken(Authentication authentication, ServletResponse httpServletResponse, String oldSalt, String saltValue) throws NoSuchIDException {
         String cacheKey = authentication.getName();
         String saltKey = cacheKey + "_SALT";
-        String newSalt = RandomStringUtil.getRandom(8, RandomStringUtil.Random.LETTER_UPPER);
+        final int digit = 8;
+        String newSalt = RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER);
         CacheUtil.put(saltKey, Objects.requireNonNull(CacheUtil.get(saltKey)).toString().replaceAll(oldSalt, newSalt));
         securityUserDetailsService.updateLoginInfo(oldSalt, newSalt);
 

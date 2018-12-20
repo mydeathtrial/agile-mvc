@@ -16,6 +16,5 @@ import org.springframework.stereotype.Component;
 public class ListenerContainerPrepare implements ApplicationListener<ApplicationPreparedEvent> {
     @Override
     public void onApplicationEvent(ApplicationPreparedEvent event) {
-        System.out.println();
     }
 }

@@ -23,7 +23,7 @@ public class AgileBanner implements Banner {
             "██║    ██║╚██████╔╝ ██║ ███████╗███████╗",
             "╚═╝    ╚═╝ ╚═════╝    ╚═╝ ╚══════╝╚══════╝"};
 
-    private static final String AgileFramework = " :: 敏捷开发框架 Agile Framework :: ";
+    private static final String AGILE_FRAMEWORK = " :: 敏捷开发框架 Agile Framework :: ";
 
     private static final int STRAP_LINE_SIZE = 42;
 
@@ -36,11 +36,11 @@ public class AgileBanner implements Banner {
         version = (version != null) ? " (version:" + version + ")" : "";
         StringBuilder padding = new StringBuilder();
         while (padding.length() < STRAP_LINE_SIZE
-                - (version.length() + AgileFramework.length())) {
+                - (version.length() + AGILE_FRAMEWORK.length())) {
             padding.append(" ");
         }
 
-        printStream.println(AnsiOutput.toString(AnsiColor.GREEN, AgileFramework, AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
+        printStream.println(AnsiOutput.toString(AnsiColor.GREEN, AGILE_FRAMEWORK, AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
         printStream.println();
     }
 

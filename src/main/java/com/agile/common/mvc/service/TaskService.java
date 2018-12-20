@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ScheduledFuture;
 
@@ -38,7 +39,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
     private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
-    private Log log = LoggerFactory.TASK_LOG;
+    private Log log = LoggerFactory.getTaskLog();
 
     public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
@@ -87,13 +88,13 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      */
     @Init
     public void init() throws NoSuchIDException {
-//        initTaskTarget();
-//        //获取持久层定时任务数据集
-//        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
-//        for (int i = 0 ; i < list.size();i++ ) {
-//            SysTaskEntity sysTaskEntity = list.get(i);
-//            addTask(sysTaskEntity);
-//        }
+        initTaskTarget();
+        //获取持久层定时任务数据集
+        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
+        for (int i = 0; i < list.size(); i++) {
+            SysTaskEntity sysTaskEntity = list.get(i);
+            addTask(sysTaskEntity);
+        }
     }
 
     /**
@@ -144,7 +145,10 @@ public class TaskService extends BusinessService<SysTaskEntity> {
     private boolean addTask(SysTaskEntity sysTaskEntity) {
         try {
             //获取定时任务详情列表
-            List<SysTaskTargetEntity> sysTaskTargetEntityList = dao.findAll("select a.* from sys_task_target a left join sys_bt_task_target b on b.sys_task_target_id = a.sys_task_target_id where b.sys_task_id = ? order by b.order", SysTaskTargetEntity.class, sysTaskEntity.getSysTaskId());
+            List<SysTaskTargetEntity> sysTaskTargetEntityList = dao.findAll(
+                    "select a.* from sys_task_target a left join sys_bt_task_target b on b.sys_task_target_id = a.sys_task_target_id where b.sys_task_id = ? order by b.order",
+                    SysTaskTargetEntity.class,
+                    sysTaskEntity.getSysTaskId());
 
             if (ObjectUtil.isEmpty(sysTaskTargetEntityList)) {
                 return true;
@@ -298,9 +302,11 @@ public class TaskService extends BusinessService<SysTaskEntity> {
     }
 
     @Override
-    public RETURN query() throws NoSuchIDException {
-        int page = this.getInParam("page", Integer.class, 0);
-        int size = this.getInParam("size", Integer.class, 10);
+    public RETURN query() {
+        final int defPage = 0;
+        final int defSize = 10;
+        int page = this.getInParam("page", Integer.class, defPage);
+        int size = this.getInParam("size", Integer.class, defSize);
         this.setOutParam("queryList", dao.findAll(SysTaskEntity.class, page, size));
         return RETURN.SUCCESS;
     }
@@ -416,6 +422,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         private String taskName;
         private TaskTrigger trigger;
         private List<SysTaskTargetEntity> sysTaskTargetEntityList;
+        private static final int TIME_UNIT = 1000;
 
         Job(String taskName, TaskTrigger trigger, List<SysTaskTargetEntity> sysTaskTargetEntityList) {
             this.taskName = taskName;
@@ -429,7 +436,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
                 //判断是否需要同步，同步情况下获取同步锁后方可执行，非同步情况下直接运行
                 if (this.trigger.isSync()) {
                     //获取下次执行时间（秒）
-                    long nextTime = (this.trigger.nextExecutionTime(new SimpleTriggerContext()).getTime() - System.currentTimeMillis()) / 1000;
+                    long nextTime = (Objects.requireNonNull(this.trigger.nextExecutionTime(new SimpleTriggerContext())).getTime() - System.currentTimeMillis()) / TIME_UNIT;
 
                     //如果抢到同步锁，设置锁定时间并直接运行
                     if (setNxLock(this.taskName, (int) nextTime)) {

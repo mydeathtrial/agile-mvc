@@ -378,13 +378,13 @@ public class MainController {
         HandlerMethod info = APIUtil.getApiCache(currentRequest);
         if (info != null) {
             Object bean = info.getBean();
-            Method method = info.getMethod();
+            Method targetMethod = info.getMethod();
             try {
                 initServiceByObject(bean);
             } catch (NoSuchRequestServiceException e) {
                 return false;
             }
-            initMethodByObject(method);
+            initMethodByObject(targetMethod);
             return true;
         }
         return false;
@@ -489,9 +489,9 @@ public class MainController {
         Enumeration<String> attributeNames = currentRequest.getAttributeNames();
         while (attributeNames.hasMoreElements()) {
             String key = attributeNames.nextElement();
-            String PREFIX = ForwardView.getPrefix();
-            if (key.startsWith(PREFIX)) {
-                inParam.put(key.replace(PREFIX, ""), currentRequest.getAttribute(key));
+            String prefix = ForwardView.getPrefix();
+            if (key.startsWith(prefix)) {
+                inParam.put(key.replace(prefix, ""), currentRequest.getAttribute(key));
             }
         }
 
@@ -506,8 +506,8 @@ public class MainController {
         //处理路径入参
         if (info != null) {
             Object bean = info.getBean();
-            Method method = info.getMethod();
-            RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(method, ProxyUtils.getUserClass(bean));
+            Method targetMethod = info.getMethod();
+            RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(targetMethod, ProxyUtils.getUserClass(bean));
             if (requestMappingInfo != null) {
                 Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
                 for (String mapping : mappingCache) {

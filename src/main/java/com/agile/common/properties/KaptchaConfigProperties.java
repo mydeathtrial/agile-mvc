@@ -19,7 +19,7 @@ public class KaptchaConfigProperties {
     private static String textproducerFontNames = "微软雅黑";
     private static String text;
     private static String key = "V-CODE";
-    private static int liveTime = 60;
+    private static int liveTime;
 
     public static boolean isEnable() {
         return enable;

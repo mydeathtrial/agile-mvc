@@ -77,7 +77,7 @@ public class RedisConfig {
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(jedisConnectionFactory);
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
         //设置默认超过期时间是30秒
-        defaultCacheConfig.entryTtl(Duration.ofSeconds(30));
+        defaultCacheConfig.entryTtl(Duration.ofSeconds(RedisConfigProperties.getDuration()));
         //初始化RedisCacheManager
         return new RedisCacheManager(redisCacheWriter, defaultCacheConfig);
     }

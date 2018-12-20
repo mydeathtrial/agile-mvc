@@ -34,12 +34,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-@Component
 /**
  * Created by 佟盟 on 2018/8/22
  *
  * @author 佟盟
  */
+@Component
 public class ViewUtil {
     private static ViewUtil viewUtil;
     @Nullable
@@ -196,6 +196,9 @@ public class ViewUtil {
         viewUtil = this;
     }
 
+    /**
+     * 返回数据经过加公后产生的模型辅助类
+     */
     public static class Model extends LinkedHashMap<String, Object> {
         List<Object> files = new ArrayList<>();
         List<String> pages = new ArrayList<>();

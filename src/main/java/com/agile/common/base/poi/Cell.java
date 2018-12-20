@@ -1,11 +1,24 @@
 package com.agile.common.base.poi;
 
 /**
- * Created by 佟盟 on 2018/10/17
+ * Created by on 2018/10/17
+ * @author 佟盟
+ * 为POI生成excel工具提供的辅助类，该类主要负责存放表头信息
  */
 public final class Cell {
+    /**
+     * 排位
+     */
     private int sort;
+
+    /**
+     * 列索引值
+     */
     private String key;
+
+    /**
+     * 显示名
+     */
     private String showName;
 
     private Cell(Builder builder) {
@@ -42,6 +55,9 @@ public final class Cell {
         this.showName = showName;
     }
 
+    /**
+     * 建造者
+     */
     public static class Builder {
         private int sort;
         private String key;

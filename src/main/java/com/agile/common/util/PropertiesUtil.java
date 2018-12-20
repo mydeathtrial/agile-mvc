@@ -33,16 +33,20 @@ import java.util.Set;
 /**
  * Created by mydeathtrial on 2017/3/11
  */
-public class PropertiesUtil extends PropertiesLoaderUtils {
+public final class PropertiesUtil extends PropertiesLoaderUtils {
 
-    private static final String classPath = "/com/agile/conf/";
-    private static final String json_file_error = "未成功解析的json文件";
-    public static Properties properties = new Properties();
+    private static final String CLASS_PATH = "/com/agile/conf/";
+    private static final String JSON_FILE_ERROR = "未成功解析的json文件";
+    private static Properties properties = new Properties();
+
+    public static Properties getProperties() {
+        return properties;
+    }
 
     static {
         mergeEnv();
         readDir("/");
-        readDir(classPath);
+        readDir(CLASS_PATH);
         mergeOrder("agile");
         mergeOrder("application");
         mergeOrder("bootstrap");
@@ -112,8 +116,8 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
     }
 
     private static void mergeOrder(String fileName) {
-        merge(classPath + fileName + ".properties");
-        merge(classPath + fileName + ".yml");
+        merge(CLASS_PATH + fileName + ".properties");
+        merge(CLASS_PATH + fileName + ".yml");
         merge(fileName + ".properties");
         merge(fileName + ".yml");
     }
@@ -197,7 +201,7 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
             }
             String data = FileUtils.readFileToString(file, "UTF-8");
             JSON json = JSONUtil.toJSON(data);
-            properties.put(file.getName(), json == null ? json_file_error : json);
+            properties.put(file.getName(), json == null ? JSON_FILE_ERROR : json);
         } catch (Exception ignored) {
         }
     }
@@ -219,10 +223,6 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
             properties.put(file.getName(), file.getPath());
         } catch (Exception ignored) {
         }
-    }
-
-    public static Properties getPropertys() {
-        return properties;
     }
 
     /**
@@ -359,7 +359,8 @@ public class PropertiesUtil extends PropertiesLoaderUtils {
         while (it.hasMoreElements()) {
             String key = String.valueOf(it.nextElement());
             if (key.endsWith(String.format("%s.json", fileSuffixName))) {
-                JSONObject json = getJson(key.substring(0, key.length() - 5));
+                final int length = 5;
+                JSONObject json = getJson(key.substring(0, key.length() - length));
                 try {
                     T node = (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
                     if (node != null) {

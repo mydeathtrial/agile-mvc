@@ -82,17 +82,20 @@ public class RedisCache extends org.springframework.data.redis.cache.RedisCache 
 
     @Override
     public <T> T getCollection(Object o1, Class<T> o2) {
+        Object o;
         try {
             if (o2 == Map.class) {
-                return (T) getRedisTemplate().opsForHash().entries(o1);
+                o = getRedisTemplate().opsForHash().entries(o1);
             } else if (o2 == Set.class) {
-                return (T) getRedisTemplate().opsForSet().members(o1);
+                o = getRedisTemplate().opsForSet().members(o1);
             } else if (o2 == List.class) {
-                return (T) getRedisTemplate().opsForList().rightPop(o1);
+                o = getRedisTemplate().opsForList().rightPop(o1);
+            } else {
+                o = get(o1).get();
             }
-            return (T) get(o1).get();
         } catch (Exception e) {
             return null;
         }
+        return (T) o;
     }
 }

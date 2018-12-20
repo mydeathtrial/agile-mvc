@@ -36,7 +36,7 @@ public class LogMainEntity implements Serializable, Cloneable {
     @Remark("业务对象标识")
     private String targetCode;
     @Remark("操作人")
-    private Integer userId;
+    private String userId;
     @Remark("操作时间")
     private Date createTime;
 
@@ -48,7 +48,7 @@ public class LogMainEntity implements Serializable, Cloneable {
     /**
      * 带参构造器
      */
-    public LogMainEntity(String logMainId, String businessCode, String targetType, String targetCode, Integer userId, Date createTime) {
+    public LogMainEntity(String logMainId, String businessCode, String targetType, String targetCode, String userId, Date createTime) {
         this.logMainId = logMainId;
         this.businessCode = businessCode;
         this.targetType = targetType;
@@ -78,7 +78,7 @@ public class LogMainEntity implements Serializable, Cloneable {
     }
 
     @Basic
-    @Column(name = "target_type", nullable = false)
+    @Column(name = "target_type")
     public String getTargetType() {
         return targetType;
     }
@@ -88,7 +88,7 @@ public class LogMainEntity implements Serializable, Cloneable {
     }
 
     @Basic
-    @Column(name = "target_code", nullable = false)
+    @Column(name = "target_code")
     public String getTargetCode() {
         return targetCode;
     }
@@ -99,11 +99,11 @@ public class LogMainEntity implements Serializable, Cloneable {
 
     @Basic
     @Column(name = "user_id", nullable = false)
-    public Integer getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(String userId) {
     this.userId = userId;
     }
 
@@ -169,7 +169,7 @@ public class LogMainEntity implements Serializable, Cloneable {
         private String businessCode;
         private String targetType;
         private String targetCode;
-        private Integer userId;
+        private String userId;
         private Date createTime;
 
         public Builder setLogMainId(String logMainId) {
@@ -188,7 +188,7 @@ public class LogMainEntity implements Serializable, Cloneable {
             this.targetCode = targetCode;
             return this;
         }
-        public Builder setUserId(Integer userId) {
+        public Builder setUserId(String userId) {
             this.userId = userId;
             return this;
         }

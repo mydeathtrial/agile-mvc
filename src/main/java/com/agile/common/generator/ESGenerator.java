@@ -49,10 +49,8 @@ public class ESGenerator {
             String paramType = ((Map<String, String>) (property.getValue())).get("type");
 
             //API导入
-            switch (paramType) {
-                case "date":
-                    importList.add("java.util.Date;");
-                    break;
+            if ("date".equals(paramType)) {
+                importList.add("java.util.Date;");
             }
             param.put("fieldType", PropertiesUtil.getProperty("agile.elasticsearch.column_type." + paramType));
             param.put("paramType", "String");

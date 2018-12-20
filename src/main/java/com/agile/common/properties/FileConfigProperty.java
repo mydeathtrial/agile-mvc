@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
  * Created by 佟盟 on 2018/2/1
  */
 public class FileConfigProperty {
-    private static long maxUploadSize = 204800;
+    private static long maxUploadSize;
     private static String defaultEncoding = StandardCharsets.UTF_8.name();
     private static String includeFormat = "txt,excel";
 

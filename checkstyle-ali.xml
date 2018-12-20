@@ -191,7 +191,7 @@
         </module>
         <!-- 检查未被注释的main方法,排除以App结尾命名的类 -->
         <module name="UncommentedMain">
-            <property name="excludedClasses" value=".*App$"/>
+            <property name="excludedClasses" value=".*App$|.*Generator$"/>
         </module>
         <!-- 禁止使用System.out.println -->
         <module name="Regexp">
@@ -201,11 +201,11 @@
         </module>
         <!-- return个数 3个-->
         <module name="ReturnCount">
-            <property name="max" value="3"/>
+            <property name="max" value="5"/>
         </module>
         <!--try catch 异常处理数量 3-->
         <module name="NestedTryDepth ">
-            <property name="max" value="3"/>
+            <property name="max" value="4"/>
         </module>
         <!-- clone方法必须调用了super.clone() -->
         <module name="SuperClone"/>

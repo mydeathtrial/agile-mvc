@@ -4,7 +4,7 @@
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
     <version>1.0.2.47</version>
-    <name>Agile工程</name>
+    <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://192.168.0.55:7777/repository/maven-public/</url>
 

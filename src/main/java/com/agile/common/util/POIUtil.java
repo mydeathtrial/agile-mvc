@@ -48,6 +48,7 @@ public class POIUtil {
             case V2008:
                 excel = new SXSSFWorkbook();
                 break;
+            default:
         }
 
         //遍历sheet页
@@ -159,7 +160,7 @@ public class POIUtil {
 
     public static <T> List<T> readExcel(File file, Class<T> clazz, String[] columns) {
         try {
-            Workbook excel = excuteVersion(file);
+            Workbook excel = parsing(file);
             List<T> list = new ArrayList<>();
             Iterator<Sheet> sheets = excel.sheetIterator();
             while (sheets.hasNext()) {
@@ -200,7 +201,7 @@ public class POIUtil {
      */
     public static List<LinkedHashMap<String, Object>> readExcel(Object file, String[] columns) {
         try {
-            Workbook excel = excuteVersion(file);
+            Workbook excel = parsing(file);
             List<LinkedHashMap<String, Object>> list = new ArrayList<>();
             Iterator<Sheet> sheets = excel.sheetIterator();
             while (sheets.hasNext()) {
@@ -297,10 +298,8 @@ public class POIUtil {
         }
     }
 
-    private static Workbook excuteVersion(Object file) {
-        if (file == null) {
-            return null;
-        }
+    private static Workbook parsing(Object file) {
+        Workbook result = null;
         if (file instanceof File) {
             String[] s = ((File) file).getName().split("[.]");
             String suffix;
@@ -311,12 +310,12 @@ public class POIUtil {
             }
             try {
                 if ("xls".equals(suffix)) {
-                    return new HSSFWorkbook(new FileInputStream((File) file));
+                    result = new HSSFWorkbook(new FileInputStream((File) file));
                 } else {
-                    return new XSSFWorkbook(new FileInputStream((File) file));
+                    result = new XSSFWorkbook(new FileInputStream((File) file));
                 }
             } catch (Exception e) {
-                return null;
+                result = null;
             }
         } else if (file instanceof MultipartFile) {
             String[] s = Objects.requireNonNull(((MultipartFile) file).getOriginalFilename()).split("[.]");
@@ -328,19 +327,25 @@ public class POIUtil {
             }
             try {
                 if ("xls".equals(suffix)) {
-                    return new HSSFWorkbook(((MultipartFile) file).getInputStream());
+                    result = new HSSFWorkbook(((MultipartFile) file).getInputStream());
                 } else {
-                    return new XSSFWorkbook(((MultipartFile) file).getInputStream());
+                    result = new XSSFWorkbook(((MultipartFile) file).getInputStream());
                 }
             } catch (Exception e) {
-                return null;
+                result = null;
             }
         }
 
-        return null;
+        return result;
     }
 
+    /**
+     * Excel版本信息
+     */
     public enum VERSION {
+        /**
+         * 版本
+         */
         V2003,
         V2007,
         V2008

@@ -1,6 +1,7 @@
 package com.agile.common.generator;
 
 import com.agile.common.base.Constant;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FreemarkerUtil;
@@ -39,7 +40,13 @@ public class AgileGenerator {
 
         data.put("tableComment", table.get("REMARKS"));
 
-        List<Map<String, Object>> columns = DataBaseUtil.listColumns(PropertiesUtil.getProperty("agile.druid.type"), PropertiesUtil.getProperty("agile.druid.data_base_ip"), PropertiesUtil.getProperty("agile.druid.data_base_port"), PropertiesUtil.getProperty("agile.druid.data_base_name"), PropertiesUtil.getProperty("agile.druid.data_base_username"), PropertiesUtil.getProperty("agile.druid.data_base_password"), tableName);
+        List<Map<String, Object>> columns = DataBaseUtil.listColumns(PropertiesUtil.getProperty("agile.druid.type"),
+                PropertiesUtil.getProperty("agile.druid.data_base_ip"),
+                PropertiesUtil.getProperty("agile.druid.data_base_port"),
+                PropertiesUtil.getProperty("agile.druid.data_base_name"),
+                PropertiesUtil.getProperty("agile.druid.data_base_username"),
+                PropertiesUtil.getProperty("agile.druid.data_base_password"),
+                tableName);
 
         for (Map<String, Object> column : columns) {
             //参数容器
@@ -62,10 +69,11 @@ public class AgileGenerator {
             String propertyName = StringUtil.toLowerName(columnName);
 
             //属性名
+            assert columnType != null;
             String propertyType = PropertiesUtil.getProperty("agile.generator.column_type." + columnType.split(" ")[0].toLowerCase());
 
             if (propertyType == null) {
-                System.out.println(String.format("字段类型[%s]没有配置映射", columnType.toLowerCase()));
+                LoggerFactory.getDaoLog().error(String.format("字段类型[%s]没有配置映射", columnType.toLowerCase()));
                 System.exit(0);
             }
             //处理主键
@@ -83,7 +91,7 @@ public class AgileGenerator {
 
             //是否自增长
             param.put("isAutoincrement", MapUtil.getString(column, "IS_AUTOINCREMENT"));
-            if("YES".equals(param.get("isAutoincrement"))){
+            if ("YES".equals(param.get("isAutoincrement"))) {
                 importList.add("javax.persistence.GenerationType");
                 importList.add("javax.persistence.GeneratedValue");
             }
@@ -251,7 +259,7 @@ public class AgileGenerator {
 
         //获取表信息
         Integer dbIndex = null;
-        if (PropertiesUtil.properties.containsKey(dbIndexKey)) {
+        if (PropertiesUtil.getProperties().containsKey(dbIndexKey)) {
             dbIndex = PropertiesUtil.getProperty(dbIndexKey, int.class);
         }
         String dbType, ip, port, dbName, username, password;
@@ -266,7 +274,13 @@ public class AgileGenerator {
         username = String.format("%s.data_base_username", druidKey);
         password = String.format("%s.data_base_password", druidKey);
 
-        return DataBaseUtil.listTables(PropertiesUtil.getProperty(dbType), PropertiesUtil.getProperty(ip), PropertiesUtil.getProperty(port), PropertiesUtil.getProperty(dbName), PropertiesUtil.getProperty(username), PropertiesUtil.getProperty(password), PropertiesUtil.getProperty(tableName));
+        return DataBaseUtil.listTables(PropertiesUtil.getProperty(dbType),
+                PropertiesUtil.getProperty(ip),
+                PropertiesUtil.getProperty(port),
+                PropertiesUtil.getProperty(dbName),
+                PropertiesUtil.getProperty(username),
+                PropertiesUtil.getProperty(password),
+                PropertiesUtil.getProperty(tableName));
     }
 
     public static void main(String[] args) {

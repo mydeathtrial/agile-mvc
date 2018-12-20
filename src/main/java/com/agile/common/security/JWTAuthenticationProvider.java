@@ -27,7 +27,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     public JWTAuthenticationProvider(SecurityUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
-        this.passwordEncoder = new BCryptPasswordEncoder(4);
+        final int strength = 4;
+        this.passwordEncoder = new BCryptPasswordEncoder(strength);
     }
 
     /**

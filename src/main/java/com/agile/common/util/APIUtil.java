@@ -44,11 +44,11 @@ public class APIUtil {
         RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(method, clazz);
         if (requestMappingInfo != null) {
             getMappingHandlerMapping().registerHandlerMethod(bean, method, requestMappingInfo);
-            if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
+            if (LoggerFactory.getCommonLog().isDebugEnabled()) {
                 PatternsRequestCondition patterns = requestMappingInfo.getPatternsCondition();
                 if (patterns != null) {
                     for (String path : patterns.getPatterns()) {
-                        LoggerFactory.COMMON_LOG.debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, beanName, method.getName()));
+                        LoggerFactory.getCommonLog().debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, beanName, method.getName()));
                     }
                 }
             }

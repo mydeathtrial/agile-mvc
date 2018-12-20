@@ -29,8 +29,9 @@ public class DataBaseUtil {
      * 根据字符串,判断数据库类型
      */
     private static DB parseDB(String dbType) {
+        DB result;
         if (null == dbType || dbType.trim().length() < 1) {
-            return DB.EMPTY;
+            result = DB.EMPTY;
         }
         dbType = dbType.trim().toUpperCase();
         if (dbType.contains("ORACLE")) {
@@ -39,17 +40,15 @@ public class DataBaseUtil {
             } catch (InstantiationException | SQLException | IllegalAccessException e) {
                 e.printStackTrace();
             }
-            return DB.ORACLE;
-        }
-        if (dbType.contains("MYSQL")) {
+            result = DB.ORACLE;
+        } else if (dbType.contains("MYSQL")) {
             try {
                 DriverManager.registerDriver(com.mysql.cj.jdbc.Driver.class.newInstance());
             } catch (IllegalAccessException | InstantiationException | SQLException e) {
                 e.printStackTrace();
             }
-            return DB.MYSQL;
-        }
-        if (dbType.contains("SQL") && dbType.contains("SERVER")) {
+            result = DB.MYSQL;
+        } else if (dbType.contains("SQL") && dbType.contains("SERVER")) {
             if (dbType.contains("2005") || dbType.contains("2008") || dbType.contains("2012")) {
                 try {
                     Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -57,27 +56,26 @@ public class DataBaseUtil {
                     e.printStackTrace();
                 }
 
-                return DB.SQL_SERVER2005;
+                result = DB.SQL_SERVER2005;
             } else {
                 try {
                     Class.forName("net.sourceforge.jtds.jdbc.Driver");
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                return DB.SQL_SERVER;
+                result = DB.SQL_SERVER;
             }
-        }
-        if (dbType.contains("DB2")) {
-            return DB.DB2;
-        }
-        if (dbType.contains("INFORMIX")) {
-            return DB.INFORMIX;
-        }
-        if (dbType.contains("SYBASE")) {
-            return DB.SYBASE;
+        } else if (dbType.contains("DB2")) {
+            result = DB.DB2;
+        } else if (dbType.contains("INFORMIX")) {
+            result = DB.INFORMIX;
+        } else if (dbType.contains("SYBASE")) {
+            result = DB.SYBASE;
+        } else {
+            result = DB.OTHER;
         }
 
-        return DB.OTHER;
+        return result;
     }
 
     private static ResultSet getResultSet(PATTERN type, String dbType, String ip, String port, String dbName, String username, String password, String pattern) {
@@ -149,6 +147,7 @@ public class DataBaseUtil {
 
                     rs = meta.getPrimaryKeys(null, schemaPattern, pattern);
                     break;
+                default:
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -331,13 +330,13 @@ public class DataBaseUtil {
     public static boolean tryLink(String databasetype, String ip, String port, String dbname, String username, String password) {
         DB dbtype = parseDB(databasetype);
         String url = createDBUrl(dbtype, ip, port, dbname);
-        Connection conn = null;
+        Connection connection = null;
         try {
-            conn = getConnection(url, username, password);
-            if (null == conn) {
+            connection = getConnection(url, username, password);
+            if (null == connection) {
                 return false;
             }
-            DatabaseMetaData meta = conn.getMetaData();
+            DatabaseMetaData meta = connection.getMetaData();
             return null != meta;
         } catch (Exception e) {
             if (logger.isErrorEnabled()) {
@@ -346,7 +345,7 @@ public class DataBaseUtil {
             e.printStackTrace();
             System.exit(0);
         } finally {
-            close(conn);
+            close(connection);
         }
         return false;
     }
@@ -398,8 +397,6 @@ public class DataBaseUtil {
             int columnCount = data.getColumnCount();
             // 获得指定列的列名
             String columnName = data.getColumnName(i);
-            // 获得指定列的列值
-            // String columnValue = rs.getString(i);
             // 获得指定列的数据类型
             int columnType = data.getColumnType(i);
             // 获得指定列的数据类型名
@@ -430,24 +427,23 @@ public class DataBaseUtil {
             boolean isReadOnly = data.isReadOnly(i);
             // 能否出现在where中
             boolean isSearchable = data.isSearchable(i);
-            System.out.println(columnCount);
-            System.out.println("获得列" + i + "的字段名称:" + columnName);
-            // System.out.println("获得列" + i + "的字段值:" + columnValue);
-            System.out.println("获得列" + i + "的类型,返回SqlType中的编号:" + columnType);
-            System.out.println("获得列" + i + "的数据类型名:" + columnTypeName);
-            System.out.println("获得列" + i + "所在的Catalog名字:" + catalogName);
-            System.out.println("获得列" + i + "对应数据类型的类:" + columnClassName);
-            System.out.println("获得列" + i + "在数据库中类型的最大字符个数:" + columnDisplaySize);
-            System.out.println("获得列" + i + "的默认的列的标题:" + columnLabel);
-            System.out.println("获得列" + i + "的模式:" + schemaName);
-            System.out.println("获得列" + i + "类型的精确度(类型的长度):" + precision);
-            System.out.println("获得列" + i + "小数点后的位数:" + scale);
-            System.out.println("获得列" + i + "对应的表名:" + tableName);
-            System.out.println("获得列" + i + "是否自动递增:" + isAutoInctement);
-            System.out.println("获得列" + i + "在数据库中是否为货币型:" + isCurrency);
-            System.out.println("获得列" + i + "是否为空:" + isNullable);
-            System.out.println("获得列" + i + "是否为只读:" + isReadOnly);
-            System.out.println("获得列" + i + "能否出现在where中:" + isSearchable);
+            logger.info(columnCount);
+            logger.info("获得列" + i + "的字段名称:" + columnName);
+            logger.info("获得列" + i + "的类型,返回SqlType中的编号:" + columnType);
+            logger.info("获得列" + i + "的数据类型名:" + columnTypeName);
+            logger.info("获得列" + i + "所在的Catalog名字:" + catalogName);
+            logger.info("获得列" + i + "对应数据类型的类:" + columnClassName);
+            logger.info("获得列" + i + "在数据库中类型的最大字符个数:" + columnDisplaySize);
+            logger.info("获得列" + i + "的默认的列的标题:" + columnLabel);
+            logger.info("获得列" + i + "的模式:" + schemaName);
+            logger.info("获得列" + i + "类型的精确度(类型的长度):" + precision);
+            logger.info("获得列" + i + "小数点后的位数:" + scale);
+            logger.info("获得列" + i + "对应的表名:" + tableName);
+            logger.info("获得列" + i + "是否自动递增:" + isAutoInctement);
+            logger.info("获得列" + i + "在数据库中是否为货币型:" + isCurrency);
+            logger.info("获得列" + i + "是否为空:" + isNullable);
+            logger.info("获得列" + i + "是否为只读:" + isReadOnly);
+            logger.info("获得列" + i + "能否出现在where中:" + isSearchable);
         }
     }
 
@@ -455,11 +451,28 @@ public class DataBaseUtil {
      * 数据库类型,枚举
      */
     public enum DB {
+        /**
+         * 数据库类型
+         */
         ORACLE, MYSQL, SQL_SERVER, SQL_SERVER2005, DB2, INFORMIX, SYBASE, OTHER, EMPTY
     }
 
+    /**
+     * 匹配类型
+     */
     public enum PATTERN {
-        TABLE, COLUMN, PRIMARY_KEY
+        /**
+         * 表
+         */
+        TABLE,
+        /**
+         * 字段
+         */
+        COLUMN,
+        /**
+         * 主键
+         */
+        PRIMARY_KEY
     }
 
 }

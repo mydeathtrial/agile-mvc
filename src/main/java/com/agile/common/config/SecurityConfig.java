@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    public static String[] immuneUrl = new String[]{
+    private static String[] immuneUrl = new String[]{
             "/static/**",
             "/favicon.ico",
             PropertiesUtil.getProperty("agile.druid.url") + "/**",
@@ -70,8 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).sessionFixation().none()
                 .and().csrf().disable().httpBasic().disable()
                 .addFilterAt(tokenFilter, LogoutFilter.class)
-                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class)
-        ;
+                .addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
 
@@ -94,12 +93,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public ReloadableResourceBundleMessageSource reloadableResourceBundleMessageSource() {
+        final int cacheSeconds = 10;
         ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
         messageSource.setBasename("classpath:com/agile/conf/language");
         messageSource.setDefaultEncoding(StandardCharsets.UTF_8.name());
         messageSource.setUseCodeAsDefaultMessage(true);
-        messageSource.setCacheSeconds(10);
+        messageSource.setCacheSeconds(cacheSeconds);
         return messageSource;
     }
 
+    public static String[] getImmuneUrl() {
+        return immuneUrl;
+    }
 }

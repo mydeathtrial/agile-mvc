@@ -84,7 +84,6 @@ public class ServletUtil {
                             String ipaddress = inetAddress.getHostAddress();
                             if (!ipaddress.contains("::") && !ipaddress.contains("0:0:") && !ipaddress.contains("fe80")) {
                                 ip = ipaddress;
-                                System.out.println(ipaddress);
                             }
                         }
                     }

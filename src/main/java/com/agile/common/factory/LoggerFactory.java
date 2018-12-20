@@ -37,19 +37,41 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by 佟盟 on 2017/2/23
+ * Created by 佟盟 on n017/TWO/n3
  * 日志工厂
  */
-public class LoggerFactory {
+public final class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
-    public static Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
-    public static Log TASK_LOG = createPlugLogger("task", "agile.task.enable", Client.class, Level.INFO, Level.ERROR);
     private static String path = PropertiesUtil.getProperty("agile.log.package_uri", System.getProperty("webapp.root", "") + "logs\\");
-    public static Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
-    public static Log CACHE_LOG = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
-    public static Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
-    private static Map<Class, Log> ServiceCacheLogs = new HashMap<>();
+    private static Map<Class, Log> serviceCacheLogs = new HashMap<>();
+
+    private static Log esLog = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
+    private static Log taskLog = createPlugLogger("task", "agile.task.enable", Client.class, Level.INFO, Level.ERROR);
+    private static Log commonLog = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
+    private static Log cacheLog = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
+    private static Log daoLog = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
+    private static final int TWO = 2;
+    
+    public static Log getEsLog() {
+        return esLog;
+    }
+
+    public static Log getTaskLog() {
+        return taskLog;
+    }
+
+    public static Log getCommonLog() {
+        return commonLog;
+    }
+
+    public static Log getCacheLog() {
+        return cacheLog;
+    }
+
+    public static Log getDaoLog() {
+        return daoLog;
+    }
 
     static {
         ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
@@ -67,19 +89,23 @@ public class LoggerFactory {
 
     private static void createLogger(String baseName, String packagePath, Level... levels) {
         //创建输出格式
-        Layout layout = PatternLayout.newBuilder().withConfiguration(config).withPattern("%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}").build();
+        Layout layout = PatternLayout
+                .newBuilder()
+                .withConfiguration(config)
+                .withPattern("%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}")
+                .build();
         baseName = StringUtil.camelToUnderline(baseName);
-        AppenderRef[] refs = new AppenderRef[levels.length * 2];
-        String[] appenders = new String[levels.length * 2];
+        AppenderRef[] refs = new AppenderRef[levels.length * TWO];
+        String[] appenders = new String[levels.length * TWO];
         for (int i = 0; i < levels.length; i++) {
             String targetFileName = (baseName + "_" + levels[i].name()).toLowerCase();
             if (ObjectUtil.isEmpty(config.getAppender(targetFileName))) {
                 //输出引擎
-                appenders[i * 2] = createFileAppender(baseName, targetFileName, layout);
-                refs[i * 2] = AppenderRef.createAppenderRef(appenders[i * 2], null, null);
+                appenders[i * TWO] = createFileAppender(baseName, targetFileName, layout);
+                refs[i * TWO] = AppenderRef.createAppenderRef(appenders[i * TWO], null, null);
 
-                appenders[i * 2 + 1] = createConsoleAppender(targetFileName, layout);
-                refs[i * 2 + 1] = AppenderRef.createAppenderRef(appenders[i * 2 + 1], null, null);
+                appenders[i * TWO + 1] = createConsoleAppender(targetFileName, layout);
+                refs[i * TWO + 1] = AppenderRef.createAppenderRef(appenders[i * TWO + 1], null, null);
             }
         }
         LoggerConfig loggerConfig = AsyncLoggerConfig.createLogger(Boolean.FALSE, Level.ALL, packagePath, "true", refs, null, config, null);
@@ -88,8 +114,8 @@ public class LoggerFactory {
                 break;
             }
             Filter filter = LevelRangeFilter.createFilter(levels[i], levels[i], Filter.Result.ACCEPT, Filter.Result.DENY);
-            loggerConfig.addAppender(config.getAppender(appenders[i * 2]), levels[i], filter);
-            loggerConfig.addAppender(config.getAppender(appenders[i * 2 + 1]), levels[i], filter);
+            loggerConfig.addAppender(config.getAppender(appenders[i * TWO]), levels[i], filter);
+            loggerConfig.addAppender(config.getAppender(appenders[i * TWO + 1]), levels[i], filter);
         }
         config.addLogger(packagePath, loggerConfig);
         ctx.updateLoggers();
@@ -198,16 +224,18 @@ public class LoggerFactory {
                 case "ALL":
                     list.add(Level.ALL);
                     break;
+                default:
+                    list.add(Level.OFF);
             }
         }
         return list.toArray(new Level[]{});
     }
 
     public static Log getServiceLog(Class clazz) {
-        Log log = ServiceCacheLogs.get(clazz);
+        Log log = serviceCacheLogs.get(clazz);
         if (log == null) {
             log = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, clazz);
-            ServiceCacheLogs.put(clazz, log);
+            serviceCacheLogs.put(clazz, log);
         }
         return log;
     }

@@ -34,17 +34,36 @@ public class DruidConfig {
             case "mysql":
                 druidDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
                 druidDataSource.setValidationQuery("SELECT 1");
-                druidUrl.append("jdbc:mysql://").append(druidConfigProperty.getDataBaseIp()).append(":").append(druidConfigProperty.getDataBasePort()).append("/").append(druidConfigProperty.getDataBaseName()).append("?").append(druidConfigProperty.getDataBaseUrlParam());
+                druidUrl.append("jdbc:mysql://")
+                        .append(druidConfigProperty.getDataBaseIp())
+                        .append(":")
+                        .append(druidConfigProperty.getDataBasePort())
+                        .append("/")
+                        .append(druidConfigProperty.getDataBaseName())
+                        .append("?")
+                        .append(druidConfigProperty.getDataBaseUrlParam());
                 break;
             case "oracle":
                 druidDataSource.setDriverClassName("oracle.jdbc.OracleDriver");
                 druidDataSource.setValidationQuery("SELECT 'x' FROM DUAL");
-                druidUrl.append("jdbc:oracle:thin:@").append(druidConfigProperty.getDataBaseIp()).append(":").append(druidConfigProperty.getDataBasePort()).append(":").append(druidConfigProperty.getDataBaseName());
+                druidUrl.append("jdbc:oracle:thin:@")
+                        .append(druidConfigProperty.getDataBaseIp())
+                        .append(":")
+                        .append(druidConfigProperty.getDataBasePort())
+                        .append(":")
+                        .append(druidConfigProperty.getDataBaseName());
                 break;
             case "mariadb":
                 druidDataSource.setDriverClassName("org.mariadb.jdbc.Driver");
                 druidDataSource.setValidationQuery("SELECT 1");
-                druidUrl.append("jdbc:mariadb://").append(druidConfigProperty.getDataBaseIp()).append(":").append(druidConfigProperty.getDataBasePort()).append("/").append(druidConfigProperty.getDataBaseName()).append("?").append(druidConfigProperty.getDataBaseUrlParam());
+                druidUrl.append("jdbc:mariadb://")
+                        .append(druidConfigProperty.getDataBaseIp())
+                        .append(":")
+                        .append(druidConfigProperty.getDataBasePort())
+                        .append("/")
+                        .append(druidConfigProperty.getDataBaseName())
+                        .append("?")
+                        .append(druidConfigProperty.getDataBaseUrlParam());
                 break;
             default:
                 try {

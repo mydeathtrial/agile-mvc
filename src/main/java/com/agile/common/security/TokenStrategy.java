@@ -33,11 +33,12 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
     @Override
     public void onAuthentication(Authentication authentication, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws SessionAuthenticationException {
         SecurityUser userDetails = (SecurityUser) authentication.getDetails();
-        String salt = RandomStringUtil.getRandom(8, RandomStringUtil.Random.LETTER_UPPER);
+        final int digit = 8;
+        String salt = RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER);
         String cacheKey = authentication.getName();
         String saltsKey = cacheKey + "_SALT";
 
-        SysLoginEntity loginEntity = SysLoginEntity.builder().setSysLoginId(RandomStringUtil.getRandom(8, RandomStringUtil.Random.LETTER_UPPER))
+        SysLoginEntity loginEntity = SysLoginEntity.builder().setSysLoginId(RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER))
                 .setSysUserId(userDetails.getSysUsersId())
                 .setLoginTime(DateUtil.getCurrentDate())
                 .setLoginIp(ServletUtil.getCustomerIPAddr(httpServletRequest))

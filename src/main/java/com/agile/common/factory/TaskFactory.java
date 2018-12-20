@@ -10,7 +10,8 @@ import java.util.concurrent.ScheduledFuture;
  */
 public class TaskFactory {
     private static TaskFactory taskFactory;
-    ThreadPoolTaskScheduler threadPoolTaskScheduler;
+    private ThreadPoolTaskScheduler threadPoolTaskScheduler;
+    private static final int POOL_SIZE = 10;
 
     public TaskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
         taskFactory = this;
@@ -18,7 +19,7 @@ public class TaskFactory {
     }
 
     public static void insert(Runnable task, String cron) {
-        taskFactory.threadPoolTaskScheduler.setPoolSize(10);
+        taskFactory.threadPoolTaskScheduler.setPoolSize(POOL_SIZE);
         taskFactory.threadPoolTaskScheduler.initialize();
         taskFactory.threadPoolTaskScheduler.schedule(task, new CronTrigger(cron));
     }

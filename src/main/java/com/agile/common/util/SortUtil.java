@@ -59,18 +59,4 @@ public class SortUtil {
             }
         }
     }
-
-//    public static void main(String[] args) {
-//        int[] a = {3, 3, 4, 4, 33, 33, 33, 11, 11, 11, 11, 2, 3, 4, 2, 1, 7, 3, 8, 3};
-//        long q = System.currentTimeMillis();
-//        bubbleSort(a);
-//       System.out.println(System.currentTimeMillis()-q);
-//
-//        fastSort(a);
-//        for (int s : a) {
-//            System.out.println(s);
-//        }
-//
-//
-//    }
 }

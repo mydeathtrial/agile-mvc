@@ -58,6 +58,7 @@ public class RandomStringUtil extends RandomStringUtils {
                 return routine(Boolean.TRUE);
             case ROUTINE_NO_LINE:
                 return routine(Boolean.FALSE);
+            default:
         }
         if (!ArrayUtil.isEmpty(temp) && temp.length > 0) {
             for (int i = 0; i < count; i++) {
@@ -99,14 +100,48 @@ public class RandomStringUtil extends RandomStringUtils {
     /**
      * 获取常规随机数
      *
-     * @param haveLine 是否包含下划线
+     * @param haveLine 是否包含中划线
      */
     public static String routine(boolean haveLine) {
         return haveLine ? UUID.randomUUID().toString() : UUID.randomUUID().toString().replace("-", "");
     }
 
+    /**
+     * 随机种类
+     */
     public enum Random {
-        NUMBER, LETTER, LETTER_LOWER, LETTER_UPPER, MIX_1, MIX_2, ROUTINE, ROUTINE_NO_LINE, TIME_STAMP
+        /**
+         * 数字
+         */
+        NUMBER,
+        /**
+         * 字母
+         */
+        LETTER,
+        /**
+         * 小写字母
+         */
+        LETTER_LOWER,
+        /**
+         * 大写字母
+         */
+        LETTER_UPPER,
+        /**
+         * 小写字母+大写字母+数字
+         */
+        MIX_1,
+        /**
+         * 小写字母+大写字母+数字+符号
+         */
+        MIX_2,
+        /**
+         * 包含中划线随机
+         */
+        ROUTINE,
+        /**
+         * 不包含中划线随机
+         */
+        ROUTINE_NO_LINE
     }
 
 }

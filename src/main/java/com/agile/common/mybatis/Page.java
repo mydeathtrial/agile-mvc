@@ -14,6 +14,7 @@ import java.util.LinkedList;
  * @author 佟盟
  * @version 1.0
  * @since 1.0
+ * @param <T> 分页内容类型
  */
 public class Page<T> extends LinkedList<T> {
     private PageRequest pageRequest;

@@ -17,6 +17,7 @@ public class RedisConfigProperties {
     private static boolean testOnBorrow;
     private static List<String> host;
     private static List<Integer> port;
+    private static long duration;
 
     public static String getPass() {
         return pass;
@@ -80,5 +81,13 @@ public class RedisConfigProperties {
 
     public static void setPort(List<Integer> port) {
         RedisConfigProperties.port = port;
+    }
+
+    public static long getDuration() {
+        return duration;
+    }
+
+    public static void setDuration(long duration) {
+        RedisConfigProperties.duration = duration;
     }
 }

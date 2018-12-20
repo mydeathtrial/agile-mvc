@@ -33,8 +33,10 @@ public class LogAop {
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAX_IMUM_POOL_SIZE = 30;
     private static final int KEEP_ALIVE_TIME = 1;
-    //日志模板
-    private static final String LOG_TEMPLATE = "\n状    态: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n出参:\n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
+    /**
+     * 日志模板
+     */
+    private static final String LOG_TEMPLATE = "\n状    态: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n出    参:\n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
     private static final String ERROR_LOG_TEMPLATE = "\n状    态: %s\n异常类型: %s\n异常信息: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
     private static final String SUCCESS = "SUCCESS";
     private static final String ERROR = "ERROR";
@@ -42,7 +44,9 @@ public class LogAop {
     private static final int LOG_TAB = 10;
     private static final int REQUEST_INDEX = 2;
     private static final int METHOD_INDEX = 1;
-    //日志线程池
+    /**
+     * 日志线程池
+     */
     private static ThreadPoolExecutor pool = PoolFactory.pool(CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 
     /**

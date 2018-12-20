@@ -32,12 +32,12 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
                 return element.get();
             }
         } catch (Exception e) {
-            if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
+            if (LoggerFactory.getCacheLog().isErrorEnabled()) {
                 if (e instanceof RedisConnectionFailureException) {
-                    LoggerFactory.CACHE_LOG.error("连接Redis失败");
+                    LoggerFactory.getCacheLog().error("连接Redis失败");
                     System.exit(0);
                 } else {
-                    LoggerFactory.CACHE_LOG.error("redis缓存提取失败");
+                    LoggerFactory.getCacheLog().error("redis缓存提取失败");
                 }
             }
             throw new CacheException(e);
@@ -51,8 +51,8 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
         } catch (IllegalArgumentException | IllegalStateException e) {
             throw new CacheException(e);
         } catch (Exception e) {
-            if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
-                LoggerFactory.CACHE_LOG.error("redis缓存存放失败");
+            if (LoggerFactory.getCacheLog().isErrorEnabled()) {
+                LoggerFactory.getCacheLog().error("redis缓存存放失败");
             }
             throw new CacheException(e);
         }
@@ -68,8 +68,8 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
         try {
             getCache().clear();
         } catch (Exception e) {
-            if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
-                LoggerFactory.CACHE_LOG.error("redis缓存清空数据失败");
+            if (LoggerFactory.getCacheLog().isErrorEnabled()) {
+                LoggerFactory.getCacheLog().error("redis缓存清空数据失败");
             }
             throw new CacheException(e);
         }
@@ -80,8 +80,8 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
         try {
             getCache().get(key);
         } catch (Exception e) {
-            if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
-                LoggerFactory.CACHE_LOG.error("redis缓存删除数据失败");
+            if (LoggerFactory.getCacheLog().isErrorEnabled()) {
+                LoggerFactory.getCacheLog().error("redis缓存删除数据失败");
             }
             throw new CacheException(e);
         }
@@ -93,10 +93,10 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
             getCache().clear();
         } catch (Exception e) {
             if (e instanceof RedisConnectionFailureException) {
-                LoggerFactory.CACHE_LOG.error("redis连接失败");
+                LoggerFactory.getCacheLog().error("redis连接失败");
             } else {
-                if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
-                    LoggerFactory.CACHE_LOG.error("redis缓存删除数据失败");
+                if (LoggerFactory.getCacheLog().isErrorEnabled()) {
+                    LoggerFactory.getCacheLog().error("redis缓存删除数据失败");
                 }
             }
             throw new CacheException(e);

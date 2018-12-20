@@ -587,6 +587,7 @@ public class Dao {
                             case DESC:
                                 orderList.add(Sort.Order.desc(column));
                                 break;
+                            default:
                         }
                     }
                 }

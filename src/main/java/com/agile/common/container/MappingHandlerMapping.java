@@ -39,7 +39,14 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
 
     private RequestMappingInfo createMappingInfo(AnnotatedElement element, Mapping mapping, RequestCondition<?> condition) {
 
-        RequestMappingInfo.Builder builder = RequestMappingInfo.paths(this.resolveEmbeddedValuesInPatterns(ArrayUtil.add(mapping.path(), createMappingPath(element)))).methods(mapping.method()).params(mapping.params()).headers(mapping.headers()).consumes(mapping.consumes()).produces(mapping.produces()).mappingName(mapping.name());
+        RequestMappingInfo.Builder builder = RequestMappingInfo
+                .paths(this.resolveEmbeddedValuesInPatterns(ArrayUtil.add(mapping.path(), createMappingPath(element))))
+                .methods(mapping.method())
+                .params(mapping.params())
+                .headers(mapping.headers())
+                .consumes(mapping.consumes())
+                .produces(mapping.produces())
+                .mappingName(mapping.name());
         if (condition != null) {
             builder.customCondition(condition);
         }
@@ -90,7 +97,7 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         if (mapping != null && mapping.getPatternsCondition() != null) {
             for (String path : mapping.getPatternsCondition().getPatterns()) {
                 if (cache.containsKey(path)) {
-                    LoggerFactory.COMMON_LOG.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
+                    LoggerFactory.getCommonLog().error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
                     throw new IllegalStateException();
                 } else {
                     cache.put(path, mapping);

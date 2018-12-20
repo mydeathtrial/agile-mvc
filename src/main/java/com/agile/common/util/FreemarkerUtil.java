@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.generator.AgileGenerator;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -57,7 +58,7 @@ public class FreemarkerUtil {
         if (!serviceFileDir.exists()) {
             boolean f = serviceFileDir.mkdirs();
             if (!f) {
-                System.out.println(String.format("无法创建代码生成路径：%s", directory));
+                LoggerFactory.getCommonLog().error(String.format("无法创建代码生成路径：%s", directory));
                 return;
             }
         }

@@ -83,6 +83,7 @@ public class JPAConfig {
             case "ehcache":
                 properties.setProperty("hibernate.cache.region.factory_class", "com.agile.common.cache.ehCache.EhCacheRegionFactory");
                 break;
+            default:
         }
         properties.setProperty("hibernate.cache.use_structured_entries", jpaConfigProperty.getUseStructuredEntries());
         properties.setProperty("hibernate.cache.use_query_cache", jpaConfigProperty.getUseQueryCache());

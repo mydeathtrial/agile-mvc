@@ -17,26 +17,36 @@ public class ClassUtil extends ClassUtils {
      * @return 包装类名字
      */
     public static String toWrapperNameFromName(String name) {
+        String result;
         switch (name) {
             case "byte":
-                return "Byte";
+                result =  "Byte";
+                break;
             case "short":
-                return "Short";
+                result =  "Short";
+                break;
             case "int":
-                return "Integer";
+                result = "Integer";
+                break;
             case "long":
-                return "Long";
+                result = "Long";
+                break;
             case "float":
-                return "Float";
+                result = "Float";
+                break;
             case "double":
-                return "Double";
+                result = "Double";
+                break;
             case "boolean":
-                return "Boolean";
+                result = "Boolean";
+                break;
             case "char":
-                return "Character";
+                result = "Character";
+                break;
             default:
-                return name;
+                result = name;
         }
+        return result;
     }
 
     /**
@@ -46,42 +56,60 @@ public class ClassUtil extends ClassUtils {
      * @return 包装类名字
      */
     public static String toSwaggerTypeFromName(String name) {
+        String result;
         switch (name) {
             case "byte":
-                return "string";
+                result = "string";
+                break;
             case "Byte":
-                return "string";
+                result = "string";
+                break;
             case "short":
-                return "integer";
+                result = "integer";
+                break;
             case "Short":
-                return "integer";
+                result = "integer";
+                break;
             case "int":
-                return "integer";
+                result = "integer";
+                break;
             case "Integer":
-                return "integer";
+                result = "integer";
+                break;
             case "long":
-                return "integer";
+                result = "integer";
+                break;
             case "Long":
-                return "integer";
+                result = "integer";
+                break;
             case "char":
-                return "string";
+                result = "string";
+                break;
             case "Character":
-                return "string";
+                result = "string";
+                break;
             case "Timestamp":
-                return "string";
+                result = "string";
+                break;
             case "Date":
-                return "string";
+                result = "string";
+                break;
             case "String":
-                return "string";
+                result = "string";
+                break;
             case "Boolean":
-                return "boolean";
+                result = "boolean";
+                break;
             case "Double":
-                return "number";
+                result = "number";
+                break;
             case "Float":
-                return "number";
+                result = "number";
+                break;
             default:
-                return name;
+                result = name;
         }
+        return result;
     }
 
     public static boolean isWrapOrPrimitive(Class clazz) {

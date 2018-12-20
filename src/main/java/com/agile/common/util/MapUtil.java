@@ -205,8 +205,8 @@ public class MapUtil extends MapUtils {
         return linkedHashMap;
     }
 
-    public static Map<String, Object> coverCanSerializer(Map<String, Object> target) {
-        Map<String, Object> source = new HashMap<>();
+    public static Map<String, Object> coverCanSerializer(Map<String, Object> source) {
+        Map<String, Object> target = new HashMap<>();
         target.putAll(source);
         for (Map.Entry<String, Object> entity : target.entrySet()) {
             Object value = entity.getValue();

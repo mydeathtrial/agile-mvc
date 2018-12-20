@@ -2,6 +2,7 @@ package com.agile.common.config;
 
 import com.agile.common.cache.ehCache.EhCacheCacheManager;
 import com.agile.common.cache.ehCache.EhCacheManagerFactoryBean;
+import com.agile.common.properties.EhCacheProperties;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
@@ -34,11 +35,11 @@ public class EhCacheConfig {
 //                        .properties("port=40004,socketTimeoutMillis=2000")//
 //                )
                 .defaultCache(new CacheConfiguration()
-                        .maxEntriesLocalHeap(10000)
-                        .timeToIdleSeconds(120)
-                        .timeToLiveSeconds(120)
-                        .maxEntriesLocalDisk(10000000)
-                        .diskExpiryThreadIntervalSeconds(120)
+                        .maxEntriesLocalHeap(EhCacheProperties.getMaxEntriesLocalHeap())
+                        .timeToIdleSeconds(EhCacheProperties.getTimeToIdleSeconds())
+                        .timeToLiveSeconds(EhCacheProperties.getTimeToLiveSeconds())
+                        .maxEntriesLocalDisk(EhCacheProperties.getMaxEntriesLocalHeap())
+                        .diskExpiryThreadIntervalSeconds(EhCacheProperties.getDiskExpiryThreadIntervalSeconds())
                         .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU))
 //                .cache(new CacheConfiguration("agileCache", 10000)//缓存名称(必须唯一),maxElements内存最多可以存放的元素的数量
 //                                .overflowToDisk(true)
@@ -54,21 +55,16 @@ public class EhCacheConfig {
 //                                .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE)).maxEntriesLocalDisk(0)//磁盘中最大缓存对象数0表示无穷大)
 //                        .cacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration().className(RMICacheReplicatorFactory.class.getName()))
 //                )
-                .cache(new CacheConfiguration("agileCache", 10000)
-                        .maxEntriesLocalHeap(1000)
-                        .timeToIdleSeconds(300)
-                        .timeToLiveSeconds(600)
-                        .diskExpiryThreadIntervalSeconds(600))
-                .cache(new CacheConfiguration("securityCache", 10000)
-                        .maxEntriesLocalHeap(1000)
-                        .timeToIdleSeconds(300)
-                        .timeToLiveSeconds(600)
-                        .diskExpiryThreadIntervalSeconds(600))
-                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.TimestampsRegion", 10000)
-                        .maxEntriesLocalHeap(5)
-                        .timeToLiveSeconds(120))
-                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.QueryResultsRegion", 10000)
-                        .maxEntriesLocalHeap(5000)
+                .cache(new CacheConfiguration("agileCache", EhCacheProperties.getMaxEntriesLocalHeap())
+                        .maxEntriesLocalHeap(EhCacheProperties.getMaxEntriesLocalHeap())
+                        .timeToIdleSeconds(EhCacheProperties.getTimeToIdleSeconds())
+                        .timeToLiveSeconds(EhCacheProperties.getTimeToLiveSeconds())
+                        .diskExpiryThreadIntervalSeconds(EhCacheProperties.getDiskExpiryThreadIntervalSeconds()))
+                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.TimestampsRegion", EhCacheProperties.getMaxEntriesLocalHeap())
+                        .maxEntriesLocalHeap(EhCacheProperties.getMaxEntriesLocalHeap())
+                        .timeToLiveSeconds(EhCacheProperties.getTimeToLiveSeconds()))
+                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.QueryResultsRegion", EhCacheProperties.getMaxEntriesLocalHeap())
+                        .maxEntriesLocalHeap(EhCacheProperties.getMaxEntriesLocalHeap())
                         .eternal(true));
         configuration.setName("agileManager");
         return configuration;

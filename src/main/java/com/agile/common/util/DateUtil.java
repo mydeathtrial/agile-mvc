@@ -9,11 +9,16 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 /**
- * Created by 佟盟 on 2017/7/13
+ * Created by 佟盟 on TWO017/7/13
  */
 public class DateUtil extends DateUtils {
+    private static final int DATE_AREA = 8;
+    private static final int DATE_UNIT = 60;
+    private static final int MIN_UNIT = 1000;
+    private static final int HOUR_UNIT = 24;
+    private static final int TWO = 2;
     /**
-     * 5.2.ES 日期格式指定（yyyy.MM.dd）
+     * 5.TWO.ES 日期格式指定（yyyy.MM.dd）
      */
     public static final String ES_YYYYMMDD = "yyyy.MM.dd";
     /**
@@ -39,15 +44,15 @@ public class DateUtil extends DateUtils {
     /**
      * 日期格式指定(yyyy-MM-dd)
      */
-    public final static String YYYYMMDD_HYPHEN = "yyyy-MM-dd";
+    public static final String YYYYMMDD_HYPHEN = "yyyy-MM-dd";
     /**
      * 日期格式指定(MM-dd)
      */
-    public final static String MMDD_HYPHEN = "MM-dd";
+    public static final String MMDD_HYPHEN = "MM-dd";
     /**
      * 日期格式指定(MM/dd)
      */
-    public final static String MMDD_SLASH = "MM/dd";
+    public static final String MMDD_SLASH = "MM/dd";
     /**
      * 日期格式指定（yyyyMMddHHmmss）
      */
@@ -289,8 +294,8 @@ public class DateUtil extends DateUtils {
     public static Date convertToDate(String dateStr, String format, boolean timeZone) throws ParseException {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         if (timeZone) {
-            //增加8个时区的时间
-            return addMin(simpleDateFormat.parse(dateStr), 8 * 60);
+            //增加dateArea个时区的时间
+            return addMin(simpleDateFormat.parse(dateStr), DATE_AREA * DATE_UNIT);
         } else {
             return simpleDateFormat.parse(dateStr);
         }
@@ -320,7 +325,7 @@ public class DateUtil extends DateUtils {
     public static String convertToString(Date date, String format, boolean timeZone) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
         if (timeZone) {
-            return simpleDateFormat.format(addMin(date, -(8 * 60)));
+            return simpleDateFormat.format(addMin(date, -(DATE_AREA * DATE_UNIT)));
         } else {
             return simpleDateFormat.format(date);
         }
@@ -330,20 +335,20 @@ public class DateUtil extends DateUtils {
      * 比较两个Date类型时间是否相同
      *
      * @param date1 Date类型时间1
-     * @param date2 Date类型时间2
+     * @param dateTWO Date类型时间TWO
      * @return 判断结果(true ： 相同 ， flase ： 不同)
      */
-    public static boolean isSameDay(Date date1, Date date2) {
-        if (date1 == null || date2 == null) {
+    public static boolean isSameDay(Date date1, Date dateTWO) {
+        if (date1 == null || dateTWO == null) {
             throw new IllegalArgumentException("The date must not be null");
         }
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(date1);
-        Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(date2);
-        return cal1.get(Calendar.ERA) == cal2.get(Calendar.ERA)
-                && cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) && cal1
-                .get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+        Calendar calTWO = Calendar.getInstance();
+        calTWO.setTime(dateTWO);
+        return cal1.get(Calendar.ERA) == calTWO.get(Calendar.ERA)
+                && cal1.get(Calendar.YEAR) == calTWO.get(Calendar.YEAR) && cal1
+                .get(Calendar.DAY_OF_YEAR) == calTWO.get(Calendar.DAY_OF_YEAR);
     }
 
     /**
@@ -376,10 +381,10 @@ public class DateUtil extends DateUtils {
         cal.setTime(smdate);
         long time1 = cal.getTimeInMillis();
         cal.setTime(bdate);
-        long time2 = cal.getTimeInMillis();
-        long between_days = (time2 - time1) / (1000 * 3600 * 24);
+        long timeTWO = cal.getTimeInMillis();
+        long betweenDays = (timeTWO - time1) / (MIN_UNIT * DATE_UNIT * DATE_UNIT * HOUR_UNIT);
 
-        return String.valueOf(between_days);
+        return String.valueOf(betweenDays);
     }
 
     /**
@@ -390,8 +395,8 @@ public class DateUtil extends DateUtils {
      * @return
      */
     public static String getDaysBetween(long startTime, long endTime) {
-        //计算2个long型时间差值 大于1天时，按天级返回， 小于1天，按小时返回
-        if ((endTime - startTime) / 1000 / 3600 / 24 > 1) {
+        //计算TWO个long型时间差值 大于1天时，按天级返回， 小于1天，按小时返回
+        if ((endTime - startTime) / MIN_UNIT / DATE_UNIT * DATE_UNIT / HOUR_UNIT > 1) {
             return YYYYMMDD_MYSQL;
         } else {
             return YYYYMMDDHH_MYSQL;
@@ -452,11 +457,13 @@ public class DateUtil extends DateUtils {
      * @return 加算后日期
      */
     public static Date addDates(Date targetDate, int addYear, int addMonth, int addDay) {
+        final int five = 5;
+        final int one = 1;
         Calendar cal = GregorianCalendar.getInstance();
         cal.setTime(targetDate);
-        cal.add(1, addYear);
-        cal.add(2, addMonth);
-        cal.add(5, addDay);
+        cal.add(one, addYear);
+        cal.add(TWO, addMonth);
+        cal.add(five, addDay);
         return cal.getTime();
     }
 
@@ -502,9 +509,9 @@ public class DateUtil extends DateUtils {
         return "";
     }
 
-    public static String stringToString(String date, String format, String formatTo, boolean add8) throws ParseException {
+    public static String stringToString(String date, String format, String formatTo, boolean adddateArea) throws ParseException {
         if (StringUtil.isNotEmpty(date)) {
-            Date da = convertToDate(date, format, add8);
+            Date da = convertToDate(date, format, adddateArea);
             return convertToString(da, formatTo);
         }
         return "";
@@ -552,15 +559,15 @@ public class DateUtil extends DateUtils {
         //结束时间
         endDate.setTime(new Date(endTime));
         //获取分钟数
-        long min = (endTime - startTime) / 1000 / 60;
+        long min = (endTime - startTime) / MIN_UNIT / DATE_UNIT;
         //获取小时
-        long hh = (endTime - startTime) / 1000 / 60 / 60;
+        long hh = (endTime - startTime) / MIN_UNIT / DATE_UNIT / DATE_UNIT;
         //获取天
-        long dd = (endTime - startTime) / 1000 / 60 / 60 / 24;
+        long dd = (endTime - startTime) / MIN_UNIT / DATE_UNIT / DATE_UNIT / HOUR_UNIT;
 
-        if (min <= 120) {
+        if (min <= HOUR_UNIT / TWO) {
             return min + ":" + "m";
-        } else if (hh <= 48) {
+        } else if (hh <= TWO * HOUR_UNIT) {
             return hh + ":" + "h";
         } else {
             return dd + ":" + "d";
@@ -576,6 +583,6 @@ public class DateUtil extends DateUtils {
      */
     public static String getTimeScale(long startTime, long endTime) {
         long t1 = endTime - startTime;
-        return t1 <= 60 * 1000 * 60 * 2 ? "m" : t1 <= 60 * 1000 * 60 * 48 ? "h" : "d";
+        return t1 <= DATE_UNIT * MIN_UNIT * DATE_UNIT * TWO ? "m" : t1 <= DATE_UNIT * MIN_UNIT * DATE_UNIT * TWO * HOUR_UNIT ? "h" : "d";
     }
 }

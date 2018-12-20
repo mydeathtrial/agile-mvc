@@ -134,6 +134,7 @@ agile:
     port: 6379
     test_on_borrow: true
     test_on_return: false
+    duration: 30
   security:
     enable: false
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*

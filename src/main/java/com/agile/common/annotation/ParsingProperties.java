@@ -78,9 +78,9 @@ public class ParsingProperties implements ParsingBeanBefore {
                     while (hasNext) {
                         String key = String.format("%s.%s[%s]", prefix, name, j);
                         if (j == 0) {
-                            key = PropertiesUtil.properties.containsKey(key) ? key : prefix + "." + name;
+                            key = PropertiesUtil.getProperties().containsKey(key) ? key : prefix + "." + name;
                         }
-                        if (PropertiesUtil.properties.containsKey(key)) {
+                        if (PropertiesUtil.getProperties().containsKey(key)) {
                             list.add(PropertiesUtil.getProperty(key, innerClass));
                             j++;
                         } else {
@@ -106,7 +106,7 @@ public class ParsingProperties implements ParsingBeanBefore {
             } else {
                 String key = prefix + "." + StringUtil.camelToUnderline(name);
                 if (ClassUtil.isCustomClass(type)) {
-                    if (PropertiesUtil.properties.containsKey(key)) {
+                    if (PropertiesUtil.getProperties().containsKey(key)) {
                         field.set(target, PropertiesUtil.getProperty(key, type));
                     }
                 } else {

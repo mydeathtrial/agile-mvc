@@ -1,5 +1,9 @@
 package com.agile.common.annotation;
 
+import com.agile.common.util.APIUtil;
+import org.springframework.data.util.ProxyUtils;
+import org.springframework.stereotype.Component;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -11,23 +15,15 @@ import java.lang.reflect.Method;
  * @version 1.0
  * @since 1.0
  */
-//@Component
+@Component
 public class ParsingMapping implements ParsingMethodBefore {
     @Override
     public void parsing(String beanName, Object object, Method method) {
-//        Class<?> realClass = ProxyUtils.getUserClass(object);
-//        if(realClass == null)return;
-//        Service service = realClass.getAnnotation(Service.class);
-//        if(service == null)return;
-//        //service缓存
-//        APIUtil.addServiceCache(beanName,object);
-//        if(service.value().length()>0){
-//            APIUtil.addServiceCache(service.value(),object);
-//            APIUtil.addServiceCache(StringUtil.toLowerName(object.getClass().getSimpleName()),object);
-//        }
-//
-//        //method缓存
-//        APIUtil.addMappingInfoCache(beanName,object,method,realClass);
+        Class<?> realClass = ProxyUtils.getUserClass(object);
+        if (realClass.getAnnotation(NotAPI.class) != null || method.getAnnotation(NotAPI.class) != null) {
+            return;
+        }
+        APIUtil.addMappingInfoCache(beanName, object);
     }
 
     @Override

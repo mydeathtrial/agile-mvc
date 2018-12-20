@@ -61,7 +61,6 @@ public class JSONUtil {
             }
             return result;
         } catch (Exception e) {
-            System.out.println("Parse object to String error");
             e.printStackTrace();
             return null;
         }

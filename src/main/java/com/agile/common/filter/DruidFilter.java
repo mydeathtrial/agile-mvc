@@ -77,20 +77,28 @@ public class DruidFilter extends FilterEventAdapter {
         printLog(statement.getRawObject(), error);
     }
 
+    /**
+     * 打印日志
+     * @param statement Statement
+     */
     private void printLog(Statement statement) {
         if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.DAO_LOG.info(((ClientPreparedStatement) statement).asSql());
+                LoggerFactory.getDaoLog().info(((ClientPreparedStatement) statement).asSql());
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    /**
+     * 打印异常日志
+     * @param statement Statement
+     */
     private void printLog(Statement statement, Throwable error) {
         if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.DAO_LOG.error(((ClientPreparedStatement) statement).asSql(), error);
+                LoggerFactory.getDaoLog().error(((ClientPreparedStatement) statement).asSql(), error);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

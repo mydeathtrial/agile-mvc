@@ -51,11 +51,14 @@ public class MainService implements ServiceInterface {
         initOutParam();
         try {
             Object returnData = method.invoke(object);
-            if (returnData instanceof AbstractResponseFormat) {//如果是自定义报文bean，则格式化报文
+            if (returnData instanceof AbstractResponseFormat) {
+                //如果是自定义报文bean，则格式化报文
                 setOutParam(((AbstractResponseFormat) returnData).buildResponse());
-            } else if (returnData instanceof RETURN) {//如果是头信息，则交给控制层处理
+            } else if (returnData instanceof RETURN) {
+                //如果是头信息，则交给控制层处理
                 return returnData;
-            } else {//其他类型数据直接放入返回参数
+            } else {
+                //其他类型数据直接放入返回参数
                 if (returnData != null) {
                     setOutParam(Constant.ResponseAbout.RESULT, returnData);
                 }

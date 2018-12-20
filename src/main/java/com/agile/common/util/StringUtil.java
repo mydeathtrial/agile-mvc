@@ -330,10 +330,12 @@ public final class StringUtil extends StringUtils {
             return null;
         }
 
+        final int length = 0xFF;
+        final int two = 2;
         for (int i = 0; i < bytes.length; i++) {
-            int v = bytes[i] & 0xFF;
+            int v = bytes[i] & length;
             String hv = Integer.toHexString(v);
-            if (hv.length() < 2) {
+            if (hv.length() < two) {
                 result.append(0);
             }
             result.append(hv);

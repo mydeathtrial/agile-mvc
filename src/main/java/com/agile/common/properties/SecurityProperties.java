@@ -13,7 +13,7 @@ public class SecurityProperties {
     private static String loginOutUrl = "/logout";
     private static String verificationCode = "verification";
     private static String tokenKey = "23617641641";
-    private static int tokenTimeout = 1800;
+    private static int tokenTimeout;
     private static String tokenHeader = "AGILE_TOKEN";
     private static String loginUsername = "username";
     private static String loginPassword = "password";
