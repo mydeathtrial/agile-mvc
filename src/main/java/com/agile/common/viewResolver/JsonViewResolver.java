@@ -7,7 +7,7 @@ import org.springframework.web.servlet.view.AbstractCachingViewResolver;
 import java.util.Locale;
 
 /**
- * Created by 佟盟 on 2017/8/1
+ * @author 佟盟 on 2017/8/1
  */
 public class JsonViewResolver extends AbstractCachingViewResolver {
     private static final String REDIRECT_URL_PREFIX = "redirect:";

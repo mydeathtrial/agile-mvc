@@ -5,7 +5,7 @@ import com.agile.mvc.entity.SysBtTaskTargetEntity;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by 佟盟
+ * @author 佟盟
  */
 @Service
 public class SysBtTaskTargetService extends BusinessService<SysBtTaskTargetEntity> {

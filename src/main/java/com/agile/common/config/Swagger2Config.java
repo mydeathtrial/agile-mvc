@@ -18,11 +18,12 @@ import springfox.documentation.spring.web.scanners.ApiModelReader;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Created by 佟盟 on 2018/11/22
+ * @author 佟盟 on 2018/11/22
  */
 @Configuration
 @EnableSwagger2
 public class Swagger2Config {
+
     @Bean
     public Docket createRestApi() {
         return new Docket(DocumentationType.SWAGGER_2)

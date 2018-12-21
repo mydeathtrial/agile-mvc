@@ -6,7 +6,6 @@ import com.agile.common.util.FileUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ViewUtil;
 import net.sf.json.xml.XMLSerializer;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.view.AbstractView;
 
@@ -17,9 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2017/8/1
+ * @author 佟盟 on 2017/8/1
  */
-@Component
 public class XmlView extends AbstractView {
 
     public static final String DEFAULT_CONTENT_TYPE = "application/xml";

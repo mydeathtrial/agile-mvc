@@ -12,17 +12,13 @@ import java.sql.SQLException;
 import java.util.Collections;
 
 /**
- * Created by 佟盟 on 2017/10/7
+ * @author 佟盟 on 2017/10/7
  */
 @Configuration
 public class DruidConfig {
-    private static int index = 0;
+    private static final int INDEX = 0;
 
-    private DruidConfigProperty druidConfigProperty;
-
-    public DruidConfig() {
-        this.druidConfigProperty = DBConfigProperties.getDruid().get(index);
-    }
+    private DruidConfigProperty druidConfigProperty = DBConfigProperties.getDruid().get(INDEX);
 
     @Bean(initMethod = "init", destroyMethod = "close")
     DruidDataSource dataSource() throws SQLException {

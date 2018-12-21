@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
- * Created by 佟盟 on 2018/11/6
+ * @author 佟盟 on 2018/11/6
  */
 public class ResponseFile {
     private String fileName;

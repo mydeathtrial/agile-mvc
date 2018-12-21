@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2017/2/23
+ * @author 佟盟 on 2017/2/23
  */
 public class ServletUtil {
     /**

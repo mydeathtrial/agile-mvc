@@ -5,7 +5,7 @@ import com.agile.common.util.ServletUtil;
 import java.io.Serializable;
 
 /**
- * Created by 佟盟 on 2017/1/9
+ * @author 佟盟 on 2017/1/9
  */
 public class Head implements Serializable {
     private static final long serialVersionUID = 97555324631150979L;

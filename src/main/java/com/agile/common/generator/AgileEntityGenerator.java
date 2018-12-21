@@ -3,7 +3,7 @@ package com.agile.common.generator;
 import java.util.Map;
 
 /**
- * Created by mydeathtrial on 2017/4/20
+ * @author mydeathtrial on 2017/4/20
  */
 public class AgileEntityGenerator {
 

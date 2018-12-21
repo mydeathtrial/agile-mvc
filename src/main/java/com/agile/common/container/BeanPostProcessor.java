@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by 佟盟 on 2018/1/19
+ * @author 佟盟 on 2018/1/19
  * bean初始化对象过程
  */
 @Component

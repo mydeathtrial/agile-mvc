@@ -99,12 +99,17 @@ agile:
     use_sql_comments: false
   ehcache:
     max_entries_local_heap: 10000
-    time_to_idle_seconds: 300
-    time_to_live_seconds: 600
-    disk_expiry_thread_interval_seconds: 600
+    max_entries_local_disk: 10000000
+    time_to_idle: 120
+    time_to_live: 120
+    disk_spool_buffer_size: 30
+    blocking: false
+    eternal: false
+    memory_store_eviction_policy: LFU
+    disk_expiry_thread_interval_seconds: 120
   kaptcha:
     enable: false
-    border: 'no'
+    border: no
     border_color: black
     image_height: 45
     image_width: 125
@@ -136,7 +141,7 @@ agile:
     test_on_return: false
     duration: 30
   security:
-    enable: false
+    enable: true
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*
     login_out_url: /logout
     login_url: /login

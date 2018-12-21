@@ -1,4 +1,4 @@
-package com.agile.common.cache.ehCache;
+package com.agile.common.cache.ehcache;
 
 import com.agile.common.factory.LoggerFactory;
 import net.sf.ehcache.CacheManager;
@@ -9,7 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.lang.Nullable;
 
 /**
- * Created by 佟盟 on 2018/2/11
+ * @author 佟盟 on 2018/2/11
  */
 public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, InitializingBean, DisposableBean {
     @Nullable

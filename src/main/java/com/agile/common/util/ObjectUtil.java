@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by 佟盟 on 2017/1/9
+ * @author 佟盟 on 2017/1/9
  */
 public class ObjectUtil extends ObjectUtils {
     public static void copyPropertiesOfNotNull(Object source, Object target) {

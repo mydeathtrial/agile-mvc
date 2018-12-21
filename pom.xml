@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.2.47</version>
+    <version>1.0.2.48</version>
     <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://192.168.0.55:7777/repository/maven-public/</url>
@@ -28,26 +28,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution> <!-- 绑定pmd:pmd到validate生命周期，在validate时会自动进行代码规范检查 -->
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <configuration> <!-- 配置文件的路径，在style文件夹下 -->
-                            <configLocation>checkstyle-ali.xml</configLocation>
-                            <encoding>UTF-8</encoding>
-                            <consoleOutput>true</consoleOutput>
-                            <failsOnError>true</failsOnError>
-                            <includeTestSourceDirectory>false</includeTestSourceDirectory>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

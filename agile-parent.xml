@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.agileframework</groupId>
     <artifactId>agile-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
     <name>agile-parent</name>
     <description>Agile工程父级POM支持</description>
 
@@ -15,7 +15,7 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
                 <version>${spring.version}</version>
-                <type>pom</type>
+                <type>pom</type >
                 <scope>import</scope>
             </dependency>
         </dependencies>
@@ -744,7 +744,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>${hibernate.validate.version}</version>
             <scope>provided</scope>
@@ -808,6 +808,26 @@
         <finalName>${project.artifactId}-${project.version}</finalName>
         <defaultGoal>compile</defaultGoal>
         <plugins>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution> <!-- 绑定pmd:pmd到validate生命周期，在validate时会自动进行代码规范检查 -->
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <configuration> <!-- 配置文件的路径，在style文件夹下 -->
+                            <configLocation>http://192.168.0.55:7777/repository/agile/com/agileframework/checkstyle/1.0/checkstyle-1.0.xml</configLocation>
+                            <encoding>UTF-8</encoding>
+                            <consoleOutput>true</consoleOutput>
+                            <failsOnError>true</failsOnError>
+                            <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>

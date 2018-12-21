@@ -3,7 +3,7 @@ package com.agile.common.cache;
 import org.springframework.lang.Nullable;
 
 /**
- * Created by 佟盟 on 2018/9/6
+ * @author 佟盟 on 2018/9/6
  */
 public interface Cache extends org.springframework.cache.Cache {
     void put(Object var1, @Nullable Object var2, int timeout);

@@ -1,4 +1,4 @@
-package com.agile.common.cache.ehCache;
+package com.agile.common.cache.ehcache;
 
 import com.agile.common.cache.CustomCacheManager;
 import net.sf.ehcache.CacheManager;
@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 
 /**
- * Created by 佟盟 on 2018/9/6
+ * @author 佟盟 on 2018/9/6
  */
 public class EhCacheCacheManager extends org.springframework.cache.ehcache.EhCacheCacheManager implements CustomCacheManager {
     public EhCacheCacheManager(CacheManager object) {

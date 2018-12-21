@@ -2,7 +2,7 @@ package com.agile.common.util;
 
 
 /**
- * Created by mydeathtrial on 2017/4/19
+ * @author mydeathtrial on 2017/4/19
  */
 public class BooleanUtil {
     public static boolean toBoolean(String resource) {

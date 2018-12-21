@@ -5,7 +5,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import java.util.UUID;
 
 /**
- * Created by 佟盟 on 2017/7/13
+ * @author 佟盟 on 2017/7/13
  */
 public class RandomStringUtil extends RandomStringUtils {
 

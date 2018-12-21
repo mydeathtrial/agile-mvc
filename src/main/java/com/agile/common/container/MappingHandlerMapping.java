@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/11/4
+ * @author 佟盟 on 2018/11/4
  */
 public class MappingHandlerMapping extends RequestMappingHandlerMapping {
     private boolean useSuffixPatternMatch = true;

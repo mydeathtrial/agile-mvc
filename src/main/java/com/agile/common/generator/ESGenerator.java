@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/10/21
+ * @author 佟盟 on 2018/10/21
  */
 public class ESGenerator {
     private static Map<String, Object> tableHandle(String dbName, ObjectCursor<MappingMetaData> typeInfo) throws IOException {

@@ -23,7 +23,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 
 /**
- * Created by 佟盟 on 2017/9/27
+ * @author 佟盟 on 2017/9/27
  */
 public class WebInitializer implements WebApplicationInitializer, ServletContextInitializer {
 

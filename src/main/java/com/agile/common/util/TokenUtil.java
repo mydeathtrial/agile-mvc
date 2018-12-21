@@ -1,6 +1,5 @@
 package com.agile.common.util;
 
-import com.agile.common.properties.SecurityProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/7/4
+ * @author 佟盟 on 2018/7/4
  */
 public class TokenUtil {
     public static final String AUTHENTICATION_CACHE_KEY = "AUTHENTICATION_CACHE_KEY";
@@ -53,7 +52,7 @@ public class TokenUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(generateExpirationDate())
-                .signWith(SignatureAlgorithm.HS512, SecurityProperties.getTokenKey().getBytes(StandardCharsets.UTF_8))
+                .signWith(SignatureAlgorithm.HS512, PropertiesUtil.getProperty("agile.security.token_key").getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -61,7 +60,7 @@ public class TokenUtil {
      * token 过期时间
      */
     public static Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + SecurityProperties.getTokenTimeout() * SECOND);
+        return new Date(System.currentTimeMillis() + PropertiesUtil.getProperty("agile.security.token_timeout", int.class) * SECOND);
     }
 
     /**
@@ -84,7 +83,7 @@ public class TokenUtil {
     public static Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parser()
-                    .setSigningKey(SecurityProperties.getTokenKey().getBytes(StandardCharsets.UTF_8))
+                    .setSigningKey(PropertiesUtil.getProperty("agile.security.token_key").getBytes(StandardCharsets.UTF_8))
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {

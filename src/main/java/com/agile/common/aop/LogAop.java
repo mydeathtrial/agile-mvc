@@ -22,7 +22,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by 佟盟 on 2017/9/24
+ * @author 佟盟 on 2017/9/24
  * 处理服务调用日志部分
  */
 @Component

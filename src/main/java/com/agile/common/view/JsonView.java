@@ -4,7 +4,6 @@ import com.agile.common.util.FileUtil;
 import com.agile.common.util.ViewUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,9 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2017/8/1
+ * @author 佟盟 on 2017/8/1
  */
-@Component
 public class JsonView extends MappingJackson2JsonView {
     public JsonView() {
         MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();

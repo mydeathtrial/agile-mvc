@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2017/12/11
+ * @author 佟盟 on 2017/12/11
  */
 public class CollectionsUtil extends CollectionUtils {
     public static <T> void sort(List<T> list, String propertiy) {

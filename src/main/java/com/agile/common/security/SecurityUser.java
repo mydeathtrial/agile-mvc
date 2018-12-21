@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2017/9/26
+ * @author 佟盟 on 2017/9/26
  */
 public class SecurityUser extends SysUsersEntity implements UserDetails {
     private static final long serialVersionUID = 1L;

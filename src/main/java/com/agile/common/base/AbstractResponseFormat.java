@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 /**
- * Created by 佟盟 on 2018/11/2
+ * @author 佟盟 on 2018/11/2
  */
 public abstract class AbstractResponseFormat extends LinkedHashMap<String, Object> {
     /**

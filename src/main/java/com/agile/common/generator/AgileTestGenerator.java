@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by mydeathtrial on 2017/5/10.
+ * @author mydeathtrial on 2017/5/10.
  */
 public class AgileTestGenerator {
     public static void main(String[] args) throws IOException, TemplateException {

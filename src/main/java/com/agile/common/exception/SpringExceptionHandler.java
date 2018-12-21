@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Created by 佟盟 on 2018/6/25
+ * @author 佟盟 on 2018/6/25
  */
 @Order(0)
 @ControllerAdvice

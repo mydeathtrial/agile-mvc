@@ -8,7 +8,7 @@ import org.springframework.data.redis.cache.RedisCacheWriter;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/9/6
+ * @author 佟盟 on 2018/9/6
  */
 public class RedisCacheManager extends org.springframework.data.redis.cache.RedisCacheManager implements CustomCacheManager {
     private RedisCacheWriter cacheWriter;

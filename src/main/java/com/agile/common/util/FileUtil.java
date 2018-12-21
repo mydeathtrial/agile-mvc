@@ -31,7 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Created by 佟盟 on 2017/12/21
+ * @author 佟盟 on 2017/12/21
  */
 public class FileUtil extends FileUtils {
     private static final Map<String, Object> FILE_FORMAT_MAP = new HashMap<>();

@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- * Created by 佟盟 on 2017/5/5
+ * @author 佟盟 on 2017/5/5
  */
 @WebAppConfiguration
 @ContextConfiguration(classes = {SpringConfig.class})

@@ -7,11 +7,9 @@ import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.TokenUtil;
 import com.agile.mvc.entity.SysLoginEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -19,13 +17,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
 
 /**
- * Created by 佟盟 on 2018/7/4
+ * @author 佟盟 on 2018/7/4
  */
-@Component
 public class TokenStrategy implements SessionAuthenticationStrategy {
     private final SecurityUserDetailsService securityUserDetailsService;
 
-    @Autowired
     public TokenStrategy(SecurityUserDetailsService securityUserDetailsService) {
         this.securityUserDetailsService = securityUserDetailsService;
     }

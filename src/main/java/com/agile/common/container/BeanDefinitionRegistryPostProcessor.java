@@ -11,13 +11,13 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by 佟盟 on 2018/1/19
+ * @author 佟盟 on 2018/1/19
  * bean定义过程
  */
 @Component
 public class BeanDefinitionRegistryPostProcessor implements org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
     private ApplicationContext applicationContext;
-    private String[] securitys = new String[]{"securityConfig", "corsConfigurationSource", "corsConfiguration", "reloadableResourceBundleMessageSource", "JWTAuthenticationProvider",
+    private String[] securitys = new String[]{"securityConfig", "corsConfigurationSource", "corsConfiguration", "reloadableResourceBundleMessageSource", "jwtAuthenticationProvider",
             "loginFilter", "logoutHandler", "securityUserDetailsService", "tokenFilter", "tokenStrategy", "org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration",
             "org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration", "org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration",
             "methodSecurityInterceptor", "methodSecurityMetadataSource", "autowiredWebSecurityConfigurersIgnoreParents", "springSecurityFilterChain", "webSecurityExpressionHandler",
@@ -35,7 +35,7 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
             "org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration", "org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration", "redisCustomConversions",
             "redisReferenceResolver", "redisConverter", "redisKeyValueAdapter", "redisKeyValueTemplate"};
     private String[] ehcaches = new String[]{"ehCacheConfig", "ehCacheCacheManager", "ehCacheManagerFactoryBean"};
-    private String[] tasks = new String[]{"agileTaskService", "taskFactory"};
+    private String[] tasks = new String[]{"customTaskServer", "taskFactory"};
     private String[] es = new String[]{"esClient"};
 
     @Override

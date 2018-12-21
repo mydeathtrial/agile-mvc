@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Created by 佟盟 on 2018/11/9
+ * @author 佟盟 on 2018/11/9
  */
 @Component
 public class ListenerContainerInit implements ApplicationListener<WebServerInitializedEvent> {

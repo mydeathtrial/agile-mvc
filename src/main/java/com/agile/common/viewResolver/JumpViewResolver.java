@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.Locale;
 
 /**
- * Created by 佟盟 on 2018/3/26
+ * @author 佟盟 on 2018/3/26
  */
 public class JumpViewResolver extends AbstractCachingViewResolver implements Ordered {
     private static final String REDIRECT_URL_PREFIX = "redirect:";

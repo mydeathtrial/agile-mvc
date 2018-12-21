@@ -4,7 +4,6 @@ import com.agile.common.base.Constant;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.MapUtil;
 import com.agile.common.util.StringUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,9 +12,8 @@ import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2017/8/1
+ * @author 佟盟 on 2017/8/1
  */
-@Component
 public class PlainView extends AbstractView {
     public static final String DEFAULT_CONTENT_TYPE = "text/plain";
 

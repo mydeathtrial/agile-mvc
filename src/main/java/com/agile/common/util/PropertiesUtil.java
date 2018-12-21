@@ -31,7 +31,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Created by mydeathtrial on 2017/3/11
+ * @author mydeathtrial on 2017/3/11
  */
 public final class PropertiesUtil extends PropertiesLoaderUtils {
 

@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Created by 佟盟 on 2018/7/9
+ * @author 佟盟 on 2018/7/9
  */
 public class SuccessHandler implements AuthenticationSuccessHandler {
     @Override

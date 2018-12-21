@@ -15,7 +15,7 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import java.net.URI;
 
 /**
- * Created by 佟盟 on 2017/11/2
+ * @author 佟盟 on 2017/11/2
  */
 @Order(1)
 @Plugin(name = "LoggerFactoryConfig", category = ConfigurationFactory.CATEGORY)

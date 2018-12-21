@@ -1,7 +1,7 @@
 package com.agile.common.util;
 
 /**
- * Created by 佟盟 on 2018/8/27
+ * @author 佟盟 on 2018/8/27
  */
 public class SortUtil {
     public static int getMiddle(int[] numbers, int low, int high) {

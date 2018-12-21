@@ -1,7 +1,7 @@
 package com.agile.common.base.poi;
 
 /**
- * Created by on 2018/10/17
+ * @author on 2018/10/17
  * @author 佟盟
  * 为POI生成excel工具提供的辅助类，该类主要负责存放表头信息
  */

@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Created by mydeathtrial on 2017/4/24
+ * @author mydeathtrial on 2017/4/24
  */
 public class ClassUtil extends ClassUtils {
 

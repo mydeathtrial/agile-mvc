@@ -1,7 +1,7 @@
 package com.agile.common.validate;
 
 /**
- * Created by 佟盟 on 2018/11/15
+ * @author 佟盟 on 2018/11/15
  */
 public class ValidateMsg {
     private String message;

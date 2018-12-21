@@ -1,7 +1,7 @@
 package com.agile.common.base;
 
 /**
- * Created by 佟盟 on 2017/9/2
+ * @author 佟盟 on 2017/9/2
  */
 public class Constant {
     /**

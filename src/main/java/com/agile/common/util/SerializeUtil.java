@@ -6,7 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 /**
- * Created by 佟盟 on 2018/2/9
+ * @author 佟盟 on 2018/2/9
  */
 public class SerializeUtil {
     public static byte[] serialize(Object object) {

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Created by 佟盟 on 2018/6/25
+ * @author 佟盟 on 2018/6/25
  */
 public class FailureHandler implements AuthenticationFailureHandler, AccessDeniedHandler {
 

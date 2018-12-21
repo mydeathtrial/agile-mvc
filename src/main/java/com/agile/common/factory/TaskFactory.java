@@ -6,7 +6,7 @@ import org.springframework.scheduling.support.CronTrigger;
 import java.util.concurrent.ScheduledFuture;
 
 /**
- * Created by 佟盟 on 2017/11/29
+ * @author 佟盟 on 2017/11/29
  */
 public class TaskFactory {
     private static TaskFactory taskFactory;

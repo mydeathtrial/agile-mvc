@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Created by mydeathtrial on 2017/4/20
+ * @author mydeathtrial on 2017/4/20
  */
 public class AgileGenerator {
 

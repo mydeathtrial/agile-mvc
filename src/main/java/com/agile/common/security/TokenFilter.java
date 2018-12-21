@@ -1,6 +1,5 @@
 package com.agile.common.security;
 
-import com.agile.common.config.SecurityConfig;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.TokenIllegalException;
@@ -11,50 +10,45 @@ import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * 登陆验证码拦截器
- * Created by 佟盟 on 2017/9/27
+ *
+ * @author 佟盟 on 2017/9/27
  */
-@Component
 public class TokenFilter extends OncePerRequestFilter {
     private final FailureHandler failureHandler;
     private final SecurityUserDetailsService securityUserDetailsService;
     private RequestMatcher[] matches;
-    private AntPathRequestMatcher signOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
+    private AntPathRequestMatcher signOutUrl;
 
-    @Autowired
-    public TokenFilter(SecurityUserDetailsService securityUserDetailsService) {
-        String[] urls = SecurityConfig.getImmuneUrl();
-        matches = new RequestMatcher[urls.length];
+    public TokenFilter(SecurityUserDetailsService securityUserDetailsService, String[] immuneUrl) {
+        matches = new RequestMatcher[immuneUrl.length];
         int i = 0;
-        while (i < urls.length) {
-            matches[i] = new AntPathRequestMatcher(urls[i]);
+        while (i < immuneUrl.length) {
+            matches[i] = new AntPathRequestMatcher(immuneUrl[i]);
             i++;
         }
         this.failureHandler = new FailureHandler();
         this.securityUserDetailsService = securityUserDetailsService;
+        this.signOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
         try {
             if (!requiresAuthentication(request)) {
                 filterChain.doFilter(request, response);
@@ -107,7 +101,7 @@ public class TokenFilter extends OncePerRequestFilter {
         }
     }
 
-    private void exceptionHandler(HttpServletRequest req, HttpServletResponse res, AuthenticationException e) throws IOException, ServletException {
+    private void exceptionHandler(HttpServletRequest req, HttpServletResponse res, AuthenticationException e) {
         failureHandler.onAuthenticationFailure(req, res, e);
     }
 

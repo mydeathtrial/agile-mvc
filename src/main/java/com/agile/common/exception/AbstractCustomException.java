@@ -1,7 +1,7 @@
 package com.agile.common.exception;
 
 /**
- * Created by 佟盟 on 2018/11/6
+ * @author 佟盟 on 2018/11/6
  */
 public abstract class AbstractCustomException extends Exception {
     private Object[] params;

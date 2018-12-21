@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import java.net.InetAddress;
 
 /**
- * Created by 佟盟 on 2018/10/18
+ * @author 佟盟 on 2018/10/18
  */
 @Configuration
 public class ESConfig {
@@ -43,7 +43,8 @@ public class ESConfig {
 
     @Init
     public void initEnv() {
-        if (PropertiesUtil.getProperty("agile.elasticsearch.enable", boolean.class)) {
+        final String enable = "agile.elasticsearch.enable";
+        if (PropertiesUtil.getProperty(enable, boolean.class)) {
             try {
                 ObjectUtil.copyProperties(new ESProperties(), new com.idss.common.datafactory.utils.ESConfig());
             } catch (Exception e) {

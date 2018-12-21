@@ -1,7 +1,7 @@
 package com.agile.common.util;
 
 /**
- * Created by 佟盟 on 2018/11/9
+ * @author 佟盟 on 2018/11/9
  */
 public class PrintUtil {
 

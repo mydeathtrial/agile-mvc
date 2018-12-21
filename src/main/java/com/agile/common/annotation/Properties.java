@@ -9,7 +9,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by 佟盟 on 2018/1/5
+ * @author 佟盟 on 2018/1/5
  * 配置属性集注解
  */
 @Target({ElementType.TYPE})

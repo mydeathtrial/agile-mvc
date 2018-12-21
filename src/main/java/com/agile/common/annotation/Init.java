@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by 佟盟 on 2017/10/18
+ * @author 佟盟 on 2017/10/18
  * 伴随spring容器初始化时触发方法注解
  */
 @Target({ElementType.METHOD})

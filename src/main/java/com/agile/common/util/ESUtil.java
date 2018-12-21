@@ -1,6 +1,5 @@
 package com.agile.common.util;
 
-import com.agile.common.config.ESConfig;
 import com.carrotsearch.hppc.ObjectContainer;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.client.Client;
@@ -11,7 +10,7 @@ import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2018/10/16
+ * @author 佟盟 on 2018/10/16
  */
 public class ESUtil {
 
@@ -20,7 +19,7 @@ public class ESUtil {
     private static Client getClient() {
         if (client == null) {
             try {
-                client = new ESConfig().esClient();
+                client = FactoryUtil.getBean(Client.class);
             } catch (Exception e) {
                 e.printStackTrace();
             }

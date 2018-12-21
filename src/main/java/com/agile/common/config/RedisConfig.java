@@ -19,7 +19,7 @@ import java.time.Duration;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2017/10/8
+ * @author 佟盟 on 2017/10/8
  */
 @Configuration
 public class RedisConfig {

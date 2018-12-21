@@ -11,7 +11,7 @@ import org.springframework.core.env.Environment;
 import java.io.PrintStream;
 
 /**
- * Created by 佟盟 on 2018/11/21
+ * @author 佟盟 on 2018/11/21
  */
 public class AgileBanner implements Banner {
 

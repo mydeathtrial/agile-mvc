@@ -9,7 +9,7 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.cache.RedisCache;
 
 /**
- * Created by 佟盟 on 2018/5/10
+ * @author 佟盟 on 2018/5/10
  */
 public class StorageAccessImpl implements DomainDataStorageAccess {
     private final RedisCache cache;

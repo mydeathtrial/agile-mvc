@@ -8,6 +8,7 @@ import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,7 +16,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.stereotype.Component;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -23,20 +23,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 
 /**
- * Created by 佟盟 on 2017/1/13
+ * @author 佟盟 on 2017/1/13
  */
-@Component
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
-    private static final String USERNAME = SecurityProperties.getLoginUsername();
-    private static final String PASSWORD = SecurityProperties.getLoginPassword();
+    private final String username;
+    private final String password;
     private final FailureHandler failureHandler;
     private final SuccessHandler successHandler;
-    private final JWTAuthenticationProvider loginStrategyProvider;
+    private final AuthenticationProvider loginStrategyProvider;
     private final SessionAuthenticationStrategy tokenStrategy;
 
-    public LoginFilter(JWTAuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy) {
+    public LoginFilter(AuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy) {
         super(new AntPathRequestMatcher(SecurityProperties.getLoginUrl()));
+        this.username = SecurityProperties.getLoginUsername();
+        this.password = SecurityProperties.getLoginPassword();
         this.failureHandler = new FailureHandler();
         this.successHandler = new SuccessHandler();
         this.loginStrategyProvider = loginStrategyProvider;
@@ -58,13 +59,13 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
-        String username = request.getParameter(USERNAME);
-        String password = request.getParameter(PASSWORD);
+        String sourceUsername = request.getParameter(this.username);
+        String sourcePassword = request.getParameter(this.password);
 
-        if (StringUtil.isEmpty(username)) {
+        if (StringUtil.isEmpty(sourceUsername)) {
             throw new NoCompleteFormSign();
         }
-        if (StringUtil.isEmpty(password)) {
+        if (StringUtil.isEmpty(sourcePassword)) {
             throw new NoCompleteFormSign();
         }
 
@@ -74,7 +75,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         }
 
         //生成认证信息
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(sourceUsername, sourcePassword);
         this.setDetails(request, authRequest);
         return this.getAuthenticationManager().authenticate(authRequest);
     }

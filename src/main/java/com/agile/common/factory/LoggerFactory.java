@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by 佟盟 on n017/TWO/n3
+ * @author 佟盟 on n017/TWO/n3
  * 日志工厂
  */
 public final class LoggerFactory {

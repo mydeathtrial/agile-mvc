@@ -12,7 +12,7 @@ import springfox.documentation.service.ResourceGroup;
 import java.util.Arrays;
 
 /**
- * Created by 佟盟 on 2018/11/23
+ * @author 佟盟 on 2018/11/23
  */
 public class ResourcePathProvider {
     private final ResourceGroup resourceGroup;

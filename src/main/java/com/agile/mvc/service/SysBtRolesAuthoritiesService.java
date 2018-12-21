@@ -5,7 +5,7 @@ import com.agile.mvc.entity.SysBtRolesAuthoritiesEntity;
 import org.springframework.stereotype.Service;
 
 /**
- * Created by 佟盟
+ * @author 佟盟
  */
 @Service
 public class SysBtRolesAuthoritiesService extends BusinessService<SysBtRolesAuthoritiesEntity> {

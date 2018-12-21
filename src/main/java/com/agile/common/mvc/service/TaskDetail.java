@@ -3,7 +3,7 @@ package com.agile.common.mvc.service;
 import java.util.Date;
 
 /**
- * Created by 佟盟 on 2018/7/17
+ * @author 佟盟 on 2018/7/17
  */
 interface TaskDetail {
 

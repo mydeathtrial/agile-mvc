@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2018/11/16
+ * @author 佟盟 on 2018/11/16
  */
 public enum ValidateType implements ValidateInterface {
     NO,

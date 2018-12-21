@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by 佟盟 on 2018/5/10
+ * @author 佟盟 on 2018/5/10
  */
 public class RedisRegionFactory extends RegionFactoryTemplate {
     private static final AtomicInteger REFERENCE_COUNT = new AtomicInteger();

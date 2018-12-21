@@ -49,7 +49,7 @@ import static springfox.documentation.spi.service.contexts.Orderings.methodCompa
 import static springfox.documentation.spi.service.contexts.Orderings.resourceGroupComparator;
 
 /**
- * Created by 佟盟 on 2018/11/23
+ * @author 佟盟 on 2018/11/23
  */
 public class ApiListingScanner extends springfox.documentation.spring.web.scanners.ApiListingScanner {
     private final ApiDescriptionReader apiDescriptionReader;

@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2017/9/25
+ * @author 佟盟 on 2017/9/25
  */
 public class CORSFilter extends OncePerRequestFilter implements Filter {
     private String allowOrigin;

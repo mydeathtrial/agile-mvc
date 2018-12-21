@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 import java.util.Objects;
 
 /**
- * Created by 佟盟 on 2018/4/3
+ * @author 佟盟 on 2018/4/3
  */
 @Configuration
 public class ActivitiConfig {

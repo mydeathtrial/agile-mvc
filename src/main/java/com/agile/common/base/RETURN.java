@@ -3,7 +3,7 @@ package com.agile.common.base;
 import com.agile.common.util.PropertiesUtil;
 
 /**
- * Created by 佟盟 on 2017/1/9
+ * @author 佟盟 on 2017/1/9
  */
 public final class RETURN {
 

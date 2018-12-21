@@ -5,7 +5,7 @@ import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerF
 import org.springframework.stereotype.Component;
 
 /**
- * Created by 佟盟 on 2017/9/27
+ * @author 佟盟 on 2017/9/27
  */
 @Component
 public class ResetService implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.LinkedHashMap;
 
 /**
- * Created by 佟盟 on 2017/12/22
+ * @author 佟盟 on 2017/12/22
  */
 public class MapUtil extends MapUtils {
     /**
@@ -236,6 +236,16 @@ public class MapUtil extends MapUtils {
             Object value = entity.getValue();
             if (value instanceof MultipartFile) {
                 target.put(entity.getKey(), ((MultipartFile) value).getOriginalFilename());
+            } else if (List.class.isAssignableFrom(value.getClass())) {
+                List list = (List) value;
+                if (list.size() > 0) {
+                    for (int i = 0; i < list.size(); i++) {
+                        Object o = list.get(i);
+                        if (o instanceof MultipartFile) {
+                            list.add(i, ((MultipartFile) o).getOriginalFilename());
+                        }
+                    }
+                }
             }
         }
         return source;

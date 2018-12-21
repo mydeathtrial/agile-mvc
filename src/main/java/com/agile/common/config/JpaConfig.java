@@ -21,21 +21,16 @@ import java.util.Properties;
 
 
 /**
- * Created by 佟盟 on 2017/10/7
+ * @author 佟盟 on 2017/10/7
  */
 @Configuration
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableJpaRepositories
-public class JPAConfig {
-    private static int index = 0;
+public class JpaConfig {
+    private static final int INDEX = 0;
 
-    private DruidConfigProperty druidConfigProperty;
-    private JPAConfigProperty jpaConfigProperty;
-
-    public JPAConfig() {
-        this.druidConfigProperty = DBConfigProperties.getDruid().get(index);
-        this.jpaConfigProperty = DBConfigProperties.getJpa().get(index);
-    }
+    private DruidConfigProperty druidConfigProperty = DBConfigProperties.getDruid().get(INDEX);
+    private JPAConfigProperty jpaConfigProperty = DBConfigProperties.getJpa().get(INDEX);
 
     @Bean
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
@@ -81,7 +76,7 @@ public class JPAConfig {
                 properties.setProperty("hibernate.cache.region.factory_class", "com.agile.common.cache.redis.RedisRegionFactory");
                 break;
             case "ehcache":
-                properties.setProperty("hibernate.cache.region.factory_class", "com.agile.common.cache.ehCache.EhCacheRegionFactory");
+                properties.setProperty("hibernate.cache.region.factory_class", "com.agile.common.cache.ehcache.EhCacheRegionFactory");
                 break;
             default:
         }

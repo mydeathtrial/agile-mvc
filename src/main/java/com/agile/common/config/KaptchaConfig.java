@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.Random;
 
 /**
- * Created by 佟盟 on 2017/10/7
+ * @author 佟盟 on 2017/10/7
  */
 @Configuration
 public class KaptchaConfig extends Configurable implements TextProducer {

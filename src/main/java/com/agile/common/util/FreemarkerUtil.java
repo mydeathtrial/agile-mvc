@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/6/29
+ * @author 佟盟 on 2018/6/29
  */
 public class FreemarkerUtil {
     private static Configuration cfg = new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);

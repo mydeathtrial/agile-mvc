@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Created by 佟盟 on 2017/9/26
+ * @author 佟盟 on 2017/9/26
  */
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass = true)

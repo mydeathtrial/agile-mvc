@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by 佟盟 on 2018/9/6
+ * @author 佟盟 on 2018/9/6
  */
 public class RedisCache extends org.springframework.data.redis.cache.RedisCache implements Cache {
     private static RedisTemplate redisTemplate;

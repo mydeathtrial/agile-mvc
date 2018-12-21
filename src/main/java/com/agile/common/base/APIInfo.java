@@ -5,7 +5,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import java.lang.reflect.Method;
 
 /**
- * Created by 佟盟 on 2018/11/22
+ * @author 佟盟 on 2018/11/22
  */
 public class APIInfo {
     private Object bean;

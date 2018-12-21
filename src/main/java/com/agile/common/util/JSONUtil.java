@@ -13,7 +13,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 import java.text.SimpleDateFormat;
 
 /**
- * Created by mydeathtrial on 2017/5/9
+ * @author mydeathtrial on 2017/5/9
  */
 public class JSONUtil {
 

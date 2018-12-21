@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.lang.annotation.Annotation;
 
 /**
- * Created by mydeathtrial on 2017/3/10
+ * @author mydeathtrial on 2017/3/10
  */
 @Component
 public final class FactoryUtil {

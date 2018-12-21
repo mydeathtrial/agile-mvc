@@ -1,10 +1,14 @@
 package com.agile.common.config;
 
 import com.agile.common.properties.SpringMVCProperties;
+import com.agile.common.view.JsonView;
+import com.agile.common.view.PlainView;
+import com.agile.common.view.XmlView;
 import com.agile.common.viewResolver.JsonViewResolver;
 import com.agile.common.viewResolver.JumpViewResolver;
 import com.agile.common.viewResolver.PlainViewResolver;
 import com.agile.common.viewResolver.XmlViewResolver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -25,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2017/8/22
+ * @author 佟盟 on 2017/8/22
  */
 @Configuration
 @EnableWebMvc
@@ -37,9 +41,16 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         map.put("plain", MediaType.TEXT_PLAIN);
     }
 
+    @Autowired
+    public SpringMvcConfig(SpringMVCProperties springMVCProperties) {
+        this.springMVCProperties = springMVCProperties;
+    }
+
     public static Map<String, MediaType> getMap() {
         return map;
     }
+
+    private final SpringMVCProperties springMVCProperties;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -76,8 +87,8 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     @Bean
     public CommonsMultipartResolver contentCommonsMultipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(SpringMVCProperties.getUpload().getMaxUploadSize());
-        resolver.setDefaultEncoding(SpringMVCProperties.getUpload().getDefaultEncoding());
+        resolver.setMaxUploadSize(springMVCProperties.getUpload().getMaxUploadSize());
+        resolver.setDefaultEncoding(springMVCProperties.getUpload().getDefaultEncoding());
         return resolver;
     }
 
@@ -101,5 +112,20 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         resourceBundleMessageSource.setDefaultEncoding("UTF-8");
         resourceBundleMessageSource.setBasename("com.agile.conf.message");
         return resourceBundleMessageSource;
+    }
+
+    @Bean
+    JsonView jsonView() {
+        return new JsonView();
+    }
+
+    @Bean
+    PlainView plainView() {
+        return new PlainView();
+    }
+
+    @Bean
+    XmlView xmlView() {
+        return new XmlView();
     }
 }

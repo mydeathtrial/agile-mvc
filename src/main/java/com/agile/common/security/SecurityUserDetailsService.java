@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Created by 佟盟 on 2017/1/13
+ * @author 佟盟 on 2017/1/13
  * 从数据库中读入用户的密码，角色信息，是否锁定，账号是否过期等
  */
 @Service

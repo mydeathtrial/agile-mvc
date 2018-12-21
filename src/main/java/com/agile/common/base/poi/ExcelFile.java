@@ -4,7 +4,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 
 /**
- * Created by 佟盟 on 2018/10/17
+ * @author 佟盟 on 2018/10/17
  */
 public class ExcelFile {
     private String fileName;

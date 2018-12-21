@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Created by 佟盟 on 2018/9/7
+ * @author 佟盟 on 2018/9/7
  */
 public class DataBaseUtil {
     private static Log logger = LoggerFactory.createLogger("sql", DataBaseUtil.class);

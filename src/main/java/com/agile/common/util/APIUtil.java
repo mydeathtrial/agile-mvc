@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/8/23
+ * @author 佟盟 on 2018/8/23
  */
 public class APIUtil {
     private static Map<String, Object> serviceCache = new HashMap<>();

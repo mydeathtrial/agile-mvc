@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Created by 佟盟 on 2018/3/26
+ * @author 佟盟 on 2018/3/26
  * HttpServletRequest扩展对象，用于跳转视图中参数传递
  */
 public class RequestWrapper extends HttpServletRequestWrapper {

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 /**
- * Created by 佟盟 on 2018/11/9
+ * @author 佟盟 on 2018/11/9
  */
 @Component
 public class ListenerContainerRefreshed implements ApplicationListener<ContextRefreshedEvent>, ApplicationContextAware {

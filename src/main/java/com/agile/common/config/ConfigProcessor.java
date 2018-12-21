@@ -31,7 +31,7 @@ public class ConfigProcessor {
             case "ehcache":
                 builder.append(EhCacheConfig.class.getName() + Constant.RegularAbout.SEMICOLON);
                 break;
-                default:
+            default:
         }
         return builder.toString();
     }
