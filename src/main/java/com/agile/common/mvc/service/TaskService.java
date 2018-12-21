@@ -87,7 +87,8 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      * spring容器初始化时初始化全部定时任务
      */
     @Init
-    public void init() throws NoSuchIDException {
+    @Transactional
+    public void init() {
         initTaskTarget();
         //获取持久层定时任务数据集
         List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
@@ -100,7 +101,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
     /**
      * 初始化全部任务目标方法
      */
-    private void initTaskTarget() throws NoSuchIDException {
+    private void initTaskTarget() {
         String[] beans = applicationContext.getBeanNamesForAnnotation(Service.class);
         List<SysTaskTargetEntity> list = dao.findAll(SysTaskTargetEntity.class);
         Map<String, SysTaskTargetEntity> mapCache = new HashMap<>();
