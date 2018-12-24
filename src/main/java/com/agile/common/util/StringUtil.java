@@ -405,7 +405,13 @@ public final class StringUtil extends StringUtils {
                     Object o = args.get(key);
                     String value;
                     if (o == null) {
-                        value = openToken + closeToken;
+                        if (key.indexOf(":-") != -1) {
+                            //获取不到使用默认值   by nhApis 2018.12.24
+                            value = key.split(":-")[1].trim();
+                        } else {
+                            //获取不到环境变量时,返回原表达式 by nhApis 2018.12.24
+                            value = openToken + key + closeToken;
+                        }
                     } else {
                         value = String.valueOf(o);
                     }

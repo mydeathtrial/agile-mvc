@@ -121,6 +121,7 @@ agile:
     url: /code
     text:
   log:
+    package_uri: ${LOCAL_LOGS_PATH:-logs}/
     trigger_type: size
     trigger_value: 1M
     package:
