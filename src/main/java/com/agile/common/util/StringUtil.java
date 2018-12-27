@@ -402,12 +402,21 @@ public final class StringUtil extends StringUtils {
                     offset = src.length;
                 } else {
                     String key = expression.toString();
-                    Object o = args.get(key);
+                    String[] keyObj = key.split(":-");
+                    Object o;
                     String value;
+                    //判断是否有配置了默认值(:-)  by nhApis 2018.12.27
+                    if (keyObj.length > 0) {
+                        //配置了默认值,使用key获取当前环境变量中是否已经配置  by nhApis 2018.12.27
+                        o = args.get(keyObj[0]);
+                    } else {
+                        o = args.get(key);
+                    }
+
                     if (o == null) {
                         if (key.indexOf(":-") != -1) {
                             //获取不到使用默认值   by nhApis 2018.12.24
-                            value = key.split(":-")[1].trim();
+                            value = keyObj[1].trim();
                         } else {
                             //获取不到环境变量时,返回原表达式 by nhApis 2018.12.24
                             value = openToken + key + closeToken;
