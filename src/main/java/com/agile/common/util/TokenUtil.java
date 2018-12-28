@@ -27,7 +27,8 @@ public class TokenUtil {
      * 根据 TokenDetail 生成 Token
      */
     public static String generateToken(String cacheKey, String salt, String saltValue) {
-        Map<String, Object> claims = new HashMap<>();
+        final int length = 4;
+        Map<String, Object> claims = new HashMap<>(length);
         claims.put(AUTHENTICATION_CACHE_KEY, cacheKey);
         claims.put(AUTHENTICATION_CACHE_SALT_KEY, salt);
         claims.put(AUTHENTICATION_CREATE_SALT_VALUE, saltValue);

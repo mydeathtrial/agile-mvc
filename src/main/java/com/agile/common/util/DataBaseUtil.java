@@ -310,7 +310,8 @@ public class DataBaseUtil {
         if (null == rs) {
             return null;
         }
-        Map<String, Object> map = new HashMap<>();
+        final int length = 16;
+        Map<String, Object> map = new HashMap<>(length);
         try {
             ResultSetMetaData meta = rs.getMetaData();
             int colNum = meta.getColumnCount();

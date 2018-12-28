@@ -142,7 +142,7 @@ agile:
     test_on_return: false
     duration: 30
   security:
-    enable: true
+    enable: false
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*
     login_out_url: /logout
     login_url: /login

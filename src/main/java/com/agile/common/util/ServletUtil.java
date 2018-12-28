@@ -156,9 +156,9 @@ public class ServletUtil {
                 return null;
             }
             if (json != null) {
-                Map<String, Object> map = new HashMap<>();
-                map.put(Constant.ResponseAbout.BODY, json);
                 Iterator keys = json.keys();
+                Map<String, Object> map = new HashMap<>(json.size() + 1);
+                map.put(Constant.ResponseAbout.BODY, json);
                 while (keys.hasNext()) {
                     String keyName = keys.next().toString();
                     Object value = json.get(keyName);

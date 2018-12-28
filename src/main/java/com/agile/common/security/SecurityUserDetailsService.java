@@ -7,7 +7,6 @@ import com.agile.common.util.ObjectUtil;
 import com.agile.mvc.entity.SysAuthoritiesEntity;
 import com.agile.mvc.entity.SysLoginEntity;
 import com.agile.mvc.entity.SysUsersEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
@@ -16,7 +15,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -25,11 +23,9 @@ import java.util.List;
  * @author 佟盟 on 2017/1/13
  * 从数据库中读入用户的密码，角色信息，是否锁定，账号是否过期等
  */
-@Service
 public class SecurityUserDetailsService implements UserDetailsService {
     private final Dao dao;
 
-    @Autowired
     public SecurityUserDetailsService(Dao dao) {
         this.dao = dao;
     }

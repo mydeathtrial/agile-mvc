@@ -7,19 +7,13 @@ import java.lang.reflect.Method;
 /**
  * @author 佟盟 on 2018/11/22
  */
-public class APIInfo {
+public class ApiInfo {
     private Object bean;
     private Method method;
     private String beanName;
     private RequestMappingInfo requestMappingInfo;
 
-    public APIInfo(Object bean, Method method, String beanName) {
-        this.bean = bean;
-        this.method = method;
-        this.beanName = beanName;
-    }
-
-    public APIInfo(Object bean, Method method, String beanName, RequestMappingInfo requestMappingInfo) {
+    public ApiInfo(Object bean, Method method, String beanName, RequestMappingInfo requestMappingInfo) {
         this.bean = bean;
         this.method = method;
         this.beanName = beanName;

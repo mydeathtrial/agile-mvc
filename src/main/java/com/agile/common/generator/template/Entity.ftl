@@ -101,14 +101,14 @@ public class ${entityClassName} implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-    return "${entityClassName}{"
-    <#list columnList as property>
-        <#if property.propertyType == "Integer" || property.propertyType == "Double" || property.propertyType == "Float" || property.propertyType == "Long" || property.propertyType == "Short" || property.propertyType == "Date" || property.propertyType == "Timestamp" || property.propertyType == "Clob" || property.propertyType == "Blob" || property.propertyType == "int" || property.propertyType == "double" || property.propertyType == "float" || property.propertyType == "long" || property.propertyType == "short" || property.propertyType == "Boolean" || property.propertyType == "boolean">
-            + "<#if property_index != 0>,</#if>${property.propertyName} =" + ${property.propertyName}<#if !property_has_next> + '}';</#if>
-        <#else>
-            + "<#if property_index != 0>,</#if>${property.propertyName} ='" + ${property.propertyName} + '\''<#if !property_has_next> + '}';</#if>
-        </#if>
-    </#list>
+        return "${entityClassName}{"
+        <#list columnList as property>
+            <#if property.propertyType == "Integer" || property.propertyType == "Double" || property.propertyType == "Float" || property.propertyType == "Long" || property.propertyType == "Short" || property.propertyType == "Date" || property.propertyType == "Timestamp" || property.propertyType == "Clob" || property.propertyType == "Blob" || property.propertyType == "int" || property.propertyType == "double" || property.propertyType == "float" || property.propertyType == "long" || property.propertyType == "short" || property.propertyType == "Boolean" || property.propertyType == "boolean">
+                + "<#if property_index != 0>, </#if>${property.propertyName} =" + ${property.propertyName}<#if !property_has_next> + '}';</#if>
+            <#else>
+                + "<#if property_index != 0>, </#if>${property.propertyName} ='" + ${property.propertyName} + '\''<#if !property_has_next> + '}';</#if>
+            </#if>
+        </#list>
     }
 
     private ${entityClassName}(Builder builder) {

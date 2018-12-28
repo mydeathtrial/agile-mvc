@@ -25,10 +25,11 @@ import java.util.Set;
  * @author mydeathtrial on 2017/4/20
  */
 public class AgileGenerator {
+    private static final int LENGTH = 16;
 
     static Map<String, Object> tableHandle(Map<String, Object> table) {
         //结果集
-        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>(LENGTH);
 
         //字段集
         List<HashMap<String, String>> columnList = new ArrayList<>();
@@ -74,7 +75,7 @@ public class AgileGenerator {
 
     private static void pasringColumn(Map<String, Object> column, Set<String> importList, List<HashMap<String, String>> columnList) {
         //参数容器
-        HashMap<String, String> param = new HashMap<>();
+        HashMap<String, String> param = new HashMap<>(LENGTH);
         //是否为主键
         String isPrimaryKey = "false";
         //字段名称

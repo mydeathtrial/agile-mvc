@@ -26,6 +26,9 @@ public interface ServiceInterface {
     void setInParam(Map<String, Object> inParam);
 
     //从入参中提取对象
+    <T> T getInParam(Class<T> clazz);
+
+    //从入参中提取对象
     <T> T getInParam(String key, Class<T> clazz);
 
     //调用请求方法

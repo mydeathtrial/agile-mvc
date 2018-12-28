@@ -96,7 +96,8 @@ public class MainService implements ServiceInterface {
      * @param clazz 参数映射类型
      * @return 入参映射对象
      */
-    protected <T> T getInParam(Class<T> clazz) {
+    @Override
+    public <T> T getInParam(Class<T> clazz) {
         T o = null;
         Object json = getInParam(Constant.ResponseAbout.BODY);
         if (json != null) {

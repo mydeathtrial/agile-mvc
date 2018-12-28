@@ -25,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Component;
 
@@ -50,14 +49,21 @@ import java.util.Map;
 @Lazy
 @Component
 public class Dao {
-    private static Map<String, Object> map = new HashMap<>();
+    private static Map<String, SimpleJpaRepository> map = new HashMap<>();
     private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);
     @PersistenceContext
     private EntityManager entityManager;
 
-    private <T, ID extends Serializable> JpaRepository getRepository(Class<T> tableClass) {
-        @SuppressWarnings("unchecked")
-        JpaRepository repository = (JpaRepository) map.get(tableClass.getName());
+    /**
+     * 根据java类型获取对应的数据库表的JpaRepository对象
+     *
+     * @param tableClass 表对应的实体类型
+     * @param <T>        表对应的实体类型
+     * @param <ID>       主键类型
+     * @return 对应的数据库表的JpaRepository对象
+     */
+    public <T, ID extends Serializable> SimpleJpaRepository getRepository(Class<T> tableClass) {
+        SimpleJpaRepository repository = map.get(tableClass.getName());
         if (ObjectUtil.isEmpty(repository)) {
             repository = new SimpleJpaRepository<T, ID>(tableClass, getEntityManager());
             map.put(tableClass.getName(), repository);
@@ -84,10 +90,10 @@ public class Dao {
     }
 
     /**
-     * 保存
+     * 批量保存
      *
-     * @param list ORM对象列表
-     * @param <T>  操作对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param list 表对应的实体类型的对象列表
+     * @param <T>  表对应的实体类型
      * @return 是否保存成功
      */
     public <T> boolean save(Iterable<T> list) {
@@ -114,7 +120,7 @@ public class Dao {
     /**
      * 保存并刷新
      *
-     * @param o       要保存的对象
+     * @param o       表对应的实体类型的对象
      * @param isFlush 是否刷新
      * @return 保存后的对象
      */
@@ -142,8 +148,8 @@ public class Dao {
     /**
      * 批量保存
      *
-     * @param list 要保存的ORM对象
-     * @param <T>  操作对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param list 要保存的对象列表
+     * @param <T>  表对应的实体类型
      * @return 保存后的数据集
      */
     @SuppressWarnings("unchecked")
@@ -156,13 +162,13 @@ public class Dao {
                 return result;
             }
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
     /**
-     * 判断数据是否存在
+     * 根据表实体类型与主键值，判断数据是否存在
      *
-     * @param tableClass ORM对象类型
+     * @param tableClass 表对应的实体类型
      * @param id         数据主键
      * @return 是否存在
      */
@@ -172,9 +178,9 @@ public class Dao {
     }
 
     /**
-     * 刷新数据库中表
+     * 刷新数据库中指定tableClass类型实体对应的表
      *
-     * @param tableClass ORM对象类型
+     * @param tableClass 表对应的实体类型
      */
     public void flush(Class<?> tableClass) {
         getRepository(tableClass).flush();
@@ -192,7 +198,7 @@ public class Dao {
     /**
      * 刷新数据库数据到实体类当中
      *
-     * @param o ORM对象
+     * @param o 表对应的实体类型的对象
      */
     @SuppressWarnings("unchecked")
     public void refresh(Object o) {
@@ -203,7 +209,7 @@ public class Dao {
      * 更新或新增
      *
      * @param o   ORM对象
-     * @param <T> 更新对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param <T> 表对应的实体类型
      * @return 返回更新后的数据
      */
     public <T> T update(T o) {
@@ -211,10 +217,10 @@ public class Dao {
     }
 
     /**
-     * 更新或新增非空字段
+     * 更新或新增非空字段，空字段不进行更新
      *
-     * @param o   ORM对象
-     * @param <T> 更新对象的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param o   表映射实体类型的对象
+     * @param <T> 表映射实体类型的对象
      * @return 返回更新后的数据
      */
     public <T> T updateOfNotNull(T o) throws NoSuchIDException, IllegalAccessException {
@@ -227,9 +233,9 @@ public class Dao {
     }
 
     /**
-     * 删除
+     * 根据提供的对象参数，作为例子，查询出结果并删除
      *
-     * @param o ORM对象
+     * @param o 表实体对象
      */
     public void delete(Object o) {
         List list = this.findAll(o);
@@ -239,9 +245,9 @@ public class Dao {
     /**
      * 删除
      *
-     * @param tableClass ORM对象类型
+     * @param tableClass 查询的目标表对应实体类型，Entity
      * @param id         删除的主键标识
-     * @param <T>        删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param <T>        查询的目标表对应实体类型
      */
     @SuppressWarnings("unchecked")
     public <T> void deleteById(Class<T> tableClass, Object id) {
@@ -251,8 +257,8 @@ public class Dao {
     /**
      * 删除全部(逐一删除)
      *
-     * @param tableClass ORM对象类型
-     * @param <T>        删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param <T>        查询的目标表对应实体类型
      */
     @SuppressWarnings("unchecked")
     public <T> void deleteAll(Class<T> tableClass) {
@@ -262,8 +268,8 @@ public class Dao {
     /**
      * 删除全部(一次性删除)
      *
-     * @param tableClass ORM对象类型
-     * @param <T>        删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param <T>        查询的目标表对应实体类型
      */
     @SuppressWarnings("unchecked")
     public <T> void deleteAllInBatch(Class<T> tableClass) {
@@ -271,9 +277,9 @@ public class Dao {
     }
 
     /**
-     * 主键数组转换ORM对象列表
+     * 根据表映射的实体类型与主键值集合，创建一个只包含主键值的空的对象集合
      *
-     * @param tableClass ORM类型
+     * @param tableClass 查询的目标表对应实体类型，Entity
      * @param ids        主键数组
      * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
@@ -296,7 +302,7 @@ public class Dao {
     /**
      * 获取ORM中的主键字段
      *
-     * @param clazz 表的java映射实体类型
+     * @param clazz 查询的目标表对应实体类型，Entity
      * @return 主键属性
      * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
@@ -327,31 +333,10 @@ public class Dao {
     }
 
     /**
-     * 部分删除
+     * 根据主键与实体类型，部分删除，删除对象集(一次性删除)
      *
-     * @param tableClass 删除的表的java映射实体类型
-     * @param <T>        删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
-     * @param ids        主键数组
-     * @param <ID>       主键类型
-     * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
-     */
-    @SuppressWarnings("unchecked")
-    public <T, ID> void deleteAll(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
-        if (ArrayUtil.isEmpty(ids) || ids.length < 1) {
-            return;
-        }
-        List list = createObjectList(tableClass, ids);
-        if (!ObjectUtil.isEmpty(list) && list.size() > 0) {
-            getRepository(tableClass).deleteAll(list);
-
-        }
-    }
-
-    /**
-     * 部分删除，删除对象集(一次性删除)
-     *
-     * @param tableClass 删除的表的java映射实体类型
-     * @param <T>        删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param <T>        查询的目标表对应实体类型
      * @param ids        主键数组
      * @param <ID>       主键类型
      * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
@@ -368,7 +353,7 @@ public class Dao {
     }
 
     /**
-     * 部分删除，删除对象集(一次性删除)
+     * 根据表映射类型的对象集合，部分删除，删除对象集(一次性删除)，无返回值
      *
      * @param list 需要删除的对象列表
      * @param <T>  删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
@@ -383,7 +368,12 @@ public class Dao {
     }
 
     /**
-     * 查询单条
+     * 根据主键，查询单条
+     *
+     * @param clazz 查询的目标表对应实体类型，Entity
+     * @param id    主键
+     * @param <T>   查询的目标表对应实体类型
+     * @return clazz类型对象
      */
     public <T> T findOne(Class<T> clazz, Object id) {
         return getEntityManager().find(clazz, id);
@@ -407,7 +397,7 @@ public class Dao {
      *
      * @param <T>        查询的表的映射实体类型
      * @param sql        sql
-     * @param clazz      查询结果映射成的类型
+     * @param clazz      查询的目标表对应实体类型，Entity
      * @param parameters 对象数组格式的sql语句中的参数集合，使用?方式占位
      * @return 查询的结果
      */
@@ -425,9 +415,9 @@ public class Dao {
      * 根据sql查询出单条数据，并映射成指定clazz类型
      *
      * @param <T>        查询的表的映射实体类型
-     * @param sql        sql
-     * @param clazz      查询结果映射成的类型
-     * @param parameters map格式的sql语句中的参数集合，使用{paramName}方式占位
+     * @param sql        原生sql，使用{Map的key值}形式占位
+     * @param clazz      查询的目标表对应实体类型，Entity
+     * @param parameters Map形式参数集合
      * @return 查询的结果
      */
     public <T> T findOne(String sql, Class<T> clazz, Map<String, Object> parameters) {
@@ -446,7 +436,7 @@ public class Dao {
         if (result != null) {
             return result;
         }
-        return new ArrayList();
+        return new ArrayList(0);
     }
 
     /**
@@ -463,7 +453,7 @@ public class Dao {
         if (result != null) {
             return result;
         }
-        return new ArrayList();
+        return new ArrayList(0);
     }
 
     /**
@@ -480,7 +470,7 @@ public class Dao {
     }
 
     /**
-     * 按照例子查询多条分页
+     * 按照例子对象查询多条分页
      *
      * @param object 例子对象
      * @param <T>    查询的表的映射实体类型
@@ -497,17 +487,37 @@ public class Dao {
     /**
      * 根据sql语句查询指定类型clazz列表
      *
-     * @param sql        sql
-     * @param clazz      返回ORM类型列表
-     * @param <T>        指定返回类型列表集的类型
-     * @param parameters sql语句中的参数
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param clazz      希望查询结果映射成的实体类型
+     * @param <T>        指定返回类型
+     * @param parameters 对象数组类型的参数集合
      * @return 结果集
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String sql, Class<T> clazz, Object... parameters) {
+        return findAll(sql, clazz, null, null, parameters);
+    }
+
+    /**
+     * 根据sql语句查询指定类型clazz列表
+     *
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param clazz      希望查询结果映射成的实体类型
+     * @param <T>        指定返回类型
+     * @param parameters 对象数组类型的参数集合
+     * @return 结果集
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> findAll(String sql, Class<T> clazz, Integer firstResult, Integer maxResults, Object... parameters) {
         try {
             getIdField(clazz);
             Query query = creatClassQuery(sql, clazz, parameters);
+            if (firstResult != null) {
+                query.setFirstResult(firstResult);
+            }
+            if (maxResults != null) {
+                query.setMaxResults(maxResults);
+            }
             List result = query.getResultList();
             if (result != null) {
                 return result;
@@ -534,24 +544,38 @@ public class Dao {
                 return result;
             }
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
+    /**
+     * 根据sql查询结果为List<clazz>类型的结果集
+     *
+     * @param sql        查询sql语句，使用{Map的key值}形式占位
+     * @param clazz      查询结果需要映射的实体
+     * @param parameters Map类型参数集合
+     * @param <T>        查询结果需要映射的实体类型
+     * @return List<clazz>类型的结果集
+     */
     public <T> List<T> findAll(String sql, Class<T> clazz, Map<String, Object> parameters) {
         List result = findAll(SqlUtil.parserSQL(sql, parameters), clazz);
         if (result != null) {
             return result;
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
     /**
-     * 查询列表
+     * 分页查询
      *
-     * @param sql sql
+     * @param sql        查询的sql语句
+     * @param countSql   统计总数的sql语句
+     * @param page       第几页
+     * @param size       页大小
+     * @param parameters 对象数组类型的参数集合
+     * @return Page类型的查询结果
      */
     @SuppressWarnings("unchecked")
-    public Page findPageBySQL(String sql, String countSql, int page, int size, Object... parameters) {
+    public <T> Page<T> findPageBySQL(String sql, String countSql, int page, int size, Class<T> clazz, Object... parameters) {
         if (size <= 0) {
             new IllegalArgumentException().printStackTrace();
             return null;
@@ -605,45 +629,137 @@ public class Dao {
 
         //取查询结果集
         if (count > 0) {
-            Query query = creatQuery(sql, parameters);
-            query.setFirstResult(page * size);
-            query.setMaxResults(size);
-            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-            List content = query.getResultList();
+            List content;
+            if (clazz != null) {
+                content = findAll(sql, clazz, page * size, size, parameters);
+            } else {
+                Query query = creatQuery(sql, parameters);
+                query.setFirstResult(page * size);
+                query.setMaxResults(size);
+                ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+                content = query.getResultList();
+            }
+
             pageDate = new PageImpl(content, pageable, count);
         }
 
         return pageDate;
     }
 
+    /**
+     * 分页查询，自提供条数汇总sql语句
+     *
+     * @param sql        原生sql，使用{Map的key值}形式占位
+     * @param countSql   统计总数语句sql
+     * @param page       第几页
+     * @param size       页大小
+     * @param parameters Map类型参数集合
+     * @return 分页Page类型结果
+     */
     public Page findPageBySQL(String sql, String countSql, int page, int size, Map<String, Object> parameters) {
-        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserSQL(countSql, parameters), page, size);
+        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserSQL(countSql, parameters), page, size, null, null);
     }
 
+    /**
+     * 分页查询，自动生成条数汇总sql语句
+     *
+     * @param sql        原生sql，参数使用{Map的key值}形式占位
+     * @param page       第几页
+     * @param size       页大小
+     * @param parameters Map类型参数集合
+     * @return 分页Page类型结果
+     */
     public Page findPageBySQL(String sql, int page, int size, Map<String, Object> parameters) {
-        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size);
+        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, null);
     }
 
+    /**
+     * 分页查询，自动生成条数汇总sql语句
+     *
+     * @param sql        原生sql，参数使用?形式占位
+     * @param page       第几页
+     * @param size       页大小
+     * @param parameters 对象数组类型参数集合
+     * @return 分页Page类型结果
+     */
+    public <T> Page<T> findPageBySQL(String sql, int page, int size, Object... parameters) {
+        return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, null, parameters);
+    }
+
+    /**
+     * 分页查询，自动生成条数汇总sql语句
+     *
+     * @param sql        原生sql，参数使用{Map的key值}形式占位
+     * @param page       第几页
+     * @param size       页大小
+     * @param parameters Map类型参数集合
+     * @return 分页Page类型结果
+     */
+    public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Object... parameters) {
+        return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, clazz, parameters);
+    }
+
+    /**
+     * 分页查询，自动生成条数汇总sql语句
+     *
+     * @param sql        原生sql，参数使用{Map的key值}形式占位
+     * @param page       第几页
+     * @param size       页大小
+     * @param parameters Map类型参数集合
+     * @return 分页Page类型结果
+     */
+    public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Map<String, Object> parameters) {
+        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz, null);
+    }
+
+    /**
+     * 创建普通查询的Query对象
+     *
+     * @param sql        sql语句
+     * @param parameters 对象数组形式参数集合
+     * @return 完成设置参数的Query对象
+     */
     private Query creatQuery(String sql, Object... parameters) {
         Query query = getEntityManager().createNativeQuery(sql);
-        for (int i = 0; i < parameters.length; i++) {
-            query.setParameter(i + 1, parameters[i]);
-        }
-        return query;
-    }
-
-    private Query creatClassQuery(String sql, Class clazz, Object... parameters) {
-        Query query = getEntityManager().createNativeQuery(sql, clazz);
-        for (int i = 0; i < parameters.length; i++) {
-            query.setParameter(i + 1, parameters[i]);
-        }
+        setParameter(query, parameters);
         return query;
     }
 
     /**
-     * 查询列表
+     * 创建返回结果为clazz的Query对象
      *
-     * @param sql sql
+     * @param sql        sql语句
+     * @param clazz      返回结果类型
+     * @param parameters 对象数组形式参数集合
+     * @return 完成设置参数的Query对象
+     */
+    private Query creatClassQuery(String sql, Class clazz, Object... parameters) {
+        Query query = getEntityManager().createNativeQuery(sql, clazz);
+        setParameter(query, parameters);
+        return query;
+    }
+
+    /**
+     * 设置查询参数
+     *
+     * @param query      query对象
+     * @param parameters 参数集合
+     */
+    private void setParameter(Query query, Object... parameters) {
+        if (parameters == null) {
+            return;
+        }
+        for (int i = 0; i < parameters.length; i++) {
+            query.setParameter(i + 1, parameters[i]);
+        }
+    }
+
+    /**
+     * 根据sql语句查询列表，结果类型为List<Map<String, Object>>
+     *
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param parameters 对象数组形式参数集合
+     * @return 结果类型为List套Map的查询结果
      */
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> findAllBySQL(String sql, Object... parameters) {
@@ -653,22 +769,30 @@ public class Dao {
         if (result != null) {
             return result;
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
+    /**
+     * 根据sql语句查询列表，结果类型为List<Map<String, Object>>
+     *
+     * @param sql        查询sql语句，参数使用{Map的key值}形式占位
+     * @param parameters Map类型参数集合
+     * @return 结果类型为List套Map的查询结果
+     */
     public List<Map<String, Object>> findAllBySQL(String sql, Map<String, Object> parameters) {
         List result = findAllBySQL(SqlUtil.parserSQL(sql, parameters));
         if (result != null) {
             return result;
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
     /**
-     * 查询属性
-     * sql查询结果必须只包含一个字段
+     * 查询结果预判为一个字段值
      *
-     * @param sql sql
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param parameters 对象数组形式参数集合
+     * @return 结果为一个查询字段值
      */
     @SuppressWarnings("unchecked")
     public Object findParameter(String sql, Object... parameters) {
@@ -676,26 +800,48 @@ public class Dao {
         return query.getSingleResult();
     }
 
+    /**
+     * 查询结果预判为一个字段值
+     *
+     * @param sql        查询sql语句，参数使用{Map的key值}形式占位
+     * @param parameters Map类型参数集合
+     * @return 结果为一个查询字段值
+     */
     public Object findParameter(String sql, Map<String, Object> parameters) {
         return findParameter(SqlUtil.parserSQL(sql, parameters));
     }
 
     /**
-     * 更新sql
+     * sql形式写操作
      *
-     * @param sql sql
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param parameters 对象数组形式参数集合
+     * @return 影响条数
      */
     public int updateBySQL(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         return query.executeUpdate();
     }
 
+    /**
+     * sql形式写操作
+     *
+     * @param sql        查询sql语句，参数使用{Map的key值}形式占位
+     * @param parameters Map类型参数集合
+     * @return 影响条数
+     */
     public int updateBySQL(String sql, Map<String, Object> parameters) {
         return updateBySQL(SqlUtil.parserSQL(sql, parameters));
     }
 
     /**
-     * 查询列表
+     * 根据实体类型tableClass与主键值集合ids，查询实体列表
+     *
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param ids        主键值集合
+     * @param <T>        目标表对应实体类型
+     * @param <ID>       主键类型
+     * @return 返回查询出的实体列表
      */
     @SuppressWarnings("unchecked")
     public <T, ID> List<T> findAllById(Class<T> tableClass, Iterable<ID> ids) {
@@ -703,11 +849,17 @@ public class Dao {
         if (result != null) {
             return result;
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
     /**
-     * 查询列表
+     * 根据实体类型tableClass与主键值集合ids，查询实体列表
+     *
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param ids        主键值集合，数组类型
+     * @param <T>        目标表对应实体类型
+     * @param <ID>       主键类型
+     * @return 返回查询出的实体列表
      */
     @SuppressWarnings("unchecked")
     public <T, ID> List<T> findAllByArrayId(Class<T> tableClass, ID... ids) {
@@ -715,11 +867,17 @@ public class Dao {
         if (result != null) {
             return result;
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
     /**
-     * 查询列表
+     * 查询指定tableClass对应表的全表分页
+     *
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param page       第几页
+     * @param size       页大小
+     * @param <T>        目标表对应实体类型
+     * @return 内容为实体的Page类型分页结果
      */
     @SuppressWarnings("unchecked")
     public <T> Page<T> findAll(Class<T> tableClass, int page, int size) {
@@ -727,7 +885,11 @@ public class Dao {
     }
 
     /**
-     * 查询列表
+     * 指定tableClass对应表的全表查询
+     *
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param <T>        目标表对应实体类型
+     * @return 内容为实体的List类型结果集
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(Class<T> tableClass) {
@@ -735,11 +897,14 @@ public class Dao {
         if (result != null) {
             return result;
         }
-        return new ArrayList<>();
+        return new ArrayList<>(0);
     }
 
     /**
-     * 查询表总数
+     * 查询指定tableClass对应表的总数
+     *
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @return 查询条数
      */
     @SuppressWarnings("unchecked")
     public long count(Class tableClass) {

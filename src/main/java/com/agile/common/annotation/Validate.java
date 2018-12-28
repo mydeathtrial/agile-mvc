@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 public @interface Validate {
     String MSG = "格式错误";
 
-    String value();
+    String value() default "";
 
     ValidateType validateType() default ValidateType.NO;
 
@@ -31,7 +31,7 @@ public @interface Validate {
 
     String[] validateMsgParams() default {};
 
-    Class beanClass() default Class.class;
+    Class<?> beanClass() default Class.class;
 
     boolean nullable() default true;
 

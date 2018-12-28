@@ -1,7 +1,7 @@
 package com.agile.common.swagger;
 
-import com.agile.common.base.APIInfo;
-import com.agile.common.util.APIUtil;
+import com.agile.common.base.ApiInfo;
+import com.agile.common.util.ApiUtil;
 import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -52,6 +52,7 @@ import static springfox.documentation.spi.service.contexts.Orderings.resourceGro
  * @author 佟盟 on 2018/11/23
  */
 public class ApiListingScanner extends springfox.documentation.spring.web.scanners.ApiListingScanner {
+    private static final int LENGTH = 16;
     private final ApiDescriptionReader apiDescriptionReader;
     private final ApiModelReader apiModelReader;
     private final DocumentationPluginsManager pluginsManager;
@@ -123,11 +124,11 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         int position = 0;
 
         Collection<ApiDescription> additionalListings = pluginsManager.additionalListings(context);
-        List<APIInfo> list = APIUtil.getApiInfoCache();
+        Collection<ApiInfo> list = ApiUtil.getApiInfoCache();
 
-        Map<String, ResourceGroup> resourceGroupCache = new HashMap<>();
-        Map<ResourceGroup, List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>();
-        for (APIInfo apiInfo : list) {
+        Map<String, ResourceGroup> resourceGroupCache = new HashMap<>(LENGTH);
+        Map<ResourceGroup, List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>(LENGTH);
+        for (ApiInfo apiInfo : list) {
             if (apiInfo.getRequestMappingInfo() == null) {
                 continue;
             }

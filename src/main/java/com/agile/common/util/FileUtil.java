@@ -34,7 +34,7 @@ import java.util.zip.ZipOutputStream;
  * @author 佟盟 on 2017/12/21
  */
 public class FileUtil extends FileUtils {
-    private static final Map<String, Object> FILE_FORMAT_MAP = new HashMap<>();
+    private static final Map<String, Object> FILE_FORMAT_MAP = new HashMap<>(54);
 
     static {
         FILE_FORMAT_MAP.put("FFD8FFE", "JPG");
@@ -159,7 +159,8 @@ public class FileUtil extends FileUtils {
      * @param request 请求对象
      */
     public static Map<String, Object> getFileFormRequest(HttpServletRequest request) {
-        HashMap<String, Object> map = new HashMap<>();
+        final int length = 16;
+        HashMap<String, Object> map = new HashMap<>(length);
         MultipartHttpServletRequest multipartRequest;
         if (request instanceof DefaultMultipartHttpServletRequest) {
             multipartRequest = (DefaultMultipartHttpServletRequest) request;

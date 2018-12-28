@@ -2,7 +2,7 @@ package com.agile.common.container;
 
 import com.agile.common.annotation.AnnotationProcessor;
 import com.agile.common.annotation.ParsingMethodBefore;
-import com.agile.common.util.APIUtil;
+import com.agile.common.util.ApiUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -25,7 +25,7 @@ public class BeanPostProcessor implements org.springframework.beans.factory.conf
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         AnnotationProcessor.methodAnnotationProcessor(applicationContext, beanName, bean, ParsingMethodBefore.class);
-        APIUtil.addMappingInfoCache(beanName, bean);
+        ApiUtil.registerApiMapping(beanName, bean);
         return bean;
     }
 

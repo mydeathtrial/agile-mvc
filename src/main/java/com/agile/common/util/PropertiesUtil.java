@@ -380,7 +380,8 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @return Map 属性名，属性类型
      */
     public static Map getClassMap(Class clazz) {
-        Map<String, Class<?>> map = new HashMap<>();
+        final int length = 16;
+        Map<String, Class<?>> map = new HashMap<>(length);
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (Iterable.class.isAssignableFrom(field.getType())) {

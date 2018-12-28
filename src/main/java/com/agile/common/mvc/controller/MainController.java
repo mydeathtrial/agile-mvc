@@ -1,9 +1,11 @@
 package com.agile.common.mvc.controller;
 
+import com.agile.common.annotation.ApiMethod;
 import com.agile.common.annotation.Mapping;
 import com.agile.common.annotation.Validate;
 import com.agile.common.annotation.Validates;
 import com.agile.common.base.AbstractResponseFormat;
+import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
@@ -12,7 +14,7 @@ import com.agile.common.exception.NoSuchRequestMethodException;
 import com.agile.common.exception.NoSuchRequestServiceException;
 import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.mvc.service.ServiceInterface;
-import com.agile.common.util.APIUtil;
+import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.FileUtil;
@@ -21,12 +23,10 @@ import com.agile.common.util.StringUtil;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
-import org.springframework.data.util.ProxyUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -48,6 +48,7 @@ import java.util.Set;
 
 /**
  * 主控制层
+ *
  * @author 佟盟 on 2017/8/22
  */
 @Controller
@@ -68,52 +69,89 @@ public class MainController {
      * @throws UnlawfulRequestException 非法路径请求
      */
     @RequestMapping(value = {"/", "/*", "/*/*/*/**"})
-    public void processor() throws UnlawfulRequestException {
-        throw new UnlawfulRequestException();
+    public Object othersProcessor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
+        //清理缓存
+        clear();
+
+        //设置当前request
+        request.set(currentRequest);
+
+        if (initApiInfoByRequestMapping()) {
+            throw new UnlawfulRequestException();
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.GET)
     public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
-        return processor(currentRequest, currentResponse, resource, "query");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            return processor(currentRequest, currentResponse, resource, "query");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.GET)
     public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) throws Throwable {
-        RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-        requestWrapper.addParameter("id", id);
-        return processor(requestWrapper, currentResponse, resource, "queryById");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+            requestWrapper.addParameter("id", id);
+            return processor(requestWrapper, currentResponse, resource, "queryById");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}/page/{page}/{size}"}, method = RequestMethod.GET)
     public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) throws Throwable {
-        RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-        requestWrapper.addParameter("page", page);
-        requestWrapper.addParameter("size", size);
-        return processor(requestWrapper, currentResponse, resource, "pageQuery");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+            requestWrapper.addParameter("page", page);
+            requestWrapper.addParameter("size", size);
+            return processor(requestWrapper, currentResponse, resource, "pageQuery");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.POST)
     public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
-        return processor(currentRequest, currentResponse, resource, "save");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            return processor(currentRequest, currentResponse, resource, "save");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.PUT)
     public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) throws Throwable {
-        RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-        requestWrapper.addParameter("id", id);
-        return processor(requestWrapper, currentResponse, resource, "update");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+            requestWrapper.addParameter("id", id);
+            return processor(requestWrapper, currentResponse, resource, "update");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.DELETE)
     public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
-        return processor(currentRequest, currentResponse, resource, "delete");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            return processor(currentRequest, currentResponse, resource, "delete");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.DELETE)
     public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) throws Throwable {
-        RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-        requestWrapper.addParameter("id", id);
-        return processor(requestWrapper, currentResponse, resource, "delete");
+        request.set(currentRequest);
+        if (initApiInfoByRequestMapping()) {
+            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+            requestWrapper.addParameter("id", id);
+            return processor(requestWrapper, currentResponse, resource, "delete");
+        }
+        return processor(currentRequest, currentResponse);
     }
 
     /**
@@ -141,19 +179,23 @@ public class MainController {
         request.set(currentRequest);
 
         //处理目标API
-        if (!initMethodByRequestMapping()) {
+        if (initApiInfoByRequestMapping()) {
             initService(StringUtil.toLowerName(service));
             initMethod(StringUtil.toLowerName(method));
         }
 
+        return processor(currentRequest, currentResponse);
+    }
+
+    private Object processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
         //处理入参
         handleInParam();
 
         //入参验证
-        List<ValidateMsg> validateMsgs = handleInParamValidate();
-        if (validateMsgs != null && validateMsgs.size() > 0) {
+        List<ValidateMsg> validateMessages = handleInParamValidate();
+        if (validateMessages != null && validateMessages.size() > 0) {
             assert RETURN.PARAMETER_ERROR != null;
-            return getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMsgs.toArray());
+            return getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
         }
 
         //调用目标方法
@@ -244,19 +286,26 @@ public class MainController {
      * @throws InstantiationException 异常
      */
     private List<ValidateMsg> handleValidateAnnotation(Validate v) throws IllegalAccessException, InstantiationException {
-        if (v == null || v.value().equals("")) {
+        if (v == null || StringUtil.isBlank(v.value())) {
             return null;
         }
         String key = v.value();
-        Object value = getService().getInParam().get(key);
+        Object value;
+        if (StringUtil.isBlank(key)) {
+            value = getService().getInParam();
+        } else {
+            value = getService().getInParam().get(key);
+        }
+
         List<ValidateMsg> list = null;
 
-        if (v.beanClass() != Class.class) {
-            Object bean = getService().getInParam(key, v.beanClass());
+        Class<?> beanClass = v.beanClass();
+        if (beanClass != Class.class) {
+            Object bean = StringUtil.isBlank(key) ? getService().getInParam(beanClass) : getService().getInParam(key, beanClass);
             if (bean == null) {
                 bean = v.beanClass().newInstance();
             } else {
-                getService().setInParam(key, bean);
+                getService().setInParam(StringUtil.toLowerName(beanClass.getSimpleName()), bean);
             }
             ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
             Validator validator = validatorFactory.getValidator();
@@ -267,7 +316,7 @@ public class MainController {
                 return null;
             }
             for (ConstraintViolation<Object> m : set) {
-                ValidateMsg r = new ValidateMsg(m.getMessage(), false, String.format("%s.%s", key, m.getPropertyPath()), m.getInvalidValue());
+                ValidateMsg r = new ValidateMsg(m.getMessage(), false, StringUtil.isBlank(key) ? m.getPropertyPath().toString() : String.format("%s.%s", key, m.getPropertyPath()), m.getInvalidValue());
                 list.add(r);
             }
             return list;
@@ -361,11 +410,15 @@ public class MainController {
         return url.toString();
     }
 
-    private boolean includeMethod(Mapping requestMapping, RequestMethod requestMethod) {
-        if (requestMapping != null && requestMapping.method().length > 0 && ArrayUtil.contains(requestMapping.method(), requestMethod)) {
-            return true;
-        }
-        return false;
+    /**
+     * 判断请求方法是否合法
+     *
+     * @param requestMethods 允许方法
+     * @param requestMethod  请求方法
+     * @return 是/否
+     */
+    private boolean allowRequestMethod(RequestMethod[] requestMethods, RequestMethod requestMethod) {
+        return requestMethods == null || requestMethods.length <= 0 || !ArrayUtil.contains(requestMethods, requestMethod);
     }
 
     /**
@@ -373,21 +426,21 @@ public class MainController {
      *
      * @return 成功/失败
      */
-    private boolean initMethodByRequestMapping() {
+    private boolean initApiInfoByRequestMapping() {
         HttpServletRequest currentRequest = request.get();
-        HandlerMethod info = APIUtil.getApiCache(currentRequest);
+        ApiInfo info = ApiUtil.getApiCache(currentRequest);
         if (info != null) {
             Object bean = info.getBean();
             Method targetMethod = info.getMethod();
             try {
                 initServiceByObject(bean);
             } catch (NoSuchRequestServiceException e) {
-                return false;
+                return true;
             }
             initMethodByObject(targetMethod);
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -409,15 +462,11 @@ public class MainController {
      * @param serviceName 服务名
      */
     private void initService(String serviceName) throws NoSuchRequestServiceException {
-        try {
-            Object o = APIUtil.getServiceCache(serviceName);
-            if (o == null) {
-                o = FactoryUtil.getBean(serviceName);
-            }
-            service.set((ServiceInterface) o);
-        } catch (Exception e) {
+        Object o = FactoryUtil.getBean(serviceName);
+        if (o == null || !ServiceInterface.class.isAssignableFrom(o.getClass())) {
             throw new NoSuchRequestServiceException();
         }
+        service.set((ServiceInterface) o);
     }
 
     /**
@@ -435,26 +484,33 @@ public class MainController {
      * @param methodName 方法名
      */
     private void initMethod(String methodName) throws NoSuchRequestMethodException {
+        Method methodCache;
         try {
-            Method methodCache = getService().getClass().getMethod(methodName);
-            Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
-            if (requestMapping != null && !includeMethod(requestMapping, RequestMethod.valueOf(request.get().getMethod()))) {
-                throw new NoSuchRequestMethodException();
-            }
-            methodCache.setAccessible(true);
-            method.set(methodCache);
-        } catch (Exception e) {
+            methodCache = getService().getClass().getDeclaredMethod(methodName);
+        } catch (NoSuchMethodException e) {
             throw new NoSuchRequestMethodException();
         }
+        RequestMethod currentRequestMethod = RequestMethod.valueOf(request.get().getMethod());
+        Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
+        if (requestMapping != null && allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
+            throw new NoSuchRequestMethodException();
+        }
+        ApiMethod apiMethod = methodCache.getAnnotation(ApiMethod.class);
+        if (apiMethod != null && allowRequestMethod(apiMethod.value(), currentRequestMethod)) {
+            throw new NoSuchRequestMethodException();
+        }
+        methodCache.setAccessible(true);
+        method.set(methodCache);
     }
 
     /**
      * 根据servlet请求、认证信息、目标服务名、目标方法名处理入参
      */
     private void handleInParam() {
+        final int length = 16;
         getService().initInParam();
         HttpServletRequest currentRequest = request.get();
-        Map<String, Object> inParam = new HashMap<>();
+        Map<String, Object> inParam = new HashMap<>(length);
 
         Map<String, String[]> parameterMap = currentRequest.getParameterMap();
         if (parameterMap.size() > 0) {
@@ -501,13 +557,11 @@ public class MainController {
         if ("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension)) {
             uri = uri.replaceAll("." + extension, "");
         }
-        HandlerMethod info = APIUtil.getApiCache(currentRequest);
+        ApiInfo info = ApiUtil.getApiCache(currentRequest);
 
         //处理路径入参
         if (info != null) {
-            Object bean = info.getBean();
-            Method targetMethod = info.getMethod();
-            RequestMappingInfo requestMappingInfo = APIUtil.getMappingHandlerMapping().getMappingForMethod(targetMethod, ProxyUtils.getUserClass(bean));
+            RequestMappingInfo requestMappingInfo = info.getRequestMappingInfo();
             if (requestMappingInfo != null) {
                 Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
                 for (String mapping : mappingCache) {

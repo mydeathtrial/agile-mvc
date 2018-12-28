@@ -56,7 +56,7 @@ public class EhCacheConfig {
 //                                .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE)).maxEntriesLocalDisk(0)//磁盘中最大缓存对象数0表示无穷大)
 //                        .cacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration().className(RMICacheReplicatorFactory.class.getName()))
 //                )
-                .cache(new CacheConfiguration("agileCache", (int)EhCacheProperties.getMaxEntriesLocalHeap())
+                .cache(new CacheConfiguration("agileCache", (int) EhCacheProperties.getMaxEntriesLocalHeap())
                         .timeToIdleSeconds(EhCacheProperties.getTimeToIdle())
                         .timeToLiveSeconds(EhCacheProperties.getTimeToLive())
                         .maxEntriesLocalDisk((int) EhCacheProperties.getMaxEntriesLocalDisk())
@@ -64,8 +64,8 @@ public class EhCacheConfig {
                         .eternal(EhCacheProperties.isEternal())
                         .diskSpoolBufferSizeMB(EhCacheProperties.getDiskSpoolBufferSize())
                         .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.fromString(EhCacheProperties.getMemoryStoreEvictionPolicy())))
-                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.TimestampsRegion", (int)EhCacheProperties.getMaxEntriesLocalHeap()))
-                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.QueryResultsRegion", (int)EhCacheProperties.getMaxEntriesLocalHeap()));
+                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.TimestampsRegion", (int) EhCacheProperties.getMaxEntriesLocalHeap()))
+                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.QueryResultsRegion", (int) EhCacheProperties.getMaxEntriesLocalHeap()));
         configuration.setName("agileManager");
         return configuration;
     }

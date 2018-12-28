@@ -79,12 +79,13 @@ public class DruidFilter extends FilterEventAdapter {
 
     /**
      * 打印日志
+     *
      * @param statement Statement
      */
     private void printLog(Statement statement) {
         if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.getDaoLog().info(((ClientPreparedStatement) statement).asSql());
+                LoggerFactory.getDaoLog().info(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -93,12 +94,13 @@ public class DruidFilter extends FilterEventAdapter {
 
     /**
      * 打印异常日志
+     *
      * @param statement Statement
      */
     private void printLog(Statement statement, Throwable error) {
         if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.getDaoLog().error(((ClientPreparedStatement) statement).asSql(), error);
+                LoggerFactory.getDaoLog().error(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "), error);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

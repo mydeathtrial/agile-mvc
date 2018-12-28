@@ -2,7 +2,6 @@ package com.agile.common.config;
 
 import com.agile.common.base.Constant;
 import com.agile.common.mvc.model.dao.Dao;
-import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.security.FailureHandler;
 import com.agile.common.security.JwtAuthenticationProvider;

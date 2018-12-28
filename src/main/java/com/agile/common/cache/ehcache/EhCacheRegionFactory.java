@@ -3,7 +3,6 @@ package com.agile.common.cache.ehcache;
 import com.agile.common.config.EhCacheConfig;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.EhCacheProperties;
-import com.agile.common.util.PropertiesUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -40,7 +39,7 @@ public class EhCacheRegionFactory extends SingletonEhcacheRegionFactory {
     @Override
     protected Cache createCache(String regionName) {
         CacheManager cacheManager = CacheManager.getInstance();
-        Cache cache = new Cache(new CacheConfiguration(regionName, (int)EhCacheProperties.getMaxEntriesLocalHeap())
+        Cache cache = new Cache(new CacheConfiguration(regionName, (int) EhCacheProperties.getMaxEntriesLocalHeap())
                 .timeToIdleSeconds(EhCacheProperties.getTimeToIdle())
                 .timeToLiveSeconds(EhCacheProperties.getTimeToLive())
                 .maxEntriesLocalDisk((int) EhCacheProperties.getMaxEntriesLocalDisk())

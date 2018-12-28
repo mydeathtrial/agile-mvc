@@ -408,7 +408,7 @@ public class ObjectUtil extends ObjectUtils {
     public static boolean isValidity(Object object) {
         boolean result = true;
         if (object == null) {
-            return result;
+            return false;
         }
         Class<?> clazz = object.getClass();
         Method[] methods = clazz.getDeclaredMethods();
@@ -424,24 +424,10 @@ public class ObjectUtil extends ObjectUtils {
                         result = false;
                     }
                 }
-            } catch (Exception e) {
-                continue;
+            } catch (Exception ignored) {
             }
         }
         return result;
-    }
-
-    public static boolean haveId(Field field, Object entity) {
-        try {
-            Object id = field.get(entity);
-            if (id == null || id.toString().trim().equals("")) {
-                return false;
-            }
-        } catch (IllegalAccessException e) {
-            return false;
-        }
-
-        return true;
     }
 
     /**
@@ -596,5 +582,41 @@ public class ObjectUtil extends ObjectUtils {
         public void setAnnotation(Annotation annotation) {
             this.annotation = annotation;
         }
+    }
+
+    /**
+     * 对象转字符串
+     *
+     * @param o       对象
+     * @param exclude 排除转换的字段名字
+     * @return 字符串
+     */
+    public static String objectToString(Object o, String... exclude) {
+        Class clazz = o.getClass();
+        StringBuilder target = new StringBuilder(clazz.getSimpleName()).append("{");
+        Set<Field> fields = ObjectUtil.getAllField(clazz);
+        int i = 0;
+        for (Field field : fields) {
+            try {
+                if (ArrayUtil.contains(exclude, field.getName())) {
+                    i++;
+                    continue;
+                }
+                field.setAccessible(true);
+                if (i != 0) {
+                    target.append(", ");
+                }
+                target.append(field.getName()).append("='").append(field.get(o));
+                if (i == fields.size() - 1) {
+                    target.append('}');
+                } else {
+                    target.append('\'');
+                }
+            } catch (IllegalAccessException e) {
+                continue;
+            }
+            i++;
+        }
+        return target.toString();
     }
 }

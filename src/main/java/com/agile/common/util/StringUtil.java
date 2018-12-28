@@ -426,4 +426,17 @@ public final class StringUtil extends StringUtils {
         }
         return builder.toString();
     }
+
+    /**
+     * 字符串拼接
+     * @param values 字符串数组
+     * @return 字符串
+     */
+    public static String concat(String... values) {
+        StringBuilder target = new StringBuilder();
+        for (String value : values) {
+            target.append(value);
+        }
+        return target.toString();
+    }
 }

@@ -80,7 +80,7 @@ public class MapUtil extends MapUtils {
         if (null == map) {
             return null;
         }
-        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>(map.size());
         Iterator iterator = getKeyIterator(map);
         while (iterator.hasNext()) {
             String key = (String) iterator.next();
@@ -136,13 +136,13 @@ public class MapUtil extends MapUtils {
         if (null == map) {
             return null;
         }
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>(map.size());
         //
         Set<String> keys = map.keySet();
         //
         Iterator<String> iteratorK = keys.iterator();
         while (iteratorK.hasNext()) {
-            String key = (String) iteratorK.next();
+            String key = iteratorK.next();
             Object value = map.get(key);
             if (null == key) {
                 continue;
@@ -230,7 +230,8 @@ public class MapUtil extends MapUtils {
     }
 
     public static Map<String, Object> coverCanSerializer(Map<String, Object> source) {
-        Map<String, Object> target = new HashMap<>();
+        final int length = 16;
+        Map<String, Object> target = new HashMap<>(length);
         target.putAll(source);
         for (Map.Entry<String, Object> entity : target.entrySet()) {
             Object value = entity.getValue();
@@ -242,7 +243,7 @@ public class MapUtil extends MapUtils {
                     for (int i = 0; i < list.size(); i++) {
                         Object o = list.get(i);
                         if (o instanceof MultipartFile) {
-                            list.add(i, ((MultipartFile) o).getOriginalFilename());
+                            list.set(i, ((MultipartFile) o).getOriginalFilename());
                         }
                     }
                 }

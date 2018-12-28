@@ -2,7 +2,6 @@ package com.agile.common.container;
 
 import com.agile.common.annotation.Mapping;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.StringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.util.ProxyUtils;
@@ -27,20 +26,10 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
 
     private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
-    private String createMappingPath(AnnotatedElement element) {
-        StringBuilder path = new StringBuilder();
-        if (element instanceof Class) {
-            path.append(String.format("/api/{service:%s}", StringUtil.camelToUrlRegex(((Class) element).getSimpleName())));
-        } else if (element instanceof Method) {
-            path.append(String.format("/{method:%s}", StringUtil.camelToUrlRegex(((Method) element).getName())));
-        }
-        return path.toString();
-    }
-
-    private RequestMappingInfo createMappingInfo(AnnotatedElement element, Mapping mapping, RequestCondition<?> condition) {
+    private RequestMappingInfo createMappingInfo(Mapping mapping, RequestCondition<?> condition) {
 
         RequestMappingInfo.Builder builder = RequestMappingInfo
-                .paths(this.resolveEmbeddedValuesInPatterns(ArrayUtil.add(mapping.path(), createMappingPath(element))))
+                .paths(this.resolveEmbeddedValuesInPatterns(mapping.path()))
                 .methods(mapping.method())
                 .params(mapping.params())
                 .headers(mapping.headers())
@@ -53,19 +42,11 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         return builder.options(this.config).build();
     }
 
-    private RequestMappingInfo createMappingInfo(AnnotatedElement element, RequestCondition<?> condition) {
-        RequestMappingInfo.Builder builder = RequestMappingInfo.paths(this.resolveEmbeddedValuesInPatterns(new String[]{createMappingPath(element)})).methods().params().headers().consumes().produces().mappingName("");
-        if (condition != null) {
-            builder.customCondition(condition);
-        }
-        return builder.options(this.config).build();
-    }
-
     @Nullable
     private RequestMappingInfo createMappingInfo(AnnotatedElement element) {
         Mapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, Mapping.class);
         RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class) element) : this.getCustomMethodCondition((Method) element);
-        return requestMapping != null ? this.createMappingInfo(element, requestMapping, condition) : createMappingInfo(element, condition);
+        return requestMapping != null ? this.createMappingInfo(requestMapping, condition) : null;
     }
 
     @Override
@@ -77,8 +58,42 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
                 info = typeInfo.combine(info);
             }
         }
-
         return info;
+    }
+
+    private String createDefaultMappingPath(AnnotatedElement element) {
+        StringBuilder path = new StringBuilder();
+        if (element instanceof Class) {
+            path.append(String.format("/api/{service:%s}", StringUtil.camelToUrlRegex(((Class) element).getSimpleName())));
+        } else if (element instanceof Method) {
+            path.append(String.format("/{method:%s}", StringUtil.camelToUrlRegex(((Method) element).getName())));
+        }
+        return path.toString();
+    }
+
+    private RequestMappingInfo createDefaultMappingInfo(AnnotatedElement element, RequestCondition<?> condition) {
+        RequestMappingInfo.Builder builder = RequestMappingInfo.paths(this.resolveEmbeddedValuesInPatterns(new String[]{createDefaultMappingPath(element)})).methods().params().headers().consumes().produces().mappingName("");
+        if (condition != null) {
+            builder.customCondition(condition);
+        }
+        return builder.options(this.config).build();
+    }
+
+    private RequestMappingInfo createDefaultMappingInfo(AnnotatedElement element) {
+        RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class) element) : this.getCustomMethodCondition((Method) element);
+        return this.createDefaultMappingInfo(element, condition);
+    }
+
+    public RequestMappingInfo getDefaultFroMethod(Method method, Class<?> handlerType) {
+
+        RequestMappingInfo defaultMappingInfo = this.createDefaultMappingInfo(method);
+        if (defaultMappingInfo != null) {
+            RequestMappingInfo defaultTypeInfo = this.createDefaultMappingInfo(handlerType);
+            if (defaultTypeInfo != null) {
+                defaultMappingInfo = defaultTypeInfo.combine(defaultMappingInfo);
+            }
+        }
+        return defaultMappingInfo;
     }
 
     @Override
@@ -94,7 +109,10 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
 
     @Override
     public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-        if (mapping != null && mapping.getPatternsCondition() != null) {
+        if (mapping == null) {
+            return;
+        }
+        if (mapping.getPatternsCondition() != null) {
             for (String path : mapping.getPatternsCondition().getPatterns()) {
                 if (cache.containsKey(path)) {
                     LoggerFactory.getCommonLog().error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));

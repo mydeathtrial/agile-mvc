@@ -59,6 +59,7 @@ import java.util.Set;
  * @since 1.0
  */
 public class CustomResultSetHandler implements ResultSetHandler {
+    private static final int LENGTH = 16;
     private static final Object DEFERED = new Object();
 
     private final Executor executor;
@@ -73,13 +74,13 @@ public class CustomResultSetHandler implements ResultSetHandler {
     private final ReflectorFactory reflectorFactory;
 
     // nested resultmaps
-    private final Map<CacheKey, Object> nestedResultObjects = new HashMap<CacheKey, Object>();
-    private final Map<String, Object> ancestorObjects = new HashMap<String, Object>();
+    private final Map<CacheKey, Object> nestedResultObjects = new HashMap<>();
+    private final Map<String, Object> ancestorObjects = new HashMap<>();
     // multiple resultsets
-    private final Map<String, ResultMapping> nextResultMaps = new HashMap<String, ResultMapping>();
-    private final Map<CacheKey, List<CustomResultSetHandler.PendingRelation>> pendingRelations = new HashMap<CacheKey, List<CustomResultSetHandler.PendingRelation>>();
+    private final Map<String, ResultMapping> nextResultMaps = new HashMap<>();
+    private final Map<CacheKey, List<CustomResultSetHandler.PendingRelation>> pendingRelations = new HashMap<>();
     // Cached Automappings
-    private final Map<String, List<CustomResultSetHandler.UnMappedColumnAutoMapping>> autoMappingsCache = new HashMap<String, List<CustomResultSetHandler.UnMappedColumnAutoMapping>>();
+    private final Map<String, List<CustomResultSetHandler.UnMappedColumnAutoMapping>> autoMappingsCache = new HashMap<>();
     private Object previousRowValue;
     // temporary marking flag that indicate using constructor mapping (use field to reduce memory usage)
     private boolean useConstructorMappings;
@@ -801,9 +802,9 @@ public class CustomResultSetHandler implements ResultSetHandler {
      */
     private Object instantiateParameterObject(Class<?> parameterType) {
         if (parameterType == null) {
-            return new HashMap<Object, Object>();
+            return new HashMap<>(LENGTH);
         } else if (MapperMethod.ParamMap.class.equals(parameterType)) {
-            return new HashMap<Object, Object>(); // issue #649
+            return new HashMap<>(LENGTH);
         } else {
             return objectFactory.create(parameterType);
         }
