@@ -8,7 +8,6 @@ import com.agile.common.viewResolver.JsonViewResolver;
 import com.agile.common.viewResolver.JumpViewResolver;
 import com.agile.common.viewResolver.PlainViewResolver;
 import com.agile.common.viewResolver.XmlViewResolver;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -41,21 +40,25 @@ public class SpringMvcConfig implements WebMvcConfigurer {
         map.put("plain", MediaType.TEXT_PLAIN);
     }
 
-    @Autowired
-    public SpringMvcConfig(SpringMVCProperties springMVCProperties) {
-        this.springMVCProperties = springMVCProperties;
-    }
-
     public static Map<String, MediaType> getMap() {
         return map;
     }
 
-    private final SpringMVCProperties springMVCProperties;
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.setOrder(-1).addResourceHandler("/static/**", "/favicon.ico")
-                .addResourceLocations("classpath:com/agile/static/", "classpath:com/agile/static/img/", "classpath:com/agile/static/plus/jquery/", "classpath:com/agile/static/plus/swagger/");
+        registry.setOrder(-1);
+
+        //title图标
+        registry.addResourceHandler("/favicon.ico")
+                .addResourceLocations("classpath:com/agile/static/favicon.ico");
+
+        //swagger
+        registry.addResourceHandler("/swagger-ui.html", "/webjars/springfox-swagger-ui/*", "/webjars/springfox-swagger-ui/fonts/*")
+                .addResourceLocations("/swagger-ui.html", "/webjars/springfox-swagger-ui/", "/webjars/springfox-swagger-ui/fonts/*");
+
+        //静态文件
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:com/agile/static/");
     }
 
     /**
@@ -87,8 +90,8 @@ public class SpringMvcConfig implements WebMvcConfigurer {
     @Bean
     public CommonsMultipartResolver contentCommonsMultipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(springMVCProperties.getUpload().getMaxUploadSize());
-        resolver.setDefaultEncoding(springMVCProperties.getUpload().getDefaultEncoding());
+        resolver.setMaxUploadSize(SpringMVCProperties.getUpload().getMaxUploadSize());
+        resolver.setDefaultEncoding(SpringMVCProperties.getUpload().getDefaultEncoding());
         return resolver;
     }
 

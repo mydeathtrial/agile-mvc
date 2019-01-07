@@ -37,6 +37,9 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
     private String[] ehcaches = new String[]{"ehCacheConfig", "ehCacheCacheManager", "ehCacheManagerFactoryBean"};
     private String[] tasks = new String[]{"customTaskServer", "taskFactory"};
     private String[] es = new String[]{"esClient"};
+    private String[] kafkaConsumer = new String[]{"consumerFactory", "kafkaListenerContainerFactory"};
+    private String[] kafkaProducer = new String[]{"producerFactory", "kafkaTemplate"};
+    private String[] kafka = new String[]{"kafkaBootstrapConfiguration", "org.springframework.kafka.config.internalKafkaListenerAnnotationProcessor", "org.springframework.kafka.config.internalKafkaListenerEndpointRegistry"};
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
@@ -44,16 +47,23 @@ public class BeanDefinitionRegistryPostProcessor implements org.springframework.
         isUse("agile.security.enable", securitys, beanDefinitionRegistry);
         isUse("agile.activiti.enable", activitis, beanDefinitionRegistry);
         isUse("agile.elasticsearch.enable", es, beanDefinitionRegistry);
+        isUse("agile.kafka.consumer.enable", kafkaConsumer, beanDefinitionRegistry);
+        isUse("agile.kafka.producer.enable", kafkaProducer, beanDefinitionRegistry);
+        isUse(!PropertiesUtil.getProperty("agile.kafka.consumer.enable", boolean.class) && !PropertiesUtil.getProperty("agile.kafka.producer.enable", boolean.class), kafkaProducer, beanDefinitionRegistry);
         this.cacheManagerProcessor(beanDefinitionRegistry);
         this.beanAnnotationProcessor();
     }
 
     private void isUse(String handlerName, String[] beanNames, BeanDefinitionRegistry beanDefinitionRegistry) {
         Boolean enable = PropertiesUtil.getProperty(handlerName, boolean.class);
-        if (!enable) {
-            for (int i = 0; i < beanNames.length; i++) {
+        isUse(enable, beanNames, beanDefinitionRegistry);
+    }
+
+    private void isUse(boolean is, String[] beanNames, BeanDefinitionRegistry beanDefinitionRegistry) {
+        if (!is) {
+            for (String beanName : beanNames) {
                 try {
-                    beanDefinitionRegistry.removeBeanDefinition(beanNames[i]);
+                    beanDefinitionRegistry.removeBeanDefinition(beanName);
                 } catch (Exception ignored) {
                 }
             }

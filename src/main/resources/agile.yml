@@ -143,7 +143,7 @@ agile:
     duration: 30
   security:
     enable: false
-    exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*
+    exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login_out_url: /logout
     login_url: /login
     login_username: username
@@ -184,3 +184,25 @@ agile:
     description: 这是个不错的文档
     terms_of_service_url: http://www.baidu.com
     version: ${project.version}
+  kafka:
+    consumer:
+      enable: false
+      group_id: monitor
+      auto_offset_reset: latest
+      bootstrap_servers: ip1:9092,ip2:9092,ip3:9092
+      enable_auto_commit: true
+      auto_commit_interval_ms: 1000
+      session_timeout_ms: 30000
+      key_deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value_deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      enable: false
+      bootstrap_servers: ip1:9092,ip2:9092,ip3:9092
+      acks: all
+      retries: 3
+      linger_ms: 10
+      buffer_memory: 40960
+      batch_size: 4096
+      default_topic: nwbs-eval-task
+      key_deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value_deserializer: org.apache.kafka.common.serialization.StringDeserializer

@@ -1,5 +1,7 @@
 package com.agile.common.util;
 
+import com.agile.common.base.ResponseFile;
+import com.agile.common.base.poi.ExcelFile;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -244,6 +246,10 @@ public class MapUtil extends MapUtils {
                         Object o = list.get(i);
                         if (o instanceof MultipartFile) {
                             list.set(i, ((MultipartFile) o).getOriginalFilename());
+                        } else if (o instanceof ResponseFile) {
+                            list.set(i, ((ResponseFile) o).getFileName());
+                        } else if (o instanceof ExcelFile) {
+                            list.set(i, ((ExcelFile) o).getFileName());
                         }
                     }
                 }

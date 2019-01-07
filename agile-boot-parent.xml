@@ -6,14 +6,14 @@
 
     <artifactId>agile-boot-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <name>agile-boot-parent</name>
     <description>Agile SpringBoot工程父级POM支持</description>
 
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-parent</artifactId>
-        <version>1.0.8</version>
+        <version>1.0.9</version>
         <relativePath/>
     </parent>
 

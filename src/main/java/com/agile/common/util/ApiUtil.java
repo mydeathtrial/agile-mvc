@@ -96,15 +96,19 @@ public class ApiUtil {
 
         //@Mapping信息
         RequestMappingInfo requestMappingInfo = handler.getMappingForMethod(method, clazz);
-        getMappingHandlerMapping().registerHandlerMethod(bean, method, requestMappingInfo);
-        addMappingInfoCache(beanName, bean, method, requestMappingInfo);
-        printLog(beanName, method, requestMappingInfo);
+        if (requestMappingInfo != null) {
+            getMappingHandlerMapping().registerHandlerMethod(bean, method, requestMappingInfo);
+            addMappingInfoCache(beanName, bean, method, requestMappingInfo);
+            printLog(beanName, method, requestMappingInfo);
+        }
 
         //默认映射信息
         RequestMappingInfo defaultRequestMappingInfo = handler.getDefaultFroMethod(method, clazz);
-        getMappingHandlerMapping().registerHandlerMethod(bean, method, defaultRequestMappingInfo);
-        addMappingInfoCache(beanName, bean, method, defaultRequestMappingInfo);
-        printLog(beanName, method, defaultRequestMappingInfo);
+        if (defaultRequestMappingInfo != null) {
+            getMappingHandlerMapping().registerHandlerMethod(bean, method, defaultRequestMappingInfo);
+            addMappingInfoCache(beanName, bean, method, defaultRequestMappingInfo);
+            printLog(beanName, method, defaultRequestMappingInfo);
+        }
     }
 
     /**
