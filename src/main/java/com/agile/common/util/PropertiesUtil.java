@@ -409,10 +409,11 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @return 值
      */
     public static String getProperty(String key, String defaultValue) {
-        if (!properties.containsKey(key)) {
-            return defaultValue;
+        Object value = getProperty(key);
+        if (!ObjectUtil.isEmpty(value)) {
+            return value.toString();
         }
-        return getProperty(key);
+        return defaultValue;
     }
 
     public static Properties getPropertyByPrefix(String prefix) {

@@ -2,10 +2,12 @@ package com.agile.common.container;
 
 import com.agile.common.annotation.Mapping;
 import com.agile.common.factory.LoggerFactory;
+import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.lang.Nullable;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -14,6 +16,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author 佟盟 on 2018/11/4
@@ -114,10 +117,18 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
         }
         if (mapping.getPatternsCondition() != null) {
             for (String path : mapping.getPatternsCondition().getPatterns()) {
-                if (cache.containsKey(path)) {
-                    LoggerFactory.getCommonLog().error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
-                    throw new IllegalStateException();
+                RequestMappingInfo cacheMapping = cache.get(path);
+
+                if (ObjectUtil.isEmpty(cacheMapping)) {
+                    cache.put(path, mapping);
                 } else {
+                    Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
+                    for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
+                        if (methods.contains(requestMethod)) {
+                            LoggerFactory.getCommonLog().error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
+                            throw new IllegalStateException();
+                        }
+                    }
                     cache.put(path, mapping);
                 }
             }

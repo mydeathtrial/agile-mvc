@@ -18,7 +18,7 @@ public class KaptchaConfigProperties {
     private static String textproducerCharLength = "4";
     private static String textproducerFontNames = "微软雅黑";
     private static String text;
-    private static String key = "V-CODE";
+    private static String tokenHeader = "V-CODE";
     private static int liveTime;
 
     public static boolean isEnable() {
@@ -109,12 +109,12 @@ public class KaptchaConfigProperties {
         KaptchaConfigProperties.text = text;
     }
 
-    public static String getKey() {
-        return key;
+    public static String getTokenHeader() {
+        return tokenHeader;
     }
 
-    public static void setKey(String key) {
-        KaptchaConfigProperties.key = key;
+    public static void setTokenHeader(String tokenHeader) {
+        KaptchaConfigProperties.tokenHeader = tokenHeader;
     }
 
     public static int getLiveTime() {

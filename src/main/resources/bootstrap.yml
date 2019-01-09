@@ -17,3 +17,8 @@ management:
     #可以关闭指定的端点
     shutdown:
       enabled: true
+spring:
+  security:
+    user:
+      name: admin
+      password: admin

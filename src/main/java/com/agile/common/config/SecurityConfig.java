@@ -14,8 +14,12 @@ import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.PropertiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,28 +38,15 @@ import java.nio.charset.StandardCharsets;
  * @author 佟盟 on 2017/9/26
  */
 @Configuration
+@Conditional(SecurityConfig.class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter implements Condition {
 
     private String[] immuneUrl;
 
-    private final Dao dao;
-
     @Autowired
-    public SecurityConfig(Dao dao) {
-        this.dao = dao;
-        immuneUrl = new String[]{
-                "/static/**",
-                "/favicon.ico",
-                PropertiesUtil.getProperty("agile.druid.url") + "/**",
-                PropertiesUtil.getProperty("agile.security.login_url"),
-                PropertiesUtil.getProperty("agile.kaptcha.url"),
-                "/actuator/**",
-                "/actuator",
-                "/jolokia"};
-        this.immuneUrl = (String[]) ArrayUtil.addAll(immuneUrl, PropertiesUtil.getProperty("agile.security.exclude_url").split(Constant.RegularAbout.COMMA));
-    }
+    private Dao dao;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -127,5 +118,24 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     LogoutHandler logoutHandler() {
         return new LogoutHandler();
+    }
+
+    public SecurityConfig() {
+        immuneUrl = new String[]{
+                "/static/**",
+                "/favicon.ico",
+                PropertiesUtil.getProperty("agile.druid.url") + "/**",
+                PropertiesUtil.getProperty("agile.security.login_url"),
+                PropertiesUtil.getProperty("agile.kaptcha.url"),
+                "/actuator/**",
+                "/actuator/*",
+                "/actuator",
+                "/jolokia"};
+        this.immuneUrl = (String[]) ArrayUtil.addAll(immuneUrl, PropertiesUtil.getProperty("agile.security.exclude_url").split(Constant.RegularAbout.COMMA));
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return PropertiesUtil.getProperty("agile.security.enable", boolean.class);
     }
 }

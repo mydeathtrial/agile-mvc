@@ -50,12 +50,12 @@ public class KaptchaServlet extends HttpServlet implements Servlet {
         final int length = 20;
         String capText = this.kaptchaProducer.createText();
 
-        String codeToken = TokenUtil.getToken(req, PropertiesUtil.getProperty("agile.kaptcha.key"));
+        String codeToken = TokenUtil.getToken(req, PropertiesUtil.getProperty("agile.kaptcha.token_header"));
         if (codeToken == null) {
             codeToken = RandomStringUtil.getRandom(length, RandomStringUtil.Random.LETTER_UPPER);
         }
         CacheUtil.put(codeToken, capText, PropertiesUtil.getProperty("agile.kaptcha.live_time", int.class));
-        setOutParam(PropertiesUtil.getProperty("agile.kaptcha.key"), codeToken, resp);
+        setOutParam(PropertiesUtil.getProperty("agile.kaptcha.token_header"), codeToken, resp);
         return capText;
     }
 

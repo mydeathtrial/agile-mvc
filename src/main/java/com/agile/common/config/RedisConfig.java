@@ -2,8 +2,13 @@ package com.agile.common.config;
 
 import com.agile.common.cache.redis.RedisCacheManager;
 import com.agile.common.properties.RedisConfigProperties;
+import com.agile.common.util.PropertiesUtil;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -22,7 +27,8 @@ import java.util.List;
  * @author 佟盟 on 2017/10/8
  */
 @Configuration
-public class RedisConfig {
+@Conditional(RedisConfig.class)
+public class RedisConfig implements Condition {
 
     @Bean
     public JedisPoolConfig redisPool() {
@@ -80,5 +86,11 @@ public class RedisConfig {
         defaultCacheConfig.entryTtl(Duration.ofSeconds(RedisConfigProperties.getDuration()));
         //初始化RedisCacheManager
         return new RedisCacheManager(redisCacheWriter, defaultCacheConfig);
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy").toLowerCase();
+        return "redis".equals(cacheProxy);
     }
 }

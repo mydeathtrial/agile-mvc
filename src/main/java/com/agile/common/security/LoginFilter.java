@@ -89,7 +89,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         if (inCode == null) {
             throw new VerificationCodeNon(null);
         }
-        String codeToken = TokenUtil.getToken(request, KaptchaConfigProperties.getKey());
+        String codeToken = TokenUtil.getToken(request, KaptchaConfigProperties.getTokenHeader());
         if (codeToken == null) {
             throw new VerificationCodeException(null);
         }
@@ -97,7 +97,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         if (code == null || !code.toString().equalsIgnoreCase(inCode)) {
             throw new VerificationCodeException(null);
         }
-        Cookie cookie = new Cookie(KaptchaConfigProperties.getKey(), null);
+        Cookie cookie = new Cookie(KaptchaConfigProperties.getTokenHeader(), null);
         String cookiePath = request.getContextPath() + "/";
         cookie.setPath(cookiePath);
         cookie.setMaxAge(0);

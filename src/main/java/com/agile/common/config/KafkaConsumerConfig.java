@@ -1,19 +1,19 @@
 package com.agile.common.config;
 
 import com.agile.common.properties.KafkaConsumerProperties;
-import com.agile.common.properties.KafkaProducerProperties;
+import com.agile.common.util.PropertiesUtil;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.DefaultKafkaProducerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 
 import java.util.HashMap;
@@ -29,7 +29,8 @@ import java.util.Map;
  */
 @Configuration
 @EnableKafka
-public class KafkaConfig {
+@Conditional(KafkaConsumerConfig.class)
+public class KafkaConsumerConfig implements Condition {
     @Bean
     public ConsumerFactory<Integer, String> consumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerProperties());
@@ -60,29 +61,8 @@ public class KafkaConfig {
         return factory;
     }
 
-    @Bean
-    public ProducerFactory<Integer, String> producerFactory() {
-        return new DefaultKafkaProducerFactory<>(producerProperties());
-    }
-
-    private Map<String, Object> producerProperties() {
-        final int length = 8;
-        Map<String, Object> props = new HashMap<>(length);
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaProducerProperties.getBootstrapServers());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, KafkaProducerProperties.getKeyDeserializer());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaProducerProperties.getValueDeserializer());
-        props.put(ProducerConfig.RETRIES_CONFIG, KafkaProducerProperties.getRetries());
-        props.put(ProducerConfig.BATCH_SIZE_CONFIG, KafkaProducerProperties.getBatchSize());
-        props.put(ProducerConfig.LINGER_MS_CONFIG, KafkaProducerProperties.getLingerMs());
-        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, KafkaProducerProperties.getBufferMemory());
-        props.put(ProducerConfig.ACKS_CONFIG, KafkaProducerProperties.getAcks());
-        return props;
-    }
-
-    @Bean
-    public KafkaTemplate<Integer, String> kafkaTemplate() {
-        KafkaTemplate<Integer, String> kafkaTemplate = new KafkaTemplate<>(producerFactory(), true);
-        kafkaTemplate.setDefaultTopic(KafkaProducerProperties.getDefaultTopic());
-        return kafkaTemplate;
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return PropertiesUtil.getProperty("agile.kafka.consumer.enable", boolean.class);
     }
 }

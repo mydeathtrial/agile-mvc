@@ -113,7 +113,6 @@ public class WebInitializer implements WebApplicationInitializer, ServletContext
             springDispatcherServlet = servletContext.addServlet("SpringDispatcherServlet", DispatcherServlet.class);
         }
         springDispatcherServlet.setInitParameter("contextClass", "org.springframework.web.context.support.AnnotationConfigWebApplicationContext");
-        //springDispatcherServlet.setInitParameter("contextConfigLocation", ConfigProcessor.contextConfigLocation());
         springDispatcherServlet.setInitParameter("contextConfigLocation", "com.agile.common.config.SpringConfig");
         springDispatcherServlet.setInitParameter("dispatchOptionsRequest", "true");
         springDispatcherServlet.addMapping("/*");

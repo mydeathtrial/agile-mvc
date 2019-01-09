@@ -3,18 +3,24 @@ package com.agile.common.config;
 import com.agile.common.cache.ehcache.EhCacheCacheManager;
 import com.agile.common.cache.ehcache.EhCacheManagerFactoryBean;
 import com.agile.common.properties.EhCacheProperties;
+import com.agile.common.util.PropertiesUtil;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * @author 佟盟 on 2017/10/8
  */
 @Configuration
-public class EhCacheConfig {
+@Conditional(EhCacheConfig.class)
+public class EhCacheConfig implements Condition {
 
     public static net.sf.ehcache.config.Configuration configuration() {
         String path = System.getProperty("agile.root") + "temp";
@@ -81,5 +87,11 @@ public class EhCacheConfig {
         ehCacheManagerFactoryBean.setAcceptExisting(true);
         ehCacheManagerFactoryBean.setConfigLocation(configuration());
         return ehCacheManagerFactoryBean;
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy").toLowerCase();
+        return "ehcache".equals(cacheProxy);
     }
 }

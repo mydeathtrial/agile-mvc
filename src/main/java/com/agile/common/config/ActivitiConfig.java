@@ -2,6 +2,7 @@ package com.agile.common.config;
 
 import com.agile.common.properties.ActivitiConfigProperties;
 import com.agile.common.properties.MailConfigProperty;
+import com.agile.common.util.PropertiesUtil;
 import org.activiti.engine.DynamicBpmnService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.ManagementService;
@@ -11,7 +12,11 @@ import org.activiti.engine.TaskService;
 import org.activiti.spring.ProcessEngineFactoryBean;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -21,7 +26,8 @@ import java.util.Objects;
  * @author 佟盟 on 2018/4/3
  */
 @Configuration
-public class ActivitiConfig {
+@Conditional(ActivitiConfig.class)
+public class ActivitiConfig implements Condition {
 
     @Bean
     SpringProcessEngineConfiguration springProcessEngineConfiguration(PlatformTransactionManager transactionManager, DataSource dataSource) {
@@ -74,5 +80,10 @@ public class ActivitiConfig {
     @Bean
     TaskService taskService(ProcessEngineFactoryBean processEngineFactoryBean) throws Exception {
         return Objects.requireNonNull(processEngineFactoryBean.getObject()).getTaskService();
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return PropertiesUtil.getProperty("agile.activiti.enable", boolean.class);
     }
 }

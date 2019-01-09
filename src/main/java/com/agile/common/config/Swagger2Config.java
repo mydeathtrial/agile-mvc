@@ -2,10 +2,15 @@ package com.agile.common.config;
 
 import com.agile.common.properties.SwaggerConfigProperties;
 import com.agile.common.swagger.ApiListingScanner;
+import com.agile.common.util.PropertiesUtil;
 import com.fasterxml.classmate.TypeResolver;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -21,8 +26,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @author 佟盟 on 2018/11/22
  */
 @Configuration
+@Conditional(Swagger2Config.class)
 @EnableSwagger2
-public class Swagger2Config {
+public class Swagger2Config implements Condition {
 
     @Bean
     public Docket createRestApi() {
@@ -47,5 +53,10 @@ public class Swagger2Config {
     @Primary
     public ApiListingScanner customApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
         return new ApiListingScanner(apiDescriptionReader, apiModelReader, pluginsManager, typeResolver);
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return PropertiesUtil.getProperty("agile.swagger.enable", boolean.class);
     }
 }

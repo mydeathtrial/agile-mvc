@@ -11,7 +11,11 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import java.net.InetAddress;
 
@@ -19,7 +23,8 @@ import java.net.InetAddress;
  * @author 佟盟 on 2018/10/18
  */
 @Configuration
-public class ESConfig {
+@Conditional(ESConfig.class)
+public class ESConfig implements Condition {
 
     @Bean
     public Client esClient() throws Exception {
@@ -53,4 +58,8 @@ public class ESConfig {
         }
     }
 
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return PropertiesUtil.getProperty("agile.elasticsearch.enable", boolean.class);
+    }
 }

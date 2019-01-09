@@ -1,12 +1,17 @@
 package com.agile.common.config;
 
 import com.agile.common.properties.KaptchaConfigProperties;
+import com.agile.common.util.PropertiesUtil;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.text.TextProducer;
 import com.google.code.kaptcha.util.Config;
 import com.google.code.kaptcha.util.Configurable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import java.util.Properties;
 import java.util.Random;
@@ -15,7 +20,8 @@ import java.util.Random;
  * @author 佟盟 on 2017/10/7
  */
 @Configuration
-public class KaptchaConfig extends Configurable implements TextProducer {
+@Conditional(KaptchaConfig.class)
+public class KaptchaConfig extends Configurable implements TextProducer, Condition {
 
     @Bean
     DefaultKaptcha defaultKaptcha() {
@@ -66,5 +72,10 @@ public class KaptchaConfig extends Configurable implements TextProducer {
         }
 
         return text.toString();
+    }
+
+    @Override
+    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
+        return PropertiesUtil.getProperty("agile.kaptcha.enable", boolean.class);
     }
 }
