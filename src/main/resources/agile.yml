@@ -108,7 +108,7 @@ agile:
     memory_store_eviction_policy: LFU
     disk_expiry_thread_interval_seconds: 120
   kaptcha:
-    enable: true
+    enable: false
     token_header: CODE_TOKEN
     border: 'no'
     border_color: black
@@ -143,7 +143,7 @@ agile:
     test_on_return: false
     duration: 30
   security:
-    enable: true
+    enable: false
     exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login_out_url: /logout
     login_url: /login
@@ -180,7 +180,7 @@ agile:
     scroll_time_value: 60000
     scroll_set_size: 30000
   swagger:
-    enable: true
+    enable: false
     title: Agile 平台API文档
     description: 这是个不错的文档
     terms_of_service_url: http://www.baidu.com

@@ -50,7 +50,7 @@ public class ParsingProperties implements ParsingBeanBefore {
      * @throws IllegalAccessException 异常
      * @throws InstantiationException 异常
      */
-    private void setProperties(Object target, String prefix) throws IllegalAccessException, InstantiationException {
+    public void setProperties(Object target, String prefix) throws IllegalAccessException, InstantiationException {
         if (ObjectUtil.isEmpty(target)) {
             return;
         }

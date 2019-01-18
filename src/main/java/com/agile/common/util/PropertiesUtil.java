@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.annotation.ParsingProperties;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
@@ -30,6 +31,8 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
+import static com.agile.common.util.ResourceUtil.getClassFromPackage;
+
 /**
  * @author mydeathtrial on 2017/3/11
  */
@@ -52,6 +55,21 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         mergeOrder("bootstrap");
         mergeOrder("agile-reset");
         coverEL();
+        //coverBean();
+    }
+
+    private static void coverBean() {
+        Set<Class<?>> classes = getClassFromPackage("com.agile", true);
+        ParsingProperties p = new ParsingProperties();
+        for (Class<?> c : classes) {
+            com.agile.common.annotation.Properties is = c.getDeclaredAnnotation(com.agile.common.annotation.Properties.class);
+            if (is != null) {
+                try {
+                    p.setProperties(c.newInstance(), is.prefix());
+                } catch (IllegalAccessException | InstantiationException ignored) {
+                }
+            }
+        }
     }
 
     private PropertiesUtil(File file) {

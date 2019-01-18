@@ -1,6 +1,5 @@
 package com.agile.common.security;
 
-import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.ObjectUtil;
@@ -32,7 +31,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SysUsersEntity user = null;
+        SysUsersEntity user;
         user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
         if (ObjectUtil.isEmpty(user)) {
             throw new UsernameNotFoundException(null);
@@ -65,14 +64,14 @@ public class SecurityUserDetailsService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateLoginInfo(String token) throws NoSuchIDException {
+    public void updateLoginInfo(String token) {
         SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().setToken(token).build());
         sysLoginEntity.setLogoutTime(DateUtil.getCurrentDate());
         dao.update(sysLoginEntity);
     }
 
     @Transactional
-    public void updateLoginInfo(String oldToken, String newToken) throws NoSuchIDException {
+    public void updateLoginInfo(String oldToken, String newToken) {
         SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().setToken(oldToken).build());
         sysLoginEntity.setToken(newToken);
         dao.update(sysLoginEntity);

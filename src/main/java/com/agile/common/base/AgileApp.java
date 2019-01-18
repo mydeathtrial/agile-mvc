@@ -1,9 +1,9 @@
 package com.agile.common.base;
 
 import com.agile.common.config.LoggerFactoryConfig;
+import com.agile.common.container.AgileBanner;
 import com.agile.common.util.PropertiesUtil;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
-import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 
 /**
@@ -18,8 +18,8 @@ public class AgileApp {
     public static void run(Class<?> primarySource, String[] args) {
         ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
         SpringApplication app = new SpringApplication(primarySource);
+        app.setBanner(new AgileBanner());
         app.setDefaultProperties(PropertiesUtil.getProperties());
-        app.setBannerMode(Banner.Mode.OFF);
         app.run(args);
     }
 }

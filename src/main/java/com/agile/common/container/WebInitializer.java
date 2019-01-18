@@ -30,8 +30,6 @@ public class WebInitializer implements WebApplicationInitializer, ServletContext
     @Override
     public void onStartup(ServletContext servletContext) {
 
-        new AgileBanner().printBanner(null, null, System.out);
-
         System.setProperty("webapp.root", servletContext.getRealPath("/"));
 
         DataBaseUtil.tryLink(PropertiesUtil.getProperty("agile.druid.type"),

@@ -54,13 +54,19 @@ import java.util.Set;
 @Controller
 public class MainController {
 
-    //服务缓存变量
+    /**
+     * 服务缓存变量
+     */
     private static ThreadLocal<ServiceInterface> service = new ThreadLocal<>();
 
-    //方法缓存变量
+    /**
+     * 方法缓存变量
+     */
     private static ThreadLocal<Method> method = new ThreadLocal<>();
 
-    //request缓存变量
+    /**
+     * request缓存变量
+     */
     private static ThreadLocal<HttpServletRequest> request = new ThreadLocal<>();
 
     /**
@@ -365,6 +371,7 @@ public class MainController {
      */
     private void clear() {
         service.remove();
+        method.remove();
         request.remove();
     }
 
