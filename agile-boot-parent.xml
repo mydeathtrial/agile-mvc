@@ -6,14 +6,14 @@
 
     <artifactId>agile-boot-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.9</version>
+    <version>1.1.0</version>
     <name>agile-boot-parent</name>
     <description>Agile SpringBoot工程父级POM支持</description>
 
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-parent</artifactId>
-        <version>1.0.9</version>
+        <version>1.1.0</version>
         <relativePath/>
     </parent>
 
@@ -33,14 +33,7 @@
         <dependency>
             <groupId>com.agileframework</groupId>
             <artifactId>agile</artifactId>
-            <version>[1.0,)</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-common</artifactId>
-            <version>[1.0,)</version>
+            <version>[1.0.3,)</version>
             <scope>provided</scope>
         </dependency>
 

@@ -471,7 +471,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         ResultSet resultSet = rsw.getResultSet();
         Object entity = metaObject.getOriginalObject();
         Class<?> clazz = entity.getClass();
-        Set<ObjectUtil.Target> columnSet = ObjectUtil.getAllColumnAnnotation(clazz);
+        Set<ObjectUtil.Target> columnSet = ObjectUtil.getAllEntityAnnotation(clazz, Column.class);
         Iterator<ObjectUtil.Target> it = columnSet.iterator();
         while (it.hasNext()) {
             ObjectUtil.Target target = it.next();

@@ -26,6 +26,7 @@ import java.util.Set;
  */
 public class AgileGenerator {
     private static final int LENGTH = 16;
+    private static DataBaseUtil.DBInfo dbInfo;
 
     static Map<String, Object> tableHandle(Map<String, Object> table) {
         //结果集
@@ -42,13 +43,7 @@ public class AgileGenerator {
 
         data.put("tableComment", table.get("REMARKS"));
 
-        List<Map<String, Object>> columns = DataBaseUtil.listColumns(PropertiesUtil.getProperty("agile.druid.type"),
-                PropertiesUtil.getProperty("agile.druid.data_base_ip"),
-                PropertiesUtil.getProperty("agile.druid.data_base_port"),
-                PropertiesUtil.getProperty("agile.druid.data_base_name"),
-                PropertiesUtil.getProperty("agile.druid.data_base_username"),
-                PropertiesUtil.getProperty("agile.druid.data_base_password"),
-                tableName);
+        List<Map<String, Object>> columns = DataBaseUtil.listColumns(dbInfo, tableName);
 
         for (Map<String, Object> column : columns) {
             pasringColumn(column, importList, columnList);
@@ -252,8 +247,12 @@ public class AgileGenerator {
     }
 
     public static List<Map<String, Object>> getTableInfo() {
-        String dbIndexKey = "agile.generator.db_index";
         String tableName = "agile.generator.table_name";
+        return DataBaseUtil.listTables(dbInfo, PropertiesUtil.getProperty(tableName));
+    }
+
+    public static void initDBInfo() {
+        String dbIndexKey = "agile.generator.db_index";
         String druidKey = "agile.druid";
 
         //获取表信息
@@ -273,17 +272,17 @@ public class AgileGenerator {
         username = String.format("%s.data_base_username", druidKey);
         password = String.format("%s.data_base_password", druidKey);
 
-        return DataBaseUtil.listTables(PropertiesUtil.getProperty(dbType),
+        dbInfo = new DataBaseUtil.DBInfo(PropertiesUtil.getProperty(dbType),
                 PropertiesUtil.getProperty(ip),
                 PropertiesUtil.getProperty(port),
                 PropertiesUtil.getProperty(dbName),
                 PropertiesUtil.getProperty(username),
-                PropertiesUtil.getProperty(password),
-                PropertiesUtil.getProperty(tableName));
+                PropertiesUtil.getProperty(password));
     }
 
     public static void main(String[] args) {
         try {
+            initDBInfo();
             for (Map<String, Object> table : getTableInfo()) {
                 generateAllFile(tableHandle(table));
             }

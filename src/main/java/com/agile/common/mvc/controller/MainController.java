@@ -303,7 +303,7 @@ public class MainController {
             value = getService().getInParam().get(key);
         }
 
-        List<ValidateMsg> list = null;
+        List<ValidateMsg> list = new ArrayList<>();
 
         Class<?> beanClass = v.beanClass();
         if (beanClass != Class.class) {
@@ -323,6 +323,9 @@ public class MainController {
             }
             for (ConstraintViolation<Object> m : set) {
                 ValidateMsg r = new ValidateMsg(m.getMessage(), false, StringUtil.isBlank(key) ? m.getPropertyPath().toString() : String.format("%s.%s", key, m.getPropertyPath()), m.getInvalidValue());
+                if (r.isState()) {
+                    continue;
+                }
                 list.add(r);
             }
             return list;
@@ -331,12 +334,18 @@ public class MainController {
         ValidateType validateType = v.validateType();
         if (value != null && value.getClass().isArray()) {
             List<ValidateMsg> rs = validateType.validateArray(key, (String[]) value, v);
+
             if (rs != null) {
-                list = rs;
+                for (ValidateMsg validateMsg : rs) {
+                    if (validateMsg.isState()) {
+                        continue;
+                    }
+                    list.add(validateMsg);
+                }
             }
         } else {
             ValidateMsg r = validateType.validateParam(key, value, v);
-            if (r != null) {
+            if (r != null && !r.isState()) {
                 list = new ArrayList<>();
                 list.add(r);
             }
@@ -579,7 +588,7 @@ public class MainController {
                             String targetParam = targetParams[i];
                             String value = uris[i];
                             Map<String, String> params = StringUtil.getParamFromMapping(value, targetParam);
-                            if (params != null) {
+                            if (params != null && params.size() > 0) {
                                 inParam.putAll(params);
                             }
                         }

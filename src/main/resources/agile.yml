@@ -180,7 +180,7 @@ agile:
     scroll_time_value: 60000
     scroll_set_size: 30000
   swagger:
-    enable: false
+    enable: true
     title: Agile 平台API文档
     description: 这是个不错的文档
     terms_of_service_url: http://www.baidu.com

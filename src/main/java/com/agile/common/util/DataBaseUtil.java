@@ -1,6 +1,7 @@
 package com.agile.common.util;
 
 
+import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import oracle.jdbc.OracleDriver;
 import org.apache.commons.logging.Log;
@@ -14,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -78,16 +80,11 @@ public class DataBaseUtil {
         return result;
     }
 
-    private static ResultSet getResultSet(PATTERN type, String dbType, String ip, String port, String dbName, String username, String password, String pattern) {
-        ip = trim(ip);
-        port = trim(port);
-        dbName = trim(dbName);
-        username = trim(username);
-        password = trim(password);
-        DB dbtype = parseDB(dbType);
-        String url = createDBUrl(dbtype, ip, port, dbName);
+    private static ResultSet getResultSet(PATTERN type, DBInfo dbInfo, String pattern) {
+
+        String url = createDBUrl(dbInfo);
         try {
-            conn = getConnection(url, username, password);
+            conn = getConnection(url, dbInfo.user, dbInfo.pass);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -104,31 +101,43 @@ public class DataBaseUtil {
                 case TABLE:
                     String[] types = {"TABLE", "VIEW"};
 
-                    if (DB.ORACLE.equals(dbtype)) {
-                        schemaPattern = username;
-                        if (null != schemaPattern) {
-                            schemaPattern = schemaPattern.toUpperCase();
-                        }
-                        rs = meta.getTables(null, schemaPattern, pattern, types);
-                    } else if (DB.MYSQL.equals(dbtype)) {
-                        schemaPattern = dbName;
-                        rs = meta.getTables(schemaPattern, schemaPattern, pattern, types);
-                    } else if (DB.SQL_SERVER.equals(dbtype) || DB.SQL_SERVER2005.equals(dbtype)) {
-                        rs = meta.getTables(null, null, pattern, types);
-                    } else if (DB.DB2.equals(dbtype)) {
-                        schemaPattern = "jence_user";
-                        rs = meta.getTables(null, schemaPattern, pattern, types);
-                    } else if (DB.INFORMIX.equals(dbtype)) {
-                        rs = meta.getTables(null, null, pattern, types);
-                    } else if (DB.SYBASE.equals(dbtype)) {
-                        rs = meta.getTables(null, null, pattern, types);
+                    switch (dbInfo.type) {
+                        case ORACLE:
+                            schemaPattern = dbInfo.user;
+                            if (null != schemaPattern) {
+                                schemaPattern = schemaPattern.toUpperCase();
+                            }
+                            rs = meta.getTables(null, schemaPattern, pattern, types);
+                            break;
+                        case MYSQL:
+                            schemaPattern = dbInfo.dbName;
+                            rs = meta.getTables(schemaPattern, schemaPattern, pattern, types);
+                            break;
+                        case SQL_SERVER:
+                            rs = meta.getTables(null, null, pattern, types);
+                            break;
+                        case SQL_SERVER2005:
+                            rs = meta.getTables(null, null, pattern, types);
+                            break;
+                        case DB2:
+                            schemaPattern = "jence_user";
+                            rs = meta.getTables(null, schemaPattern, pattern, types);
+                            break;
+                        case INFORMIX:
+                            rs = meta.getTables(null, null, pattern, types);
+                            break;
+                        case SYBASE:
+                            rs = meta.getTables(null, null, pattern, types);
+                            break;
+                        default:
+                            throw new RuntimeException("不支持的数据库类型");
                     }
                     break;
                 case COLUMN:
                     pattern = pattern.toUpperCase();
                     String columnNamePattern = null;
-                    if (DB.ORACLE.equals(dbtype)) {
-                        schemaPattern = username;
+                    if (DB.ORACLE == dbInfo.type) {
+                        schemaPattern = dbInfo.user;
                         if (null != schemaPattern) {
                             schemaPattern = schemaPattern.toUpperCase();
                         }
@@ -138,8 +147,8 @@ public class DataBaseUtil {
                     break;
                 case PRIMARY_KEY:
                     pattern = pattern.toUpperCase();
-                    if (DB.ORACLE.equals(dbtype)) {
-                        schemaPattern = username;
+                    if (DB.ORACLE == dbInfo.type) {
+                        schemaPattern = dbInfo.user;
                         if (null != schemaPattern) {
                             schemaPattern = schemaPattern.toUpperCase();
                         }
@@ -155,27 +164,37 @@ public class DataBaseUtil {
         return rs;
     }
 
+    public static List<Map<String, Object>> listTables(String dbType, String url, String username, String password, String tableName) {
+        LinkedList<String> list = parseDBUrl(parseDB(dbType), url);
+        final int zero = 0;
+        final int one = 1;
+        final int two = 2;
+        DBInfo dbInfo = new DBInfo(dbType, list.get(zero), list.get(one), list.get(two), username, password);
+
+        return listTables(dbInfo, tableName);
+    }
+
     /**
      * 列出数据库的所有表
      */
-    public static List<Map<String, Object>> listTables(String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
-        if (tableName.contains(",")) {
-            String[] tables = tableName.replaceAll("((?![%-])\\W)+", ",").split(",");
+    public static List<Map<String, Object>> listTables(DBInfo dbInfo, String tableName) {
+        if (tableName.contains(Constant.RegularAbout.COMMA)) {
+            String[] tables = tableName.replaceAll("((?![%-])\\W)+", Constant.RegularAbout.COMMA).split(Constant.RegularAbout.COMMA);
             List<Map<String, Object>> list = new ArrayList<>();
             for (int i = 0; i < tables.length; i++) {
-                list.addAll(getDBInfo(PATTERN.TABLE, dbType, ip, port, dbName, username, password, tables[i]));
+                list.addAll(getDBInfo(PATTERN.TABLE, dbInfo, tables[i]));
             }
             return list;
         }
-        return getDBInfo(PATTERN.TABLE, dbType, ip, port, dbName, username, password, tableName.trim());
+        return getDBInfo(PATTERN.TABLE, dbInfo, tableName.trim());
     }
 
     /**
      * 列出表的所有字段
      */
-    public static List<Map<String, Object>> listColumns(String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
-        List<Map<String, Object>> list = getDBInfo(PATTERN.COLUMN, dbType, ip, port, dbName, username, password, tableName);
-        List<Map<String, Object>> keyList = listPrimayKeys(dbType, ip, port, dbName, username, password, tableName);
+    public static List<Map<String, Object>> listColumns(DBInfo dbInfo, String tableName) {
+        List<Map<String, Object>> list = getDBInfo(PATTERN.COLUMN, dbInfo, tableName);
+        List<Map<String, Object>> keyList = listPrimayKeys(dbInfo, tableName);
         for (Map<String, Object> keyColumn : keyList) {
             for (Map<String, Object> column : list) {
                 boolean isPrimaryKey = false;
@@ -191,18 +210,18 @@ public class DataBaseUtil {
     /**
      * 列出表的所有主键
      */
-    public static List<Map<String, Object>> listPrimayKeys(String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
-        return getDBInfo(PATTERN.PRIMARY_KEY, dbType, ip, port, dbName, username, password, tableName);
+    public static List<Map<String, Object>> listPrimayKeys(DBInfo dbInfo, String tableName) {
+        return getDBInfo(PATTERN.PRIMARY_KEY, dbInfo, tableName);
     }
 
     /**
      * 列出表的所有主键
      */
-    public static List<Map<String, Object>> getDBInfo(PATTERN pattern, String dbType, String ip, String port, String dbName, String username, String password, String tableName) {
+    public static List<Map<String, Object>> getDBInfo(PATTERN pattern, DBInfo dbInfo, String tableName) {
         List<Map<String, Object>> list = null;
         ResultSet rs = null;
         try {
-            rs = getResultSet(pattern, dbType, ip, port, dbName, username, password, tableName);
+            rs = getResultSet(pattern, dbInfo, tableName);
             list = parseResultSetToMapList(rs);
         } catch (Exception e) {
             e.printStackTrace();
@@ -213,57 +232,69 @@ public class DataBaseUtil {
         return list;
     }
 
+    private static LinkedList<String> parseDBUrl(DB dbtype, String url) {
+        String temp;
+        if (DB.ORACLE.equals(dbtype)) {
+            temp = "jdbc:oracle:thin:@([0-9.]+):([0-9]+):([\\w\\W]+)";
+        } else if (DB.MYSQL.equals(dbtype)) {
+            temp = "jdbc:mysql://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)(?:|\\?)";
+        } else if (DB.SQL_SERVER.equals(dbtype)) {
+            temp = "jdbc:jtds:sqlserver://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)([\\w\\W=]+)";
+        } else if (DB.SQL_SERVER2005.equals(dbtype)) {
+            temp = "jdbc:sqlserver://([0-9.]+):([0-9]+);DatabaseName=([a-zA-Z0-9_-]+)";
+        } else if (DB.DB2.equals(dbtype)) {
+            temp = "jdbc:db2://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)";
+        } else if (DB.INFORMIX.equals(dbtype)) {
+            temp = "jdbc:informix-sqli://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)";
+        } else if (DB.SYBASE.equals(dbtype)) {
+            temp = "jdbc:sybase:Tds:([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)";
+        } else {
+            throw new RuntimeException("不认识的数据库类型!");
+        }
+
+        return StringUtil.getGroupString(temp, url.replace(" ", ""));
+    }
+
     /**
      * 根据IP,端口,以及数据库名字,拼接Oracle连接字符串
      */
-    private static String createDBUrl(DB dbtype, String ip, String port, String dbname) {
-        String url = "";
-        if (DB.ORACLE.equals(dbtype)) {
-            url += "jdbc:oracle:thin:@";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += ":" + dbname;
-
-            // hotbackup
-//            String url2 = "";
-//            url2 = url2+"jdbc:oracle:thin:@(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = "
-//                    + ip.trim() +")(PORT ="+ port.trim() +")))(CONNECT_DATA = (SERVICE_NAME ="+dbname+
-//                    ")(FAILOVER_MODE = (TYPE = SELECT)(METHOD = BASIC)(RETRIES = 180)(DELAY = 5))))";
-//            url = url2;
-        } else if (DB.MYSQL.equals(dbtype)) {
-            url += "jdbc:mysql://";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += "/" + dbname;
-            url += "?" + "serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true";
-        } else if (DB.SQL_SERVER.equals(dbtype)) {
-            url += "jdbc:jtds:sqlserver://";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += "/" + dbname;
-            url += ";tds=8.0;lastupdatecount=true";
-        } else if (DB.SQL_SERVER2005.equals(dbtype)) {
-            url += "jdbc:sqlserver://";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += "; DatabaseName=" + dbname;
-        } else if (DB.DB2.equals(dbtype)) {
-            url += "jdbc:db2://";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += "/" + dbname;
-        } else if (DB.INFORMIX.equals(dbtype)) {
-            url += "jdbc:informix-sqli://";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += "/" + dbname;
-        } else if (DB.SYBASE.equals(dbtype)) {
-            url += "jdbc:sybase:Tds:";
-            url += ip.trim();
-            url += ":" + port.trim();
-            url += "/" + dbname;
-        } else {
-            throw new RuntimeException("不认识的数据库类型!");
+    private static String createDBUrl(DBInfo dbInfo) {
+        String template;
+        switch (dbInfo.type) {
+            case ORACLE:
+                template = "jdbc:oracle:thin:@%s:%s:%s";
+                break;
+            case MYSQL:
+                template = "jdbc:mysql://%s:%s/%s";
+                break;
+            case SQL_SERVER:
+                template = "jdbc:jtds:sqlserver://%s:%s/%s";
+                break;
+            case SQL_SERVER2005:
+                template = "jdbc:sqlserver://%s:%s;DatabaseName=%s";
+                break;
+            case DB2:
+                template = "jdbc:db2://%s:%s/%s";
+                break;
+            case INFORMIX:
+                template = "jdbc:informix-sqli://%s:%s/%s";
+                break;
+            case SYBASE:
+                template = "jdbc:sybase:Tds:%s:%s/%s";
+                break;
+            default:
+                throw new RuntimeException("不认识的数据库类型!");
+        }
+        String url = String.format(template, dbInfo.ip, dbInfo.port, dbInfo.dbName);
+        switch (dbInfo.type) {
+            case MYSQL:
+                url = url + "?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true";
+                break;
+            case SQL_SERVER:
+                url = url + ";lastupdatecount=true";
+                break;
+            default:
+                throw new RuntimeException("不认识的数据库类型!");
         }
         return url;
     }
@@ -328,12 +359,11 @@ public class DataBaseUtil {
         return map;
     }
 
-    public static boolean tryLink(String databasetype, String ip, String port, String dbname, String username, String password) {
-        DB dbtype = parseDB(databasetype);
-        String url = createDBUrl(dbtype, ip, port, dbname);
+    public static boolean tryLink(DBInfo dbInfo) {
+        String url = createDBUrl(dbInfo);
         Connection connection = null;
         try {
-            connection = getConnection(url, username, password);
+            connection = getConnection(url, dbInfo.user, dbInfo.pass);
             if (null == connection) {
                 return false;
             }
@@ -445,6 +475,51 @@ public class DataBaseUtil {
             logger.info("获得列" + i + "是否为空:" + isNullable);
             logger.info("获得列" + i + "是否为只读:" + isReadOnly);
             logger.info("获得列" + i + "能否出现在where中:" + isSearchable);
+        }
+    }
+
+    /**
+     * 数据库信息
+     */
+    public static class DBInfo {
+        private DB type;
+        private String ip;
+        private String port;
+        private String dbName;
+        private String user;
+        private String pass;
+
+        public DBInfo(String type, String ip, String port, String dbName, String user, String pass) {
+            this.type = parseDB(type);
+            this.ip = ip;
+            this.port = port;
+            this.dbName = dbName;
+            this.user = user;
+            this.pass = pass;
+        }
+
+        public DB getType() {
+            return type;
+        }
+
+        public String getIp() {
+            return ip;
+        }
+
+        public String getPort() {
+            return port;
+        }
+
+        public String getDbName() {
+            return dbName;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public String getPass() {
+            return pass;
         }
     }
 

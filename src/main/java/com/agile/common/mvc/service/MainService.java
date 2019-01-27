@@ -30,9 +30,13 @@ import java.util.Map;
  */
 public class MainService implements ServiceInterface {
 
-    //输入
+    /**
+     *
+     */
     private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
-    //输出
+    /**
+     * 输出
+     */
     private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
     @Autowired
     protected Dao dao;
@@ -60,7 +64,7 @@ public class MainService implements ServiceInterface {
             } else {
                 //其他类型数据直接放入返回参数
                 if (returnData != null) {
-                    setOutParam(Constant.ResponseAbout.RESULT, returnData);
+                    setOutParam(Constant.ResponseAbout.RETURN, returnData);
                 }
             }
             return returnData;
@@ -200,7 +204,15 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected String[] getInParamOfArray(String key) {
-        return (String[]) inParam.get().get(key);
+        Object o = inParam.get().get(key);
+        if (o == null) {
+            return null;
+        }
+        if (o.getClass().isArray()) {
+            return (String[]) o;
+        } else {
+            return new String[]{String.valueOf(o)};
+        }
     }
 
     /**
@@ -210,7 +222,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> T[] getInParamOfArray(String key, Class<T> clazz) {
-        String[] value = (String[]) inParam.get().get(key);
+        String[] value = getInParamOfArray(key);
         if (value != null && value.length > 0) {
             return ArrayUtil.cast(clazz, value);
         }

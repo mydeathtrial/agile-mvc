@@ -3,27 +3,23 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3.1</version>
+    <version>1.0.3.2</version>
     <name>AgileFramework</name>
     <description>Agile API平台</description>
-    <url>http://192.168.0.55:7777/repository/maven-public/</url>
+    <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
 
     <!--资源库-->
     <repositories>
         <repository>
             <id>privateMaven</id>
-            <url>http://192.168.0.55:7777/repository/maven-public/</url>
-        </repository>
-        <repository>
-            <id>privateMaven2</id>
-            <url>http://127.0.0.1:8081/repository/maven-public/</url>
+            <url>http://10.10.10.9:8081/nexus/content/groups/public/</url>
         </repository>
     </repositories>
 
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-parent</artifactId>
-        <version>1.0.9</version>
+        <version>1.1.0</version>
     </parent>
 
     <build>
@@ -36,7 +32,7 @@
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration> <!-- 配置文件的路径，在style文件夹下 -->
-                            <configLocation>http://localhost:8081/repository/maven-releases/com/agileframework/checkstyle/1.0/checkstyle-1.0.xm;</configLocation>
+                            <configLocation>http://10.10.10.9:8081/nexus/service/local/repositories/agile/content/com/agileframework/checkstyle/1.0/checkstyle-1.0.xml</configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>

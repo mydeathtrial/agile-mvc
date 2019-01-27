@@ -11,11 +11,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.LinkedHashMap;
 
 /**
  * @author 佟盟 on 2017/12/22
@@ -237,6 +237,9 @@ public class MapUtil extends MapUtils {
         target.putAll(source);
         for (Map.Entry<String, Object> entity : target.entrySet()) {
             Object value = entity.getValue();
+            if (value == null) {
+                continue;
+            }
             if (value instanceof MultipartFile) {
                 target.put(entity.getKey(), ((MultipartFile) value).getOriginalFilename());
             } else if (List.class.isAssignableFrom(value.getClass())) {

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -209,6 +210,31 @@ public final class StringUtil extends StringUtils {
     }
 
     /**
+     * 匹配出正则表达式中所有的括号内容
+     *
+     * @param regex 正则
+     * @param text  目标串
+     * @return 按顺序匹配出来的括号内容
+     */
+    public static LinkedList<String> getGroupString(String regex, String text) {
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(text);
+
+        int count = matcher.groupCount();
+
+        if (count > 0) {
+            LinkedList<String> temp = new LinkedList<>();
+            if (matcher.find()) {
+                for (int i = 1; i < count + 1; i++) {
+                    temp.add(matcher.group(i));
+                }
+                return temp;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 从el表达式中获取key、value，如{key:value}
      *
      * @param el        需要处理的字符串
@@ -251,17 +277,34 @@ public final class StringUtil extends StringUtils {
     }
 
     public static Map<String, String> getParamFromMapping(String url, String mapUrl) {
-        Map<String, String> result = new LinkedHashMap<>();
-        Map<String, String> map = getGroupByStartEnd(mapUrl, "{", "}", ":");
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            String value = getMatchedString(entry.getValue(), url, 0);
-            if (isBlank(value)) {
-                return null;
-            }
-            result.put(entry.getKey(), value);
-            int start = url.indexOf(value);
-            url = url.substring(start + value.length());
+        final String left = "{";
+        final String right = "}";
+        final String equal = ":";
+        final int minLength = 2;
+        if (StringUtil.isEmpty(mapUrl) || mapUrl.length() <= minLength) {
+            return null;
         }
+        if (!mapUrl.contains(left) || !mapUrl.contains(right)) {
+            return null;
+        }
+        Map<String, String> result = new LinkedHashMap<>();
+        Map<String, String> map;
+        if (mapUrl.contains(equal)) {
+            map = getGroupByStartEnd(mapUrl, left, right, equal);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                String value = getMatchedString(entry.getValue(), url, 0);
+                if (isBlank(value)) {
+                    return null;
+                }
+                result.put(entry.getKey(), value);
+                int start = url.indexOf(value);
+                url = url.substring(start + value.length());
+            }
+        } else {
+            result.put(mapUrl.substring(1, mapUrl.length() - 1), url);
+        }
+
+
         return result;
     }
 
@@ -438,6 +481,7 @@ public final class StringUtil extends StringUtils {
 
     /**
      * 字符串拼接
+     *
      * @param values 字符串数组
      * @return 字符串
      */

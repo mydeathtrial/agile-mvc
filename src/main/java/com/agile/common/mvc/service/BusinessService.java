@@ -5,9 +5,12 @@ import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.RandomStringUtil;
+import com.agile.common.util.StringUtil;
 import com.agile.common.validate.ValidateMsg;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -58,7 +61,7 @@ public class BusinessService<T> extends MainService {
     }
 
     private boolean validateInParam(T entity) {
-        List<ValidateMsg> list = validate(entity, (Class<?>) null);
+        List<ValidateMsg> list = validate(entity);
         if (list != null && list.size() > 0) {
             setOutParam(Constant.ResponseAbout.RESULT, list);
             return true;
@@ -69,16 +72,32 @@ public class BusinessService<T> extends MainService {
     /**
      * 新增
      */
-    public RETURN save() throws IllegalAccessException, NoSuchIDException {
+    public RETURN save() throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
 
         T entity = getInParam(entityClass);
         if (validateInParam(entity) || !ObjectUtil.isValidity(entity)) {
             return RETURN.PARAMETER_ERROR;
         }
         Field idField = dao.getIdField(entityClass);
+        idField.setAccessible(true);
         Object idValue = idField.get(entity);
-        if (idValue == null) {
-            idField.set(entity, RandomStringUtil.getRandom(length, RandomStringUtil.Random.MIX_1));
+        List<GeneratedValue> generatedValues = ObjectUtil.getAllEntityPropertyAnnotation(entityClass, idField, GeneratedValue.class);
+        boolean isGenerate = false;
+        for (GeneratedValue generatedValue : generatedValues) {
+            if (isGenerate) {
+                continue;
+            }
+            isGenerate = generatedValue != null && generatedValue.strategy() != GenerationType.AUTO;
+        }
+        if (!isGenerate && idValue == null) {
+            String idValueTemp;
+            Class<?> type = idField.getType();
+            if (type == int.class || type == long.class || type == Integer.class || type == Long.class) {
+                idValueTemp = RandomStringUtil.getRandom(length, RandomStringUtil.Random.NUMBER);
+            } else {
+                idValueTemp = RandomStringUtil.getRandom(length, RandomStringUtil.Random.MIX_1);
+            }
+            idField.set(entity, ObjectUtil.cast(idField.getType(), idValueTemp));
         }
         dao.save(entity);
         return RETURN.SUCCESS;
@@ -91,15 +110,13 @@ public class BusinessService<T> extends MainService {
         T entity = getInParam(entityClass);
         boolean require = this.containsKey(id);
         if (require && ObjectUtil.isEmpty(entity)) {
-            List<String> list = getIds();
-            dao.deleteInBatch(entityClass, list.toArray());
+            dao.deleteInBatch(entityClass, getIds().toArray());
             return RETURN.SUCCESS;
         } else if (!require && !ObjectUtil.isEmpty(entity)) {
             dao.delete(entity);
             return RETURN.SUCCESS;
         } else if (require && !ObjectUtil.isEmpty(entity)) {
-            List<String> list = getIds();
-            List<T> entityList = dao.findAllById(entityClass, list);
+            List<T> entityList = dao.findAllById(entityClass, getIds());
             for (T o : entityList) {
                 if (ObjectUtil.compareOfNotNull(entity, o)) {
                     dao.delete(o);
@@ -144,17 +161,15 @@ public class BusinessService<T> extends MainService {
     /**
      * 查询
      */
-    public RETURN query() {
+    public RETURN query() throws NoSuchIDException {
         T entity = getInParam(entityClass);
         boolean require = this.containsKey(id);
         if (require && ObjectUtil.isEmpty(entity)) {
-            List<String> list = getIds();
-            setOutParam(Constant.ResponseAbout.RESULT, dao.findAllById(entityClass, list));
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAllById(entityClass, getIds()));
         } else if (!require && !ObjectUtil.isEmpty(entity)) {
             setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getSort()));
         } else if (require && !ObjectUtil.isEmpty(entity)) {
-            List<String> list = getIds();
-            List<T> entityList = dao.findAllById(entityClass, list);
+            List<T> entityList = dao.findAllById(entityClass, getIds());
             entityList.removeIf(o -> !ObjectUtil.compareOfNotNull(entity, o));
 
             setOutParam(Constant.ResponseAbout.RESULT, entityList);
@@ -164,16 +179,29 @@ public class BusinessService<T> extends MainService {
         return RETURN.SUCCESS;
     }
 
-    private List<String> getIds() {
-        List<String> list = new ArrayList<>();
+    private List<Object> getIds() throws NoSuchIDException {
+        Field idField = dao.getIdField(entityClass);
+        if (idField == null) {
+            throw new NoSuchIDException();
+        }
+        Class<?> type = idField.getType();
+        List<Object> list = new ArrayList<>();
         String[] ids = this.getInParamOfArray(id);
-        for (String idValue : ids) {
-            if (idValue.contains(Constant.RegularAbout.COMMA)) {
-                String[] s = idValue.split(Constant.RegularAbout.COMMA);
-                list.addAll(Arrays.asList(s));
+        for (Object idValue : ids) {
+            if (StringUtil.isString(idValue)) {
+                String v = idValue.toString();
+                if (v.contains(Constant.RegularAbout.COMMA)) {
+                    String[] s = v.split(Constant.RegularAbout.COMMA);
+                    for (String child : s) {
+                        list.add(ObjectUtil.cast(type, child));
+                    }
+                } else {
+                    list.add(ObjectUtil.cast(type, v));
+                }
             } else {
                 list.add(idValue);
             }
+
         }
         return list;
     }

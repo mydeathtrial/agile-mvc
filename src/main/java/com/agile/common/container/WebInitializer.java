@@ -4,7 +4,6 @@ import com.agile.common.config.LoggerFactoryConfig;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.filter.CORSFilter;
 import com.agile.common.kaptcha.KaptchaServlet;
-import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.alibaba.druid.support.http.StatViewServlet;
@@ -31,13 +30,6 @@ public class WebInitializer implements WebApplicationInitializer, ServletContext
     public void onStartup(ServletContext servletContext) {
 
         System.setProperty("webapp.root", servletContext.getRealPath("/"));
-
-        DataBaseUtil.tryLink(PropertiesUtil.getProperty("agile.druid.type"),
-                PropertiesUtil.getProperty("agile.druid.data_base_ip"),
-                PropertiesUtil.getProperty("agile.druid.data_base_port"),
-                PropertiesUtil.getProperty("agile.druid.data_base_name"),
-                PropertiesUtil.getProperty("agile.druid.data_base_username"),
-                PropertiesUtil.getProperty("agile.druid.data_base_password"));
 
         servletContext.setRequestCharacterEncoding(PropertiesUtil.getProperty("agile.servlet.character", "utf-8"));
         servletContext.setResponseCharacterEncoding(PropertiesUtil.getProperty("agile.servlet.character", "utf-8"));

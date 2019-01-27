@@ -385,9 +385,9 @@ public class ObjectUtil extends ObjectUtils {
      * @param clazz 类
      * @return 注解结果集
      */
-    public static Set<Target> getAllColumnAnnotation(Class clazz) {
-        Set<Target> fieldAnnotation = getAllFieldAnnotation(clazz, Column.class);
-        Set<Target> methodAnnotation = getAllMethodAnnotation(clazz, Column.class);
+    public static Set<Target> getAllEntityAnnotation(Class clazz, Class annotation) {
+        Set<Target> fieldAnnotation = getAllFieldAnnotation(clazz, annotation);
+        Set<Target> methodAnnotation = getAllMethodAnnotation(clazz, annotation);
         Iterator<Target> it = methodAnnotation.iterator();
         while (it.hasNext()) {
             Target target = it.next();
@@ -399,6 +399,46 @@ public class ObjectUtil extends ObjectUtils {
             }
         }
         return fieldAnnotation;
+    }
+
+    /**
+     * 获取所有字段注解
+     *
+     * @param clazz 类
+     * @return 注解结果集
+     */
+    public static <T extends Annotation> List<T> getAllEntityPropertyAnnotation(Class clazz, Field field, Class<T> annotation) throws NoSuchMethodException {
+        List<T> list = new ArrayList<>();
+        T fieldDeclaredAnnotations = field.getDeclaredAnnotation(annotation);
+        if (fieldDeclaredAnnotations != null) {
+            list.add(fieldDeclaredAnnotations);
+        }
+
+        T fieldAnnotations = field.getAnnotation(annotation);
+        if (fieldAnnotations != null) {
+            list.add(fieldAnnotations);
+        }
+
+        String getMethodName = String.format("get%s", StringUtil.toUpperName(field.getName()));
+        Method declaredMethod = clazz.getDeclaredMethod(getMethodName);
+        T methodDeclaredAnnotations = declaredMethod.getDeclaredAnnotation(annotation);
+        if (methodDeclaredAnnotations != null) {
+            list.add(methodDeclaredAnnotations);
+        }
+
+        Method method = clazz.getMethod(getMethodName);
+        T methodAnnotations = method.getAnnotation(annotation);
+        if (methodAnnotations != null) {
+            list.add(methodAnnotations);
+        }
+
+        return list;
+    }
+
+    private static void addAll(Annotation[] methodAnnotations, List<Annotation> list) {
+        if (methodAnnotations != null) {
+            list.addAll(ArrayUtil.asList(methodAnnotations));
+        }
     }
 
     /**

@@ -8,6 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author 佟盟 on 2018/11/2
@@ -39,7 +40,12 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
                 try {
                     String param = remark.value();
                     if (Constant.ResponseAbout.RESULT.equals(param)) {
-                        field.set(this, result);
+                        boolean isMap = Map.class.isAssignableFrom(result.getClass());
+                        if (isMap && ((Map) result).containsKey(Constant.ResponseAbout.RESULT)) {
+                            field.set(this, ((Map) result).get(Constant.ResponseAbout.RESULT));
+                        } else {
+                            field.set(this, result);
+                        }
                     } else {
                         if (head == null) {
                             continue;

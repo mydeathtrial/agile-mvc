@@ -1,5 +1,6 @@
 package com.agile.common.swagger;
 
+import com.agile.common.annotation.Models;
 import com.agile.common.base.ApiInfo;
 import com.agile.common.util.ApiUtil;
 import com.fasterxml.classmate.TypeResolver;
@@ -29,7 +30,6 @@ import springfox.documentation.spring.web.plugins.DocumentationPluginsManager;
 import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver;
 import springfox.documentation.spring.web.scanners.ApiDescriptionReader;
 import springfox.documentation.spring.web.scanners.ApiListingScanningContext;
-import springfox.documentation.spring.web.scanners.ApiModelReader;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -177,6 +177,14 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
             for (RequestMappingContext each : sortedByMethods(requestMappingContextListCache.get(resourceGroup))) {
                 models.putAll(apiModelReader.read(each.withKnownModels(models)));
                 apiDescriptions.addAll(apiDescriptionReader.read(each));
+
+                Optional<Models> modelsOptional = each.findAnnotation(Models.class);
+                if (modelsOptional.isPresent()) {
+                    Class[] classes = modelsOptional.get().value();
+                    for (Class c : classes) {
+                        apiModelReader.read(documentationContext, c, models);
+                    }
+                }
             }
 
             List<ApiDescription> additional = additionalListings.stream().filter(belongsTo(resourceGroup.getGroupName()).and(onlySelectedApis(documentationContext))).collect(Collectors.toList());
@@ -194,17 +202,9 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
             PathAdjuster adjuster = new PathMappingAdjuster(documentationContext);
             ApiListingBuilder apiListingBuilder = new ApiListingBuilder(context.apiDescriptionOrdering())
                     .apiVersion(documentationContext.getApiInfo().getVersion())
-                    .basePath(adjuster.adjustedPath(basePath))
-                    .resourcePath(resourcePath)
-                    .produces(produces)
-                    .consumes(consumes)
-                    .host(host)
-                    .protocols(protocols)
-                    .securityReferences(securityReferences)
-                    .apis(sortedApis)
-                    .models(models)
-                    .position(position++)
-                    .availableTags(documentationContext.getTags());
+                    .basePath(adjuster.adjustedPath(basePath)).resourcePath(resourcePath).produces(produces)
+                    .consumes(consumes).host(host).protocols(protocols).securityReferences(securityReferences)
+                    .apis(sortedApis).models(models).position(position++).availableTags(documentationContext.getTags());
 
             ApiListingContext apiListingContext = new ApiListingContext(
                     context.getDocumentationType(),
@@ -222,4 +222,5 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
     private Predicate<ApiDescription> onlySelectedApis(final DocumentationContext context) {
         return input -> context.getApiSelector().getPathSelector().apply(input.getPath());
     }
+
 }

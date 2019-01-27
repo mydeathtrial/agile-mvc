@@ -283,15 +283,15 @@ public class Dao {
      * @param ids        主键数组
      * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
-    private <T, ID> List createObjectList(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
-        ArrayList list = new ArrayList();
+    private <T, ID> List<T> createObjectList(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
+        ArrayList<T> list = new ArrayList<>();
         Field idField = getIdField(tableClass);
         for (int i = 0; i < ids.length; i++) {
             try {
                 Object instance = tableClass.newInstance();
                 idField.setAccessible(true);
                 idField.set(instance, ObjectUtil.cast(idField.getType(), ids[i]));
-                list.add(instance);
+                list.add((T) instance);
             } catch (IllegalAccessException | InstantiationException e) {
                 logger.error("主键数组转换ORM对象列表失败", e);
             }
@@ -431,8 +431,8 @@ public class Dao {
      * @param object 例子对象
      * @return 查询结果数据集合
      */
-    public <T> List findAll(T object) {
-        List result = findAll(object, Sort.unsorted());
+    public <T> List<T> findAll(T object) {
+        List<T> result = findAll(object, Sort.unsorted());
         if (result != null) {
             return result;
         }
@@ -447,9 +447,9 @@ public class Dao {
      * @param sort   排序对象
      * @return 查询结果数据集合
      */
-    public <T> List findAll(T object, Sort sort) {
+    public <T> List<T> findAll(T object, Sort sort) {
         Example<T> example = Example.of(object);
-        List result = this.getRepository(object.getClass()).findAll(example, sort);
+        List<T> result = this.getRepository(object.getClass()).findAll(example, sort);
         if (result != null) {
             return result;
         }
