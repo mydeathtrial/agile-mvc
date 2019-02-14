@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
  * @author 佟盟 on 2018/6/29
@@ -52,13 +51,13 @@ public class FreemarkerUtil {
      * @param fileName    文件名
      * @param data        数据
      */
-    public static void generatorProxy(String templateURI, String directory, String fileName, Map<String, Object> data, boolean append) throws IOException, TemplateException {
+    public static void generatorProxy(String templateURI, String directory, String fileName, Object data, boolean append) throws IOException, TemplateException {
         Template template = getTemplate(templateURI);
         File serviceFileDir = new File(directory);
         if (!serviceFileDir.exists()) {
             boolean f = serviceFileDir.mkdirs();
             if (!f) {
-                LoggerFactory.getCommonLog().error(String.format("无法创建代码生成路径：%s", directory));
+                LoggerFactory.COMMON_LOG.error(String.format("无法创建代码生成路径：%s", directory));
                 return;
             }
         }

@@ -24,6 +24,25 @@ public class Constant {
     }
 
     /**
+     * 数字相关
+     */
+    public static class NumberAbout {
+        public static final int ZERO = 0;
+        public static final int ONE = 1;
+        public static final int TWO = 2;
+        public static final int THREE = 3;
+        public static final int FOUR = 4;
+        public static final int FIVE = 5;
+        public static final int SIX = 6;
+        public static final int SEVEN = 7;
+        public static final int EIGHT = 8;
+        public static final int NINE = 9;
+        public static final int TEN = 10;
+        public static final int HUNDRED = 100;
+        public static final int THOUSAND = 1000;
+    }
+
+    /**
      * 文件相关
      */
     public static class FileAbout {
@@ -46,6 +65,7 @@ public class Constant {
      */
     public static class RegularAbout {
         public static final String NULL = "";
+        public static final String UNDER_LINE = "_";
         public static final String SEMICOLON = ";";
         public static final String COLON = ":";
         public static final String SPOT = ".";
@@ -89,5 +109,13 @@ public class Constant {
         public static final String NUMBER = "^[0-9]*$";
         public static final String FLOAT = "^-?([1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*|0?\\.0+|0)$";
         public static final String ENGLISH_NUMBER = "^[A-Za-z0-9]+$ 或 ^[A-Za-z0-9]{4,40}$";
+
+        public static final String ORACLE = "jdbc:oracle:thin:@(?<ip>[0-9.]+):(?<port>[0-9]+):(?<name>[\\w]+)";
+        public static final String MYSQL = "jdbc:mysql://(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)(?<param>[\\w\\W]*)";
+        public static final String SQL_SERVER = "jdbc:jtds:sqlserver://(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)(?<param>[\\w\\W=]+)";
+        public static final String SQL_SERVER2005 = "jdbc:sqlserver://(?<ip>[0-9.]+):(?<port>[0-9]+);DatabaseName=(?<name>[\\w]+)";
+        public static final String DB2 = "jdbc:db2://(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)";
+        public static final String INFORMIX = "jdbc:informix-sqli://(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)";
+        public static final String SYBASE = "jdbc:sybase:Tds:(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)";
     }
 }

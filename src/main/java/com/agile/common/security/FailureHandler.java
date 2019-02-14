@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 /**
  * @author 佟盟 on 2018/6/25
@@ -28,7 +29,7 @@ public class FailureHandler implements AuthenticationFailureHandler, AccessDenie
     }
 
     private void render(HttpServletRequest request, HttpServletResponse response, Exception exception) {
-        ModelAndView view = FactoryUtil.getBean(SpringExceptionHandler.class).createModelAndView(exception);
+        ModelAndView view = Objects.requireNonNull(FactoryUtil.getBean(SpringExceptionHandler.class)).createModelAndView(exception);
         try {
             ViewUtil.render(view, request, response);
         } catch (Exception e) {

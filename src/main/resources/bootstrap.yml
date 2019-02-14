@@ -3,7 +3,7 @@ logging:
     root: OFF
     com.idss.common.datafactory.utils: OFF
 info:
-  project: argus-2.1
+  project: Agile client
   description: 一个奇怪的项目
 management:
   endpoints:

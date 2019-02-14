@@ -20,10 +20,10 @@ public class ClassUtil extends ClassUtils {
         String result;
         switch (name) {
             case "byte":
-                result =  "Byte";
+                result = "Byte";
                 break;
             case "short":
-                result =  "Short";
+                result = "Short";
                 break;
             case "int":
                 result = "Integer";
@@ -128,11 +128,14 @@ public class ClassUtil extends ClassUtils {
         return false;
     }
 
-    public static boolean isCustomClass(Class clazz) {
+    public static boolean canCastClass(Class clazz) {
         if (isWrapOrPrimitive(clazz)) {
             return true;
         }
         return String.class == clazz || BigDecimal.class == clazz || Date.class == clazz;
     }
 
+    public static boolean isJavaClass(Class clazz) {
+        return clazz.getPackage().getName().startsWith("java.");
+    }
 }

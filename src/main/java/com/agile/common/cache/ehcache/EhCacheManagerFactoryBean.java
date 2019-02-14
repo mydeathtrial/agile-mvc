@@ -45,8 +45,8 @@ public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, Ini
     @Override
     public void destroy() {
         if (this.cacheManager != null && this.locallyManaged) {
-            if (LoggerFactory.getCacheLog().isInfoEnabled()) {
-                LoggerFactory.getCacheLog().info("关闭 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
+            if (LoggerFactory.CACHE_LOG.isInfoEnabled()) {
+                LoggerFactory.CACHE_LOG.info("关闭 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
             }
             this.cacheManager.shutdown();
         }
@@ -64,8 +64,8 @@ public class EhCacheManagerFactoryBean implements FactoryBean<CacheManager>, Ini
 
     @Override
     public void afterPropertiesSet() {
-        if (LoggerFactory.getCacheLog().isInfoEnabled()) {
-            LoggerFactory.getCacheLog().info("正在初始化 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
+        if (LoggerFactory.CACHE_LOG.isInfoEnabled()) {
+            LoggerFactory.CACHE_LOG.info("正在初始化 EhCache CacheManager" + (this.cacheManagerName != null ? " '" + this.cacheManagerName + "'" : ""));
         }
 
         if (this.cacheManagerName != null) {

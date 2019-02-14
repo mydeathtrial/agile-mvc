@@ -1,8 +1,11 @@
 package com.agile.common.config;
 
+import com.agile.common.base.Constant;
 import com.agile.common.cache.redis.RedisCacheManager;
 import com.agile.common.properties.RedisConfigProperties;
 import com.agile.common.util.PropertiesUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
@@ -21,44 +24,57 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.time.Duration;
-import java.util.List;
 
 /**
  * @author 佟盟 on 2017/10/8
  */
 @Configuration
+@EnableConfigurationProperties(value = {RedisConfigProperties.class})
 @Conditional(RedisConfig.class)
 public class RedisConfig implements Condition {
+
+    @Autowired
+    RedisConfigProperties redisConfigProperties;
 
     @Bean
     public JedisPoolConfig redisPool() {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
-        jedisPoolConfig.setMaxIdle(RedisConfigProperties.getMaxIdle());
-        jedisPoolConfig.setMinIdle(RedisConfigProperties.getMinIdle());
-        jedisPoolConfig.setMaxWaitMillis(RedisConfigProperties.getMaxWaitMillis());
-        jedisPoolConfig.setTestOnReturn(RedisConfigProperties.isTestOnReturn());
-        jedisPoolConfig.setTestOnBorrow(RedisConfigProperties.isTestOnReturn());
+        jedisPoolConfig.setMaxIdle(redisConfigProperties.getMaxIdle());
+        jedisPoolConfig.setMinIdle(redisConfigProperties.getMinIdle());
+        jedisPoolConfig.setMaxWaitMillis(redisConfigProperties.getMaxWaitMillis());
+        jedisPoolConfig.setTestOnReturn(redisConfigProperties.isTestOnReturn());
+        jedisPoolConfig.setTestOnBorrow(redisConfigProperties.isTestOnReturn());
         return jedisPoolConfig;
     }
 
     @Bean
     public RedisConnectionFactory jedisConnectionFactory(JedisPoolConfig redisPool) {
-        List<String> hosts = RedisConfigProperties.getHost();
-        List<Integer> ports = RedisConfigProperties.getPort();
-        if (hosts.size() > 1) {
+        String host = redisConfigProperties.getHost();
+        String port = redisConfigProperties.getPort();
+
+        if (host.contains(Constant.RegularAbout.COMMA)) {
+            String[] hosts = host.split(Constant.RegularAbout.COMMA);
+            String[] ports = port.split(Constant.RegularAbout.COMMA);
+
             RedisSentinelConfiguration config = new RedisSentinelConfiguration()
                     .master("master");
-            for (int i = 0; i < hosts.size(); i++) {
-                config.sentinel(hosts.get(i), ports.get(i));
+            for (int i = 0; i < hosts.length; i++) {
+                try {
+                    String currentHost = hosts[i];
+                    int currentPost = Integer.parseInt(ports[i]);
+                    config.sentinel(currentHost, currentPost);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             return new JedisConnectionFactory(config, redisPool);
         } else {
             RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
             JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisPool);
             jedisConnectionFactory.afterPropertiesSet();
-            config.setPassword(RedisPassword.of(RedisConfigProperties.getPass()));
-            config.setHostName(hosts.get(0));
-            config.setPort(ports.get(0));
+            config.setPassword(RedisPassword.of(redisConfigProperties.getPass()));
+            config.setHostName(host);
+            config.setPort(Integer.parseInt(port));
             return new JedisConnectionFactory(config);
         }
     }
@@ -83,14 +99,14 @@ public class RedisConfig implements Condition {
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(jedisConnectionFactory);
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
         //设置默认超过期时间是30秒
-        defaultCacheConfig.entryTtl(Duration.ofSeconds(RedisConfigProperties.getDuration()));
+        defaultCacheConfig.entryTtl(Duration.ofSeconds(redisConfigProperties.getDuration()));
         //初始化RedisCacheManager
         return new RedisCacheManager(redisCacheWriter, defaultCacheConfig);
     }
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy").toLowerCase();
+        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy", "ehcache").toLowerCase();
         return "redis".equals(cacheProxy);
     }
 }

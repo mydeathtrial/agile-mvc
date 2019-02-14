@@ -33,7 +33,7 @@ public class BusinessService<T> extends MainService {
     private final String id = "id";
     private final String page = "page";
     private final String size = "size";
-    private final String sortColumn = "sort-column";
+    private final String sortColumn = "sort-info";
     private final String sortDirection = "sort-direction";
     private final int length = 8;
 

@@ -125,7 +125,7 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
                     Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
                     for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
                         if (methods.contains(requestMethod)) {
-                            LoggerFactory.getCommonLog().error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
+                            LoggerFactory.COMMON_LOG.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
                             throw new IllegalStateException();
                         }
                     }

@@ -2,9 +2,11 @@ package com.agile.common.factory;
 
 import com.agile.common.base.Constant;
 import com.agile.common.cache.Cache;
-import com.agile.common.config.LoggerFactoryConfig;
 import com.agile.common.container.WebInitializer;
 import com.agile.common.mvc.model.dao.Dao;
+import com.agile.common.mvc.service.TaskService;
+import com.agile.common.properties.LoggerProperties;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
@@ -25,16 +27,15 @@ import org.apache.logging.log4j.core.appender.rolling.TriggeringPolicy;
 import org.apache.logging.log4j.core.async.AsyncLoggerConfig;
 import org.apache.logging.log4j.core.config.AppenderRef;
 import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.elasticsearch.client.Client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
+
+import static com.agile.common.base.Constant.NumberAbout.TWO;
 
 /**
  * @author 佟盟 on n017/TWO/n3
@@ -43,72 +44,82 @@ import java.util.Properties;
 public final class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
-    private static String path = PropertiesUtil.getProperty("agile.log.package_uri", System.getProperty("webapp.root", "") + "logs\\");
-    private static Map<Class, Log> serviceCacheLogs = new HashMap<>();
-
-    private static Log esLog = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
-    private static Log taskLog = createPlugLogger("task", "agile.task.enable", Client.class, Level.INFO, Level.ERROR);
-    private static Log commonLog = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
-    private static Log cacheLog = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
-    private static Log daoLog = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
-    private static final int TWO = 2;
-    
-    public static Log getEsLog() {
-        return esLog;
-    }
-
-    public static Log getTaskLog() {
-        return taskLog;
-    }
-
-    public static Log getCommonLog() {
-        return commonLog;
-    }
-
-    public static Log getCacheLog() {
-        return cacheLog;
-    }
-
-    public static Log getDaoLog() {
-        return daoLog;
-    }
+    private static LoggerProperties loggerProperties = FactoryUtil.getBean(LoggerProperties.class);
+    private static String path;
+    private static final String DIR_NAME = "logs/";
+    private static final String PATTERN = "%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}";
 
     static {
-        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
-        String prefix = "agile.log.package.";
-        Properties properties = PropertiesUtil.getPropertyByPrefix(prefix);
-        for (String key : properties.stringPropertyNames()) {
-            String[] levels = PropertiesUtil.getProperty(key).split(Constant.RegularAbout.COMMA);
-            String packageName = key.replaceFirst(prefix, "");
-            createLogger(packageName, packageName, coverLevel(levels));
+        if (loggerProperties == null) {
+            throw new RuntimeException();
+        }
+        path = loggerProperties.getPackageUri();
+        if (!path.endsWith(Constant.RegularAbout.BACKSLASH) && !path.endsWith(Constant.RegularAbout.SLASH)) {
+            path += Constant.RegularAbout.SLASH;
+        }
+        loggerProperties.setPackageUri(path);
+        path += DIR_NAME;
+
+        for (Map.Entry<String, Level[]> packageInfo : loggerProperties.getPackageName().entrySet()) {
+            Level[] levels = packageInfo.getValue();
+            String packageName = packageInfo.getKey();
+            createLogger(packageName, packageName, levels);
         }
     }
 
-    private LoggerFactory() {
+    public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
+    public static final Log TASK_LOG = createPlugLogger("task", "agile.task.enable", TaskService.class, Level.INFO, Level.ERROR);
+    public static final Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
+    public static final Log CACHE_LOG = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
+    public static final Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
+
+    private static Map<Class, Log> serviceCacheLogs = new HashMap<>();
+
+    public static void stop(String loggerName) {
+        Level[] levels = Level.values();
+        for (Level level : levels) {
+            String filename = StringUtil.camelToUnderline(loggerName) + "_" + level.name();
+            config.getRootLogger().removeAppender(filename);
+        }
+        ctx.updateLoggers();
     }
 
-    private static void createLogger(String baseName, String packagePath, Level... levels) {
-        //创建输出格式
-        PatternLayout layout = PatternLayout
-                .newBuilder()
+    private static Log createPlugLogger(String fileName, String plugKey, Class clazz, Level... levels) {
+        if (!PropertiesUtil.getProperty(plugKey, boolean.class, Boolean.FALSE.toString())) {
+            return null;
+        }
+        return createLogger(fileName, clazz, levels);
+    }
+
+    public static Log getServiceLog(Class clazz) {
+        Log log = serviceCacheLogs.get(clazz);
+        if (log == null) {
+            log = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, clazz);
+            serviceCacheLogs.put(clazz, log);
+        }
+        return log;
+    }
+
+    private static void createLogger(String loggerName, String packagePath, Level... levels) {
+        PatternLayout layout = PatternLayout.newBuilder()
                 .withConfiguration(config)
-                .withPattern("%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}")
+                .withPattern(PATTERN)
                 .build();
-        baseName = StringUtil.camelToUnderline(baseName);
+
         AppenderRef[] refs = new AppenderRef[levels.length * TWO];
         String[] appenders = new String[levels.length * TWO];
         for (int i = 0; i < levels.length; i++) {
-            String targetFileName = (baseName + "_" + levels[i].name()).toLowerCase();
+            String targetFileName = (loggerName + "_" + levels[i].name()).toLowerCase();
             if (ObjectUtil.isEmpty(config.getAppender(targetFileName))) {
                 //输出引擎
-                appenders[i * TWO] = createFileAppender(baseName, targetFileName, layout);
+                appenders[i * TWO] = createFileAppender(loggerName, targetFileName, layout);
                 refs[i * TWO] = AppenderRef.createAppenderRef(appenders[i * TWO], null, null);
 
                 appenders[i * TWO + 1] = createConsoleAppender(targetFileName, layout);
                 refs[i * TWO + 1] = AppenderRef.createAppenderRef(appenders[i * TWO + 1], null, null);
             }
         }
-        LoggerConfig loggerConfig = AsyncLoggerConfig.createLogger(Boolean.FALSE, Level.ALL, packagePath, "true", refs, null, config, null);
+        LoggerConfig loggerConfig = AsyncLoggerConfig.createLogger(Boolean.FALSE, Level.ALL, packagePath, Boolean.TRUE.toString(), refs, null, config, null);
         for (int i = 0; i < levels.length; i++) {
             if (ObjectUtil.isEmpty(appenders[i])) {
                 break;
@@ -121,20 +132,23 @@ public final class LoggerFactory {
         ctx.updateLoggers();
     }
 
-    private static String createFileAppender(String baseName, String fileName, PatternLayout layout) {
-        String name = fileName + "_file";
-        if (ObjectUtil.isEmpty(config.getAppender(name))) {
+    private static String createFileAppender(String loggerName, String appenderName, PatternLayout layout) {
+        appenderName += "_file";
+
+        if (ObjectUtil.isEmpty(config.getAppender(appenderName))) {
 
             TriggeringPolicy policy;
-            String type = PropertiesUtil.getProperty("agile.log.trigger_type", "time");
-            String valueKey = "agile.log.trigger_value";
-            if ("time".equals(type)) {
-                policy = TimeBasedTriggeringPolicy.newBuilder().withModulate(true).withInterval(PropertiesUtil.getProperty(valueKey, int.class, "1")).build();
+            if (loggerProperties.getTriggerType() == LoggerProperties.TriggerType.SIZE) {
+                policy = SizeBasedTriggeringPolicy.createPolicy(loggerProperties.getTriggerValue());
             } else {
-                policy = SizeBasedTriggeringPolicy.createPolicy(PropertiesUtil.getProperty(valueKey, "1M"));
+                policy = TimeBasedTriggeringPolicy.newBuilder().withModulate(true).withInterval(Integer.parseInt(loggerProperties.getTriggerValue())).build();
             }
 
-            Appender appender = RollingFileAppender.newBuilder().withName(name).withFileName(String.format(path + baseName + "/%s.log", fileName)).withFilePattern(path + "logs/%d{yyyy-MM-dd}/" + baseName + "/" + fileName + ".log")
+            Appender appender = RollingFileAppender
+                    .newBuilder()
+                    .withName(appenderName)
+                    .withFileName(String.format(path + loggerName + "/%s.log", appenderName))
+                    .withFilePattern(path + "logs/%d{yyyy-MM-dd}/" + loggerName + ".log")
                     .withAppend(true)
                     .withLocking(false)
                     .withIgnoreExceptions(true)
@@ -143,100 +157,35 @@ public final class LoggerFactory {
                     .withPolicy(policy)
                     .withStrategy(DefaultRolloverStrategy.newBuilder().withMax("100").build()).build();
             appender.start();
+
             config.addAppender(appender);
         }
-        return name;
+        return appenderName;
     }
 
-    private static String createConsoleAppender(String name, Layout layout) {
-        name += "_console";
-        if (ObjectUtil.isEmpty(config.getAppender(name))) {
-            @SuppressWarnings("unchecked")
-            Appender consoleAppender = ConsoleAppender.newBuilder().withName(name).setTarget(ConsoleAppender.Target.SYSTEM_OUT).withIgnoreExceptions(true).withBufferedIo(true).withLayout(layout).build();
+    private static String createConsoleAppender(String appenderName, Layout<String> layout) {
+        appenderName += "_console";
+        if (ObjectUtil.isEmpty(config.getAppender(appenderName))) {
+            Appender consoleAppender = ConsoleAppender.newBuilder().withName(appenderName).setTarget(ConsoleAppender.Target.SYSTEM_OUT).withIgnoreExceptions(true).withBufferedIo(true).withLayout(layout).build();
             consoleAppender.start();
             config.addAppender(consoleAppender);
         }
-        return name;
-    }
-
-    public static void stop(String fileName) {
-        Level[] levels = Level.values();
-        for (int i = 0; i < levels.length; i++) {
-            String filename = StringUtil.camelToUnderline(fileName) + "_" + levels[i].name();
-            config.getRootLogger().removeAppender(filename);
-        }
-        ctx.updateLoggers();
-    }
-
-    public static Log createLogger(String fileName, Class clazz) {
-        createLogger(fileName, clazz.getName(), Level.INFO, Level.ERROR);
-        return LogFactory.getLog(clazz);
-    }
-
-    public static Log createLogger(String fileName, Class clazz, Level... levels) {
-        createLogger(fileName, clazz.getName(), levels);
-        return LogFactory.getLog(clazz);
-    }
-
-    private static Log createPlugLogger(String fileName, String plugKey, Class clazz, Level... levels) {
-        if (!PropertiesUtil.getProperty(plugKey, boolean.class, "false")) {
-            return null;
-        }
-        return createLogger(fileName, clazz, levels);
+        return appenderName;
     }
 
     public static Log createLogger(String fileName, Class clazz, String packagePath, Level... levels) {
+        if (levels == null) {
+            levels = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR};
+        }
         createLogger(fileName, packagePath, levels);
         return LogFactory.getLog(clazz);
     }
 
-    public static Log createLogger(String fileName, Class clazz, String packagePath) {
-        createLogger(fileName, packagePath, Level.INFO, Level.ERROR);
+    public static Log createLogger(String fileName, Class clazz, Level... levels) {
+        if (levels == null || levels.length == 0) {
+            levels = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR};
+        }
+        createLogger(fileName, clazz.getName(), levels);
         return LogFactory.getLog(clazz);
-    }
-
-    private static Level[] coverLevel(String[] levels) {
-
-        ArrayList<Level> list = new ArrayList<Level>();
-        for (String level : levels) {
-            switch (level.toUpperCase()) {
-                case "OFF":
-                    list.add(Level.OFF);
-                    break;
-                case "FATAL":
-                    list.add(Level.FATAL);
-                    break;
-                case "ERROR":
-                    list.add(Level.ERROR);
-                    break;
-                case "WARN":
-                    list.add(Level.WARN);
-                    break;
-                case "INFO":
-                    list.add(Level.INFO);
-                    break;
-                case "DEBUG":
-                    list.add(Level.DEBUG);
-                    break;
-                case "TRACE":
-                    list.add(Level.TRACE);
-                    break;
-                case "ALL":
-                    list.add(Level.ALL);
-                    break;
-                default:
-                    list.add(Level.OFF);
-            }
-        }
-        return list.toArray(new Level[]{});
-    }
-
-    public static Log getServiceLog(Class clazz) {
-        Log log = serviceCacheLogs.get(clazz);
-        if (log == null) {
-            log = LoggerFactory.createLogger(Constant.FileAbout.SERVICE_LOGGER_FILE, clazz);
-            serviceCacheLogs.put(clazz, log);
-        }
-        return log;
     }
 }

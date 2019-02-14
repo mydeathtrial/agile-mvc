@@ -526,7 +526,7 @@ public class Dao {
             List<Map<String, Object>> list = findAllBySQL(sql, parameters);
             if (list != null && list.size() > 0) {
                 List<T> result = new LinkedList<>();
-                if (ClassUtil.isCustomClass(clazz)) {
+                if (ClassUtil.canCastClass(clazz)) {
                     for (Map<String, Object> entity : list) {
                         T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));
                         if (node != null) {
@@ -894,6 +894,23 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(Class<T> tableClass) {
         List result = getRepository(tableClass).findAll();
+        if (result != null) {
+            return result;
+        }
+        return new ArrayList<>(0);
+    }
+
+    /**
+     * 指定tableClass对应表的全表查询,并排序
+     *
+     * @param tableClass 查询的目标表对应实体类型，Entity
+     * @param sort       排序信息
+     * @param <T>        目标表对应实体类型
+     * @return 内容为实体的List类型结果集
+     */
+    @SuppressWarnings("unchecked")
+    public <T> List<T> findAll(Class<T> tableClass, Sort sort) {
+        List result = getRepository(tableClass).findAll(sort);
         if (result != null) {
             return result;
         }

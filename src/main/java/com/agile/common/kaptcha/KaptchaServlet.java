@@ -1,8 +1,8 @@
 package com.agile.common.kaptcha;
 
+import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.TokenUtil;
 import com.google.code.kaptcha.Producer;
@@ -23,6 +23,8 @@ import java.io.IOException;
  */
 public class KaptchaServlet extends HttpServlet implements Servlet {
     private Producer kaptchaProducer;
+
+    private KaptchaConfigProperties kaptchaConfigProperties = FactoryUtil.getBean(KaptchaConfigProperties.class);
 
     @Override
     public void init(ServletConfig conf) {
@@ -50,12 +52,12 @@ public class KaptchaServlet extends HttpServlet implements Servlet {
         final int length = 20;
         String capText = this.kaptchaProducer.createText();
 
-        String codeToken = TokenUtil.getToken(req, PropertiesUtil.getProperty("agile.kaptcha.token_header"));
+        String codeToken = TokenUtil.getToken(req, kaptchaConfigProperties.getTokenHeader());
         if (codeToken == null) {
             codeToken = RandomStringUtil.getRandom(length, RandomStringUtil.Random.LETTER_UPPER);
         }
-        CacheUtil.put(codeToken, capText, PropertiesUtil.getProperty("agile.kaptcha.live_time", int.class));
-        setOutParam(PropertiesUtil.getProperty("agile.kaptcha.token_header"), codeToken, resp);
+        CacheUtil.put(codeToken, capText, kaptchaConfigProperties.getLiveTime());
+        setOutParam(kaptchaConfigProperties.getTokenHeader(), codeToken, resp);
         return capText;
     }
 

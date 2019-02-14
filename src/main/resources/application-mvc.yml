@@ -1,0 +1,38 @@
+spring:
+  mvc:
+    date-format: 'yyyy-MM-dd HH:mm:ss'
+    contentnegotiation:
+      favor-parameter: false
+      favor-path-extension: true
+      media-types:
+        plain: text/plain
+        xml: application/xml
+        json: application/json
+    static-path-pattern: /static/**
+  messages:
+    encoding: UTF-8
+    basename: com.agile.conf.message
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 2MB
+      enabled: true
+      file-size-threshold: 100KB
+      location: 'D:/temp'
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  task:
+    execution:
+      pool:
+        core-size: 8
+  resources:
+    cache:
+      cachecontrol:
+        no-cache: true
+      period: 604800
+    static-locations: classpath:com/agile/static/
+server:
+  port: 8080

@@ -8,6 +8,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
@@ -19,13 +21,16 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  * @author 佟盟 on 2017/10/8
  */
 @Configuration
+@EnableConfigurationProperties(value = {EhCacheProperties.class})
 @Conditional(EhCacheConfig.class)
 public class EhCacheConfig implements Condition {
+    @Autowired
+    private EhCacheProperties ehCacheProperties;
 
-    public static net.sf.ehcache.config.Configuration configuration() {
-        String path = System.getProperty("agile.root") + "temp";
+    public net.sf.ehcache.config.Configuration configuration() {
+        String path = "/temp";
         DiskStoreConfiguration diskStoreConfiguration = new DiskStoreConfiguration().path(path);
-        new PersistenceConfiguration().strategy("localTempSwap");
+        new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.LOCALTEMPSWAP);
         net.sf.ehcache.config.Configuration configuration = new net.sf.ehcache.config.Configuration()
 
                 //设置缓存目录
@@ -41,13 +46,14 @@ public class EhCacheConfig implements Condition {
 //                        .properties("port=40004,socketTimeoutMillis=2000")//
 //                )
                 .defaultCache(new CacheConfiguration()
-                        .timeToIdleSeconds(EhCacheProperties.getTimeToIdle())
-                        .timeToLiveSeconds(EhCacheProperties.getTimeToLive())
-                        .maxEntriesLocalDisk((int) EhCacheProperties.getMaxEntriesLocalDisk())
-                        .diskExpiryThreadIntervalSeconds(EhCacheProperties.getDiskExpiryThreadIntervalSeconds())
-                        .eternal(EhCacheProperties.isEternal())
-                        .diskSpoolBufferSizeMB(EhCacheProperties.getDiskSpoolBufferSize())
-                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.fromString(EhCacheProperties.getMemoryStoreEvictionPolicy())))
+                        .timeToIdleSeconds(ehCacheProperties.getTimeToIdle())
+                        .timeToLiveSeconds(ehCacheProperties.getTimeToLive())
+                        .maxEntriesLocalDisk((int) ehCacheProperties.getMaxEntriesLocalDisk())
+                        .maxEntriesLocalHeap((int) ehCacheProperties.getMaxEntriesLocalHeap())
+                        .diskExpiryThreadIntervalSeconds(ehCacheProperties.getDiskExpiryThreadIntervalSeconds())
+                        .eternal(ehCacheProperties.isEternal())
+                        .diskSpoolBufferSizeMB(ehCacheProperties.getDiskSpoolBufferSize())
+                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.fromString(ehCacheProperties.getMemoryStoreEvictionPolicy())))
 //                .cache(new CacheConfiguration("agileCache", 10000)//缓存名称(必须唯一),maxElements内存最多可以存放的元素的数量
 //                                .overflowToDisk(true)
 //                                .diskPersistent(true)
@@ -62,16 +68,16 @@ public class EhCacheConfig implements Condition {
 //                                .persistence(new PersistenceConfiguration().strategy(PersistenceConfiguration.Strategy.NONE)).maxEntriesLocalDisk(0)//磁盘中最大缓存对象数0表示无穷大)
 //                        .cacheEventListenerFactory(new CacheConfiguration.CacheEventListenerFactoryConfiguration().className(RMICacheReplicatorFactory.class.getName()))
 //                )
-                .cache(new CacheConfiguration("agileCache", (int) EhCacheProperties.getMaxEntriesLocalHeap())
-                        .timeToIdleSeconds(EhCacheProperties.getTimeToIdle())
-                        .timeToLiveSeconds(EhCacheProperties.getTimeToLive())
-                        .maxEntriesLocalDisk((int) EhCacheProperties.getMaxEntriesLocalDisk())
-                        .diskExpiryThreadIntervalSeconds(EhCacheProperties.getDiskExpiryThreadIntervalSeconds())
-                        .eternal(EhCacheProperties.isEternal())
-                        .diskSpoolBufferSizeMB(EhCacheProperties.getDiskSpoolBufferSize())
-                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.fromString(EhCacheProperties.getMemoryStoreEvictionPolicy())))
-                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.TimestampsRegion", (int) EhCacheProperties.getMaxEntriesLocalHeap()))
-                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.QueryResultsRegion", (int) EhCacheProperties.getMaxEntriesLocalHeap()));
+                .cache(new CacheConfiguration("agileCache", (int) ehCacheProperties.getMaxEntriesLocalHeap())
+                        .timeToIdleSeconds(ehCacheProperties.getTimeToIdle())
+                        .timeToLiveSeconds(ehCacheProperties.getTimeToLive())
+                        .maxEntriesLocalDisk((int) ehCacheProperties.getMaxEntriesLocalDisk())
+                        .diskExpiryThreadIntervalSeconds(ehCacheProperties.getDiskExpiryThreadIntervalSeconds())
+                        .eternal(ehCacheProperties.isEternal())
+                        .diskSpoolBufferSizeMB(ehCacheProperties.getDiskSpoolBufferSize())
+                        .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.fromString(ehCacheProperties.getMemoryStoreEvictionPolicy())))
+                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.TimestampsRegion", (int) ehCacheProperties.getMaxEntriesLocalHeap()))
+                .cache(new CacheConfiguration("hibernate.org.hibernate.cache.spi.QueryResultsRegion", (int) ehCacheProperties.getMaxEntriesLocalHeap()));
         configuration.setName("agileManager");
         return configuration;
     }
@@ -84,14 +90,14 @@ public class EhCacheConfig implements Condition {
     @Bean
     EhCacheManagerFactoryBean ehCacheManagerFactoryBean() {
         EhCacheManagerFactoryBean ehCacheManagerFactoryBean = new EhCacheManagerFactoryBean();
-        ehCacheManagerFactoryBean.setAcceptExisting(true);
+        ehCacheManagerFactoryBean.setShared(true);
         ehCacheManagerFactoryBean.setConfigLocation(configuration());
         return ehCacheManagerFactoryBean;
     }
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy").toLowerCase();
+        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy", "ehcache").toLowerCase();
         return "ehcache".equals(cacheProxy);
     }
 }

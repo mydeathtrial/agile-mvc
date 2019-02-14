@@ -50,11 +50,11 @@ public class ApiUtil {
 
     private static void printLog(String beanName, Method method, RequestMappingInfo requestMappingInfo) {
         //打印API信息
-        if (LoggerFactory.getCommonLog().isDebugEnabled()) {
+        if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
             PatternsRequestCondition patterns = requestMappingInfo.getPatternsCondition();
             if (patterns != null) {
                 for (String path : patterns.getPatterns()) {
-                    LoggerFactory.getCommonLog().debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, beanName, method.getName()));
+                    LoggerFactory.COMMON_LOG.debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, beanName, method.getName()));
                 }
             }
         }

@@ -1,0 +1,136 @@
+agile:
+  version: ${project.version}
+  title: ${project.description}
+  mail:
+    server-host: 123
+    server-port: 8249
+    server-default-from: mydeathtrial@163.com
+  cache:
+    proxy: redis
+  druid:
+    data-base-ip: 127.0.0.1
+    data-base-name: agile_db
+    data-base-password: 123456
+    data-base-port: 3306
+    data-base-username: root
+    exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+    filters: stat,wall
+    global-data-source-stat: true
+    init-size: 1
+    manager-name: admin
+    manager-password: admin
+    max-active: 100
+    max-pool-prepared-statement-per-connection-size: 20
+    max-wait: 60000
+    min-evictable-idle-time-millis: 300000
+    min-idle: 1
+    pool-prepared-statements: true
+    remove-abandoned: true
+    remove-abandoned-timeout: 300000
+    reset-enable: true
+    session-stat-max-count: 100000
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    time-between-eviction-runs-millis: 60000
+    url: /druid
+    data-base-url-param: 'serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL'
+    type: mysql
+  generator:
+    api-url: D:/workspace/agile/src/main/webapp/static/plus/swagger/
+    entity-prefix: ''
+    entity-suffix: Entity
+    entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity2
+    es-entity-prefix: ''
+    es-entity-suffix: Entity
+    es-entity-url: D:/workspace/agile/src/main/java/com/agile/mvc/entity/
+    service-prefix: ''
+    service-suffix: Service
+    service-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service2
+    test-prefix: ''
+    test-suffix: ServiceTest
+    test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
+    table-name: '%'
+  ehcache:
+    max-entries-local-heap: 10000
+    max-entries-local-disk: 10000000
+    time-to-idle: 120
+    time-to-live: 120
+    disk-spool-buffer-size: 30
+    blocking: false
+    eternal: false
+    memory-store-eviction-policy: LFU
+    disk-expiry-thread-interval-seconds: 120
+  kaptcha:
+    enable: true
+    token-header: CODE_TOKEN
+    border: 'no'
+    border-color: black
+    image-height: 45
+    image-width: 125
+    textproducer-char-length: 4
+    textproducer-font-color: black
+    textproducer-font-names: 宋体,楷体,微软雅黑
+    textproducer-font-size: 40
+    live-time: 60
+    url: /code
+    text:
+  log:
+    package-uri: ${LOCAL_LOGS_PATH:-logs}/
+    trigger-type: size
+    trigger-value: 1M
+    package-name:
+      org.springframework: debug,info,error
+  redis:
+    host: 127.0.0.1
+    max-idle: 300
+    max-wait-millis: 1000
+    min-idle: 0
+    pass: ''
+    port: 6379
+    test-on-borrow: true
+    test-on-return: false
+    duration: 30
+  security:
+    enable: false
+    exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
+    login-out-url: /logout
+    login-url: /login
+    login-username: username
+    login-password: password
+    verification-code: code
+    token-key: 23617641641
+    token-timeout: 1800
+    token-header: AGILE-TOKEN
+  servlet:
+    allow-credentials: true
+    allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID
+    allow-methods: GET,POST,PUT,DELETE,OPTIONS,JSONP
+    allow-origin: '*'
+    character: utf-8
+  task:
+    enable: true
+  upload:
+    default-encoding: utf-8
+    include-format: txt,excel
+    max-upload-size: 204800
+  download:
+    temp-path: 'D://'
+  elasticsearch:
+    enable: false
+    cluster-name: argus
+    cluster-nodes: 192.168.200.94:39390,192.168.200.95:39390
+    cluster-hosts: 192.168.200.94:39390
+    pool-size: 5
+    index-date-format: yyyyMMdd
+    time-field: create_time
+    id-field: id
+    raw-msg-filed: raw_msg
+    scroll-time-value: 60000
+    scroll-set-size: 30000
+  swagger:
+    enable: true
+    title: Agile 平台API文档
+    description: 这是个不错的文档
+    terms-of-service-url: http://www.baidu.com
+    version: ${project.version}

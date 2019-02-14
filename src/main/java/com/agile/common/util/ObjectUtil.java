@@ -258,7 +258,18 @@ public class ObjectUtil extends ObjectUtils {
             for (Field field : fields) {
                 String propertyName = prefix + field.getName() + suffix;
                 String camelToUnderlineKey = StringUtil.camelToUnderline(propertyName);
-                String key = map.containsKey(propertyName) ? propertyName : map.containsKey(camelToUnderlineKey) ? camelToUnderlineKey : null;
+                String camelToUnderlineKeyUpper = camelToUnderlineKey.toUpperCase();
+                String camelToUnderlineKeyLower = camelToUnderlineKey.toLowerCase();
+                String key = null;
+                if (map.containsKey(propertyName)) {
+                    key = propertyName;
+                } else if (map.containsKey(camelToUnderlineKey)) {
+                    key = camelToUnderlineKey;
+                } else if (map.containsKey(camelToUnderlineKeyUpper)) {
+                    key = camelToUnderlineKeyUpper;
+                } else if (map.containsKey(camelToUnderlineKeyLower)) {
+                    key = camelToUnderlineKeyLower;
+                }
                 if (key != null) {
                     try {
                         field.setAccessible(true);
@@ -276,7 +287,14 @@ public class ObjectUtil extends ObjectUtils {
                             if (notNull) {
                                 notNull = false;
                             }
-                            field.set(object, targetValue);
+                            String fieldName = field.getName();
+                            try {
+                                Method setMethod = clazz.getDeclaredMethod("set" + StringUtil.toUpperName(fieldName), type);
+                                setMethod.invoke(object, targetValue);
+                            } catch (Exception e) {
+                                field.set(object, targetValue);
+                            }
+
                         }
 
                     } catch (Exception ignored) {

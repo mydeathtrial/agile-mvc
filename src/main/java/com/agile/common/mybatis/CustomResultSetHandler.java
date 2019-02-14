@@ -385,7 +385,7 @@ public class CustomResultSetHandler implements ResultSetHandler {
         for (ResultMapping propertyMapping : propertyMappings) {
             String column = prependPrefix(propertyMapping.getColumn(), columnPrefix);
             if (propertyMapping.getNestedResultMapId() != null) {
-                // the user added a column attribute to a nested result map, ignore it
+                // the user added a info attribute to a nested result map, ignore it
                 column = null;
             }
             if (propertyMapping.isCompositeResult()

@@ -5,6 +5,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BeanPropertyBindingResult;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -229,6 +230,32 @@ public final class StringUtil extends StringUtils {
                     temp.add(matcher.group(i));
                 }
                 return temp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据正则查找字符串中包含的group形式参数
+     *
+     * @param regex 正则
+     * @param text  目标串
+     * @return map形式参数集合
+     */
+    public static Map<String, String> getParamByRegex(String regex, String text) {
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(text);
+
+        int count = matcher.groupCount();
+
+        String[] groupNames = getMatchedString("(?<=<)[\\w]+(?=>)", regex);
+        if (count > 0 && groupNames != null && groupNames.length > 0) {
+            Map<String, String> result = new HashMap<>(groupNames.length);
+            if (matcher.find()) {
+                for (String key : groupNames) {
+                    result.put(key, matcher.group(key));
+                }
+                return result;
             }
         }
         return null;
@@ -492,4 +519,28 @@ public final class StringUtil extends StringUtils {
         }
         return target.toString();
     }
+
+    public static String removeExtension(String str) {
+        if (!isEmpty(str) && str.contains(Constant.RegularAbout.SPOT)) {
+            String[] s = str.split("[.]");
+            if (s.length > Constant.NumberAbout.ONE) {
+                StringBuilder result = new StringBuilder();
+                for (int i = 0; i < s.length - 1; i++) {
+                    result.append(s[i]);
+                    if (i != s.length - 2) {
+                        result.append(Constant.RegularAbout.SPOT);
+                    }
+                }
+                return result.toString();
+            }
+        }
+        return str;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(removeExtension("sad.dasd.dsa"));
+        System.out.println(removeExtension("sad.dsa"));
+        System.out.println(removeExtension("dsa"));
+    }
+
 }

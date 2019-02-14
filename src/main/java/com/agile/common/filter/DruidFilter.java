@@ -85,7 +85,7 @@ public class DruidFilter extends FilterEventAdapter {
     private void printLog(Statement statement) {
         if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.getDaoLog().info(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
+                LoggerFactory.DAO_LOG.info(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -100,7 +100,7 @@ public class DruidFilter extends FilterEventAdapter {
     private void printLog(Statement statement, Throwable error) {
         if (statement instanceof ClientPreparedStatement) {
             try {
-                LoggerFactory.getDaoLog().error(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "), error);
+                LoggerFactory.DAO_LOG.error(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "), error);
             } catch (SQLException e) {
                 e.printStackTrace();
             }

@@ -1,13 +1,15 @@
-package ${servicePackage};
+package ${servicePackageName};
 
 import com.agile.common.mvc.service.BusinessService;
 import org.springframework.stereotype.Service;
-import ${entityPackage}.${entityClassName};
+import io.swagger.annotations.Api;
+import ${entityPackageName}.${entityName};
 
 /**
- * @author agile gennerator
+ * @author agile generator
  */
+@Api(value = "<#if (remarks?? && remarks!="")>${remarks}<#else>${serviceName}</#if>")
 @Service
-public class ${serviceClassName} extends BusinessService<${entityClassName}> {
+public class ${serviceName} extends BusinessService<${entityName}> {
 
 }

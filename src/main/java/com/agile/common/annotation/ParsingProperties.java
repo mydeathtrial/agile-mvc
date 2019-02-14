@@ -74,7 +74,7 @@ public class ParsingProperties implements ParsingBeanBefore {
                 int j = 0;
                 boolean hasNext = true;
 
-                if (ClassUtil.isCustomClass(innerClass)) {
+                if (ClassUtil.canCastClass(innerClass)) {
                     while (hasNext) {
                         String key = String.format("%s.%s[%s]", prefix, name, j);
                         if (j == 0) {
@@ -105,7 +105,7 @@ public class ParsingProperties implements ParsingBeanBefore {
                 field.set(target, list);
             } else {
                 String key = prefix + "." + StringUtil.camelToUnderline(name);
-                if (ClassUtil.isCustomClass(type)) {
+                if (ClassUtil.canCastClass(type)) {
                     if (PropertiesUtil.getProperties().containsKey(key)) {
                         field.set(target, PropertiesUtil.getProperty(key, type));
                     }

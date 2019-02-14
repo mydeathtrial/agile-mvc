@@ -2,12 +2,12 @@ package com.agile.common.util;
 
 
 import com.agile.common.base.Constant;
-import com.agile.common.factory.LoggerFactory;
-import oracle.jdbc.OracleDriver;
+import com.agile.common.properties.DruidConfigProperties;
 import org.apache.commons.logging.Log;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -24,60 +23,20 @@ import java.util.Properties;
  * @author 佟盟 on 2018/9/7
  */
 public class DataBaseUtil {
-    private static Log logger = LoggerFactory.createLogger("sql", DataBaseUtil.class);
+    private static Log logger = null;
     private static Connection conn;
 
     /**
      * 根据字符串,判断数据库类型
      */
     private static DB parseDB(String dbType) {
-        DB result;
-        if (null == dbType || dbType.trim().length() < 1) {
-            result = DB.EMPTY;
+        try {
+            DB result = DB.valueOf(dbType.toUpperCase());
+            DriverManager.registerDriver((Driver) Class.forName(result.driver).newInstance());
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("不认识的数据库类型!");
         }
-        dbType = dbType.trim().toUpperCase();
-        if (dbType.contains("ORACLE")) {
-            try {
-                DriverManager.registerDriver(OracleDriver.class.newInstance());
-            } catch (InstantiationException | SQLException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            result = DB.ORACLE;
-        } else if (dbType.contains("MYSQL")) {
-            try {
-                DriverManager.registerDriver(com.mysql.cj.jdbc.Driver.class.newInstance());
-            } catch (IllegalAccessException | InstantiationException | SQLException e) {
-                e.printStackTrace();
-            }
-            result = DB.MYSQL;
-        } else if (dbType.contains("SQL") && dbType.contains("SERVER")) {
-            if (dbType.contains("2005") || dbType.contains("2008") || dbType.contains("2012")) {
-                try {
-                    Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                result = DB.SQL_SERVER2005;
-            } else {
-                try {
-                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                result = DB.SQL_SERVER;
-            }
-        } else if (dbType.contains("DB2")) {
-            result = DB.DB2;
-        } else if (dbType.contains("INFORMIX")) {
-            result = DB.INFORMIX;
-        } else if (dbType.contains("SYBASE")) {
-            result = DB.SYBASE;
-        } else {
-            result = DB.OTHER;
-        }
-
-        return result;
     }
 
     private static ResultSet getResultSet(PATTERN type, DBInfo dbInfo, String pattern) {
@@ -101,36 +60,20 @@ public class DataBaseUtil {
                 case TABLE:
                     String[] types = {"TABLE", "VIEW"};
 
-                    switch (dbInfo.type) {
-                        case ORACLE:
-                            schemaPattern = dbInfo.user;
-                            if (null != schemaPattern) {
-                                schemaPattern = schemaPattern.toUpperCase();
-                            }
-                            rs = meta.getTables(null, schemaPattern, pattern, types);
-                            break;
-                        case MYSQL:
-                            schemaPattern = dbInfo.dbName;
-                            rs = meta.getTables(schemaPattern, schemaPattern, pattern, types);
-                            break;
-                        case SQL_SERVER:
-                            rs = meta.getTables(null, null, pattern, types);
-                            break;
-                        case SQL_SERVER2005:
-                            rs = meta.getTables(null, null, pattern, types);
-                            break;
-                        case DB2:
-                            schemaPattern = "jence_user";
-                            rs = meta.getTables(null, schemaPattern, pattern, types);
-                            break;
-                        case INFORMIX:
-                            rs = meta.getTables(null, null, pattern, types);
-                            break;
-                        case SYBASE:
-                            rs = meta.getTables(null, null, pattern, types);
-                            break;
-                        default:
-                            throw new RuntimeException("不支持的数据库类型");
+                    if (dbInfo.type == DB.ORACLE) {
+                        schemaPattern = dbInfo.user;
+                        if (null != schemaPattern) {
+                            schemaPattern = schemaPattern.toUpperCase();
+                        }
+                        rs = meta.getTables(null, schemaPattern, pattern, types);
+                    } else if (dbInfo.type == DB.MYSQL) {
+                        schemaPattern = dbInfo.dbName;
+                        rs = meta.getTables(schemaPattern, schemaPattern, pattern, types);
+                    } else if (dbInfo.type == DB.DB2) {
+                        schemaPattern = "jence_user";
+                        rs = meta.getTables(null, schemaPattern, pattern, types);
+                    } else {
+                        rs = meta.getTables(null, null, pattern, types);
                     }
                     break;
                 case COLUMN:
@@ -165,11 +108,11 @@ public class DataBaseUtil {
     }
 
     public static List<Map<String, Object>> listTables(String dbType, String url, String username, String password, String tableName) {
-        LinkedList<String> list = parseDBUrl(parseDB(dbType), url);
-        final int zero = 0;
-        final int one = 1;
-        final int two = 2;
-        DBInfo dbInfo = new DBInfo(dbType, list.get(zero), list.get(one), list.get(two), username, password);
+        Map<String, String> map = parseDBUrl(parseDB(dbType), url);
+        final String name = "name";
+        final String ip = "ip";
+        final String port = "port";
+        DBInfo dbInfo = new DBInfo(dbType, map.get(ip), map.get(port), map.get(name), username, password);
 
         return listTables(dbInfo, tableName);
     }
@@ -232,69 +175,29 @@ public class DataBaseUtil {
         return list;
     }
 
-    private static LinkedList<String> parseDBUrl(DB dbtype, String url) {
-        String temp;
-        if (DB.ORACLE.equals(dbtype)) {
-            temp = "jdbc:oracle:thin:@([0-9.]+):([0-9]+):([\\w\\W]+)";
-        } else if (DB.MYSQL.equals(dbtype)) {
-            temp = "jdbc:mysql://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)(?:|\\?)";
-        } else if (DB.SQL_SERVER.equals(dbtype)) {
-            temp = "jdbc:jtds:sqlserver://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)([\\w\\W=]+)";
-        } else if (DB.SQL_SERVER2005.equals(dbtype)) {
-            temp = "jdbc:sqlserver://([0-9.]+):([0-9]+);DatabaseName=([a-zA-Z0-9_-]+)";
-        } else if (DB.DB2.equals(dbtype)) {
-            temp = "jdbc:db2://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)";
-        } else if (DB.INFORMIX.equals(dbtype)) {
-            temp = "jdbc:informix-sqli://([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)";
-        } else if (DB.SYBASE.equals(dbtype)) {
-            temp = "jdbc:sybase:Tds:([0-9.]+):([0-9]+)/([a-zA-Z0-9_-]+)";
-        } else {
-            throw new RuntimeException("不认识的数据库类型!");
-        }
-
-        return StringUtil.getGroupString(temp, url.replace(" ", ""));
+    private static Map<String, String> parseDBUrl(DB type, String url) {
+        String temp = type.parsingUrlRegx;
+        return StringUtil.getParamByRegex(temp, url.replace(" ", ""));
     }
 
     /**
      * 根据IP,端口,以及数据库名字,拼接Oracle连接字符串
      */
-    private static String createDBUrl(DBInfo dbInfo) {
-        String template;
-        switch (dbInfo.type) {
-            case ORACLE:
-                template = "jdbc:oracle:thin:@%s:%s:%s";
-                break;
-            case MYSQL:
-                template = "jdbc:mysql://%s:%s/%s";
-                break;
-            case SQL_SERVER:
-                template = "jdbc:jtds:sqlserver://%s:%s/%s";
-                break;
-            case SQL_SERVER2005:
-                template = "jdbc:sqlserver://%s:%s;DatabaseName=%s";
-                break;
-            case DB2:
-                template = "jdbc:db2://%s:%s/%s";
-                break;
-            case INFORMIX:
-                template = "jdbc:informix-sqli://%s:%s/%s";
-                break;
-            case SYBASE:
-                template = "jdbc:sybase:Tds:%s:%s/%s";
-                break;
-            default:
-                throw new RuntimeException("不认识的数据库类型!");
+    public static String createDBUrl(DBInfo dbInfo) {
+        if (dbInfo.type == null || StringUtil.isBlank(dbInfo.type.templateUrl)) {
+            throw new RuntimeException("不认识的数据库类型!");
         }
-        String url = String.format(template, dbInfo.ip, dbInfo.port, dbInfo.dbName);
-        switch (dbInfo.type) {
-            case MYSQL:
-                url = url + "?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true";
-                break;
-            case SQL_SERVER:
-                url = url + ";lastupdatecount=true";
-                break;
-            default:
-                throw new RuntimeException("不认识的数据库类型!");
+        String template = dbInfo.type.templateUrl;
+        Map<String, String> param = new HashMap<>(3);
+        param.put("ip", dbInfo.ip);
+        param.put("port", dbInfo.port);
+        param.put("name", dbInfo.dbName);
+
+        String url = StringUtil.parse("{", "}", template, param);
+        if (dbInfo.type == DB.MYSQL) {
+            url = url + "?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true";
+        } else if (dbInfo.type == DB.SQL_SERVER) {
+            url = url + ";lastupdatecount=true";
         }
         return url;
     }
@@ -359,33 +262,10 @@ public class DataBaseUtil {
         return map;
     }
 
-    public static boolean tryLink(DBInfo dbInfo) {
-        String url = createDBUrl(dbInfo);
-        Connection connection = null;
-        try {
-            connection = getConnection(url, dbInfo.user, dbInfo.pass);
-            if (null == connection) {
-                return false;
-            }
-            DatabaseMetaData meta = connection.getMetaData();
-            return null != meta;
-        } catch (Exception e) {
-            if (logger.isErrorEnabled()) {
-                logger.error("数据库连接失败");
-            }
-            e.printStackTrace();
-            System.exit(0);
-        } finally {
-            close(connection);
-        }
-        return false;
-    }
-
     public static void close(Connection conn) {
         if (conn != null) {
             try {
                 conn.close();
-                conn = null;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -396,7 +276,6 @@ public class DataBaseUtil {
         if (stmt != null) {
             try {
                 stmt.close();
-                stmt = null;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -407,7 +286,6 @@ public class DataBaseUtil {
         if (rs != null) {
             try {
                 rs.close();
-                rs = null;
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -498,6 +376,15 @@ public class DataBaseUtil {
             this.pass = pass;
         }
 
+        public DBInfo(DruidConfigProperties properties) {
+            this.type = properties.getType();
+            this.ip = properties.getDataBaseIp();
+            this.port = properties.getDataBasePort();
+            this.dbName = properties.getDataBaseName();
+            this.user = properties.getDataBaseUsername();
+            this.pass = properties.getDataBasePassword();
+        }
+
         public DB getType() {
             return type;
         }
@@ -530,8 +417,45 @@ public class DataBaseUtil {
         /**
          * 数据库类型
          */
-        ORACLE, MYSQL, SQL_SERVER, SQL_SERVER2005, DB2, INFORMIX, SYBASE, OTHER, EMPTY
-    }
+        ORACLE("oracle.jdbc.OracleDriver", "SELECT 'x' FROM DUAL", Constant.RegularAbout.ORACLE, "jdbc:oracle:thin:@{ip}:{port}:{name}"),
+        MYSQL("com.mysql.cj.jdbc.Driver", "SELECT 1", Constant.RegularAbout.MYSQL, "jdbc:mysql://{ip}:{port}/{name}"),
+        SQL_SERVER("com.microsoft.jdbc.sqlserver.SQLServerDriver", "SELECT 1", Constant.RegularAbout.SQL_SERVER, "jdbc:jtds:sqlserver://{ip}:{port}/{name}"),
+        SQL_SERVER2005("com.microsoft.sqlserver.jdbc.SQLServerDriver", "SELECT 1", Constant.RegularAbout.SQL_SERVER2005, "jdbc:sqlserver://{ip}:{port};DatabaseName={name}"),
+        DB2("com.ibm.db2.jcc.DB2Driver", "SELECT 1", Constant.RegularAbout.DB2, "jdbc:db2://{ip}:{port}/{name}"),
+        INFORMIX("", "", Constant.RegularAbout.INFORMIX, "jdbc:informix-sqli://{ip}:{port}/{name}"),
+        SYBASE("", "", Constant.RegularAbout.SYBASE, "jdbc:sybase:Tds:{ip}:{port}/{name}"),
+        OTHER;
+
+        private String driver;
+        private String testSql;
+        private String parsingUrlRegx;
+        private String templateUrl;
+
+        DB(String driver, String testSql, String parsingUrlRegx, String templateUrl) {
+            this.driver = driver;
+            this.testSql = testSql;
+            this.parsingUrlRegx = parsingUrlRegx;
+            this.templateUrl = templateUrl;
+        }
+
+        DB() {
+        }
+
+        public String getDriver() {
+            return driver;
+        }
+
+        public String getTestSql() {
+            return testSql;
+        }
+
+        public String getParsingUrlRegx() {
+            return parsingUrlRegx;
+        }
+
+        public String getTemplateUrl() {
+            return templateUrl;
+        }}
 
     /**
      * 匹配类型

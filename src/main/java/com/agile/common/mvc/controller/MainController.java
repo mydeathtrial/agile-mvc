@@ -92,7 +92,7 @@ public class MainController {
     public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
         request.set(currentRequest);
         if (initApiInfoByRequestMapping()) {
-            return processor(currentRequest, currentResponse, resource, "query");
+            return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -103,7 +103,7 @@ public class MainController {
         if (initApiInfoByRequestMapping()) {
             RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
             requestWrapper.addParameter("id", id);
-            return processor(requestWrapper, currentResponse, resource, "queryById");
+            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "queryById");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -115,7 +115,7 @@ public class MainController {
             RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
             requestWrapper.addParameter("page", page);
             requestWrapper.addParameter("size", size);
-            return processor(requestWrapper, currentResponse, resource, "pageQuery");
+            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "pageQuery");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -124,7 +124,7 @@ public class MainController {
     public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
         request.set(currentRequest);
         if (initApiInfoByRequestMapping()) {
-            return processor(currentRequest, currentResponse, resource, "save");
+            return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -135,7 +135,7 @@ public class MainController {
         if (initApiInfoByRequestMapping()) {
             RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
             requestWrapper.addParameter("id", id);
-            return processor(requestWrapper, currentResponse, resource, "update");
+            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "update");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -144,7 +144,7 @@ public class MainController {
     public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
         request.set(currentRequest);
         if (initApiInfoByRequestMapping()) {
-            return processor(currentRequest, currentResponse, resource, "delete");
+            return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -155,7 +155,7 @@ public class MainController {
         if (initApiInfoByRequestMapping()) {
             RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
             requestWrapper.addParameter("id", id);
-            return processor(requestWrapper, currentResponse, resource, "delete");
+            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "delete");
         }
         return processor(currentRequest, currentResponse);
     }
@@ -177,7 +177,6 @@ public class MainController {
             @PathVariable String service,
             @PathVariable String method
     ) throws Throwable {
-
         //清理缓存
         clear();
 
@@ -194,6 +193,7 @@ public class MainController {
     }
 
     private Object processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
+
         //处理入参
         handleInParam();
 

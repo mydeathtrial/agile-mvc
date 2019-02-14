@@ -2,6 +2,7 @@ package com.agile.common.config;
 
 import com.agile.common.base.Constant;
 import com.agile.common.mvc.model.dao.Dao;
+import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.security.FailureHandler;
 import com.agile.common.security.JwtAuthenticationProvider;
@@ -13,6 +14,7 @@ import com.agile.common.security.TokenStrategy;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.PropertiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
@@ -28,9 +30,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.nio.charset.StandardCharsets;
 
@@ -39,6 +38,7 @@ import java.nio.charset.StandardCharsets;
  */
 @Configuration
 @Conditional(SecurityConfig.class)
+@EnableConfigurationProperties(value = {SecurityProperties.class, KaptchaConfigProperties.class})
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter implements Condition {
@@ -48,35 +48,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Cond
     @Autowired
     private Dao dao;
 
+    @Autowired
+    private SecurityProperties securityProperties;
+
+    @Autowired
+    private KaptchaConfigProperties kaptchaConfigProperties;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests().antMatchers(immuneUrl).permitAll().anyRequest().authenticated()
-                .and().logout().logoutUrl(SecurityProperties.getLoginOutUrl()).deleteCookies(SecurityProperties.getTokenHeader()).logoutSuccessHandler(logoutHandler())
+                .and().logout().logoutUrl(securityProperties.getLoginOutUrl()).deleteCookies(securityProperties.getTokenHeader()).logoutSuccessHandler(logoutHandler())
                 .and().exceptionHandling().accessDeniedHandler(new FailureHandler())
-                .and().cors().configurationSource(corsConfigurationSource())
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).sessionFixation().none()
                 .and().csrf().disable().httpBasic().disable()
                 .addFilterAt(tokenFilter(), LogoutFilter.class)
                 .addFilterAt(loginFilter(), UsernamePasswordAuthenticationFilter.class);
-    }
-
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfiguration());
-        return source;
-    }
-
-    @Bean
-    CorsConfiguration corsConfiguration() {
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedHeaders(ArrayUtil.asList(PropertiesUtil.getProperty("agile.servlet.allow_headers").split(Constant.RegularAbout.COMMA)));
-        corsConfiguration.setAllowedOrigins(ArrayUtil.asList(PropertiesUtil.getProperty("agile.servlet.allow_origin").split(Constant.RegularAbout.COMMA)));
-        corsConfiguration.setAllowedMethods(ArrayUtil.asList(PropertiesUtil.getProperty("agile.servlet.allow_methods").split(Constant.RegularAbout.COMMA)));
-        corsConfiguration.setAllowCredentials(PropertiesUtil.getProperty("agile.servlet.allow_credentials", boolean.class));
-        return corsConfiguration;
     }
 
     @Bean
@@ -97,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Cond
 
     @Bean
     TokenStrategy tokenStrategy() {
-        return new TokenStrategy(securityUserDetailsService());
+        return new TokenStrategy(securityUserDetailsService(), securityProperties);
     }
 
     @Bean
@@ -107,12 +94,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Cond
 
     @Bean
     LoginFilter loginFilter() {
-        return new LoginFilter(jwtAuthenticationProvider(), tokenStrategy());
+        return new LoginFilter(jwtAuthenticationProvider(), tokenStrategy(), securityProperties, kaptchaConfigProperties);
     }
 
     @Bean
     TokenFilter tokenFilter() {
-        return new TokenFilter(securityUserDetailsService(), immuneUrl);
+        return new TokenFilter(securityUserDetailsService(), securityProperties, immuneUrl);
     }
 
     @Bean
@@ -125,17 +112,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Cond
                 "/static/**",
                 "/favicon.ico",
                 PropertiesUtil.getProperty("agile.druid.url") + "/**",
-                PropertiesUtil.getProperty("agile.security.login_url"),
+                PropertiesUtil.getProperty("agile.security.login-url"),
                 PropertiesUtil.getProperty("agile.kaptcha.url"),
                 "/actuator/**",
                 "/actuator/*",
                 "/actuator",
                 "/jolokia"};
-        this.immuneUrl = (String[]) ArrayUtil.addAll(immuneUrl, PropertiesUtil.getProperty("agile.security.exclude_url").split(Constant.RegularAbout.COMMA));
+        this.immuneUrl = (String[]) ArrayUtil.addAll(immuneUrl, PropertiesUtil.getProperty("agile.security.exclude-url").split(Constant.RegularAbout.COMMA));
     }
 
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return PropertiesUtil.getProperty("agile.security.enable", boolean.class);
+        return PropertiesUtil.getProperty("agile.security.enable", boolean.class, "false");
     }
 }

@@ -33,17 +33,21 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private final SuccessHandler successHandler;
     private final AuthenticationProvider loginStrategyProvider;
     private final SessionAuthenticationStrategy tokenStrategy;
+    private final SecurityProperties securityProperties;
+    private final KaptchaConfigProperties kaptchaConfigProperties;
 
-    public LoginFilter(AuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy) {
-        super(new AntPathRequestMatcher(SecurityProperties.getLoginUrl()));
-        this.username = SecurityProperties.getLoginUsername();
-        this.password = SecurityProperties.getLoginPassword();
+    public LoginFilter(AuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy, SecurityProperties securityProperties, KaptchaConfigProperties kaptchaConfigProperties) {
+        super(new AntPathRequestMatcher(securityProperties.getLoginUrl()));
+        this.username = securityProperties.getLoginUsername();
+        this.password = securityProperties.getLoginPassword();
         this.failureHandler = new FailureHandler();
         this.successHandler = new SuccessHandler();
         this.loginStrategyProvider = loginStrategyProvider;
         this.tokenStrategy = tokenStrategy;
         setAllowSessionCreation(false);
         afterPropertiesSet();
+        this.securityProperties = securityProperties;
+        this.kaptchaConfigProperties = kaptchaConfigProperties;
     }
 
     @Override
@@ -70,7 +74,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         }
 
         //验证验证码
-        if (KaptchaConfigProperties.isEnable()) {
+        if (kaptchaConfigProperties.isEnable()) {
             validateCode(request, response);
         }
 
@@ -85,11 +89,11 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     private void validateCode(HttpServletRequest request, HttpServletResponse response) {
-        String inCode = request.getParameter(SecurityProperties.getVerificationCode());
+        String inCode = request.getParameter(securityProperties.getVerificationCode());
         if (inCode == null) {
             throw new VerificationCodeNon(null);
         }
-        String codeToken = TokenUtil.getToken(request, KaptchaConfigProperties.getTokenHeader());
+        String codeToken = TokenUtil.getToken(request, kaptchaConfigProperties.getTokenHeader());
         if (codeToken == null) {
             throw new VerificationCodeException(null);
         }
@@ -97,7 +101,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         if (code == null || !code.toString().equalsIgnoreCase(inCode)) {
             throw new VerificationCodeException(null);
         }
-        Cookie cookie = new Cookie(KaptchaConfigProperties.getTokenHeader(), null);
+        Cookie cookie = new Cookie(kaptchaConfigProperties.getTokenHeader(), null);
         String cookiePath = request.getContextPath() + "/";
         cookie.setPath(cookiePath);
         cookie.setMaxAge(0);

@@ -166,10 +166,10 @@ public class MainService implements ServiceInterface {
         if (v instanceof JSONObject) {
             value = PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
         } else {
-            if (ClassUtil.isCustomClass(clazz)) {
-                value = getInParam(key, clazz, null);
-            } else {
+            if (ClassUtil.canCastClass(clazz)) {
                 value = ObjectUtil.cast(clazz, v);
+            } else {
+                value = getInParam(key, clazz, null);
             }
         }
 

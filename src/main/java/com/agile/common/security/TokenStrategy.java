@@ -21,9 +21,11 @@ import java.util.Objects;
  */
 public class TokenStrategy implements SessionAuthenticationStrategy {
     private final SecurityUserDetailsService securityUserDetailsService;
+    private final SecurityProperties securityProperties;
 
-    public TokenStrategy(SecurityUserDetailsService securityUserDetailsService) {
+    public TokenStrategy(SecurityUserDetailsService securityUserDetailsService, SecurityProperties securityProperties) {
         this.securityUserDetailsService = securityUserDetailsService;
+        this.securityProperties = securityProperties;
     }
 
     @Override
@@ -46,10 +48,10 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         CacheUtil.put(cacheKey, authentication);
 
         String agileToken = TokenUtil.generateToken(cacheKey, salt, userDetails.getPassword());
-        Cookie cookie = new Cookie(SecurityProperties.getTokenHeader(), agileToken);
+        Cookie cookie = new Cookie(securityProperties.getTokenHeader(), agileToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         httpServletResponse.addCookie(cookie);
-        httpServletResponse.setHeader(SecurityProperties.getTokenHeader(), agileToken);
+        httpServletResponse.setHeader(securityProperties.getTokenHeader(), agileToken);
     }
 }

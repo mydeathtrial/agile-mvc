@@ -1,7 +1,6 @@
 package com.agile.common.security;
 
 import com.agile.common.exception.NoSignInException;
-import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
@@ -10,6 +9,7 @@ import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,8 +34,10 @@ public class TokenFilter extends OncePerRequestFilter {
     private final SecurityUserDetailsService securityUserDetailsService;
     private RequestMatcher[] matches;
     private AntPathRequestMatcher signOutUrl;
+    @Autowired
+    private SecurityProperties securityProperties;
 
-    public TokenFilter(SecurityUserDetailsService securityUserDetailsService, String[] immuneUrl) {
+    public TokenFilter(SecurityUserDetailsService securityUserDetailsService, SecurityProperties securityProperties, String[] immuneUrl) {
         matches = new RequestMatcher[immuneUrl.length];
         int i = 0;
         while (i < immuneUrl.length) {
@@ -44,7 +46,7 @@ public class TokenFilter extends OncePerRequestFilter {
         }
         this.failureHandler = new FailureHandler();
         this.securityUserDetailsService = securityUserDetailsService;
-        this.signOutUrl = new AntPathRequestMatcher(SecurityProperties.getLoginOutUrl());
+        this.signOutUrl = new AntPathRequestMatcher(securityProperties.getLoginOutUrl());
     }
 
     @Override
@@ -54,7 +56,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-            String token = TokenUtil.getToken(request, SecurityProperties.getTokenHeader());
+            String token = TokenUtil.getToken(request, securityProperties.getTokenHeader());
             if (StringUtil.isBlank(token)) {
                 throw new NoSignInException(null);
             }
@@ -105,7 +107,7 @@ public class TokenFilter extends OncePerRequestFilter {
         failureHandler.onAuthenticationFailure(req, res, e);
     }
 
-    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse, String oldSalt, String saltValue) throws NoSuchIDException {
+    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse, String oldSalt, String saltValue) {
         String cacheKey = authentication.getName();
         String saltKey = cacheKey + "_SALT";
         final int digit = 8;
@@ -114,12 +116,12 @@ public class TokenFilter extends OncePerRequestFilter {
         securityUserDetailsService.updateLoginInfo(oldSalt, newSalt);
 
         String agileToken = TokenUtil.generateToken(cacheKey, newSalt, saltValue);
-        Cookie cookie = new Cookie(SecurityProperties.getTokenHeader(), agileToken);
+        Cookie cookie = new Cookie(securityProperties.getTokenHeader(), agileToken);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         HttpServletResponse response = (HttpServletResponse) httpServletResponse;
         response.addCookie(cookie);
-        response.setHeader(SecurityProperties.getTokenHeader(), agileToken);
+        response.setHeader(securityProperties.getTokenHeader(), agileToken);
     }
 
     private boolean requiresAuthentication(HttpServletRequest request) {

@@ -50,7 +50,9 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         mergeEnv();
         readDir("/");
         readDir(CLASS_PATH);
-        mergeOrder("agile");
+        mergeOrder("application-agile");
+        mergeOrder("application-jpa");
+        mergeOrder("application-kafka ");
         mergeOrder("application");
         mergeOrder("bootstrap");
         mergeOrder("agile-reset");
@@ -410,10 +412,10 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
                     continue;
                 }
                 map.put(field.getName(), (Class) typeArguments[0]);
-                if (!ClassUtil.isCustomClass((Class) typeArguments[0])) {
+                if (!ClassUtil.canCastClass((Class) typeArguments[0])) {
                     map.putAll(getClassMap((Class) typeArguments[0]));
                 }
-            } else if (!ClassUtil.isCustomClass(field.getType())) {
+            } else if (!ClassUtil.canCastClass(field.getType())) {
                 map.putAll(getClassMap(field.getType()));
             }
         }

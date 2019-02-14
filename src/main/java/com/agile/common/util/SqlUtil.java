@@ -227,7 +227,7 @@ public class SqlUtil {
     }
 
     /**
-     * 处理where column in （）类型条件
+     * 处理where info in （）类型条件
      *
      * @param c          in的druid表达式
      * @param parameters 参数集合

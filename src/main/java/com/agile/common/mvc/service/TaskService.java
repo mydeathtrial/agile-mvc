@@ -39,7 +39,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
     private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
-    private Log log = LoggerFactory.getTaskLog();
+    private Log log = LoggerFactory.TASK_LOG;
 
     public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;

@@ -1,0 +1,210 @@
+package com.agile.common.generator.model;
+
+import com.agile.common.annotation.Remark;
+import com.agile.common.base.Constant;
+import com.agile.common.properties.GeneratorProperties;
+import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.NumberUtil;
+import com.agile.common.util.StringUtil;
+import com.alibaba.druid.sql.visitor.functions.Char;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * @author 佟盟
+ * @version 1.0
+ * @Date 2019/2/11 14:18
+ * @Description TODO
+ * @since 1.0
+ */
+@Setter
+@Getter
+@NoArgsConstructor
+public class ColumnModel {
+    private String tableCat;
+    private String bufferLength;
+    private String tableName;
+    private String columnDef;
+    private String scopeCatalog;
+    private String tableSchem;
+    private String columnName;
+    private String remarks;
+    private String numPrecRadix;
+    private String isAutoincrement;
+    private String sqlDataType;
+    private String scopeSchema;
+    private String isPrimaryKey;
+    private String dataType;
+    private int columnSize;
+    private String scopeTable;
+    private String isNullable;
+    private String nullable;
+    private int decimalDigits;
+    private String sqlDatetimeSub;
+    private String isGeneratedcolumn;
+    private String charOctetLength;
+    private String ordinalPosition;
+    private String sourceDataType;
+    private String typeName;
+
+    private String javaName;
+    private String getMethod;
+    private String setMethod;
+    private Class javaType;
+    private String javaTypeName;
+    private String javaSimpleTypeName;
+    private String defValue;
+    private Set<Class> imports = new HashSet<>();
+    private Set<String> annotations = new HashSet<>();
+    private GeneratorProperties properties = FactoryUtil.getBean(GeneratorProperties.class);
+
+    public void build() {
+        StringBuilder temp = new StringBuilder();
+        temp.append("name = \"").append(columnName).append("\"");
+        if ("0".equals(nullable)) {
+            temp.append(", nullable = false");
+        }
+        if (!StringUtil.isEmpty(columnDef)) {
+            temp.append(", columnDefinition = \"").append(String.format("%s default %s", typeName, columnDef)).append("\"");
+        }
+        setAnnotation(String.format("@Column(%s)", temp));
+
+        if (Boolean.valueOf(isPrimaryKey)) {
+            setAnnotation("@Id");
+        } else {
+            if ("byte[]".equals(javaTypeName) || "java.sql.Blob".equals(javaTypeName) || "java.sql.Clob".equals(javaTypeName)) {
+                if ("java.sql.Blob".equals(javaTypeName) || "java.sql.Clob".equals(javaTypeName)) {
+                    setAnnotation("@Lob");
+                    setImport(Lob.class, FetchType.class);
+                }
+                setAnnotation("@Basic(fetch = FetchType.LAZY)");
+            } else {
+                setAnnotation("@Basic");
+            }
+        }
+    }
+
+
+    public void setColumnName(String columnName) {
+        this.columnName = columnName;
+        if (properties.isSensitive()) {
+            this.javaName = StringUtil.toLowerName(columnName);
+        } else {
+            this.javaName = StringUtil.toLowerName(columnName.toLowerCase());
+        }
+
+        javaName = javaName.replaceAll(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.NULL);
+
+        if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
+            setAnnotation("@Generated(GenerationTime.ALWAYS)");
+            setImport(Generated.class, GenerationTime.class);
+        }
+
+        if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
+            setAnnotation("@Generated(GenerationTime.INSERT)");
+            setImport(Generated.class, GenerationTime.class);
+        }
+        setMethod(javaName);
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+        if ("TIMESTAMP".equals(typeName) || "DATE".equals(typeName) || "TIME".equals(typeName)) {
+            setAnnotation(String.format("@Temporal(TemporalType.%s)", typeName));
+            setImport(Temporal.class, TemporalType.class);
+        }
+
+        this.javaTypeName = properties.getJavaType(typeName.split("[\\s]+")[0].toLowerCase());
+
+        try {
+            this.javaType = Class.forName(javaTypeName);
+            this.javaSimpleTypeName = javaType.getSimpleName();
+            setImport(javaType);
+        } catch (ClassNotFoundException ignored) {
+
+        }
+    }
+
+    public void setIsPrimaryKey(String isPrimaryKey) {
+        this.isPrimaryKey = isPrimaryKey;
+        setImport(Id.class);
+    }
+
+    private void setMethod(String name) {
+        if (boolean.class == javaType) {
+            this.getMethod = "is" + StringUtil.toUpperName(name);
+        } else {
+            this.getMethod = "get" + StringUtil.toUpperName(name);
+        }
+        this.setMethod = "set" + StringUtil.toUpperName(name);
+
+    }
+
+    public void setIsAutoincrement(String isAutoincrement) {
+        this.isAutoincrement = isAutoincrement;
+        if ("YES".equals(isAutoincrement)) {
+            setImport(GenerationType.class, GeneratedValue.class);
+            setAnnotation("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+        }
+    }
+
+    public void setColumnDef(String columnDef) {
+        this.columnDef = columnDef;
+        if (columnDef == null || "null".equals(columnDef.toLowerCase())) {
+            return;
+        }
+
+        if (Double.class == javaType) {
+            defValue = NumberUtil.isNumber(columnDef) ? Double.valueOf(columnDef).toString() : null;
+        } else if (String.class == javaType || Char.class == javaType) {
+            defValue = String.format("\"%s\"", columnDef.replaceAll(Constant.RegularAbout.UP_COMMA, ""));
+        } else if ("CURRENT_TIMESTAMP".equals(columnDef)) {
+            if (Date.class == javaType || java.sql.Date.class == javaType) {
+                defValue = "new Date()";
+            } else if (Time.class == javaType) {
+                defValue = "new Time(System.currentTimeMillis())";
+            } else if (Timestamp.class == javaType) {
+                defValue = "new Timestamp(System.currentTimeMillis())";
+            } else if (long.class == javaType) {
+                defValue = "System.currentTimeMillis()";
+            }
+        }
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks.replaceAll("[\\s]+", " ");
+        if (!StringUtil.isEmpty(remarks)) {
+            setImport(Remark.class);
+        }
+    }
+
+    public void setImport(Class... classes) {
+        for (Class clazz : classes) {
+            if (clazz.getPackage().getName().startsWith("java.lang")) {
+                continue;
+            }
+            this.imports.add(clazz);
+        }
+    }
+
+    private void setAnnotation(String annotation) {
+        this.annotations.add(annotation);
+    }
+
+}

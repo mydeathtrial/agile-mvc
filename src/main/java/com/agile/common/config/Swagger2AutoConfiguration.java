@@ -3,20 +3,18 @@ package com.agile.common.config;
 import com.agile.common.properties.SwaggerConfigProperties;
 import com.agile.common.swagger.ApiListingScanner;
 import com.agile.common.swagger.ApiModelReader;
-import com.agile.common.util.PropertiesUtil;
 import com.fasterxml.classmate.TypeResolver;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.schema.ModelProvider;
+import springfox.documentation.schema.CachingModelProvider;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
@@ -28,9 +26,18 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @author 佟盟 on 2018/11/22
  */
 @Configuration
-@Conditional(Swagger2Config.class)
+@EnableConfigurationProperties(value = {SwaggerConfigProperties.class})
+@ConditionalOnProperty(name = "enable", prefix = "agile.swagger", havingValue = "true")
+@ConditionalOnClass({Docket.class, ApiInfo.class, ApiListingScanner.class, ApiModelReader.class})
 @EnableSwagger2
-public class Swagger2Config implements Condition {
+public class Swagger2AutoConfiguration {
+
+    private final SwaggerConfigProperties swaggerConfigProperties;
+
+    @Autowired
+    public Swagger2AutoConfiguration(SwaggerConfigProperties swaggerConfigProperties) {
+        this.swaggerConfigProperties = swaggerConfigProperties;
+    }
 
     @Bean
     public Docket createRestApi() {
@@ -44,10 +51,10 @@ public class Swagger2Config implements Condition {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title(SwaggerConfigProperties.getTitle())
-                .description(SwaggerConfigProperties.getDescription())
-                .termsOfServiceUrl(SwaggerConfigProperties.getTermsOfServiceUrl())
-                .version(SwaggerConfigProperties.getVersion())
+                .title(swaggerConfigProperties.getTitle())
+                .description(swaggerConfigProperties.getDescription())
+                .termsOfServiceUrl(swaggerConfigProperties.getTermsOfServiceUrl())
+                .version(swaggerConfigProperties.getVersion())
                 .build();
     }
 
@@ -58,12 +65,7 @@ public class Swagger2Config implements Condition {
     }
 
     @Bean
-    public ApiModelReader customApiModelReader(@Qualifier("cachedModels") ModelProvider modelProvider, TypeResolver typeResolver, DocumentationPluginsManager pluginsManager) {
+    public ApiModelReader customApiModelReader(CachingModelProvider modelProvider, TypeResolver typeResolver, DocumentationPluginsManager pluginsManager) {
         return new ApiModelReader(modelProvider, typeResolver, pluginsManager);
-    }
-
-    @Override
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return PropertiesUtil.getProperty("agile.swagger.enable", boolean.class);
     }
 }

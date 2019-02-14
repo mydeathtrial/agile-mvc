@@ -1,75 +1,71 @@
 package com.agile.common.config;
 
-import com.agile.common.exception.NonSupportDBException;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.filter.DruidFilter;
-import com.agile.common.properties.DBConfigProperties;
-import com.agile.common.properties.DruidConfigProperty;
+import com.agile.common.properties.DruidConfigProperties;
+import com.agile.common.util.DataBaseUtil;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.support.http.StatViewServlet;
+import com.alibaba.druid.support.http.WebStatFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.http.HttpServlet;
 import java.sql.SQLException;
 import java.util.Collections;
 
 /**
  * @author 佟盟 on 2017/10/7
  */
+@EnableConfigurationProperties(value = {DruidConfigProperties.class})
 @Configuration
 public class DruidConfig {
-    private static final int INDEX = 0;
+    @Autowired
+    private DruidConfigProperties druidConfigProperty;
 
-    private DruidConfigProperty druidConfigProperty = DBConfigProperties.getDruid().get(INDEX);
+    @Bean
+    public ServletRegistrationBean druidServlet() {
+        if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
+            LoggerFactory.COMMON_LOG.debug("完成初始化Druid连接池仪表盘");
+        }
+
+        ServletRegistrationBean<HttpServlet> reg = new ServletRegistrationBean<>();
+        reg.setServlet(new StatViewServlet());
+        reg.addUrlMappings(druidConfigProperty.getUrl() + "/*");
+        reg.addInitParameter("loginUsername", druidConfigProperty.getManagerName());
+        reg.addInitParameter("loginPassword", druidConfigProperty.getManagerPassword());
+        reg.addInitParameter("resetEnable", Boolean.toString(druidConfigProperty.isResetEnable()));
+        return reg;
+    }
+
+    @Bean
+    public FilterRegistrationBean filterRegistrationBean() {
+        if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
+            LoggerFactory.COMMON_LOG.debug("完成初始化Druid监控过滤器");
+        }
+
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
+        filterRegistrationBean.setFilter(new WebStatFilter());
+        filterRegistrationBean.addUrlPatterns("/*");
+        filterRegistrationBean.addInitParameter("exclusions", druidConfigProperty.getExclusions());
+        filterRegistrationBean.addInitParameter("profileEnable", "true");
+        filterRegistrationBean.addInitParameter("sessionStatMaxCount", Long.toString(druidConfigProperty.getSessionStatMaxCount()));
+        return filterRegistrationBean;
+    }
 
     @Bean(initMethod = "init", destroyMethod = "close")
     DruidDataSource dataSource() throws SQLException {
         DruidDataSource druidDataSource = new DruidDataSource();
 
-        StringBuilder druidUrl = new StringBuilder();
-        String db = druidConfigProperty.getType().toLowerCase();
-        switch (db) {
-            case "mysql":
-                druidDataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-                druidDataSource.setValidationQuery("SELECT 1");
-                druidUrl.append("jdbc:mysql://")
-                        .append(druidConfigProperty.getDataBaseIp())
-                        .append(":")
-                        .append(druidConfigProperty.getDataBasePort())
-                        .append("/")
-                        .append(druidConfigProperty.getDataBaseName())
-                        .append("?")
-                        .append(druidConfigProperty.getDataBaseUrlParam());
-                break;
-            case "oracle":
-                druidDataSource.setDriverClassName("oracle.jdbc.OracleDriver");
-                druidDataSource.setValidationQuery("SELECT 'x' FROM DUAL");
-                druidUrl.append("jdbc:oracle:thin:@")
-                        .append(druidConfigProperty.getDataBaseIp())
-                        .append(":")
-                        .append(druidConfigProperty.getDataBasePort())
-                        .append(":")
-                        .append(druidConfigProperty.getDataBaseName());
-                break;
-            case "mariadb":
-                druidDataSource.setDriverClassName("org.mariadb.jdbc.Driver");
-                druidDataSource.setValidationQuery("SELECT 1");
-                druidUrl.append("jdbc:mariadb://")
-                        .append(druidConfigProperty.getDataBaseIp())
-                        .append(":")
-                        .append(druidConfigProperty.getDataBasePort())
-                        .append("/")
-                        .append(druidConfigProperty.getDataBaseName())
-                        .append("?")
-                        .append(druidConfigProperty.getDataBaseUrlParam());
-                break;
-            default:
-                try {
-                    throw new NonSupportDBException();
-                } catch (NonSupportDBException e) {
-                    e.printStackTrace();
-                }
-        }
+        DataBaseUtil.DB db = druidConfigProperty.getType();
+        druidDataSource.setDriverClassName(db.getDriver());
+        druidDataSource.setValidationQuery(db.getTestSql());
+        druidDataSource.setUrl(DataBaseUtil.createDBUrl(new DataBaseUtil.DBInfo(druidConfigProperty)));
 
-        druidDataSource.setUrl(druidUrl.toString());
         druidDataSource.setUsername(druidConfigProperty.getDataBaseUsername());
         druidDataSource.setPassword(druidConfigProperty.getDataBasePassword());
         druidDataSource.setInitialSize(druidConfigProperty.getInitSize());

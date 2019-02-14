@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3.2</version>
+    <version>1.0.3.3</version>
     <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
-
+    
     <!--资源库-->
     <repositories>
         <repository>
@@ -18,7 +18,7 @@
 
     <parent>
         <groupId>com.agileframework</groupId>
-        <artifactId>agile-parent</artifactId>
+        <artifactId>agile-boot-parent</artifactId>
         <version>1.1.0</version>
     </parent>
 
@@ -51,7 +51,11 @@
                 <configuration>
                     <includes>
                         <include>com/agile/</include>
+                        <include>META-INF/*</include>
                     </includes>
+                    <excludes>
+                        <exclude>com/agile/App.class</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

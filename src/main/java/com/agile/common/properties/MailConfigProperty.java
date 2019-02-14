@@ -1,52 +1,20 @@
 package com.agile.common.properties;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
 /**
- * Created by 佟盟 on 2018/4/4
+ * @author by 佟盟 on 2018/2/1
  */
+@ConfigurationProperties(prefix = "agile.mail")
+@Setter
+@Getter
 public class MailConfigProperty {
-    private static String serverHost = "smtp.163.com";
-    private static int serverPort;
-    private static String serverDefaultFrom = "mydeathtrial@163.com";
-    private static String serverUsername = "mydeathtrial@163.com";
-    private static String serverPassword = "tongmeng19900905";
-
-    public static String getServerHost() {
-        return serverHost;
-    }
-
-    public static void setServerHost(String serverHost) {
-        MailConfigProperty.serverHost = serverHost;
-    }
-
-    public static int getServerPort() {
-        return serverPort;
-    }
-
-    public static void setServerPort(int serverPort) {
-        MailConfigProperty.serverPort = serverPort;
-    }
-
-    public static String getServerDefaultFrom() {
-        return serverDefaultFrom;
-    }
-
-    public static void setServerDefaultFrom(String serverDefaultFrom) {
-        MailConfigProperty.serverDefaultFrom = serverDefaultFrom;
-    }
-
-    public static String getServerUsername() {
-        return serverUsername;
-    }
-
-    public static void setServerUsername(String serverUsername) {
-        MailConfigProperty.serverUsername = serverUsername;
-    }
-
-    public static String getServerPassword() {
-        return serverPassword;
-    }
-
-    public static void setServerPassword(String serverPassword) {
-        MailConfigProperty.serverPassword = serverPassword;
-    }
+    private boolean enable;
+    private String serverHost = "smtp.163.com";
+    private int serverPort;
+    private String serverDefaultFrom = "mydeathtrial@163.com";
+    private String serverUsername = "mydeathtrial@163.com";
+    private String serverPassword = "tongmeng19900905";
 }

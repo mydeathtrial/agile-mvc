@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.properties.SecurityProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,6 +21,7 @@ public class TokenUtil {
     public static final String AUTHENTICATION_CACHE_SALT_KEY = "AUTHENTICATION_CACHE_SALT_KEY";
     public static final String AUTHENTICATION_CREATE_SALT_VALUE = "AUTHENTICATION_CACHE_SALT_VALUE";
     public static final String AUTHENTICATION_CREATE_TIME = "created";
+    private static SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
 
     private static final int SECOND = 1000;
 
@@ -53,7 +55,7 @@ public class TokenUtil {
         return Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(generateExpirationDate())
-                .signWith(SignatureAlgorithm.HS512, PropertiesUtil.getProperty("agile.security.token_key").getBytes(StandardCharsets.UTF_8))
+                .signWith(SignatureAlgorithm.HS512, securityProperties.getTokenKey().getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -61,7 +63,7 @@ public class TokenUtil {
      * token 过期时间
      */
     public static Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + PropertiesUtil.getProperty("agile.security.token_timeout", int.class) * SECOND);
+        return new Date(System.currentTimeMillis() + securityProperties.getTokenTimeout() * SECOND);
     }
 
     /**
@@ -84,7 +86,7 @@ public class TokenUtil {
     public static Claims getClaimsFromToken(String token) {
         try {
             return Jwts.parser()
-                    .setSigningKey(PropertiesUtil.getProperty("agile.security.token_key").getBytes(StandardCharsets.UTF_8))
+                    .setSigningKey(securityProperties.getTokenKey().getBytes(StandardCharsets.UTF_8))
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {

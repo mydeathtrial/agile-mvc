@@ -1,46 +1,19 @@
 package com.agile.common.properties;
 
-import com.agile.common.annotation.Properties;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Created by 佟盟 on 2018/11/23
+ * @author by 佟盟 on 2018/11/23
  */
-@Properties(prefix = "agile.swagger")
+@ConfigurationProperties(prefix = "agile.swagger")
+@Setter
+@Getter
 public class SwaggerConfigProperties {
-    private static String title;
-    private static String description;
-    private static String termsOfServiceUrl;
-    private static String version;
-
-    public static String getTitle() {
-        return title;
-    }
-
-    public static void setTitle(String title) {
-        SwaggerConfigProperties.title = title;
-    }
-
-    public static String getDescription() {
-        return description;
-    }
-
-    public static void setDescription(String description) {
-        SwaggerConfigProperties.description = description;
-    }
-
-    public static String getTermsOfServiceUrl() {
-        return termsOfServiceUrl;
-    }
-
-    public static void setTermsOfServiceUrl(String termsOfServiceUrl) {
-        SwaggerConfigProperties.termsOfServiceUrl = termsOfServiceUrl;
-    }
-
-    public static String getVersion() {
-        return version;
-    }
-
-    public static void setVersion(String version) {
-        SwaggerConfigProperties.version = version;
-    }
+    private boolean enable;
+    private String title;
+    private String description;
+    private String termsOfServiceUrl;
+    private String version;
 }

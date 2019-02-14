@@ -1,228 +1,33 @@
 package com.agile.common.generator;
 
 import com.agile.common.base.Constant;
-import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.ClassUtil;
+import com.agile.common.config.GeneratorConfig;
+import com.agile.common.generator.model.TableModel;
+import com.agile.common.properties.DruidConfigProperties;
+import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.DataBaseUtil;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.FreemarkerUtil;
-import com.agile.common.util.MapUtil;
-import com.agile.common.util.NumberUtil;
-import com.agile.common.util.PropertiesUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.ObjectUtil;
 import freemarker.template.TemplateException;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author mydeathtrial on 2017/4/20
  */
+
 public class AgileGenerator {
-    private static final int LENGTH = 16;
+    private static final String ENTITY_FTL = "Entity.ftl";
+    private static final String SERVICE_FTL = "Service.ftl";
+    private static final String FILE_EXTENSION = ".java";
     private static DataBaseUtil.DBInfo dbInfo;
+    private static DruidConfigProperties druid;
+    private static GeneratorProperties generator;
 
-    static Map<String, Object> tableHandle(Map<String, Object> table) {
-        //结果集
-        Map<String, Object> data = new HashMap<>(LENGTH);
-
-        //字段集
-        List<HashMap<String, String>> columnList = new ArrayList<>();
-
-        //导入集
-        Set<String> importList = new HashSet<>();
-
-        //表名
-        String tableName = table.get("TABLE_NAME").toString();
-
-        data.put("tableComment", table.get("REMARKS"));
-
-        List<Map<String, Object>> columns = DataBaseUtil.listColumns(dbInfo, tableName);
-
-        for (Map<String, Object> column : columns) {
-            pasringColumn(column, importList, columnList);
-        }
-
-        //文件导入
-        data.put("importList", importList);
-
-        //参数
-        data.put("tableName", tableName);
-        data.put("schemaName", null);
-        data.put("catalogName", PropertiesUtil.getProperty("agile.druid.data_base_name"));
-
-        //字段参数
-        data.put("columnList", columnList);
-
-        String entityClassName = StringUtil.toUpperName(PropertiesUtil.getProperty("agile.generator.entity_prefix")) + StringUtil.toUpperName(tableName) + StringUtil.toUpperName(PropertiesUtil.getProperty("agile.generator.entity_suffix"));
-        String serviceClassName = StringUtil.toUpperName(PropertiesUtil.getProperty("agile.generator.service_prefix")) + StringUtil.toUpperName(tableName) + StringUtil.toUpperName(PropertiesUtil.getProperty("agile.generator.service_suffix"));
-        data.put("entityClassName", entityClassName);
-        data.put("serviceClassName", serviceClassName);
-
-        return data;
-    }
-
-    private static void pasringColumn(Map<String, Object> column, Set<String> importList, List<HashMap<String, String>> columnList) {
-        //参数容器
-        HashMap<String, String> param = new HashMap<>(LENGTH);
-        //是否为主键
-        String isPrimaryKey = "false";
-        //字段名称
-        String columnName = Objects.requireNonNull(MapUtil.getString(column, "COLUMN_NAME")).toLowerCase();
-        //字段类型
-        String columnType = MapUtil.getString(column, "TYPE_NAME");
-
-        if ("TIMESTAMP".equals(columnType) || "DATE".equals(columnType) || "TIME".equals(columnType)) {
-            param.put("isTimeStamp", String.format("@Temporal(TemporalType.%s)", columnType));
-            addImport(importList, "javax.persistence.Temporal", "javax.persistence.TemporalType");
-        }
-
-        //属性名
-        String propertyName = StringUtil.toLowerName(columnName);
-        //属性名
-        assert columnType != null;
-        String propertyType = PropertiesUtil.getProperty("agile.generator.column_type." + columnType.split(" ")[0].toLowerCase());
-
-        if (propertyType == null) {
-            LoggerFactory.getDaoLog().error(String.format("字段类型[%s]没有配置映射", columnType.toLowerCase()));
-            System.exit(0);
-        }
-        //处理主键
-        if (Boolean.valueOf(column.get("IS_PRIMARY_KEY").toString())) {
-            //是否为主键
-            isPrimaryKey = "true";
-            //转包装类
-            propertyType = ClassUtil.toWrapperNameFromName(propertyType);
-        }
-
-        //是否自增长
-        param.put("isAutoincrement", MapUtil.getString(column, "IS_AUTOINCREMENT"));
-        if ("YES".equals(param.get("isAutoincrement"))) {
-            addImport(importList, "javax.persistence.GenerationType", "javax.persistence.GeneratedValue");
-        }
-        //字段大小
-        param.put("columnSize", MapUtil.getString(column, "COLUMN_SIZE"));
-        //小数精度
-        param.put("digits", MapUtil.getString(column, "DECIMAL_DIGITS"));
-        //是否可为空
-        param.put("nullable", "0".equals(MapUtil.getString(column, "NULLABLE")) ? "false" : "true");
-        //字段默认值
-        param.put("columnDef", MapUtil.getString(column, "COLUMN_DEF"));
-        //表中的列的索引
-        param.put("ordinalPosition", MapUtil.getString(column, "ORDINAL_POSITION"));
-        //备注
-        param.put("remarks", Objects.requireNonNull(MapUtil.getString(column, "REMARKS")).replaceAll("[\\s]+", " "));
-
-        String def = MapUtil.getString(column, "COLUMN_DEF");
-
-        if ("updateTime".equals(propertyName) || "updateDate".equals(propertyName)) {
-            param.put("isUpdate", "@Generated(GenerationTime.ALWAYS)");
-            addImport(importList, "org.hibernate.annotations.Generated", "org.hibernate.annotations.GenerationTime");
-        } else if ("creatDate".equals(propertyName) || "creatTime".equals(propertyName) || "createTime".equals(propertyName) || "createDate".equals(propertyName)) {
-            param.put("isCreat", "@Generated(GenerationTime.INSERT)");
-            addImport(importList, "org.hibernate.annotations.Generated", "org.hibernate.annotations.GenerationTime");
-        } else {
-            if (def != null && !"null".equals(def.toLowerCase())) {
-                switch (ClassUtil.toWrapperNameFromName(propertyType)) {
-                    case "Double":
-                        param.put("defValue", NumberUtil.isNumber(def) ? Double.valueOf(def).toString() : null);
-                        break;
-                    case "String":
-                        param.put("defValue", String.format("\"%s\"", def.replaceAll(Constant.RegularAbout.UP_COMMA, "")));
-                        break;
-                    case "Char":
-                        param.put("defValue", String.format("\"%s\"", def));
-                        break;
-                    case "Date":
-                        param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Date()" : null);
-                        break;
-                    case "Time":
-                        param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Time(System.currentTimeMillis())" : null);
-                        break;
-                    case "Timestamp":
-                        param.put("defValue", "CURRENT_TIMESTAMP".equals(def) ? "new Timestamp(System.currentTimeMillis())" : null);
-                        break;
-                    default:
-                        param.put("defValue", def);
-                }
-            }
-        }
-
-        param.put("def", StringUtil.isEmpty(def) ? null : columnType + " default " + def);
-        param.put("columnName", columnName);
-        param.put("columnType", columnType);
-        param.put("propertyName", propertyName);
-        param.put("propertyType", propertyType);
-        param.put("isPrimaryKey", isPrimaryKey);
-        param.put("getMethod", "get" + StringUtil.toUpperName(columnName));
-        param.put("setMethod", "set" + StringUtil.toUpperName(columnName));
-
-        //API导入
-        addImprot(importList, propertyType);
-
-        columnList.add(param);
-    }
-
-    private static void addImport(Set<String> importList, String... packageName) {
-        importList.addAll(Arrays.asList(packageName));
-    }
-
-    private static void addImprot(Set<String> importList, String type) {
-        //API导入
-        switch (type.toUpperCase()) {
-            case "TIMESTAMP":
-                importList.add("java.sql.Timestamp");
-                break;
-            case "CLOB":
-                addImport(importList, "java.sql.Clob", "javax.persistence.Lob", "javax.persistence.FetchType");
-                break;
-            case "BLOB":
-                addImport(importList, "java.sql.Blob", "javax.persistence.Lob", "javax.persistence.FetchType");
-                break;
-            case "TIME":
-                importList.add("java.sql.Time");
-                break;
-            case "DATE":
-                importList.add("java.util.Date");
-                break;
-            case "TEXT":
-                importList.add("javax.persistence.FetchType");
-                break;
-            default:
-        }
-    }
-
-    /**
-     * 生成文件
-     *
-     * @param data 数据源
-     * @throws IOException       IO异常
-     * @throws TemplateException 模板异常
-     */
-    private static void generateAllFile(Map<String, Object> data) throws IOException, TemplateException {
-
-        //Entity生成器
-        generateFile(data, "agile.generator.entity_url", "entityClassName", "Entity.ftl", "entityPackage");
-
-        //service生成器
-        generateFile(data, "agile.generator.service_url", "serviceClassName", "Service.ftl", "servicePackage");
-    }
-
-    public static void generateFile(Map<String, Object> data, String filePathKey, String fileNameKey, String templateName, String packNameCacheKey) throws IOException, TemplateException {
-        String url = PropertiesUtil.getProperty(filePathKey).trim().replaceAll("[\\\\]+", "/");
-        if (!url.endsWith("/")) {
-            url += "/";
-        }
-        String fileName = data.get(fileNameKey) + ".java";
-        data.put(packNameCacheKey, getPackPath(url));
-        FreemarkerUtil.generatorProxy(templateName, url, fileName, data, false);
-    }
 
     /**
      * 推测生成java文件的包名
@@ -230,13 +35,13 @@ public class AgileGenerator {
      * @param url 生成目标文件存储路径
      * @return 包名
      */
-    public static String getPackPath(String url) {
+    static String getPackPath(String url) {
         String javaPath = "src/main/java";
         if (!url.contains(javaPath)) {
             return null;
         }
         int endIndex = 0;
-        if (url.endsWith("/")) {
+        if (url.endsWith(Constant.RegularAbout.SLASH)) {
             endIndex = 1;
         }
         String packPath = url.substring(url.indexOf(javaPath) + javaPath.length() + 1, url.length() - endIndex).replaceAll("/", ".");
@@ -246,50 +51,122 @@ public class AgileGenerator {
         return packPath;
     }
 
-    public static List<Map<String, Object>> getTableInfo() {
-        String tableName = "agile.generator.table_name";
-        return DataBaseUtil.listTables(dbInfo, PropertiesUtil.getProperty(tableName));
+    /**
+     * 取数据库中所有表信息
+     */
+    private static List<Map<String, Object>> getTableInfo() {
+        return DataBaseUtil.listTables(dbInfo, generator.getTableName());
     }
 
-    public static void initDBInfo() {
-        String dbIndexKey = "agile.generator.db_index";
-        String druidKey = "agile.druid";
+    /**
+     * 初始化数据库信息
+     */
+    private static void initDBInfo() {
+        dbInfo = new DataBaseUtil.DBInfo(druid);
+    }
 
-        //获取表信息
-        Integer dbIndex = null;
-        if (PropertiesUtil.getProperties().containsKey(dbIndexKey)) {
-            dbIndex = PropertiesUtil.getProperty(dbIndexKey, int.class);
+    /**
+     * 初始化spring容器
+     */
+    private static void initSpringContext() {
+        new AnnotationConfigApplicationContext(GeneratorConfig.class);
+        druid = FactoryUtil.getBean(DruidConfigProperties.class);
+        generator = FactoryUtil.getBean(GeneratorProperties.class);
+    }
+
+    /**
+     * 统一路径中的斜杠
+     *
+     * @param str 路径
+     * @return 处理后的合法路径
+     */
+    private static String parseUrl(String str) {
+        String url = str.replaceAll("[\\\\]+", "/");
+        if (!url.endsWith(Constant.RegularAbout.SLASH)) {
+            url += Constant.RegularAbout.SLASH;
         }
-        String dbType, ip, port, dbName, username, password;
-        if (dbIndex != null) {
-            druidKey += String.format("[%s]", dbIndex);
+        return url;
+    }
+
+    /**
+     * 生成实体文件
+     *
+     * @param tableModel 表信息集
+     */
+    private static void generateEntityFile(TableModel tableModel) throws IOException, TemplateException {
+        String url = parseUrl(generator.getEntityUrl());
+        String fileName = tableModel.getEntityName() + FILE_EXTENSION;
+        tableModel.setEntityPackageName(getPackPath(url));
+        FreemarkerUtil.generatorProxy(ENTITY_FTL, url, fileName, tableModel, false);
+    }
+
+    /**
+     * 生成service文件
+     *
+     * @param tableModel 表信息集
+     */
+    private static void generateServiceFile(TableModel tableModel) throws IOException, TemplateException {
+        String url = parseUrl(generator.getServiceUrl());
+        String fileName = tableModel.getServiceName() + FILE_EXTENSION;
+        tableModel.setServicePackageName(getPackPath(url));
+        FreemarkerUtil.generatorProxy(SERVICE_FTL, url, fileName, tableModel, false);
+    }
+
+    /**
+     * 初始化环境
+     */
+    static void init() {
+        initSpringContext();
+        initDBInfo();
+    }
+
+    /**
+     * 生成器
+     * @param type 生成文件类型
+     */
+    static void generator(TYPE type) throws IOException, TemplateException {
+        for (Map<String, Object> table : getTableInfo()) {
+            TableModel.setDbInfo(dbInfo);
+            TableModel tableModel = ObjectUtil.getObjectFromMap(TableModel.class, table);
+            switch (type) {
+                case ENTITY:
+                    generateEntityFile(tableModel);
+                    break;
+                case SERVICE:
+                    generateServiceFile(tableModel);
+                    break;
+                default:
+                    generateEntityFile(tableModel);
+                    generateServiceFile(tableModel);
+            }
         }
+    }
 
-        dbType = String.format("%s.type", druidKey);
-        ip = String.format("%s.data_base_ip", druidKey);
-        port = String.format("%s.data_base_port", druidKey);
-        dbName = String.format("%s.data_base_name", druidKey);
-        username = String.format("%s.data_base_username", druidKey);
-        password = String.format("%s.data_base_password", druidKey);
-
-        dbInfo = new DataBaseUtil.DBInfo(PropertiesUtil.getProperty(dbType),
-                PropertiesUtil.getProperty(ip),
-                PropertiesUtil.getProperty(port),
-                PropertiesUtil.getProperty(dbName),
-                PropertiesUtil.getProperty(username),
-                PropertiesUtil.getProperty(password));
+    /**
+     * 生成文件类型
+     */
+    enum TYPE {
+        /**
+         * 实体
+         */
+        ENTITY,
+        /**
+         * service
+         */
+        SERVICE,
+        /**
+         * 全生成
+         */
+        DEFAULT
     }
 
     public static void main(String[] args) {
         try {
-            initDBInfo();
-            for (Map<String, Object> table : getTableInfo()) {
-                generateAllFile(tableHandle(table));
-            }
+            init();
+            generator(TYPE.DEFAULT);
         } catch (Exception e) {
             e.printStackTrace();
         }
         System.exit(0);
     }
-
 }

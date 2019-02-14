@@ -1,7 +1,7 @@
 package com.agile.common.cache.redis;
 
-import com.agile.common.config.RedisConfig;
 import com.agile.common.factory.LoggerFactory;
+import com.agile.common.util.FactoryUtil;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.cfg.spi.DomainDataRegionBuildingContext;
@@ -15,8 +15,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,9 +50,9 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
         synchronized (this) {
             this.cacheManager = (RedisCacheManager) resolveCacheManager();
             if (this.cacheManager == null) {
-                String msg = "开启 Ehcache CacheManager 失败";
-                if (LoggerFactory.getCacheLog().isErrorEnabled()) {
-                    LoggerFactory.getCacheLog().error(msg);
+                String msg = "开启 Redis CacheManager 失败";
+                if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
+                    LoggerFactory.CACHE_LOG.error(msg);
                 }
                 throw new CacheException(msg);
             }
@@ -88,15 +86,15 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
 
     private CacheManager useExplicitCacheManager() {
         try {
-            if (LoggerFactory.getCacheLog().isDebugEnabled()) {
-                LoggerFactory.getCacheLog().debug("初始化Redis二级缓存区域");
+            if (LoggerFactory.CACHE_LOG.isDebugEnabled()) {
+                LoggerFactory.CACHE_LOG.debug("完成初始化Redis二级缓存区域");
             }
             initConnectionFactory();
             REFERENCE_COUNT.incrementAndGet();
             return redisCacheManager;
         } catch (Exception e) {
-            if (LoggerFactory.getCacheLog().isDebugEnabled()) {
-                LoggerFactory.getCacheLog().error("初始化Redis二级缓存区域失败");
+            if (LoggerFactory.CACHE_LOG.isDebugEnabled()) {
+                LoggerFactory.CACHE_LOG.error("初始化Redis二级缓存区域失败");
                 e.printStackTrace();
             }
             REFERENCE_COUNT.decrementAndGet();
@@ -105,9 +103,6 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
     }
 
     private void initConnectionFactory() {
-        RedisConfig redisConfig = new RedisConfig();
-        JedisPoolConfig jedisPoolConfig = redisConfig.redisPool();
-        RedisConnectionFactory jedisConnectionFactory = redisConfig.jedisConnectionFactory(jedisPoolConfig);
-        this.redisCacheManager = redisConfig.redisCacheManager(jedisConnectionFactory);
+        this.redisCacheManager = FactoryUtil.getBean(com.agile.common.cache.redis.RedisCacheManager.class);
     }
 }

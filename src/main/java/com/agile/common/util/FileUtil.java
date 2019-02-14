@@ -14,10 +14,20 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -161,12 +171,20 @@ public class FileUtil extends FileUtils {
     public static Map<String, Object> getFileFormRequest(HttpServletRequest request) {
         final int length = 16;
         HashMap<String, Object> map = new HashMap<>(length);
-        MultipartHttpServletRequest multipartRequest;
+        MultipartHttpServletRequest multipartRequest = null;
         if (request instanceof DefaultMultipartHttpServletRequest) {
             multipartRequest = (DefaultMultipartHttpServletRequest) request;
         } else {
-            MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
-            multipartRequest = resolver.resolveMultipart(request);
+            MultipartResolver multipartResolver = FactoryUtil.getBean(MultipartResolver.class);
+            if (multipartResolver instanceof CommonsMultipartResolver) {
+                MultipartResolver resolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+                multipartRequest = resolver.resolveMultipart(request);
+            } else if (multipartResolver instanceof StandardServletMultipartResolver) {
+                multipartRequest = new StandardServletMultipartResolver().resolveMultipart(request);
+            }
+        }
+        if (multipartRequest == null) {
+            return map;
         }
 
         Iterator<String> fileNames = multipartRequest.getFileNames();
@@ -250,7 +268,7 @@ public class FileUtil extends FileUtils {
 
     public static void downloadFile(ExcelFile excelFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
         setContentDisposition(excelFile.getFileName(), request, response);
-        response.setContentType("application/vnd.ms-excel");
+        response.setContentType("application.properties/vnd.ms-excel");
         ((excelFile).getWorkbook()).write(response.getOutputStream());
     }
 

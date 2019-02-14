@@ -6,7 +6,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,6 +23,8 @@ import javax.sql.DataSource;
  * @since 1.0
  */
 @Configuration
+@MapperScan(basePackages = {"com.agile"}, annotationClass = Mapper.class)
+@ConditionalOnClass({SqlSessionFactory.class, MapperScannerConfigurer.class})
 public class MyBatisConfig {
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
@@ -30,15 +34,6 @@ public class MyBatisConfig {
         configuration.setCallSettersOnNulls(true);
         sessionFactory.setConfiguration(configuration);
         sessionFactory.setPlugins(new Interceptor[]{new MybatisInterceptor()});
-
         return sessionFactory.getObject();
-    }
-
-    @Bean
-    public MapperScannerConfigurer mapperScannerConfigurer() {
-        MapperScannerConfigurer mapperScannerConfigurer = new MapperScannerConfigurer();
-        mapperScannerConfigurer.setBasePackage("com.agile");
-        mapperScannerConfigurer.setAnnotationClass(Mapper.class);
-        return mapperScannerConfigurer;
     }
 }
