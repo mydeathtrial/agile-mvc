@@ -70,6 +70,7 @@ public class Constant {
         public static final String COLON = ":";
         public static final String SPOT = ".";
         public static final String COMMA = ",";
+        public static final String SNOW = "*";
         public static final String UP_COMMA = "'";
         public static final String UP_DOUBLE_COMMA = "\"";
         public static final String QUESTION_MARK = "?";

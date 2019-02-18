@@ -3,29 +3,31 @@ package com.agile.common.config;
 import com.agile.common.cache.ehcache.EhCacheCacheManager;
 import com.agile.common.cache.ehcache.EhCacheManagerFactoryBean;
 import com.agile.common.properties.EhCacheProperties;
-import com.agile.common.util.PropertiesUtil;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
 import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * @author 佟盟 on 2017/10/8
  */
 @Configuration
 @EnableConfigurationProperties(value = {EhCacheProperties.class})
-@Conditional(EhCacheConfig.class)
-public class EhCacheConfig implements Condition {
+@ConditionalOnClass({net.sf.ehcache.config.Configuration.class})
+@ConditionalOnProperty(name = "proxy", prefix = "agile.cache", havingValue = "ehcache")
+public class EhCacheAutoConfiguration {
+    private final EhCacheProperties ehCacheProperties;
+
     @Autowired
-    private EhCacheProperties ehCacheProperties;
+    public EhCacheAutoConfiguration(EhCacheProperties ehCacheProperties) {
+        this.ehCacheProperties = ehCacheProperties;
+    }
 
     public net.sf.ehcache.config.Configuration configuration() {
         String path = "/temp";
@@ -93,11 +95,5 @@ public class EhCacheConfig implements Condition {
         ehCacheManagerFactoryBean.setShared(true);
         ehCacheManagerFactoryBean.setConfigLocation(configuration());
         return ehCacheManagerFactoryBean;
-    }
-
-    @Override
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy", "ehcache").toLowerCase();
-        return "ehcache".equals(cacheProxy);
     }
 }

@@ -38,7 +38,7 @@ public class MainService implements ServiceInterface {
      * 输出
      */
     private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
-    @Autowired
+    @Autowired(required = false)
     protected Dao dao;
     protected Log logger = LoggerFactory.getServiceLog(this.getClass());
 
@@ -312,7 +312,7 @@ public class MainService implements ServiceInterface {
                     .getAuthentication()
                     .getDetails();
         } catch (Exception e) {
-            return new SecurityUser(SysUsersEntity.builder().setName("土豆").setSaltKey("admin").setSaltValue("密码").setSysUsersId("123456").build(), null);
+            return new SecurityUser(SysUsersEntity.builder().name("土豆").saltKey("admin").saltValue("密码").sysUsersId("123456").build(), null);
         }
     }
 }

@@ -527,7 +527,7 @@ public final class StringUtil extends StringUtils {
                 StringBuilder result = new StringBuilder();
                 for (int i = 0; i < s.length - 1; i++) {
                     result.append(s[i]);
-                    if (i != s.length - 2) {
+                    if (i != s.length - Constant.NumberAbout.TWO) {
                         result.append(Constant.RegularAbout.SPOT);
                     }
                 }
@@ -535,12 +535,6 @@ public final class StringUtil extends StringUtils {
             }
         }
         return str;
-    }
-
-    public static void main(String[] args) {
-        System.out.println(removeExtension("sad.dasd.dsa"));
-        System.out.println(removeExtension("sad.dsa"));
-        System.out.println(removeExtension("dsa"));
     }
 
 }

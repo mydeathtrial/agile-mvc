@@ -115,12 +115,12 @@ public class BusinessLogService extends MainService {
                 for (ObjectUtil.Different map : propertiesList) {
                     LogValueEntity logValueEntity = LogValueEntity
                             .builder()
-                            .setLogValueId(RandomStringUtil.getRandom(LENGTH, RandomStringUtil.Random.LETTER_UPPER))
-                            .setLogTableId(logInfo.logTableEntity.getLogTableId())
-                            .setColumnName(String.valueOf(map.getPropertyName()))
-                            .setColumnType(String.valueOf(map.getPropertyType()))
-                            .setNewValue(String.valueOf(map.getNewValue()))
-                            .setOldValue(String.valueOf(map.getOldValue()))
+                            .logValueId(RandomStringUtil.getRandom(LENGTH, RandomStringUtil.Random.LETTER_UPPER))
+                            .logTableId(logInfo.logTableEntity.getLogTableId())
+                            .columnName(String.valueOf(map.getPropertyName()))
+                            .columnType(String.valueOf(map.getPropertyType()))
+                            .newValue(String.valueOf(map.getNewValue()))
+                            .oldValue(String.valueOf(map.getOldValue()))
                             .build();
                     dao.save(logValueEntity);
                 }
@@ -157,12 +157,12 @@ public class BusinessLogService extends MainService {
             if (ObjectUtil.isEmpty(logEntity)) {
                 logEntity = LogMainEntity
                         .builder()
-                        .setBusinessCode(businessCode)
-                        .setCreateTime(new Date())
-                        .setUserId(userId)
-                        .setTargetType(targetType)
-                        .setTargetCode(targetCode)
-                        .setLogMainId(RandomStringUtil.getRandom(LENGTH, RandomStringUtil.Random.LETTER_UPPER))
+                        .businessCode(businessCode)
+                        .createTime(new Date())
+                        .userId(userId)
+                        .targetType(targetType)
+                        .targetCode(targetCode)
+                        .logMainId(RandomStringUtil.getRandom(LENGTH, RandomStringUtil.Random.LETTER_UPPER))
                         .build();
             }
             order = (Integer) request.getAttribute(LOG_TABLE_ORDER);
@@ -190,12 +190,12 @@ public class BusinessLogService extends MainService {
 
                         logTableEntity = LogTableEntity
                                 .builder()
-                                .setLogMainId(logEntity.getLogMainId())
-                                .setLogTableId(RandomStringUtil.getRandom(LENGTH, RandomStringUtil.Random.LETTER_UPPER))
-                                .setTableName(tableName)
-                                .setTableSchema(dbName)
-                                .setOperationType(operationType.name())
-                                .setOperationOrder(order)
+                                .logMainId(logEntity.getLogMainId())
+                                .logTableId(RandomStringUtil.getRandom(LENGTH, RandomStringUtil.Random.LETTER_UPPER))
+                                .tableName(tableName)
+                                .tableSchema(dbName)
+                                .operationType(operationType.name())
+                                .operationOrder(order)
                                 .build();
                     }
                 } catch (Exception ignored) {

@@ -8,6 +8,8 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.mapper.MapperScannerConfigurer;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +27,9 @@ import javax.sql.DataSource;
 @Configuration
 @MapperScan(basePackages = {"com.agile"}, annotationClass = Mapper.class)
 @ConditionalOnClass({SqlSessionFactory.class, MapperScannerConfigurer.class})
-public class MyBatisConfig {
+@ConditionalOnBean({DataSource.class})
+@AutoConfigureAfter(DruidAutoConfiguration.class)
+public class MyBatisAutoConfiguration {
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
         SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
@@ -35,5 +39,10 @@ public class MyBatisConfig {
         sessionFactory.setConfiguration(configuration);
         sessionFactory.setPlugins(new Interceptor[]{new MybatisInterceptor()});
         return sessionFactory.getObject();
+    }
+
+    @Bean
+    public MybatisInterceptor interceptor() {
+        return new MybatisInterceptor();
     }
 }

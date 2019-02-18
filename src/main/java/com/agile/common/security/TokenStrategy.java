@@ -36,11 +36,11 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         String cacheKey = authentication.getName();
         String saltsKey = cacheKey + "_SALT";
 
-        SysLoginEntity loginEntity = SysLoginEntity.builder().setSysLoginId(RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER))
-                .setSysUserId(userDetails.getSysUsersId())
-                .setLoginTime(DateUtil.getCurrentDate())
-                .setLoginIp(ServletUtil.getCustomerIPAddr(httpServletRequest))
-                .setToken(salt).build();
+        SysLoginEntity loginEntity = SysLoginEntity.builder().sysLoginId(RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER))
+                .sysUserId(userDetails.getSysUsersId())
+                .loginTime(DateUtil.getCurrentDate())
+                .loginIp(ServletUtil.getCustomerIPAddr(httpServletRequest))
+                .token(salt).build();
 
         securityUserDetailsService.addLoginInfo(loginEntity);
 

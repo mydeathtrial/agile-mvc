@@ -3,10 +3,12 @@ package com.agile.common.base;
 import com.agile.common.annotation.Remark;
 import com.agile.common.util.MapUtil;
 import com.agile.common.util.StringUtil;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -42,7 +44,15 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
                     if (Constant.ResponseAbout.RESULT.equals(param)) {
                         boolean isMap = Map.class.isAssignableFrom(result.getClass());
                         if (isMap && ((Map) result).containsKey(Constant.ResponseAbout.RESULT)) {
-                            field.set(this, ((Map) result).get(Constant.ResponseAbout.RESULT));
+                            Object o = ((Map) result).get(Constant.ResponseAbout.RESULT);
+                            if (o.getClass() == PageImpl.class) {
+                                field.set(this, new HashMap<String, Object>(Constant.NumberAbout.TWO) {{
+                                    put("total", ((PageImpl) o).getTotalElements());
+                                    put("data", ((PageImpl) o).getContent());
+                                }});
+                            } else {
+                                field.set(this, ((Map) result).get(Constant.ResponseAbout.RESULT));
+                            }
                         } else {
                             field.set(this, result);
                         }

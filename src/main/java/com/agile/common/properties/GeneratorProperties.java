@@ -18,21 +18,53 @@ import java.util.Map;
 @Setter
 @Getter
 public class GeneratorProperties {
-    private String apiUrl;
+    /**
+     * 实体文件生成到的目录地址
+     */
     private String entityUrl;
-    private String esEntityUrl;
+    /**
+     * Service文件生成到的目录地址
+     */
     private String serviceUrl;
+    /**
+     * 测试文件生成到的目录地址
+     */
     private String testUrl;
+    /**
+     * 实体类生成名前缀
+     */
     private String entityPrefix;
+    /**
+     * 实体类生成名后缀
+     */
     private String entitySuffix = "Entity";
-    private String esEntityPrefix;
-    private String esEntitySuffix = "Entity";
+    /**
+     * service类生成名前缀
+     */
     private String servicePrefix;
+    /**
+     * service类生成名后缀
+     */
     private String serviceSuffix = "Service";
+    /**
+     * 测试文件类生成名前缀
+     */
     private String testPrefix;
+    /**
+     * 测试文件类生成名后缀
+     */
     private String testSuffix = "Test";
+    /**
+     * 代码生成器目标表名字,可逗号分隔,可like百分号形式模糊匹配
+     */
     private String tableName;
+    /**
+     * 表名大小写是否敏感
+     */
     private boolean isSensitive = false;
+    /**
+     * 数据库字段类型与java映射规则
+     */
     private Map<String, String> columnType = new HashMap<>();
 
     public String getJavaType(String type) {

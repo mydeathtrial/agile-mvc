@@ -1,5 +1,6 @@
 package com.agile.common.filter;
 
+import com.agile.common.base.Constant;
 import com.agile.common.util.StringUtil;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,38 +16,44 @@ import java.util.List;
 /**
  * @author 佟盟 on 2017/9/25
  */
-public class CORSFilter extends OncePerRequestFilter implements Filter {
+public class CorsFilter extends OncePerRequestFilter implements Filter {
     private String allowOrigin;
     private String allowMethods;
     private String allowCredentials;
     private String allowHeaders;
     private String exposeHeaders;
 
+    private static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    private static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    private static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    private static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    private static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        if (allowOrigin.equals("*") || StringUtil.isEmpty(allowOrigin)) {
-            httpServletResponse.setHeader("Access-Control-Allow-Origin", allowOrigin);
+        if (allowOrigin.equals(Constant.RegularAbout.SNOW) || StringUtil.isEmpty(allowOrigin)) {
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin);
         } else {
-            List<String> allowOriginList = Arrays.asList(allowOrigin.split(","));
+            List<String> allowOriginList = Arrays.asList(allowOrigin.split(Constant.RegularAbout.COMMA));
             String currentOrigin = httpServletRequest.getHeader("Origin");
             if (allowOriginList.contains(currentOrigin)) {
-                httpServletResponse.setHeader("Access-Control-Allow-Origin", currentOrigin);
+                httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, currentOrigin);
             }
         }
         if (StringUtil.isNotEmpty(allowOrigin)) {
-            httpServletResponse.setHeader("Access-Control-Allow-Origin", allowOrigin);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin);
         }
         if (StringUtil.isNotEmpty(allowMethods)) {
-            httpServletResponse.setHeader("Access-Control-Allow-Methods", allowMethods);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
         }
         if (StringUtil.isNotEmpty(allowCredentials)) {
-            httpServletResponse.setHeader("Access-Control-Allow-Credentials", allowCredentials);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS, allowCredentials);
         }
         if (StringUtil.isNotEmpty(allowHeaders)) {
-            httpServletResponse.setHeader("Access-Control-Allow-Headers", allowHeaders);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
         }
         if (StringUtil.isNotEmpty(exposeHeaders)) {
-            httpServletResponse.setHeader("Access-Control-Expose-Headers", exposeHeaders);
+            httpServletResponse.setHeader(ACCESS_CONTROL_EXPOSE_HEADERS, exposeHeaders);
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }

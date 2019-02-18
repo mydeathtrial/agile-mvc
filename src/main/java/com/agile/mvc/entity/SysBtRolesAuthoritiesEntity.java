@@ -1,28 +1,34 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Basic;
 import java.io.Serializable;
-import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import com.agile.common.annotation.Remark;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]角色权限表
  * @author agile gennerator
  */
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "sys_bt_roles_authorities")
 @Remark("[系统管理]角色权限表")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
 
-    /**
-     * 序列化参数
-     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysBtRolesAuthoritiesId;
@@ -31,112 +37,24 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
     @Remark("角色唯一标识")
     private String roleId;
 
-    /**
-     * 无参构造器
-     */
-    public SysBtRolesAuthoritiesEntity() { }
-
-    /**
-     * 带参构造器
-     */
-    public SysBtRolesAuthoritiesEntity(String sysBtRolesAuthoritiesId, String authorityId, String roleId) {
-        this.sysBtRolesAuthoritiesId = sysBtRolesAuthoritiesId;
-        this.authorityId = authorityId;
-        this.roleId = roleId;
-    }
-
+    @Column(name = "SYS_BT_ROLES_AUTHORITIES_ID", nullable = false)
     @Id
-    @Column(name = "sys_bt_roles_authorities_id", nullable = false)
     public String getSysBtRolesAuthoritiesId() {
         return sysBtRolesAuthoritiesId;
     }
 
-    public void setSysBtRolesAuthoritiesId(String sysBtRolesAuthoritiesId) {
-    this.sysBtRolesAuthoritiesId = sysBtRolesAuthoritiesId;
-    }
-
     @Basic
-    @Column(name = "authority_id", nullable = false)
+    @Column(name = "AUTHORITY_ID", nullable = false)
     public String getAuthorityId() {
         return authorityId;
     }
 
-    public void setAuthorityId(String authorityId) {
-    this.authorityId = authorityId;
-    }
-
+    @Column(name = "ROLE_ID", nullable = false)
     @Basic
-    @Column(name = "role_id", nullable = false)
     public String getRoleId() {
         return roleId;
     }
 
-    public void setRoleId(String roleId) {
-    this.roleId = roleId;
-    }
-
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysBtRolesAuthoritiesEntity)) {
-            return false;
-        }
-        SysBtRolesAuthoritiesEntity that = (SysBtRolesAuthoritiesEntity) object;
-        return Objects.equals(getSysBtRolesAuthoritiesId(), that.getSysBtRolesAuthoritiesId())
-        && Objects.equals(getAuthorityId(), that.getAuthorityId())
-        && Objects.equals(getRoleId(), that.getRoleId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSysBtRolesAuthoritiesId(), getAuthorityId(), getRoleId());
-    }
-
-    @Override
-    public String toString() {
-    return "SysBtRolesAuthoritiesEntity{"
-            + "sysBtRolesAuthoritiesId ='" + sysBtRolesAuthoritiesId + '\''
-            + ",authorityId ='" + authorityId + '\''
-            + ",roleId ='" + roleId + '\'' + '}';
-    }
-
-    private SysBtRolesAuthoritiesEntity(Builder builder) {
-        this.sysBtRolesAuthoritiesId = builder.sysBtRolesAuthoritiesId;
-        this.authorityId = builder.authorityId;
-        this.roleId = builder.roleId;
-    }
-
-    /**
-     * 建造者
-     */
-    public static class Builder {
-        private String sysBtRolesAuthoritiesId;
-        private String authorityId;
-        private String roleId;
-
-        public Builder setSysBtRolesAuthoritiesId(String sysBtRolesAuthoritiesId) {
-            this.sysBtRolesAuthoritiesId = sysBtRolesAuthoritiesId;
-            return this;
-        }
-        public Builder setAuthorityId(String authorityId) {
-            this.authorityId = authorityId;
-            return this;
-        }
-        public Builder setRoleId(String roleId) {
-            this.roleId = roleId;
-            return this;
-        }
-        public SysBtRolesAuthoritiesEntity build() {
-            return new SysBtRolesAuthoritiesEntity(this);
-        }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     @Override
     public SysBtRolesAuthoritiesEntity clone() {

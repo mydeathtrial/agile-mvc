@@ -188,7 +188,7 @@ public class DataBaseUtil {
             throw new RuntimeException("不认识的数据库类型!");
         }
         String template = dbInfo.type.templateUrl;
-        Map<String, String> param = new HashMap<>(3);
+        Map<String, String> param = new HashMap<>(Constant.NumberAbout.THREE);
         param.put("ip", dbInfo.ip);
         param.put("port", dbInfo.port);
         param.put("name", dbInfo.dbName);
@@ -381,8 +381,8 @@ public class DataBaseUtil {
             this.ip = properties.getDataBaseIp();
             this.port = properties.getDataBasePort();
             this.dbName = properties.getDataBaseName();
-            this.user = properties.getDataBaseUsername();
-            this.pass = properties.getDataBasePassword();
+            this.user = properties.getUsername();
+            this.pass = properties.getPassword();
         }
 
         public DB getType() {
@@ -455,7 +455,8 @@ public class DataBaseUtil {
 
         public String getTemplateUrl() {
             return templateUrl;
-        }}
+        }
+    }
 
     /**
      * 匹配类型

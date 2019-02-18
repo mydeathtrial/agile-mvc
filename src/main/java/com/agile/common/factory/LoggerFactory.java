@@ -50,6 +50,7 @@ public final class LoggerFactory {
     private static final String PATTERN = "%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}";
 
     static {
+
         if (loggerProperties == null) {
             throw new RuntimeException();
         }

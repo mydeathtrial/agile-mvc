@@ -1,28 +1,34 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Basic;
 import java.io.Serializable;
-import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import com.agile.common.annotation.Remark;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]角色
  * @author agile gennerator
  */
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "sys_roles")
 @Remark("[系统管理]角色")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysRolesEntity implements Serializable, Cloneable {
 
-    /**
-     * 序列化参数
-     */
     private static final long serialVersionUID = 1L;
     @Remark("角色唯一标识")
     private String sysRolesId;
@@ -33,131 +39,30 @@ public class SysRolesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
-    /**
-     * 无参构造器
-     */
-    public SysRolesEntity() { }
-
-    /**
-     * 带参构造器
-     */
-    public SysRolesEntity(String sysRolesId, String roleName, String roleDesc, Boolean enable) {
-        this.sysRolesId = sysRolesId;
-        this.roleName = roleName;
-        this.roleDesc = roleDesc;
-        this.enable = enable;
-    }
-
+    @Column(name = "SYS_ROLES_ID", nullable = false)
     @Id
-    @Column(name = "sys_roles_id", nullable = false)
     public String getSysRolesId() {
         return sysRolesId;
     }
 
-    public void setSysRolesId(String sysRolesId) {
-    this.sysRolesId = sysRolesId;
-    }
-
+    @Column(name = "ROLE_NAME")
     @Basic
-    @Column(name = "role_name")
     public String getRoleName() {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
-    this.roleName = roleName;
-    }
-
+    @Column(name = "ROLE_DESC")
     @Basic
-    @Column(name = "role_desc")
     public String getRoleDesc() {
         return roleDesc;
     }
 
-    public void setRoleDesc(String roleDesc) {
-    this.roleDesc = roleDesc;
-    }
-
     @Basic
-    @Column(name = "enable")
+    @Column(name = "ENABLE")
     public Boolean getEnable() {
         return enable;
     }
 
-    public void setEnable(Boolean enable) {
-    this.enable = enable;
-    }
-
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysRolesEntity)) {
-            return false;
-        }
-        SysRolesEntity that = (SysRolesEntity) object;
-        return Objects.equals(getSysRolesId(), that.getSysRolesId())
-        && Objects.equals(getRoleName(), that.getRoleName())
-        && Objects.equals(getRoleDesc(), that.getRoleDesc())
-        && Objects.equals(getEnable(), that.getEnable());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSysRolesId(), getRoleName(), getRoleDesc(), getEnable());
-    }
-
-    @Override
-    public String toString() {
-    return "SysRolesEntity{"
-            + "sysRolesId ='" + sysRolesId + '\''
-            + ",roleName ='" + roleName + '\''
-            + ",roleDesc ='" + roleDesc + '\''
-            + ",enable =" + enable + '}';
-    }
-
-    private SysRolesEntity(Builder builder) {
-        this.sysRolesId = builder.sysRolesId;
-        this.roleName = builder.roleName;
-        this.roleDesc = builder.roleDesc;
-        this.enable = builder.enable;
-    }
-
-    /**
-     * 建造者
-     */
-    public static class Builder {
-        private String sysRolesId;
-        private String roleName;
-        private String roleDesc;
-        private Boolean enable;
-
-        public Builder setSysRolesId(String sysRolesId) {
-            this.sysRolesId = sysRolesId;
-            return this;
-        }
-        public Builder setRoleName(String roleName) {
-            this.roleName = roleName;
-            return this;
-        }
-        public Builder setRoleDesc(String roleDesc) {
-            this.roleDesc = roleDesc;
-            return this;
-        }
-        public Builder setEnable(Boolean enable) {
-            this.enable = enable;
-            return this;
-        }
-        public SysRolesEntity build() {
-            return new SysRolesEntity(this);
-        }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     @Override
     public SysRolesEntity clone() {

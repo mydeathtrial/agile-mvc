@@ -4,6 +4,7 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
 import org.apache.commons.io.FileUtils;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -304,7 +305,9 @@ public class FileUtil extends FileUtils {
     }
 
     public static void downloadZip(List fileList, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        File zip = createFile(PropertiesUtil.getProperty("agile.download.temp_path"), "download.zip");
+        MultipartProperties multipartProperties = FactoryUtil.getBean(MultipartProperties.class);
+        assert multipartProperties != null;
+        File zip = createFile(multipartProperties.getLocation(), "download.zip");
         if (zip != null) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             createZipFile(fileList, new FileOutputStream(zip));

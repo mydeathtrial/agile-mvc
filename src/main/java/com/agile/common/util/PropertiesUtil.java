@@ -1,7 +1,7 @@
 package com.agile.common.util;
 
-import com.agile.common.annotation.ParsingProperties;
 import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -24,14 +24,13 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
-
-import static com.agile.common.util.ResourceUtil.getClassFromPackage;
 
 /**
  * @author mydeathtrial on 2017/3/11
@@ -51,27 +50,14 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         readDir("/");
         readDir(CLASS_PATH);
         mergeOrder("application-agile");
+        mergeOrder("application-datasource");
         mergeOrder("application-jpa");
+        mergeOrder("application-mvc");
         mergeOrder("application-kafka ");
         mergeOrder("application");
         mergeOrder("bootstrap");
         mergeOrder("agile-reset");
         coverEL();
-        //coverBean();
-    }
-
-    private static void coverBean() {
-        Set<Class<?>> classes = getClassFromPackage("com.agile", true);
-        ParsingProperties p = new ParsingProperties();
-        for (Class<?> c : classes) {
-            com.agile.common.annotation.Properties is = c.getDeclaredAnnotation(com.agile.common.annotation.Properties.class);
-            if (is != null) {
-                try {
-                    p.setProperties(c.newInstance(), is.prefix());
-                } catch (IllegalAccessException | InstantiationException ignored) {
-                }
-            }
-        }
     }
 
     private PropertiesUtil(File file) {
@@ -297,9 +283,13 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @param fileName 不带后缀文件名
      * @return JSONObject数据
      */
-    public static JSONObject getJson(String fileName) {
+    public static JSON getJson(String fileName) {
         String key = String.format("%s.json", fileName);
-        return properties.get(key) instanceof JSONObject ? (JSONObject) properties.get(key) : null;
+        Object value = properties.get(key);
+        if (JSON.class.isAssignableFrom(value.getClass())) {
+            return (JSON) properties.get(key);
+        }
+        return null;
     }
 
     /**
@@ -380,14 +370,40 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
             String key = String.valueOf(it.nextElement());
             if (key.endsWith(String.format("%s.json", fileSuffixName))) {
                 final int length = 5;
-                JSONObject json = getJson(key.substring(0, key.length() - length));
+                JSON json = getJson(key.substring(0, key.length() - length));
                 try {
-                    T node = (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
-                    if (node != null) {
-                        list.add(node);
+                    if (json instanceof JSONObject) {
+                        T node = (T) JSONObject.toBean((JSONObject) json, clazz, getClassMap(clazz));
+                        if (node != null) {
+                            list.add(node);
+                        }
+                    } else if (json instanceof JSONArray) {
+                        list.addAll(jsonArrayToObjectList((JSONArray) json, clazz));
                     }
+
                 } catch (Exception ignored) {
                 }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * jsonArray转List集合
+     *
+     * @param jsonArray 转换前
+     * @param clazz     转换集合类型
+     * @param <T>       泛型
+     * @return clazz集合
+     */
+    public static <T> List<T> jsonArrayToObjectList(JSONArray jsonArray, Class<T> clazz) {
+        List<T> list = new LinkedList<>();
+        for (Object o : jsonArray) {
+            if (o instanceof JSONObject) {
+                T node = (T) JSONObject.toBean((JSONObject) o, clazz, getClassMap(clazz));
+                list.add(node);
+            } else if (o instanceof JSONArray) {
+                list.addAll(jsonArrayToObjectList((JSONArray) o, clazz));
             }
         }
         return list;

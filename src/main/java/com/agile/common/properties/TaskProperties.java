@@ -11,5 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @Getter
 public class TaskProperties {
+    /**
+     * 定时任务开关
+     */
     private boolean enable = false;
 }

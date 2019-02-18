@@ -19,14 +19,12 @@ import org.apache.logging.log4j.Level;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.Transformers;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
@@ -46,8 +44,6 @@ import java.util.Map;
 /**
  * @author 佟盟 on 2017/11/15
  */
-@Lazy
-@Component
 public class Dao {
     private static Map<String, SimpleJpaRepository> map = new HashMap<>();
     private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);

@@ -2,16 +2,14 @@ package com.agile.common.config;
 
 import com.agile.common.base.Constant;
 import com.agile.common.cache.redis.RedisCacheManager;
+import com.agile.common.properties.CacheConfigProperties;
 import com.agile.common.properties.RedisConfigProperties;
-import com.agile.common.util.PropertiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -29,12 +27,17 @@ import java.time.Duration;
  * @author 佟盟 on 2017/10/8
  */
 @Configuration
-@EnableConfigurationProperties(value = {RedisConfigProperties.class})
-@Conditional(RedisConfig.class)
-public class RedisConfig implements Condition {
+@EnableConfigurationProperties(value = {CacheConfigProperties.class, RedisConfigProperties.class})
+@ConditionalOnClass({JedisPoolConfig.class, RedisConnectionFactory.class})
+@ConditionalOnProperty(name = "proxy", prefix = "agile.cache", havingValue = "redis")
+public class RedisAutoConfiguration {
+
+    private final RedisConfigProperties redisConfigProperties;
 
     @Autowired
-    RedisConfigProperties redisConfigProperties;
+    public RedisAutoConfiguration(RedisConfigProperties redisConfigProperties) {
+        this.redisConfigProperties = redisConfigProperties;
+    }
 
     @Bean
     public JedisPoolConfig redisPool() {
@@ -102,11 +105,5 @@ public class RedisConfig implements Condition {
         defaultCacheConfig.entryTtl(Duration.ofSeconds(redisConfigProperties.getDuration()));
         //初始化RedisCacheManager
         return new RedisCacheManager(redisCacheWriter, defaultCacheConfig);
-    }
-
-    @Override
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        String cacheProxy = PropertiesUtil.getProperty("agile.cache.proxy", "ehcache").toLowerCase();
-        return "redis".equals(cacheProxy);
     }
 }

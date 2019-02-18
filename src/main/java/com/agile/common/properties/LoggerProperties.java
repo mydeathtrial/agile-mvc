@@ -20,9 +20,21 @@ import java.util.Map;
 @Setter
 @Getter
 public class LoggerProperties {
+    /**
+     * 打印日志到某个目录下
+     */
     private String packageUri = Constant.RegularAbout.SLASH;
+    /**
+     * 日志打包依据
+     */
     private TriggerType triggerType = TriggerType.TIME;
+    /**
+     * 日志打包依据值
+     */
     private String triggerValue = "1";
+    /**
+     * 打印某个源码包的日志
+     */
     private Map<String, Level[]> packageName = new HashMap<>();
 
     /**

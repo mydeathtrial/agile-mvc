@@ -71,11 +71,11 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         return apiDescriptions.stream().map(toResourceGroups()).collect(Collectors.toList());
     }
 
-    static Iterable<ResourceGroup> sortedByName(Set<ResourceGroup> resourceGroups) {
+    private static Iterable<ResourceGroup> sortedByName(Set<ResourceGroup> resourceGroups) {
         return resourceGroups.stream().sorted(resourceGroupComparator()).collect(Collectors.toList());
     }
 
-    static Predicate<ApiDescription> belongsTo(final String groupName) {
+    private static Predicate<ApiDescription> belongsTo(final String groupName) {
         return input -> !input.getGroupName().isPresent()
                 || groupName.equals(input.getGroupName().get());
     }
@@ -86,7 +86,7 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
                 null);
     }
 
-    static Optional<String> longestCommonPath(List<ApiDescription> apiDescriptions) {
+    private static Optional<String> longestCommonPath(List<ApiDescription> apiDescriptions) {
         List<String> commons = newArrayList();
         if (null == apiDescriptions || apiDescriptions.isEmpty()) {
             return Optional.absent();

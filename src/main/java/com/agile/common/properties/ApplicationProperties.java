@@ -16,6 +16,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @Getter
 public class ApplicationProperties {
+    /**
+     * 版本号
+     */
     private String version;
+    /**
+     * 项目标题
+     */
     private String title;
 }

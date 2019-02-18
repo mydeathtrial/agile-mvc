@@ -7,50 +7,17 @@ agile:
     server-default-from: mydeathtrial@163.com
   cache:
     proxy: redis
-  druid:
-    data-base-ip: 127.0.0.1
-    data-base-name: agile_db
-    data-base-password: 123456
-    data-base-port: 3306
-    data-base-username: root
-    exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
-    filters: stat,wall
-    global-data-source-stat: true
-    init-size: 1
-    manager-name: admin
-    manager-password: admin
-    max-active: 100
-    max-pool-prepared-statement-per-connection-size: 20
-    max-wait: 60000
-    min-evictable-idle-time-millis: 300000
-    min-idle: 1
-    pool-prepared-statements: true
-    remove-abandoned: true
-    remove-abandoned-timeout: 300000
-    reset-enable: true
-    session-stat-max-count: 100000
-    test-on-borrow: false
-    test-on-return: false
-    test-while-idle: true
-    time-between-eviction-runs-millis: 60000
-    url: /druid
-    data-base-url-param: 'serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL'
-    type: mysql
   generator:
-    api-url: D:/workspace/agile/src/main/webapp/static/plus/swagger/
     entity-prefix: ''
     entity-suffix: Entity
-    entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity2
-    es-entity-prefix: ''
-    es-entity-suffix: Entity
-    es-entity-url: D:/workspace/agile/src/main/java/com/agile/mvc/entity/
+    entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
     service-prefix: ''
     service-suffix: Service
     service-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service2
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: '%'
+    table-name: 'sys_%,log_%,dictionary_%'
   ehcache:
     max-entries-local-heap: 10000
     max-entries-local-disk: 10000000
@@ -62,7 +29,7 @@ agile:
     memory-store-eviction-policy: LFU
     disk-expiry-thread-interval-seconds: 120
   kaptcha:
-    enable: true
+    enable: false
     token-header: CODE_TOKEN
     border: 'no'
     border-color: black
@@ -80,7 +47,7 @@ agile:
     trigger-type: size
     trigger-value: 1M
     package-name:
-      org.springframework: debug,info,error
+      org.springframework: info,error
   redis:
     host: 127.0.0.1
     max-idle: 300
@@ -102,20 +69,13 @@ agile:
     token-key: 23617641641
     token-timeout: 1800
     token-header: AGILE-TOKEN
-  servlet:
+  cors:
     allow-credentials: true
     allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID
     allow-methods: GET,POST,PUT,DELETE,OPTIONS,JSONP
     allow-origin: '*'
-    character: utf-8
   task:
-    enable: true
-  upload:
-    default-encoding: utf-8
-    include-format: txt,excel
-    max-upload-size: 204800
-  download:
-    temp-path: 'D://'
+    enable: false
   elasticsearch:
     enable: false
     cluster-name: argus

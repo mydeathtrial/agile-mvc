@@ -1,28 +1,34 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Basic;
 import java.io.Serializable;
-import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import com.agile.common.annotation.Remark;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]模块
  * @author agile gennerator
  */
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "sys_modules")
 @Remark("[系统管理]模块")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysModulesEntity implements Serializable, Cloneable {
 
-    /**
-     * 序列化参数
-     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysModulesId;
@@ -41,207 +47,54 @@ public class SysModulesEntity implements Serializable, Cloneable {
     @Remark("优先级")
     private Integer order;
 
-    /**
-     * 无参构造器
-     */
-    public SysModulesEntity() { }
-
-    /**
-     * 带参构造器
-     */
-    public SysModulesEntity(String sysModulesId, String name, String desc, String parentId, String url, String level, Boolean enable, Integer order) {
-        this.sysModulesId = sysModulesId;
-        this.name = name;
-        this.desc = desc;
-        this.parentId = parentId;
-        this.url = url;
-        this.level = level;
-        this.enable = enable;
-        this.order = order;
-    }
-
+    @Column(name = "SYS_MODULES_ID", nullable = false)
     @Id
-    @Column(name = "sys_modules_id", nullable = false)
     public String getSysModulesId() {
         return sysModulesId;
     }
 
-    public void setSysModulesId(String sysModulesId) {
-    this.sysModulesId = sysModulesId;
-    }
-
+    @Column(name = "NAME", nullable = false)
     @Basic
-    @Column(name = "name", nullable = false)
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-    this.name = name;
-    }
-
+    @Column(name = "DESC")
     @Basic
-    @Column(name = "desc")
     public String getDesc() {
         return desc;
     }
 
-    public void setDesc(String desc) {
-    this.desc = desc;
-    }
-
+    @Column(name = "PARENT_ID")
     @Basic
-    @Column(name = "parent_id")
     public String getParentId() {
         return parentId;
     }
 
-    public void setParentId(String parentId) {
-    this.parentId = parentId;
-    }
-
+    @Column(name = "URL")
     @Basic
-    @Column(name = "url")
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
-    this.url = url;
-    }
-
     @Basic
-    @Column(name = "level")
+    @Column(name = "LEVEL")
     public String getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
-    this.level = level;
-    }
-
     @Basic
-    @Column(name = "enable")
+    @Column(name = "ENABLE")
     public Boolean getEnable() {
         return enable;
     }
 
-    public void setEnable(Boolean enable) {
-    this.enable = enable;
-    }
-
+    @Column(name = "ORDER")
     @Basic
-    @Column(name = "order")
     public Integer getOrder() {
         return order;
     }
 
-    public void setOrder(Integer order) {
-    this.order = order;
-    }
-
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysModulesEntity)) {
-            return false;
-        }
-        SysModulesEntity that = (SysModulesEntity) object;
-        return Objects.equals(getSysModulesId(), that.getSysModulesId())
-        && Objects.equals(getName(), that.getName())
-        && Objects.equals(getDesc(), that.getDesc())
-        && Objects.equals(getParentId(), that.getParentId())
-        && Objects.equals(getUrl(), that.getUrl())
-        && Objects.equals(getLevel(), that.getLevel())
-        && Objects.equals(getEnable(), that.getEnable())
-        && Objects.equals(getOrder(), that.getOrder());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSysModulesId(), getName(), getDesc(), getParentId(), getUrl(), getLevel(), getEnable(), getOrder());
-    }
-
-    @Override
-    public String toString() {
-    return "SysModulesEntity{"
-            + "sysModulesId ='" + sysModulesId + '\''
-            + ",name ='" + name + '\''
-            + ",desc ='" + desc + '\''
-            + ",parentId ='" + parentId + '\''
-            + ",url ='" + url + '\''
-            + ",level ='" + level + '\''
-            + ",enable =" + enable
-            + ",order =" + order + '}';
-    }
-
-    private SysModulesEntity(Builder builder) {
-        this.sysModulesId = builder.sysModulesId;
-        this.name = builder.name;
-        this.desc = builder.desc;
-        this.parentId = builder.parentId;
-        this.url = builder.url;
-        this.level = builder.level;
-        this.enable = builder.enable;
-        this.order = builder.order;
-    }
-
-    /**
-     * 建造者
-     */
-    public static class Builder {
-        private String sysModulesId;
-        private String name;
-        private String desc;
-        private String parentId;
-        private String url;
-        private String level;
-        private Boolean enable;
-        private Integer order;
-
-        public Builder setSysModulesId(String sysModulesId) {
-            this.sysModulesId = sysModulesId;
-            return this;
-        }
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-        public Builder setDesc(String desc) {
-            this.desc = desc;
-            return this;
-        }
-        public Builder setParentId(String parentId) {
-            this.parentId = parentId;
-            return this;
-        }
-        public Builder setUrl(String url) {
-            this.url = url;
-            return this;
-        }
-        public Builder setLevel(String level) {
-            this.level = level;
-            return this;
-        }
-        public Builder setEnable(Boolean enable) {
-            this.enable = enable;
-            return this;
-        }
-        public Builder setOrder(Integer order) {
-            this.order = order;
-            return this;
-        }
-        public SysModulesEntity build() {
-            return new SysModulesEntity(this);
-        }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     @Override
     public SysModulesEntity clone() {

@@ -156,6 +156,9 @@ public class SqlUtil {
      * @param sqlObject sql druid对象
      */
     private static List<SQLObject> getMuchPart(SQLObject sqlObject) {
+        if (sqlObject == null) {
+            return null;
+        }
         List<SQLObject> result = new LinkedList<>();
         List<SQLObject> children = ((SQLExpr) sqlObject).getChildren();
         if (children != null && children.size() > 0) {

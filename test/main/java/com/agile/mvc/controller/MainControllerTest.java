@@ -1,7 +1,7 @@
 package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
-import com.agile.common.config.SpringConfig;
+import com.agile.common.config.AgileAutoConfiguration;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.PropertiesUtil;
@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
  * @author 佟盟 on 2017/5/5
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {SpringConfig.class})
+@ContextConfiguration(classes = {AgileAutoConfiguration.class})
 @Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
 public class MainControllerTest {
     private static RequestMappingHandlerMapping handlerMapping;

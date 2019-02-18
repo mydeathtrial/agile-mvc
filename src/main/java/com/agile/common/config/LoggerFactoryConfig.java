@@ -49,6 +49,7 @@ public class LoggerFactoryConfig extends ConfigurationFactory {
 
     @Override
     public Configuration getConfiguration(LoggerContext loggerContext, String name, URI configLocation) {
+        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
         ConfigurationBuilder<BuiltConfiguration> builder = newConfigurationBuilder();
         return createConfiguration(name, builder);
     }

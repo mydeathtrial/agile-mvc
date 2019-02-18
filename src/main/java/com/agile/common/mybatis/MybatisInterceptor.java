@@ -11,7 +11,6 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -27,7 +26,6 @@ import java.util.Properties;
  * @version 1.0
  * @since 1.0
  */
-@Component
 @Intercepts(@Signature(method = "prepare", type = StatementHandler.class, args = {Connection.class, Integer.class}))
 public class MybatisInterceptor implements Interceptor {
 

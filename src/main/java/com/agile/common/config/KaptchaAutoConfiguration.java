@@ -4,21 +4,17 @@ import com.agile.common.factory.LoggerFactory;
 import com.agile.common.kaptcha.KaptchaServlet;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.text.TextProducer;
 import com.google.code.kaptcha.util.Config;
 import com.google.code.kaptcha.util.Configurable;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Condition;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.type.AnnotatedTypeMetadata;
 
 import javax.servlet.http.HttpServlet;
 import java.util.Properties;
@@ -29,11 +25,15 @@ import java.util.Random;
  */
 @Configuration
 @EnableConfigurationProperties(value = {KaptchaConfigProperties.class})
-@Conditional(KaptchaConfig.class)
-public class KaptchaConfig extends Configurable implements TextProducer, Condition {
+@ConditionalOnClass({DefaultKaptcha.class})
+@ConditionalOnProperty(name = "enable", prefix = "agile.kaptcha", havingValue = "true")
+public class KaptchaAutoConfiguration extends Configurable implements TextProducer {
 
-    @Autowired
-    private KaptchaConfigProperties kaptchaConfigProperties;
+    private final KaptchaConfigProperties kaptchaConfigProperties;
+
+    public KaptchaAutoConfiguration() {
+        this.kaptchaConfigProperties = FactoryUtil.getBean(KaptchaConfigProperties.class);
+    }
 
 
     @Bean
@@ -65,7 +65,7 @@ public class KaptchaConfig extends Configurable implements TextProducer, Conditi
         properties.setProperty("kaptcha.image.height", kaptchaConfigProperties.getImageHeight());
         properties.setProperty("kaptcha.textproducer.char.length", kaptchaConfigProperties.getTextproducerCharLength());
         properties.setProperty("kaptcha.textproducer.font.names", kaptchaConfigProperties.getTextproducerFontNames());
-        properties.setProperty("kaptcha.textproducer.impl", "com.agile.common.config.KaptchaConfig");
+        properties.setProperty("kaptcha.textproducer.impl", "com.agile.common.config.KaptchaAutoConfiguration");
         return properties;
     }
 
@@ -99,10 +99,5 @@ public class KaptchaConfig extends Configurable implements TextProducer, Conditi
         }
 
         return text.toString();
-    }
-
-    @Override
-    public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-        return PropertiesUtil.getProperty("agile.kaptcha.enable", boolean.class, "false");
     }
 }

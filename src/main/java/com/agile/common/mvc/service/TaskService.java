@@ -123,11 +123,11 @@ public class TaskService extends BusinessService<SysTaskEntity> {
                 String methodName = method.getName();
 
                 String id = clazz.getName() + "." + methodName;
-                SysTaskTargetEntity newData = SysTaskTargetEntity.builder().setSysTaskTargetId(id)
-                        .setTargetPackage(clazz.getPackage().getName())
-                        .setTargetClass(clazz.getSimpleName())
-                        .setTargetMethod(methodName)
-                        .setName(id).build();
+                SysTaskTargetEntity newData = SysTaskTargetEntity.builder().sysTaskTargetId(id)
+                        .targetPackage(clazz.getPackage().getName())
+                        .targetClass(clazz.getSimpleName())
+                        .targetMethod(methodName)
+                        .name(id).build();
                 SysTaskTargetEntity oldData = mapCache.get(id);
                 if (oldData == null) {
                     dao.save(newData);

@@ -1,28 +1,34 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Id;
 import javax.persistence.Column;
 import javax.persistence.Basic;
 import java.io.Serializable;
-import java.util.Objects;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import com.agile.common.annotation.Remark;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]权限资源表
  * @author agile gennerator
  */
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "sys_bt_authorities_resources")
 @Remark("[系统管理]权限资源表")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable {
 
-    /**
-     * 序列化参数
-     */
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysBtAuthoritiesResourcesId;
@@ -31,112 +37,24 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     @Remark("权限唯一标识")
     private String authorityId;
 
-    /**
-     * 无参构造器
-     */
-    public SysBtAuthoritiesResourcesEntity() { }
-
-    /**
-     * 带参构造器
-     */
-    public SysBtAuthoritiesResourcesEntity(String sysBtAuthoritiesResourcesId, String resourceId, String authorityId) {
-        this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
-        this.resourceId = resourceId;
-        this.authorityId = authorityId;
-    }
-
+    @Column(name = "SYS_BT_AUTHORITIES_RESOURCES_ID", nullable = false)
     @Id
-    @Column(name = "sys_bt_authorities_resources_id", nullable = false)
     public String getSysBtAuthoritiesResourcesId() {
         return sysBtAuthoritiesResourcesId;
     }
 
-    public void setSysBtAuthoritiesResourcesId(String sysBtAuthoritiesResourcesId) {
-    this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
-    }
-
     @Basic
-    @Column(name = "resource_id", nullable = false)
+    @Column(name = "RESOURCE_ID", nullable = false)
     public String getResourceId() {
         return resourceId;
     }
 
-    public void setResourceId(String resourceId) {
-    this.resourceId = resourceId;
-    }
-
     @Basic
-    @Column(name = "authority_id", nullable = false)
+    @Column(name = "AUTHORITY_ID", nullable = false)
     public String getAuthorityId() {
         return authorityId;
     }
 
-    public void setAuthorityId(String authorityId) {
-    this.authorityId = authorityId;
-    }
-
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (!(object instanceof SysBtAuthoritiesResourcesEntity)) {
-            return false;
-        }
-        SysBtAuthoritiesResourcesEntity that = (SysBtAuthoritiesResourcesEntity) object;
-        return Objects.equals(getSysBtAuthoritiesResourcesId(), that.getSysBtAuthoritiesResourcesId())
-        && Objects.equals(getResourceId(), that.getResourceId())
-        && Objects.equals(getAuthorityId(), that.getAuthorityId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getSysBtAuthoritiesResourcesId(), getResourceId(), getAuthorityId());
-    }
-
-    @Override
-    public String toString() {
-    return "SysBtAuthoritiesResourcesEntity{"
-            + "sysBtAuthoritiesResourcesId ='" + sysBtAuthoritiesResourcesId + '\''
-            + ",resourceId ='" + resourceId + '\''
-            + ",authorityId ='" + authorityId + '\'' + '}';
-    }
-
-    private SysBtAuthoritiesResourcesEntity(Builder builder) {
-        this.sysBtAuthoritiesResourcesId = builder.sysBtAuthoritiesResourcesId;
-        this.resourceId = builder.resourceId;
-        this.authorityId = builder.authorityId;
-    }
-
-    /**
-     * 建造者
-     */
-    public static class Builder {
-        private String sysBtAuthoritiesResourcesId;
-        private String resourceId;
-        private String authorityId;
-
-        public Builder setSysBtAuthoritiesResourcesId(String sysBtAuthoritiesResourcesId) {
-            this.sysBtAuthoritiesResourcesId = sysBtAuthoritiesResourcesId;
-            return this;
-        }
-        public Builder setResourceId(String resourceId) {
-            this.resourceId = resourceId;
-            return this;
-        }
-        public Builder setAuthorityId(String authorityId) {
-            this.authorityId = authorityId;
-            return this;
-        }
-        public SysBtAuthoritiesResourcesEntity build() {
-            return new SysBtAuthoritiesResourcesEntity(this);
-        }
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
 
     @Override
     public SysBtAuthoritiesResourcesEntity clone() {

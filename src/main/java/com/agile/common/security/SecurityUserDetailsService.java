@@ -32,7 +32,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUsersEntity user;
-        user = dao.findOne(SysUsersEntity.builder().setSaltKey(username).build());
+        user = dao.findOne(SysUsersEntity.builder().saltKey(username).build());
         if (ObjectUtil.isEmpty(user)) {
             throw new UsernameNotFoundException(null);
         }
@@ -65,14 +65,14 @@ public class SecurityUserDetailsService implements UserDetailsService {
 
     @Transactional
     public void updateLoginInfo(String token) {
-        SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().setToken(token).build());
+        SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().token(token).build());
         sysLoginEntity.setLogoutTime(DateUtil.getCurrentDate());
         dao.update(sysLoginEntity);
     }
 
     @Transactional
     public void updateLoginInfo(String oldToken, String newToken) {
-        SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().setToken(oldToken).build());
+        SysLoginEntity sysLoginEntity = dao.findOne(SysLoginEntity.builder().token(oldToken).build());
         sysLoginEntity.setToken(newToken);
         dao.update(sysLoginEntity);
     }

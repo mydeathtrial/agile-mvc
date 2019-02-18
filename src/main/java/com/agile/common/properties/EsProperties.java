@@ -11,6 +11,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Setter
 @Getter
 public class EsProperties {
+    /**
+     * 开关
+     */
     private boolean enable;
     private String clusterName;
     private String clusterNodes;

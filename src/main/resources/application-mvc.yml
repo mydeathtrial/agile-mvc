@@ -11,7 +11,9 @@ spring:
     static-path-pattern: /static/**
   messages:
     encoding: UTF-8
-    basename: com.agile.conf.message
+    basename: com/agile/conf/message
+    use-code-as-default-message: true
+    cache-duration: 3600
   servlet:
     multipart:
       max-request-size: 10MB
