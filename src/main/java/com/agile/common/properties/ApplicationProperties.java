@@ -1,5 +1,6 @@
 package com.agile.common.properties;
 
+import com.agile.common.base.Constant;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,4 +25,12 @@ public class ApplicationProperties {
      * 项目标题
      */
     private String title;
+    /**
+     * 工作ID (0~31)
+     */
+    long workerId = Constant.NumberAbout.ONE;
+    /**
+     * 数据中心ID (0~31)
+     */
+    long dataCenterId = Constant.NumberAbout.ONE;
 }

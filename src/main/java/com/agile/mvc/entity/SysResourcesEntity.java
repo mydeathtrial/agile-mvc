@@ -49,56 +49,56 @@ public class SysResourcesEntity implements Serializable, Cloneable {
     @Remark("模块")
     private String moduleId;
 
-    @Column(name = "SYS_RESOURCES_ID", nullable = false)
     @Id
+    @Column(name = "SYS_RESOURCES_ID", nullable = false, length = 8)
     public String getSysResourcesId() {
         return sysResourcesId;
     }
 
+    @Column(name = "TYPE", length = 4)
     @Basic
-    @Column(name = "TYPE")
     public String getType() {
         return type;
     }
 
+    @Column(name = "NAME", length = 24)
     @Basic
-    @Column(name = "NAME")
     public String getName() {
         return name;
     }
 
-    @Column(name = "DESC")
     @Basic
+    @Column(name = "DESC", length = 200)
     public String getDesc() {
         return desc;
     }
 
-    @Column(name = "PATH")
     @Basic
+    @Column(name = "PATH", length = 200)
     public String getPath() {
         return path;
     }
 
-    @Column(name = "PRIORITY")
+    @Column(name = "PRIORITY", length = 100)
     @Basic
     public String getPriority() {
         return priority;
     }
 
     @Basic
-    @Column(name = "ENABLE")
+    @Column(name = "ENABLE", length = 1)
     public Boolean getEnable() {
         return enable;
     }
 
+    @Column(name = "ISSYS", length = 1)
     @Basic
-    @Column(name = "ISSYS")
     public Boolean getIssys() {
         return issys;
     }
 
     @Basic
-    @Column(name = "MODULE_ID")
+    @Column(name = "MODULE_ID", length = 8)
     public String getModuleId() {
         return moduleId;
     }

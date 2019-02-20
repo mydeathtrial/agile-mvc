@@ -62,83 +62,83 @@ public class SysUsersEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enabled;
 
-    @Column(name = "SYS_USERS_ID", nullable = false)
+    @Column(name = "SYS_USERS_ID", nullable = false, length = 8)
     @Id
     public String getSysUsersId() {
         return sysUsersId;
     }
 
+    @Column(name = "SALT_KEY", nullable = false, length = 24)
     @Basic
-    @Column(name = "SALT_KEY", nullable = false)
     public String getSaltKey() {
         return saltKey;
     }
 
+    @Column(name = "SALT_VALUE", nullable = false, length = 100)
     @Basic
-    @Column(name = "SALT_VALUE", nullable = false)
     public String getSaltValue() {
         return saltValue;
     }
 
+    @Column(name = "NAME", length = 8)
     @Basic
-    @Column(name = "NAME")
     public String getName() {
         return name;
     }
 
-    @Column(name = "V_QZJGID")
     @Basic
+    @Column(name = "V_QZJGID", length = 8)
     public String getVQzjgid() {
         return vQzjgid;
     }
 
-    @Column(name = "V_QZJGMC")
     @Basic
+    @Column(name = "V_QZJGMC", length = 24)
     public String getVQzjgmc() {
         return vQzjgmc;
     }
 
-    @Column(name = "AREA_ID")
+    @Column(name = "AREA_ID", length = 8)
     @Basic
     public String getAreaId() {
         return areaId;
     }
 
-    @Column(name = "EXPIRED_TIME")
+    @Column(name = "EXPIRED_TIME", length = 26)
     @Basic
     public Date getExpiredTime() {
         return expiredTime;
     }
 
+    @Column(name = "IS_LOCKED", length = 1)
     @Basic
-    @Column(name = "IS_LOCKED")
     public Boolean getIsLocked() {
         return isLocked;
     }
 
-    @Column(name = "ON_LINE_STRATEGY")
+    @Column(name = "ON_LINE_STRATEGY", length = 4)
     @Basic
     public String getOnLineStrategy() {
         return onLineStrategy;
     }
 
-    @Column(name = "CREATE_TIME")
     @Basic
     @Generated(GenerationTime.INSERT)
+    @Column(name = "CREATE_TIME", length = 26)
     public Date getCreateTime() {
         return createTime;
     }
 
-    @Column(name = "UPDATE_TIME")
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @Generated(GenerationTime.ALWAYS)
+    @Column(name = "UPDATE_TIME", length = 26)
     public Date getUpdateTime() {
         return updateTime;
     }
 
     @Basic
-    @Column(name = "ENABLED")
+    @Column(name = "ENABLED", length = 1)
     public Boolean getEnabled() {
         return enabled;
     }

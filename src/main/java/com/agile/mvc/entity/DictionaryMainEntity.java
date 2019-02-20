@@ -37,19 +37,19 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
     @Remark("字典名称")
     private String name;
 
-    @Column(name = "dictionary_main_id", nullable = false)
     @Id
+    @Column(name = "dictionary_main_id", nullable = false, length = 8)
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
 
+    @Column(name = "code", nullable = false, length = 8)
     @Basic
-    @Column(name = "code", nullable = false)
     public String getCode() {
         return code;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", length = 64)
     @Basic
     public String getName() {
         return name;

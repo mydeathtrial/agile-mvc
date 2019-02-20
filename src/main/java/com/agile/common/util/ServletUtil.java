@@ -1,7 +1,7 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
-import net.sf.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.Contract;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,7 +12,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -144,29 +143,21 @@ public class ServletUtil {
         try {
             BufferedReader br = request.getReader();
 
-            String cache;
+            String temp;
             StringBuilder jsonStr = new StringBuilder();
-            while ((cache = br.readLine()) != null) {
-                jsonStr.append(cache);
+            while ((temp = br.readLine()) != null) {
+                jsonStr.append(temp);
             }
-            JSONObject json;
-            try {
-                json = (JSONObject) JSONUtil.toJSON(jsonStr.toString());
-            } catch (Exception e) {
-                return null;
-            }
-            if (json != null) {
-                Iterator keys = json.keys();
-                Map<String, Object> map = new HashMap<>(json.size() + 1);
-                map.put(Constant.ResponseAbout.BODY, json);
-                while (keys.hasNext()) {
-                    String keyName = keys.next().toString();
-                    Object value = json.get(keyName);
-                    map.put(keyName, value);
-                }
+            Map<String, Object> map;
+            JsonNode jsonNode;
+            if (jsonStr.length() > 0) {
+                jsonNode = JSONUtil.toJsonNode(jsonStr.toString());
+                map = new HashMap<>(1);
+                map.put(Constant.ResponseAbout.BODY, jsonNode);
                 return map;
             }
         } catch (Exception ignored) {
+            return null;
         }
         return null;
     }

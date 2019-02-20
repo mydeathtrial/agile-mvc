@@ -10,8 +10,10 @@ import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.PropertiesUtil;
 import com.agile.mvc.entity.SysUsersEntity;
+import com.fasterxml.jackson.databind.JsonNode;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -102,15 +110,15 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(Class<T> clazz) {
-        T o = null;
-        Object json = getInParam(Constant.ResponseAbout.BODY);
-        if (json != null) {
-            o = JSONUtil.toBean(clazz, (JSONObject) json);
+        Object jsonNode = getInParam(Constant.ResponseAbout.BODY);
+        if (jsonNode != null) {
+            try {
+                return JSONUtil.toBean(clazz, jsonNode.toString());
+            } catch (IOException e) {
+                return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
+            }
         }
-        if (o == null) {
-            o = ObjectUtil.getObjectFromMap(clazz, this.getInParam());
-        }
-        return o;
+        return null;
     }
 
     /**
@@ -120,7 +128,7 @@ public class MainService implements ServiceInterface {
      * @param prefix 筛选参数前缀
      * @return 入参映射对象
      */
-    protected <T> T getInParam(Class<T> clazz, String prefix) {
+    protected <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
         return ObjectUtil.getObjectFromMap(clazz, this.getInParam(), prefix);
     }
 
@@ -132,7 +140,7 @@ public class MainService implements ServiceInterface {
      * @param suffix 筛选参数后缀
      * @return 入参映射对象
      */
-    protected <T> T getInParam(Class<T> clazz, String prefix, String suffix) {
+    protected <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
         return ObjectUtil.getObjectFromMap(clazz, this.getInParam(), prefix, suffix);
     }
 
@@ -145,6 +153,13 @@ public class MainService implements ServiceInterface {
     protected String getInParam(String key, String defaultValue) {
         Object value = inParam.get().get(key);
         if (ObjectUtil.isEmpty(value)) {
+            Object body = inParam.get().get(Constant.ResponseAbout.BODY);
+            if (body != null) {
+                JsonNode v = ((JsonNode) body).get(key);
+                if (v != null) {
+                    return v.asText();
+                }
+            }
             return defaultValue;
         }
         return String.valueOf(value);
@@ -158,22 +173,58 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(String key, Class<T> clazz) {
-        if (!containsKey(key)) {
-            return null;
-        }
-        Object v = getInParam(key);
-        T value;
-        if (v instanceof JSONObject) {
-            value = PropertiesUtil.getObjectFromJson(clazz, (JSONObject) getInParam(key));
-        } else {
+        T result = null;
+        if (containsKey(key)) {
+            Object v = getInParam(key);
             if (ClassUtil.canCastClass(clazz)) {
-                value = ObjectUtil.cast(clazz, v);
-            } else {
-                value = getInParam(key, clazz, null);
+                result = ObjectUtil.cast(clazz, v);
+            }
+        } else {
+            Object jsonNode = getInParam(Constant.ResponseAbout.BODY);
+            if (jsonNode != null) {
+                JsonNode json = ((JsonNode) jsonNode);
+                JsonNode value = json.get(key);
+                if (value != null && !value.isNull()) {
+                    if (clazz == String.class && value.isTextual()) {
+                        result = (T) value.textValue();
+                    } else if (clazz == Integer.class && value.isInt()) {
+                        result = (T) Integer.valueOf(value.intValue());
+                    } else if (clazz == Long.class && value.isLong()) {
+                        result = (T) Long.valueOf(value.longValue());
+                    } else if (clazz == BigInteger.class && value.isBigInteger()) {
+                        result = (T) value.bigIntegerValue();
+                    } else if (clazz == byte[].class && value.isBinary()) {
+                        try {
+                            result = (T) value.binaryValue();
+                        } catch (IOException ignored) {
+                        }
+                    } else if (clazz == BigDecimal.class && value.isBigDecimal()) {
+                        result = (T) BigDecimal.valueOf(value.asLong());
+                    } else if (clazz == boolean.class && value.isBoolean()) {
+                        result = (T) Boolean.valueOf(value.booleanValue());
+                    } else if (clazz == double.class && value.isDouble()) {
+                        result = (T) Double.valueOf(value.doubleValue());
+                    } else if (clazz == float.class && value.isFloat()) {
+                        result = (T) Float.valueOf(value.floatValue());
+                    } else if (clazz == short.class && value.isShort()) {
+                        result = (T) Short.valueOf(value.shortValue());
+                    } else if (clazz == Number.class && value.isNumber()) {
+                        result = (T) value.numberValue();
+                    } else if (clazz == Date.class && value.isLong()) {
+                        result = (T) new Date(value.longValue());
+                    } else if (clazz == Date.class && value.isTextual()) {
+                        result = ObjectUtil.cast(clazz, value.asText());
+                    } else {
+                        try {
+                            result = JSONUtil.toBean(clazz, value.toString());
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
             }
         }
 
-        return value;
+        return result;
     }
 
     /**
@@ -246,7 +297,37 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Map<String, Object> getInParam() {
-        return inParam.get();
+        Map<String, Object> map = inParam.get();
+        Object body = map.get(Constant.ResponseAbout.BODY);
+        if (body != null) {
+
+            String bodyString = body.toString();
+            if (bodyString != null) {
+                JSON json = JSONUtil.toJSON(bodyString);
+                if (json == null) {
+                    return map;
+                }
+
+                Map<String, Object> withBodyParam = new HashMap<>(json.size() + map.size());
+                withBodyParam.putAll(map);
+
+                if (json.isArray()) {
+                    Iterator it = ((JSONArray) json).iterator();
+                    int index = 0;
+                    while (it.hasNext()) {
+                        withBodyParam.put(Integer.toString(index), it.next());
+                    }
+                } else {
+                    Iterator it = ((JSONObject) json).keys();
+                    while (it.hasNext()) {
+                        String key = it.next().toString();
+                        withBodyParam.put(key, ((JSONObject) json).get(key));
+                    }
+                }
+                return withBodyParam;
+            }
+        }
+        return map;
     }
 
     /**

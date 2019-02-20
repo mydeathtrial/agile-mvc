@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnClass({ESConfig.class, ElasticsearchClient.class})
 @EnableConfigurationProperties(value = {EsProperties.class})
-@ConditionalOnProperty(name = "enable", prefix = "agile.elasticsearch", havingValue = "false")
+@ConditionalOnProperty(name = "enable", prefix = "agile.elasticsearch", havingValue = "true")
 public class DataFactoryAutoConfiguration {
     private final EsProperties esProperties;
 

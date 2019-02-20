@@ -21,6 +21,7 @@ public class Constant {
         public static final String RETURN = "return";
         public static final String RESULT = "result";
         public static final String BODY = "body";
+        public static final String BODY_STR = "body_str";
     }
 
     /**

@@ -41,32 +41,32 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
-    @Column(name = "SYS_AUTHORITY_ID", nullable = false)
+    @Column(name = "SYS_AUTHORITY_ID", nullable = false, length = 8)
     @Id
     public String getSysAuthorityId() {
         return sysAuthorityId;
     }
 
+    @Column(name = "MARK", length = 8)
     @Basic
-    @Column(name = "MARK")
     public String getMark() {
         return mark;
     }
 
-    @Column(name = "NAME", nullable = false)
     @Basic
+    @Column(name = "NAME", nullable = false, length = 24)
     public String getName() {
         return name;
     }
 
-    @Column(name = "DESC")
     @Basic
+    @Column(name = "DESC", length = 200)
     public String getDesc() {
         return desc;
     }
 
     @Basic
-    @Column(name = "ENABLE")
+    @Column(name = "ENABLE", length = 1)
     public Boolean getEnable() {
         return enable;
     }

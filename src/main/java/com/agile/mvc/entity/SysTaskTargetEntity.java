@@ -43,38 +43,38 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
     @Remark("备注")
     private String remarks;
 
-    @Column(name = "sys_task_target_id", nullable = false)
     @Id
+    @Column(name = "sys_task_target_id", nullable = false, length = 255)
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", length = 255)
     @Basic
     public String getName() {
         return name;
     }
 
-    @Column(name = "target_package", nullable = false)
     @Basic
+    @Column(name = "target_package", nullable = false, length = 100)
     public String getTargetPackage() {
         return targetPackage;
     }
 
-    @Column(name = "target_class", nullable = false)
+    @Column(name = "target_class", nullable = false, length = 40)
     @Basic
     public String getTargetClass() {
         return targetClass;
     }
 
-    @Column(name = "target_method", nullable = false)
     @Basic
+    @Column(name = "target_method", nullable = false, length = 40)
     public String getTargetMethod() {
         return targetMethod;
     }
 
-    @Column(name = "remarks")
     @Basic
+    @Column(name = "remarks", length = 255)
     public String getRemarks() {
         return remarks;
     }

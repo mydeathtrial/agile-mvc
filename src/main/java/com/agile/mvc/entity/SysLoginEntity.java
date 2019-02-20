@@ -43,38 +43,38 @@ public class SysLoginEntity implements Serializable, Cloneable {
     @Remark("口令")
     private String token;
 
-    @Column(name = "sys_login_id", nullable = false)
+    @Column(name = "sys_login_id", nullable = false, length = 8)
     @Id
     public String getSysLoginId() {
         return sysLoginId;
     }
 
     @Basic
-    @Column(name = "sys_user_id")
+    @Column(name = "sys_user_id", length = 8)
     public String getSysUserId() {
         return sysUserId;
     }
 
+    @Column(name = "login_time", length = 26)
     @Basic
-    @Column(name = "login_time")
     public Date getLoginTime() {
         return loginTime;
     }
 
-    @Column(name = "logout_time")
+    @Column(name = "logout_time", length = 26)
     @Basic
     public Date getLogoutTime() {
         return logoutTime;
     }
 
+    @Column(name = "login_ip", length = 15)
     @Basic
-    @Column(name = "login_ip")
     public String getLoginIp() {
         return loginIp;
     }
 
-    @Column(name = "token")
     @Basic
+    @Column(name = "token", length = 8)
     public String getToken() {
         return token;
     }

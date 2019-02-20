@@ -3,12 +3,13 @@ package com.agile.common.mvc.service;
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
+import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.validate.ValidateMsg;
 import org.springframework.data.domain.Sort;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.validation.ConstraintViolation;
@@ -92,11 +93,14 @@ public class BusinessService<T> extends MainService {
         if (!isGenerate && idValue == null) {
             String idValueTemp;
             Class<?> type = idField.getType();
-            if (type == int.class || type == long.class || type == Integer.class || type == Long.class) {
-                idValueTemp = RandomStringUtil.getRandom(length, RandomStringUtil.Random.NUMBER);
-            } else {
-                idValueTemp = RandomStringUtil.getRandom(length, RandomStringUtil.Random.MIX_1);
+            Column column = type.getAnnotation(Column.class);
+            int idLength = length;
+            if (column != null && column.length() > 0) {
+                idLength = column.length();
             }
+            idValueTemp = Long.toString(IdUtil.generatorId());
+
+            idValueTemp = idValueTemp.substring(idValueTemp.length() - idLength);
             idField.set(entity, ObjectUtil.cast(idField.getType(), idValueTemp));
         }
         dao.save(entity);

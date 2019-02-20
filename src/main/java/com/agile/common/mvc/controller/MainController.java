@@ -23,6 +23,7 @@ import com.agile.common.util.StringUtil;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -301,6 +302,12 @@ public class MainController {
             value = getService().getInParam();
         } else {
             value = getService().getInParam().get(key);
+            if (value == null) {
+                Object body = getService().getInParam().get(Constant.ResponseAbout.BODY);
+                if (body != null) {
+                    value = ((JsonNode) body).asText();
+                }
+            }
         }
 
         List<ValidateMsg> list = new ArrayList<>();

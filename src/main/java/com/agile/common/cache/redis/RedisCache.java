@@ -31,7 +31,7 @@ public class RedisCache extends org.springframework.data.redis.cache.RedisCache 
 
     private static RedisTemplate getRedisTemplate() {
         if (ObjectUtil.isEmpty(redisTemplate)) {
-            redisTemplate = FactoryUtil.getBean(RedisTemplate.class);
+            redisTemplate = (RedisTemplate) FactoryUtil.getBean("redisTemplate");
         }
         return redisTemplate;
     }

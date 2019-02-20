@@ -37,20 +37,20 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     @Remark("权限唯一标识")
     private String authorityId;
 
-    @Column(name = "SYS_BT_AUTHORITIES_RESOURCES_ID", nullable = false)
+    @Column(name = "SYS_BT_AUTHORITIES_RESOURCES_ID", nullable = false, length = 8)
     @Id
     public String getSysBtAuthoritiesResourcesId() {
         return sysBtAuthoritiesResourcesId;
     }
 
+    @Column(name = "RESOURCE_ID", nullable = false, length = 8)
     @Basic
-    @Column(name = "RESOURCE_ID", nullable = false)
     public String getResourceId() {
         return resourceId;
     }
 
     @Basic
-    @Column(name = "AUTHORITY_ID", nullable = false)
+    @Column(name = "AUTHORITY_ID", nullable = false, length = 8)
     public String getAuthorityId() {
         return authorityId;
     }

@@ -46,39 +46,39 @@ public class LogMainEntity implements Serializable, Cloneable {
     @Remark("操作时间")
     private Date createTime;
 
-    @Column(name = "log_main_id", nullable = false)
     @Id
+    @Column(name = "log_main_id", nullable = false, length = 8)
     public String getLogMainId() {
         return logMainId;
     }
 
-    @Column(name = "business_code", nullable = false)
+    @Column(name = "business_code", nullable = false, length = 6)
     @Basic
     public String getBusinessCode() {
         return businessCode;
     }
 
-    @Column(name = "target_type")
+    @Column(name = "target_type", length = 4)
     @Basic
     public String getTargetType() {
         return targetType;
     }
 
-    @Column(name = "target_code")
     @Basic
+    @Column(name = "target_code", length = 100)
     public String getTargetCode() {
         return targetCode;
     }
 
-    @Column(name = "user_id", nullable = false)
     @Basic
+    @Column(name = "user_id", nullable = false, length = 8)
     public String getUserId() {
         return userId;
     }
 
+    @Column(name = "create_time", nullable = false, length = 26)
     @Basic
     @Generated(GenerationTime.INSERT)
-    @Column(name = "create_time", nullable = false)
     public Date getCreateTime() {
         return createTime;
     }

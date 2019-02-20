@@ -1,15 +1,21 @@
 package com.agile.common.util;
 
 
+import com.agile.common.base.Constant;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 /**
@@ -20,6 +26,13 @@ public class JSONUtil {
     private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
+        objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
+            @Override
+            public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                jsonGenerator.writeString(Constant.RegularAbout.NULL);
+            }
+        });
+
         // 对象字段全部列入
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
 
@@ -119,6 +132,14 @@ public class JSONUtil {
             o = toBeanByAli(clazz, json);
         }
         return o;
+    }
+
+    public static <T> T toBean(Class<T> clazz, String str) throws IOException {
+        return objectMapper.readValue(str, clazz);
+    }
+
+    public static JsonNode toJsonNode(String jsonStr) throws IOException {
+        return objectMapper.readTree(jsonStr);
     }
 
     public static <T> T toBeanByNetSf(Class<T> clazz, JSONObject json) {

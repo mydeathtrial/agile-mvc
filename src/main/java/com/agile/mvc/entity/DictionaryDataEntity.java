@@ -43,38 +43,38 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     @Remark("字典值是否固定")
     private Boolean isFixed;
 
-    @Column(name = "dictionary_data_id", nullable = false)
+    @Column(name = "dictionary_data_id", nullable = false, length = 8)
     @Id
     public String getDictionaryDataId() {
         return dictionaryDataId;
     }
 
-    @Column(name = "dictionary_main_id", nullable = false)
     @Basic
+    @Column(name = "dictionary_main_id", nullable = false, length = 8)
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
 
     @Basic
-    @Column(name = "parent_id")
+    @Column(name = "parent_id", length = 8)
     public String getParentId() {
         return parentId;
     }
 
-    @Column(name = "key", nullable = false)
     @Basic
+    @Column(name = "key", nullable = false, length = 50)
     public String getKey() {
         return key;
     }
 
     @Basic
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false, length = 50)
     public String getValue() {
         return value;
     }
 
-    @Column(name = "is_fixed", nullable = false)
     @Basic
+    @Column(name = "is_fixed", nullable = false, length = 1)
     public Boolean getIsFixed() {
         return isFixed;
     }

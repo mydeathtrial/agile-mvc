@@ -83,6 +83,9 @@ public class ColumnModel {
         if (!StringUtil.isEmpty(columnDef)) {
             temp.append(", columnDefinition = \"").append(String.format("%s default %s", typeName, columnDef)).append("\"");
         }
+        if (columnSize > 0) {
+            temp.append(", length = ").append(columnSize);
+        }
         setAnnotation(String.format("@Column(%s)", temp));
 
         if (Boolean.valueOf(isPrimaryKey)) {

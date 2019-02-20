@@ -1,5 +1,6 @@
 package com.agile.common.mvc.model.dao;
 
+import com.agile.common.base.Constant;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ClassUtil;
@@ -476,8 +477,11 @@ public class Dao {
      * @return 分页信息
      */
     public <T> Page findAll(T object, int page, int size, Sort sort) {
+        if (!validatePageInfo(page, size)) {
+            return null;
+        }
         Example<T> example = Example.of(object);
-        return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page, size, sort));
+        return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
     }
 
     /**
@@ -519,7 +523,17 @@ public class Dao {
                 return result;
             }
         } catch (NoSuchIDException e) {
-            List<Map<String, Object>> list = findAllBySQL(sql, parameters);
+
+            Query query = creatQuery(sql, parameters);
+            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+            if (firstResult != null) {
+                query.setFirstResult(firstResult);
+            }
+            if (maxResults != null) {
+                query.setMaxResults(maxResults);
+            }
+            List<Map<String, Object>> list = query.getResultList();
+
             if (list != null && list.size() > 0) {
                 List<T> result = new LinkedList<>();
                 if (ClassUtil.canCastClass(clazz)) {
@@ -560,6 +574,16 @@ public class Dao {
         return new ArrayList<>(0);
     }
 
+    private boolean validatePageInfo(int page, int size) throws IllegalArgumentException {
+        if (size < 1) {
+            throw new IllegalArgumentException("每页显示条数最少为数字 1");
+        }
+        if (page < 1) {
+            throw new IllegalArgumentException("最小页为数字 1");
+        }
+        return true;
+    }
+
     /**
      * 分页查询
      *
@@ -572,8 +596,7 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> Page<T> findPageBySQL(String sql, String countSql, int page, int size, Class<T> clazz, Object... parameters) {
-        if (size <= 0) {
-            new IllegalArgumentException().printStackTrace();
+        if (!validatePageInfo(page, size)) {
             return null;
         }
         PageImpl pageDate = null;
@@ -615,9 +638,9 @@ public class Dao {
         }
 
         if (orderList != null && orderList.size() > 0) {
-            pageable = PageRequest.of(page, size, Sort.by(orderList));
+            pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.by(orderList));
         } else {
-            pageable = PageRequest.of(page, size, Sort.unsorted());
+            pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.unsorted());
         }
 
         Query countQuery = creatQuery(countSql, parameters);
@@ -627,10 +650,10 @@ public class Dao {
         if (count > 0) {
             List content;
             if (clazz != null) {
-                content = findAll(sql, clazz, page * size, size, parameters);
+                content = findAll(sql, clazz, (page - Constant.NumberAbout.ONE) * size, size, parameters);
             } else {
                 Query query = creatQuery(sql, parameters);
-                query.setFirstResult(page * size);
+                query.setFirstResult((page - Constant.NumberAbout.ONE) * size);
                 query.setMaxResults(size);
                 ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
                 content = query.getResultList();
@@ -877,7 +900,10 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> Page<T> findAll(Class<T> tableClass, int page, int size) {
-        return getRepository(tableClass).findAll(PageRequest.of(page, size));
+        if (!validatePageInfo(page, size)) {
+            return null;
+        }
+        return getRepository(tableClass).findAll(PageRequest.of(page - Constant.NumberAbout.ONE, size));
     }
 
     /**

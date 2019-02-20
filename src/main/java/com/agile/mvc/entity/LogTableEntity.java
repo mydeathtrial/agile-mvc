@@ -43,38 +43,38 @@ public class LogTableEntity implements Serializable, Cloneable {
     @Remark("操作顺序")
     private Integer operationOrder;
 
-    @Column(name = "log_table_id", nullable = false)
+    @Column(name = "log_table_id", nullable = false, length = 8)
     @Id
     public String getLogTableId() {
         return logTableId;
     }
 
-    @Column(name = "log_main_id", nullable = false)
     @Basic
+    @Column(name = "log_main_id", nullable = false, length = 8)
     public String getLogMainId() {
         return logMainId;
     }
 
-    @Column(name = "table_schema", nullable = false)
+    @Column(name = "table_schema", nullable = false, length = 64)
     @Basic
     public String getTableSchema() {
         return tableSchema;
     }
 
     @Basic
-    @Column(name = "table_name", nullable = false)
+    @Column(name = "table_name", nullable = false, length = 64)
     public String getTableName() {
         return tableName;
     }
 
-    @Column(name = "operation_type", nullable = false)
+    @Column(name = "operation_type", nullable = false, length = 4)
     @Basic
     public String getOperationType() {
         return operationType;
     }
 
-    @Column(name = "operation_order", nullable = false)
     @Basic
+    @Column(name = "operation_order", nullable = false, length = 10)
     public Integer getOperationOrder() {
         return operationOrder;
     }

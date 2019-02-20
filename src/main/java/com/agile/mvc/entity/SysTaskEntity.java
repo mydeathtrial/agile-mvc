@@ -48,46 +48,46 @@ public class SysTaskEntity implements Serializable, Cloneable {
     @Remark("创建时间")
     private Date createTime;
 
-    @Column(name = "sys_task_id", nullable = false)
     @Id
+    @Column(name = "sys_task_id", nullable = false, length = 8)
     public String getSysTaskId() {
         return sysTaskId;
     }
 
-    @Column(name = "name")
+    @Column(name = "name", length = 255)
     @Basic
     public String getName() {
         return name;
     }
 
-    @Column(name = "state")
     @Basic
+    @Column(name = "state", length = 1)
     public Boolean getState() {
         return state;
     }
 
+    @Column(name = "cron", length = 36)
     @Basic
-    @Column(name = "cron")
     public String getCron() {
         return cron;
     }
 
-    @Column(name = "sync")
     @Basic
+    @Column(name = "sync", length = 1)
     public Boolean getSync() {
         return sync;
     }
 
     @Basic
-    @Column(name = "update_time")
     @Generated(GenerationTime.ALWAYS)
+    @Column(name = "update_time", length = 26)
     public Date getUpdateTime() {
         return updateTime;
     }
 
     @Basic
     @Generated(GenerationTime.INSERT)
-    @Column(name = "create_time")
+    @Column(name = "create_time", length = 26)
     public Date getCreateTime() {
         return createTime;
     }

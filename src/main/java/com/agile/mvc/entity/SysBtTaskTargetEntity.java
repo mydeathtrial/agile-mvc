@@ -39,25 +39,25 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     @Remark("优先级")
     private Integer order;
 
-    @Column(name = "sys_bt_task_target_id", nullable = false)
+    @Column(name = "sys_bt_task_target_id", nullable = false, length = 8)
     @Id
     public String getSysBtTaskTargetId() {
         return sysBtTaskTargetId;
     }
 
-    @Column(name = "sys_task_id", nullable = false)
     @Basic
+    @Column(name = "sys_task_id", nullable = false, length = 8)
     public String getSysTaskId() {
         return sysTaskId;
     }
 
-    @Column(name = "sys_task_target_id", nullable = false)
     @Basic
+    @Column(name = "sys_task_target_id", nullable = false, length = 255)
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
 
-    @Column(name = "order", nullable = false)
+    @Column(name = "order", nullable = false, length = 3)
     @Basic
     public Integer getOrder() {
         return order;

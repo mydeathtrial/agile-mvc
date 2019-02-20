@@ -47,50 +47,50 @@ public class SysModulesEntity implements Serializable, Cloneable {
     @Remark("优先级")
     private Integer order;
 
-    @Column(name = "SYS_MODULES_ID", nullable = false)
+    @Column(name = "SYS_MODULES_ID", nullable = false, length = 8)
     @Id
     public String getSysModulesId() {
         return sysModulesId;
     }
 
-    @Column(name = "NAME", nullable = false)
     @Basic
+    @Column(name = "NAME", nullable = false, length = 24)
     public String getName() {
         return name;
     }
 
-    @Column(name = "DESC")
     @Basic
+    @Column(name = "DESC", length = 200)
     public String getDesc() {
         return desc;
     }
 
-    @Column(name = "PARENT_ID")
+    @Column(name = "PARENT_ID", length = 8)
     @Basic
     public String getParentId() {
         return parentId;
     }
 
-    @Column(name = "URL")
+    @Column(name = "URL", length = 100)
     @Basic
     public String getUrl() {
         return url;
     }
 
     @Basic
-    @Column(name = "LEVEL")
+    @Column(name = "LEVEL", length = 4)
     public String getLevel() {
         return level;
     }
 
     @Basic
-    @Column(name = "ENABLE")
+    @Column(name = "ENABLE", length = 1)
     public Boolean getEnable() {
         return enable;
     }
 
-    @Column(name = "ORDER")
     @Basic
+    @Column(name = "ORDER", length = 10)
     public Integer getOrder() {
         return order;
     }
