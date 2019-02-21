@@ -4,15 +4,17 @@ import com.agile.common.annotation.Mapping;
 import com.agile.common.annotation.Models;
 import com.agile.common.annotation.Validate;
 import com.agile.common.annotation.Validates;
+import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
+import com.agile.mvc.entity.SysUsersEntity;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.sql.Insert;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import io.swagger.annotations.Api;
-import com.agile.mvc.entity.SysUsersEntity;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
@@ -28,13 +30,23 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
     })
     @Mapping(value = "/save", method = RequestMethod.POST)
     @Models({SysUsersEntity.class})
-    @Validates({
-            @Validate(value = "saltKey", nullable = false, validateMsgKey = "账号不能为空"),
-            @Validate(value = "saltValue", nullable = false, validateMsgKey = "密码不能为空"),
-            @Validate(value = "saltValue ", validateRegex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$", validateMsgKey = "密码由6-21字母和数字"),
-            @Validate(value = "name", nullable = false, validateMsgKey = "用户姓名不能为空"),
-    })
-    public Object customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
+    @Validate(beanClass = SysUsersEntity.class, validateGroups = Insert.class)
+    public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
         return super.save();
+    }
+
+    @Mapping(path = "/delete", method = RequestMethod.DELETE)
+    @Validate(value = "sysUsersId", nullable = false, validateMsgKey = "主键不能为空")
+    public RETURN customDelete() throws NoSuchIDException {
+        return super.delete();
+    }
+
+    @Mapping(path = "/update")
+    @Validates({
+        @Validate(value = "pageSize", nullable = false, validateMsgKey = "ye"),
+        @Validate(value = "pageNum", nullable = false, validateMsgKey = "账号不能为空")
+    })
+    public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
+        return super.update();
     }
 }

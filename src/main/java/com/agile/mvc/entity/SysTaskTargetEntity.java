@@ -12,6 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -43,7 +48,9 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
     @Remark("备注")
     private String remarks;
 
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
+    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     @Column(name = "sys_task_target_id", nullable = false, length = 255)
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
@@ -51,30 +58,38 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
 
     @Column(name = "name", length = 255)
     @Basic
+    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getName() {
         return name;
     }
 
+    @Length(max = 100, message = "最长为100个字符", groups = {Insert.class, Update.class})
+    @NotEmpty(message = "包名不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "target_package", nullable = false, length = 100)
     public String getTargetPackage() {
         return targetPackage;
     }
 
+    @NotEmpty(message = "类名不能为空", groups = {Insert.class, Update.class})
     @Column(name = "target_class", nullable = false, length = 40)
     @Basic
+    @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
     public String getTargetClass() {
         return targetClass;
     }
 
     @Basic
     @Column(name = "target_method", nullable = false, length = 40)
+    @NotEmpty(message = "方法名不能为空", groups = {Insert.class, Update.class})
+    @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
     public String getTargetMethod() {
         return targetMethod;
     }
 
     @Basic
     @Column(name = "remarks", length = 255)
+    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getRemarks() {
         return remarks;
     }

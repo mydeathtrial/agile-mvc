@@ -119,6 +119,7 @@ public class Dao {
      *
      * @param o       表对应的实体类型的对象
      * @param isFlush 是否刷新
+     * @param <T>     泛型
      * @return 保存后的对象
      */
     @SuppressWarnings("unchecked")
@@ -134,7 +135,8 @@ public class Dao {
     /**
      * 保存
      *
-     * @param o 要保存的对象
+     * @param o   要保存的对象
+     * @param <T> 泛型
      * @return 保存后的对象
      */
     @SuppressWarnings("unchecked")
@@ -219,6 +221,8 @@ public class Dao {
      * @param o   表映射实体类型的对象
      * @param <T> 表映射实体类型的对象
      * @return 返回更新后的数据
+     * @throws NoSuchIDException      异常
+     * @throws IllegalAccessException 异常
      */
     public <T> T updateOfNotNull(T o) throws NoSuchIDException, IllegalAccessException {
         Class<?> clazz = o.getClass();
@@ -278,6 +282,9 @@ public class Dao {
      *
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @param ids        主键数组
+     * @param <T>        查询的目标表对应实体类型
+     * @param <ID>       查询的目标表对应实体主键类型
+     * @return 结果集
      * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
     private <T, ID> List<T> createObjectList(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
@@ -515,10 +522,12 @@ public class Dao {
     /**
      * 根据sql语句查询指定类型clazz列表
      *
-     * @param sql        查询的sql语句，参数使用？占位
-     * @param clazz      希望查询结果映射成的实体类型
-     * @param <T>        指定返回类型
-     * @param parameters 对象数组类型的参数集合
+     * @param sql         查询的sql语句，参数使用？占位
+     * @param clazz       希望查询结果映射成的实体类型
+     * @param <T>         指定返回类型
+     * @param firstResult 第一条数据
+     * @param maxResults  最大条数据
+     * @param parameters  对象数组类型的参数集合
      * @return 结果集
      */
     @SuppressWarnings("unchecked")
@@ -578,7 +587,7 @@ public class Dao {
      * @param clazz      查询结果需要映射的实体
      * @param parameters Map类型参数集合
      * @param <T>        查询结果需要映射的实体类型
-     * @return List<clazz>类型的结果集
+     * @return 类型的结果集
      */
     public <T> List<T> findAll(String sql, Class<T> clazz, Map<String, Object> parameters) {
         List result = findAll(SqlUtil.parserSQL(sql, parameters), clazz);
@@ -588,7 +597,7 @@ public class Dao {
         return new ArrayList<>(0);
     }
 
-    private boolean validatePageInfo(int page, int size) throws IllegalArgumentException {
+    public static boolean validatePageInfo(int page, int size) throws IllegalArgumentException {
         if (size < 1) {
             throw new IllegalArgumentException("每页显示条数最少为数字 1");
         }

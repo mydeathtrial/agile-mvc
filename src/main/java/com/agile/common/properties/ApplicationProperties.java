@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/1/31 9:35
- * @Description TODO
+ * 日期： 2019/1/31 9:35
+ * 描述： TODO
  * @since 1.0
  */
 

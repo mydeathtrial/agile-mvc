@@ -1,5 +1,7 @@
 package com.agile.common.mybatis;
 
+import com.agile.common.base.Constant;
+import com.agile.common.mvc.model.dao.Dao;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -75,6 +77,8 @@ public class MybatisInterceptor implements Interceptor {
 
     //修改原始sql语句为分页sql语句
     private Object updateSql2Limit(Invocation invocation, MetaObject metaStatementHandler, BoundSql boundSql, int page, int pageSize) throws InvocationTargetException, IllegalAccessException, SQLException {
+        Dao.validatePageInfo(page, pageSize);
+
         String sql = (String) metaStatementHandler.getValue("delegate.boundSql.sql");
         //构建新的分页sql语句
         String limitSql = "select * from (" + sql + ") $_paging_table limit ?,?";
@@ -85,7 +89,7 @@ public class MybatisInterceptor implements Interceptor {
         //获取sql总的参数总数
         int count = ps.getParameterMetaData().getParameterCount();
         //设置与分页相关的两个参数
-        ps.setInt(count - 1, page * pageSize);
+        ps.setInt(count - 1, (page - Constant.NumberAbout.ONE) * pageSize);
         ps.setInt(count, pageSize);
         return ps;
     }

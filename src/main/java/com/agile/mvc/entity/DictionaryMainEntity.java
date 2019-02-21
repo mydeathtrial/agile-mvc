@@ -12,6 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -37,19 +42,24 @@ public class DictionaryMainEntity implements Serializable, Cloneable {
     @Remark("字典名称")
     private String name;
 
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Column(name = "dictionary_main_id", nullable = false, length = 18)
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
 
+    @NotEmpty(message = "字典编码不能为空", groups = {Insert.class, Update.class})
     @Column(name = "code", nullable = false, length = 8)
     @Basic
+    @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
     public String getCode() {
         return code;
     }
 
     @Column(name = "name", length = 64)
+    @Length(max = 64, message = "最长为64个字符", groups = {Insert.class, Update.class})
     @Basic
     public String getName() {
         return name;

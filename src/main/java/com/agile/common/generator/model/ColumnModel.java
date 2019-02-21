@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Insert;
+import org.hibernate.sql.Update;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -20,6 +24,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotEmpty;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -29,8 +34,8 @@ import java.util.Set;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/2/11 14:18
- * @Description TODO
+ * 日期： 2019/2/11 14:18
+ * 描述： TODO
  * @since 1.0
  */
 @Setter
@@ -79,12 +84,21 @@ public class ColumnModel {
         temp.append("name = \"").append(columnName).append("\"");
         if ("0".equals(nullable)) {
             temp.append(", nullable = false");
+            setImport(NotEmpty.class, Insert.class, Update.class);
+            if (Boolean.valueOf(isPrimaryKey)) {
+                setAnnotation("@NotEmpty(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
+                setImport(NotEmpty.class, Delete.class);
+            } else {
+                setAnnotation(String.format("@NotEmpty(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
+            }
         }
         if (!StringUtil.isEmpty(columnDef)) {
             temp.append(", columnDefinition = \"").append(String.format("%s default %s", typeName, columnDef)).append("\"");
         }
         if (columnSize > 0) {
             temp.append(", length = ").append(columnSize);
+            setImport(Length.class, Insert.class, Update.class);
+            setAnnotation(String.format("@Length(max = %s, message = \"最长为%s个字符\", groups = {Insert.class, Update.class})", columnSize, columnSize));
         }
         if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
             temp.append(", updatable = false");

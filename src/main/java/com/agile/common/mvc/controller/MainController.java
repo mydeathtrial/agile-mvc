@@ -72,7 +72,9 @@ public class MainController {
 
     /**
      * 非法请求处理器
-     *
+     * @param currentRequest 请求
+     * @param  currentResponse 响应
+     * @return 视图
      * @throws UnlawfulRequestException 非法路径请求
      */
     @RequestMapping(value = {"/", "/*", "/*/*/*/**"})
@@ -473,6 +475,7 @@ public class MainController {
      * 根据服务名在Spring上下文中获取服务bean
      *
      * @param o 对象
+     * @throws NoSuchRequestServiceException 请求服务不存在
      */
     private void initServiceByObject(Object o) throws NoSuchRequestServiceException {
         try {
@@ -486,6 +489,7 @@ public class MainController {
      * 根据服务名在Spring上下文中获取服务bean
      *
      * @param serviceName 服务名
+     * @throws NoSuchRequestServiceException 请求服务不存在
      */
     private void initService(String serviceName) throws NoSuchRequestServiceException {
         Object o = FactoryUtil.getBean(serviceName);
@@ -508,6 +512,7 @@ public class MainController {
      * 根据方法名初始化目标方法
      *
      * @param methodName 方法名
+     * @throws NoSuchRequestMethodException 请求方法不存在
      */
     private void initMethod(String methodName) throws NoSuchRequestMethodException {
         Method methodCache;
@@ -612,6 +617,7 @@ public class MainController {
 
     /**
      * 获取当前线程下Service缓存
+     * @return 服务
      */
     private ServiceInterface getService() {
         return service.get();
@@ -619,6 +625,7 @@ public class MainController {
 
     /**
      * 获取当前线程下方法缓存
+     * @return 方法
      */
     private Method getMethod() {
         return method.get();

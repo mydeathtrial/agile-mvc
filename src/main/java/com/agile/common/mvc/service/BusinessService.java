@@ -136,12 +136,16 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN update() throws NoSuchIDException, IllegalAccessException {
         T entity = getInParam(entityClass);
-        if (validateInParam(entity) || ObjectUtil.isEmpty(entity) || !containsKey(id)) {
+        if (validateInParam(entity) || ObjectUtil.isEmpty(entity)) {
             return RETURN.PARAMETER_ERROR;
         }
 
         Field field = dao.getIdField(entityClass);
-        field.set(entity, getInParam(id, String.class));
+        if (containsKey(id)) {
+            field.set(entity, getInParam(id, String.class));
+        } else if (field.get(entity) == null) {
+            return RETURN.PARAMETER_ERROR;
+        }
 
         dao.updateOfNotNull(entity);
         return RETURN.SUCCESS;

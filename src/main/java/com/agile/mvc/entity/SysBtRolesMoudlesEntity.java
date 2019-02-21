@@ -12,6 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -38,19 +43,25 @@ public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
     private String roleId;
 
     @Column(name = "SYS_BT_ROLES_MOUDLES_ID", nullable = false, length = 18)
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysBtRolesMoudlesId() {
         return sysBtRolesMoudlesId;
     }
 
     @Column(name = "MODULE_ID", nullable = false, length = 18)
     @Basic
+    @NotEmpty(message = "模块唯一标识不能为空", groups = {Insert.class, Update.class})
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getModuleId() {
         return moduleId;
     }
 
     @Column(name = "ROLE_ID", nullable = false, length = 18)
     @Basic
+    @NotEmpty(message = "角色唯一标识不能为空", groups = {Insert.class, Update.class})
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getRoleId() {
         return roleId;
     }

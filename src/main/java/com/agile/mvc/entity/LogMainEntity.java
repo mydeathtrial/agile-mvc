@@ -14,8 +14,13 @@ import lombok.ToString;
 import com.agile.common.annotation.Remark;
 import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.util.Date;
+import javax.persistence.TemporalType;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -47,7 +52,9 @@ public class LogMainEntity implements Serializable, Cloneable {
     @Remark("操作时间")
     private Date createTime;
 
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     @Column(name = "log_main_id", nullable = false, length = 18)
     public String getLogMainId() {
         return logMainId;
@@ -55,28 +62,36 @@ public class LogMainEntity implements Serializable, Cloneable {
 
     @Column(name = "business_code", nullable = false, length = 6)
     @Basic
+    @Length(max = 6, message = "最长为6个字符", groups = {Insert.class, Update.class})
+    @NotEmpty(message = "业务编码不能为空", groups = {Insert.class, Update.class})
     public String getBusinessCode() {
         return businessCode;
     }
 
     @Column(name = "target_type", length = 4)
     @Basic
+    @Length(max = 4, message = "最长为4个字符", groups = {Insert.class, Update.class})
     public String getTargetType() {
         return targetType;
     }
 
+    @Length(max = 100, message = "最长为100个字符", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "target_code", length = 100)
     public String getTargetCode() {
         return targetCode;
     }
 
+    @NotEmpty(message = "操作人不能为空", groups = {Insert.class, Update.class})
     @Basic
+    @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
     @Column(name = "user_id", nullable = false, length = 8)
     public String getUserId() {
         return userId;
     }
 
+    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
+    @NotEmpty(message = "操作时间不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp

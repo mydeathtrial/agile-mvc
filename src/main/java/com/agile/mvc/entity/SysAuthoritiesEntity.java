@@ -12,6 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -41,24 +46,30 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Column(name = "SYS_AUTHORITY_ID", nullable = false, length = 18)
     @Id
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysAuthorityId() {
         return sysAuthorityId;
     }
 
     @Column(name = "MARK", length = 8)
     @Basic
+    @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
     public String getMark() {
         return mark;
     }
 
+    @Length(max = 24, message = "最长为24个字符", groups = {Insert.class, Update.class})
     @Basic
+    @NotEmpty(message = "权限名称不能为空", groups = {Insert.class, Update.class})
     @Column(name = "NAME", nullable = false, length = 24)
     public String getName() {
         return name;
     }
 
+    @Length(max = 200, message = "最长为200个字符", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "DESC", length = 200)
     public String getDesc() {
@@ -66,6 +77,7 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     @Basic
+    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
     @Column(name = "ENABLE", length = 1)
     public Boolean getEnable() {
         return enable;

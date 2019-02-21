@@ -94,7 +94,7 @@ public class DruidFilter extends FilterEventAdapter {
 
     /**
      * 打印异常日志
-     *
+     * @param error 异常
      * @param statement Statement
      */
     private void printLog(Statement statement, Throwable error) {

@@ -14,9 +14,14 @@ import lombok.ToString;
 import com.agile.common.annotation.Remark;
 import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
+import org.hibernate.annotations.UpdateTimestamp;
+import javax.persistence.TemporalType;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -50,36 +55,43 @@ public class SysTaskEntity implements Serializable, Cloneable {
     @Remark("创建时间")
     private Date createTime;
 
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Column(name = "sys_task_id", nullable = false, length = 18)
     @Id
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysTaskId() {
         return sysTaskId;
     }
 
     @Column(name = "name", length = 255)
     @Basic
+    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getName() {
         return name;
     }
 
     @Basic
+    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
     @Column(name = "state", length = 1)
     public Boolean getState() {
         return state;
     }
 
     @Column(name = "cron", length = 36)
+    @Length(max = 36, message = "最长为36个字符", groups = {Insert.class, Update.class})
     @Basic
     public String getCron() {
         return cron;
     }
 
     @Basic
+    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
     @Column(name = "sync", length = 1)
     public Boolean getSync() {
         return sync;
     }
 
+    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
     @UpdateTimestamp
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
@@ -88,6 +100,7 @@ public class SysTaskEntity implements Serializable, Cloneable {
         return updateTime;
     }
 
+    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp

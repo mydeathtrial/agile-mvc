@@ -6,8 +6,8 @@ import com.agile.common.properties.ApplicationProperties;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/2/19 9:32
- * @Description 主键生成工具
+ * 日期： 2019/2/19 9:32
+ * 描述： 主键生成工具
  * @since 1.0
  */
 public class IdUtil {

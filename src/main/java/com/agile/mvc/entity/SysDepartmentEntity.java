@@ -14,9 +14,14 @@ import lombok.ToString;
 import com.agile.common.annotation.Remark;
 import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
+import org.hibernate.annotations.UpdateTimestamp;
+import javax.persistence.TemporalType;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -52,35 +57,42 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
     private Boolean enable;
 
     @Column(name = "sys_depart_id", nullable = false, length = 18)
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysDepartId() {
         return sysDepartId;
     }
 
     @Basic
     @Column(name = "parent_id", length = 18)
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getParentId() {
         return parentId;
     }
 
     @Basic
+    @Length(max = 20, message = "最长为20个字符", groups = {Insert.class, Update.class})
     @Column(name = "depart_name", length = 20)
     public String getDepartName() {
         return departName;
     }
 
+    @Length(max = 100, message = "最长为100个字符", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "depart_desc", length = 100)
     public String getDepartDesc() {
         return departDesc;
     }
 
+    @Length(max = 10, message = "最长为10个字符", groups = {Insert.class, Update.class})
     @Column(name = "sort", length = 10)
     @Basic
     public Integer getSort() {
         return sort;
     }
 
+    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
     @UpdateTimestamp
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
@@ -89,6 +101,7 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
         return updateTime;
     }
 
+    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @CreationTimestamp
@@ -99,6 +112,7 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
 
     @Column(name = "enable", length = 1)
     @Basic
+    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
     public Boolean getEnable() {
         return enable;
     }

@@ -7,8 +7,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/1/31 15:21
- * @Description TODO
+ * 日期： 2019/1/31 15:21
+ * 描述： TODO
  * @since 1.0
  */
 @ConfigurationProperties(prefix = "agile.cors")

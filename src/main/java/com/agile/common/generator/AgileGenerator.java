@@ -53,6 +53,7 @@ public class AgileGenerator {
 
     /**
      * 取数据库中所有表信息
+     * @return 所有表信息
      */
     private static List<Map<String, Object>> getTableInfo() {
         return DataBaseUtil.listTables(dbInfo, generator.getTableName());
@@ -92,6 +93,8 @@ public class AgileGenerator {
      * 生成实体文件
      *
      * @param tableModel 表信息集
+     * @throws IOException 异常
+     * @throws TemplateException 异常
      */
     private static void generateEntityFile(TableModel tableModel) throws IOException, TemplateException {
         String url = parseUrl(generator.getEntityUrl());
@@ -104,6 +107,8 @@ public class AgileGenerator {
      * 生成service文件
      *
      * @param tableModel 表信息集
+     * @throws IOException 异常
+     * @throws TemplateException 异常
      */
     private static void generateServiceFile(TableModel tableModel) throws IOException, TemplateException {
         String url = parseUrl(generator.getServiceUrl());
@@ -123,6 +128,8 @@ public class AgileGenerator {
     /**
      * 生成器
      * @param type 生成文件类型
+     * @throws IOException 异常
+     * @throws TemplateException 异常
      */
     static void generator(TYPE type) throws IOException, TemplateException {
         for (Map<String, Object> table : getTableInfo()) {

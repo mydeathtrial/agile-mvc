@@ -12,6 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
+import org.hibernate.sql.Delete;
+import org.hibernate.sql.Update;
+import org.hibernate.sql.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.NotEmpty;
 import javax.persistence.Id;
 
 /**
@@ -40,25 +45,33 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     private Integer order;
 
     @Column(name = "sys_bt_task_target_id", nullable = false, length = 18)
+    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysBtTaskTargetId() {
         return sysBtTaskTargetId;
     }
 
+    @NotEmpty(message = "定时任务标志不能为空", groups = {Insert.class, Update.class})
     @Column(name = "sys_task_id", nullable = false, length = 18)
     @Basic
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysTaskId() {
         return sysTaskId;
     }
 
+    @NotEmpty(message = "目标方法主键不能为空", groups = {Insert.class, Update.class})
     @Basic
+    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     @Column(name = "sys_task_target_id", nullable = false, length = 255)
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
 
     @Column(name = "order", nullable = false, length = 3)
+    @NotEmpty(message = "优先级不能为空", groups = {Insert.class, Update.class})
     @Basic
+    @Length(max = 3, message = "最长为3个字符", groups = {Insert.class, Update.class})
     public Integer getOrder() {
         return order;
     }
