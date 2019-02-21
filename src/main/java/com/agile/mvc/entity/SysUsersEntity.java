@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Temporal;
 import java.util.Date;
 import javax.persistence.TemporalType;
-import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.Id;
 
 /**
@@ -37,16 +37,16 @@ public class SysUsersEntity implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysUsersId;
+    @Remark("部门主键")
+    private String sysDepartId;
     @Remark("账号")
     private String saltKey;
+    @Remark("旧密码")
+    private String saltKeyOld;
     @Remark("密码")
     private String saltValue;
     @Remark("用户姓名")
     private String name;
-    @Remark("所属机构ID")
-    private String vQzjgid;
-    @Remark("所属机构名称")
-    private String vQzjgmc;
     @Remark("地区编号")
     private String areaId;
     @Remark("过期时间")
@@ -61,86 +61,135 @@ public class SysUsersEntity implements Serializable, Cloneable {
     private Date updateTime;
     @Remark("是否可用")
     private Boolean enabled;
+    @Remark("直属领导")
+    private String leader;
+    @Remark("账号使用开始日")
+    private Long periodFrom;
+    @Remark("账号使用结束日")
+    private Long periodTo;
+    @Remark("员工性别 0:男 1:女")
+    private Boolean sex;
+    @Remark("联系电话")
+    private String telephone;
+    @Remark("电子邮箱")
+    private String email;
 
-    @Column(name = "SYS_USERS_ID", nullable = false, length = 8)
+    @Column(name = "sys_users_id", nullable = false, length = 18)
     @Id
     public String getSysUsersId() {
         return sysUsersId;
     }
 
-    @Column(name = "SALT_KEY", nullable = false, length = 24)
+    @Column(name = "sys_depart_id", length = 18)
+    @Basic
+    public String getSysDepartId() {
+        return sysDepartId;
+    }
+
+    @Column(name = "salt_key", nullable = false, length = 24)
     @Basic
     public String getSaltKey() {
         return saltKey;
     }
 
-    @Column(name = "SALT_VALUE", nullable = false, length = 100)
+    @Column(name = "salt_key_old", length = 32)
     @Basic
+    public String getSaltKeyOld() {
+        return saltKeyOld;
+    }
+
+    @Basic
+    @Column(name = "salt_value", nullable = false, length = 100)
     public String getSaltValue() {
         return saltValue;
     }
 
-    @Column(name = "NAME", length = 8)
+    @Column(name = "name", length = 8)
     @Basic
     public String getName() {
         return name;
     }
 
     @Basic
-    @Column(name = "V_QZJGID", length = 8)
-    public String getVQzjgid() {
-        return vQzjgid;
-    }
-
-    @Basic
-    @Column(name = "V_QZJGMC", length = 24)
-    public String getVQzjgmc() {
-        return vQzjgmc;
-    }
-
-    @Column(name = "AREA_ID", length = 8)
-    @Basic
+    @Column(name = "area_id", length = 8)
     public String getAreaId() {
         return areaId;
     }
 
-    @Column(name = "EXPIRED_TIME", length = 26)
     @Basic
+    @Column(name = "expired_time", length = 26)
     public Date getExpiredTime() {
         return expiredTime;
     }
 
-    @Column(name = "IS_LOCKED", length = 1)
     @Basic
+    @Column(name = "is_locked", length = 1)
     public Boolean getIsLocked() {
         return isLocked;
     }
 
-    @Column(name = "ON_LINE_STRATEGY", length = 4)
     @Basic
+    @Column(name = "on_line_strategy", length = 4)
     public String getOnLineStrategy() {
         return onLineStrategy;
     }
 
     @Basic
-    @Generated(GenerationTime.INSERT)
-    @Column(name = "CREATE_TIME", length = 26)
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
+    @Column(name = "create_time", length = 26, updatable = false)
     public Date getCreateTime() {
         return createTime;
     }
 
+    @UpdateTimestamp
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
-    @Generated(GenerationTime.ALWAYS)
-    @Column(name = "UPDATE_TIME", length = 26)
+    @Column(name = "update_time", length = 26)
     public Date getUpdateTime() {
         return updateTime;
     }
 
+    @Column(name = "enabled", length = 1)
     @Basic
-    @Column(name = "ENABLED", length = 1)
     public Boolean getEnabled() {
         return enabled;
+    }
+
+    @Basic
+    @Column(name = "leader", length = 100)
+    public String getLeader() {
+        return leader;
+    }
+
+    @Column(name = "period_from", nullable = false, length = 19)
+    @Basic
+    public Long getPeriodFrom() {
+        return periodFrom;
+    }
+
+    @Column(name = "period_to", nullable = false, length = 19)
+    @Basic
+    public Long getPeriodTo() {
+        return periodTo;
+    }
+
+    @Column(name = "sex", length = 1)
+    @Basic
+    public Boolean getSex() {
+        return sex;
+    }
+
+    @Column(name = "telephone", length = 11)
+    @Basic
+    public String getTelephone() {
+        return telephone;
+    }
+
+    @Column(name = "email", nullable = false, length = 100)
+    @Basic
+    public String getEmail() {
+        return email;
     }
 
 

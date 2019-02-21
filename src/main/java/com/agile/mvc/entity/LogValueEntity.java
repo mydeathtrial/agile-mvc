@@ -45,13 +45,13 @@ public class LogValueEntity implements Serializable, Cloneable {
     @Remark("字段含义")
     private String columnInfo;
 
-    @Column(name = "log_value_id", nullable = false, length = 8)
+    @Column(name = "log_value_id", nullable = false, length = 18)
     @Id
     public String getLogValueId() {
         return logValueId;
     }
 
-    @Column(name = "log_table_id", nullable = false, length = 8)
+    @Column(name = "log_table_id", nullable = false, length = 18)
     @Basic
     public String getLogTableId() {
         return logTableId;

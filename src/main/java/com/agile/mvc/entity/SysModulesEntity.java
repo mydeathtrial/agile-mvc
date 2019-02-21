@@ -47,7 +47,7 @@ public class SysModulesEntity implements Serializable, Cloneable {
     @Remark("优先级")
     private Integer order;
 
-    @Column(name = "SYS_MODULES_ID", nullable = false, length = 8)
+    @Column(name = "SYS_MODULES_ID", nullable = false, length = 18)
     @Id
     public String getSysModulesId() {
         return sysModulesId;

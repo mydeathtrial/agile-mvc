@@ -234,18 +234,13 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
-        if (!inParam.get().containsKey(key)) {
+        T result = getInParam(key, clazz);
+
+        if (result == null) {
             return defaultValue;
         }
-        Object o;
-        try {
-            Object[] value = (Object[]) inParam.get().get(key);
-            o = value[0];
-        } catch (ClassCastException e) {
-            o = inParam.get().get(key);
-        }
-        T result = ObjectUtil.cast(clazz, o);
-        return ObjectUtil.isEmpty(result) ? null : result;
+
+        return result;
     }
 
     /**

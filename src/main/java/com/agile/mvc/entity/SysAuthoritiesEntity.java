@@ -41,7 +41,7 @@ public class SysAuthoritiesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
-    @Column(name = "SYS_AUTHORITY_ID", nullable = false, length = 8)
+    @Column(name = "SYS_AUTHORITY_ID", nullable = false, length = 18)
     @Id
     public String getSysAuthorityId() {
         return sysAuthorityId;

@@ -20,7 +20,7 @@ import java.util.Date;
 import javax.persistence.Id;
 
 /**
- * 描述：[系统管理]定时任务
+
  * @author agile gennerator
  */
 @Setter
@@ -30,54 +30,55 @@ import javax.persistence.Id;
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "sys_task")
-@Remark("[系统管理]定时任务")
-public class SysTaskEntity implements Serializable, Cloneable {
+@Table(name = "sys_department")
+public class SysDepartmentEntity implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
-    @Remark("主键")
-    private String sysTaskId;
-    @Remark("定时任务名")
-    private String name;
-    @Remark("状态")
-    private Boolean state;
-    @Remark("定时表达式")
-    private String cron;
-    @Remark("是否同步")
-    private Boolean sync;
+    @Remark("部门主键")
+    private String sysDepartId;
+    @Remark("父主键")
+    private String parentId;
+    @Remark("名字")
+    private String departName;
+    @Remark("描述")
+    private String departDesc;
+    @Remark("排序")
+    private Integer sort;
     @Remark("更新时间")
     private Date updateTime;
     @Remark("创建时间")
     private Date createTime;
+    @Remark("是否可用")
+    private Boolean enable;
 
-    @Column(name = "sys_task_id", nullable = false, length = 18)
+    @Column(name = "sys_depart_id", nullable = false, length = 18)
     @Id
-    public String getSysTaskId() {
-        return sysTaskId;
-    }
-
-    @Column(name = "name", length = 255)
-    @Basic
-    public String getName() {
-        return name;
+    public String getSysDepartId() {
+        return sysDepartId;
     }
 
     @Basic
-    @Column(name = "state", length = 1)
-    public Boolean getState() {
-        return state;
-    }
-
-    @Column(name = "cron", length = 36)
-    @Basic
-    public String getCron() {
-        return cron;
+    @Column(name = "parent_id", length = 18)
+    public String getParentId() {
+        return parentId;
     }
 
     @Basic
-    @Column(name = "sync", length = 1)
-    public Boolean getSync() {
-        return sync;
+    @Column(name = "depart_name", length = 20)
+    public String getDepartName() {
+        return departName;
+    }
+
+    @Basic
+    @Column(name = "depart_desc", length = 100)
+    public String getDepartDesc() {
+        return departDesc;
+    }
+
+    @Column(name = "sort", length = 10)
+    @Basic
+    public Integer getSort() {
+        return sort;
     }
 
     @UpdateTimestamp
@@ -96,11 +97,17 @@ public class SysTaskEntity implements Serializable, Cloneable {
         return createTime;
     }
 
+    @Column(name = "enable", length = 1)
+    @Basic
+    public Boolean getEnable() {
+        return enable;
+    }
+
 
     @Override
-    public SysTaskEntity clone() {
+    public SysDepartmentEntity clone() {
         try {
-            return (SysTaskEntity) super.clone();
+            return (SysDepartmentEntity) super.clone();
         } catch (CloneNotSupportedException e) {
             return null;
         }

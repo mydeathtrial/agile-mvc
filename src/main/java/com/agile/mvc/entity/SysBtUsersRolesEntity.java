@@ -37,19 +37,19 @@ public class SysBtUsersRolesEntity implements Serializable, Cloneable {
     @Remark("用户唯一标识")
     private String userId;
 
-    @Column(name = "SYS_BT_USERS_ROLES_ID", nullable = false, length = 8)
+    @Column(name = "SYS_BT_USERS_ROLES_ID", nullable = false, length = 18)
     @Id
     public String getSysBtUsersRolesId() {
         return sysBtUsersRolesId;
     }
 
-    @Column(name = "ROLE_ID", nullable = false, length = 8)
+    @Column(name = "ROLE_ID", nullable = false, length = 18)
     @Basic
     public String getRoleId() {
         return roleId;
     }
 
-    @Column(name = "USER_ID", nullable = false, length = 8)
+    @Column(name = "USER_ID", nullable = false, length = 18)
     @Basic
     public String getUserId() {
         return userId;

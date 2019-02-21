@@ -43,20 +43,20 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     @Remark("字典值是否固定")
     private Boolean isFixed;
 
-    @Column(name = "dictionary_data_id", nullable = false, length = 8)
+    @Column(name = "dictionary_data_id", nullable = false, length = 18)
     @Id
     public String getDictionaryDataId() {
         return dictionaryDataId;
     }
 
     @Basic
-    @Column(name = "dictionary_main_id", nullable = false, length = 8)
+    @Column(name = "dictionary_main_id", nullable = false, length = 18)
     public String getDictionaryMainId() {
         return dictionaryMainId;
     }
 
     @Basic
-    @Column(name = "parent_id", length = 8)
+    @Column(name = "parent_id", length = 18)
     public String getParentId() {
         return parentId;
     }

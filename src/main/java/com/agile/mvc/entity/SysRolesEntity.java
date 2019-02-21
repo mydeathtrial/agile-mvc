@@ -39,8 +39,8 @@ public class SysRolesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
+    @Column(name = "SYS_ROLES_ID", nullable = false, length = 18)
     @Id
-    @Column(name = "SYS_ROLES_ID", nullable = false, length = 8)
     public String getSysRolesId() {
         return sysRolesId;
     }

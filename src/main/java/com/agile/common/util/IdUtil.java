@@ -11,17 +11,22 @@ import com.agile.common.properties.ApplicationProperties;
  * @since 1.0
  */
 public class IdUtil {
-    public static long generatorId(long workerId, long dataCenterId) {
-        SnowflakeIdWorker snowflakeIdWorker = new SnowflakeIdWorker(workerId, dataCenterId);
-        return snowflakeIdWorker.nextId();
-    }
+    private static SnowflakeIdWorker snowflakeIdWorker;
 
     public static long generatorId() {
-        ApplicationProperties properties = FactoryUtil.getBean(ApplicationProperties.class);
-        if (properties == null) {
-            return generatorId(Constant.NumberAbout.ONE, Constant.NumberAbout.ONE);
-        } else {
-            return generatorId(properties.getWorkerId(), properties.getDataCenterId());
+        return getSnowflakeIdWorker().nextId();
+    }
+
+    public static SnowflakeIdWorker getSnowflakeIdWorker() {
+
+        if (snowflakeIdWorker == null) {
+            ApplicationProperties properties = FactoryUtil.getBean(ApplicationProperties.class);
+            if (properties == null) {
+                snowflakeIdWorker = new SnowflakeIdWorker(Constant.NumberAbout.ONE, Constant.NumberAbout.ONE);
+            } else {
+                snowflakeIdWorker = new SnowflakeIdWorker(properties.getWorkerId(), properties.getDataCenterId());
+            }
         }
+        return snowflakeIdWorker;
     }
 }

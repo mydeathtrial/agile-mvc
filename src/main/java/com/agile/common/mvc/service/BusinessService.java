@@ -82,7 +82,7 @@ public class BusinessService<T> extends MainService {
         Field idField = dao.getIdField(entityClass);
         idField.setAccessible(true);
         Object idValue = idField.get(entity);
-        List<GeneratedValue> generatedValues = ObjectUtil.getAllEntityPropertyAnnotation(entityClass, idField, GeneratedValue.class);
+        Set<GeneratedValue> generatedValues = ObjectUtil.getAllEntityPropertyAnnotation(entityClass, idField, GeneratedValue.class);
         boolean isGenerate = false;
         for (GeneratedValue generatedValue : generatedValues) {
             if (isGenerate) {
@@ -92,11 +92,10 @@ public class BusinessService<T> extends MainService {
         }
         if (!isGenerate && idValue == null) {
             String idValueTemp;
-            Class<?> type = idField.getType();
-            Column column = type.getAnnotation(Column.class);
+            Set<Column> columns = ObjectUtil.getAllEntityPropertyAnnotation(entityClass, idField, Column.class);
             int idLength = length;
-            if (column != null && column.length() > 0) {
-                idLength = column.length();
+            if (columns != null && columns.size() > 0) {
+                idLength = columns.iterator().next().length();
             }
             idValueTemp = Long.toString(IdUtil.generatorId());
 

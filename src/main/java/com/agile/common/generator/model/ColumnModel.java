@@ -10,8 +10,8 @@ import com.alibaba.druid.sql.visitor.functions.Char;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Generated;
-import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -86,6 +86,9 @@ public class ColumnModel {
         if (columnSize > 0) {
             temp.append(", length = ").append(columnSize);
         }
+        if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
+            temp.append(", updatable = false");
+        }
         setAnnotation(String.format("@Column(%s)", temp));
 
         if (Boolean.valueOf(isPrimaryKey)) {
@@ -115,13 +118,15 @@ public class ColumnModel {
         javaName = javaName.replaceAll(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.NULL);
 
         if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
-            setAnnotation("@Generated(GenerationTime.ALWAYS)");
-            setImport(Generated.class, GenerationTime.class);
+            setAnnotation("@Temporal(TemporalType.TIMESTAMP)");
+            setAnnotation("@UpdateTimestamp");
+            setImport(UpdateTimestamp.class, Temporal.class, TemporalType.class);
         }
 
         if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
-            setAnnotation("@Generated(GenerationTime.INSERT)");
-            setImport(Generated.class, GenerationTime.class);
+            setAnnotation("@Temporal(TemporalType.TIMESTAMP)");
+            setAnnotation("@CreationTimestamp");
+            setImport(CreationTimestamp.class, Temporal.class, TemporalType.class);
         }
         setMethod(javaName);
     }

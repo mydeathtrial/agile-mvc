@@ -400,12 +400,26 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> T findOne(String sql, Class<T> clazz, Object... parameters) {
-        Query query = creatClassQuery(sql, clazz, parameters);
-        if (query.getResultList().size() == 0) {
-            return null;
+        try {
+            getIdField(clazz);
+            Query query = creatClassQuery(sql, clazz, parameters);
+            if (query.getResultList().size() == 0) {
+                return null;
+            }
+            Object o = query.getSingleResult();
+            return (T) o;
+        } catch (NoSuchIDException e) {
+            Query query = creatQuery(sql, parameters);
+            if (query.getResultList().size() == 0) {
+                return null;
+            }
+            Map<String, Object> o = (Map<String, Object>) query.getSingleResult();
+            if (ClassUtil.canCastClass(clazz)) {
+                return ObjectUtil.cast(clazz, o);
+            } else {
+                return ObjectUtil.getObjectFromMap(clazz, o);
+            }
         }
-        Object o = query.getSingleResult();
-        return (T) o;
     }
 
     /**

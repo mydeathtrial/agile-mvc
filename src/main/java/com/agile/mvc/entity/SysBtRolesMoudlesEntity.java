@@ -37,19 +37,19 @@ public class SysBtRolesMoudlesEntity implements Serializable, Cloneable {
     @Remark("角色唯一标识")
     private String roleId;
 
-    @Column(name = "SYS_BT_ROLES_MOUDLES_ID", nullable = false, length = 8)
+    @Column(name = "SYS_BT_ROLES_MOUDLES_ID", nullable = false, length = 18)
     @Id
     public String getSysBtRolesMoudlesId() {
         return sysBtRolesMoudlesId;
     }
 
+    @Column(name = "MODULE_ID", nullable = false, length = 18)
     @Basic
-    @Column(name = "MODULE_ID", nullable = false, length = 8)
     public String getModuleId() {
         return moduleId;
     }
 
-    @Column(name = "ROLE_ID", nullable = false, length = 8)
+    @Column(name = "ROLE_ID", nullable = false, length = 18)
     @Basic
     public String getRoleId() {
         return roleId;

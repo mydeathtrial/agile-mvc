@@ -50,7 +50,7 @@ public class SysResourcesEntity implements Serializable, Cloneable {
     private String moduleId;
 
     @Id
-    @Column(name = "SYS_RESOURCES_ID", nullable = false, length = 8)
+    @Column(name = "SYS_RESOURCES_ID", nullable = false, length = 18)
     public String getSysResourcesId() {
         return sysResourcesId;
     }

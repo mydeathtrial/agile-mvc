@@ -242,6 +242,10 @@ public class MapUtil extends MapUtils {
             }
             if (value instanceof MultipartFile) {
                 target.put(entity.getKey(), ((MultipartFile) value).getOriginalFilename());
+            } else if (value instanceof ResponseFile) {
+                target.put(entity.getKey(), ((ResponseFile) value).getFileName());
+            } else if (value instanceof ExcelFile) {
+                target.put(entity.getKey(), ((ExcelFile) value).getFileName());
             } else if (List.class.isAssignableFrom(value.getClass())) {
                 List list = (List) value;
                 if (list.size() > 0) {

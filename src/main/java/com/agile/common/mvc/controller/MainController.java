@@ -293,10 +293,13 @@ public class MainController {
      * @throws InstantiationException 异常
      */
     private List<ValidateMsg> handleValidateAnnotation(Validate v) throws IllegalAccessException, InstantiationException {
-        if (v == null || StringUtil.isBlank(v.value())) {
+        if (v == null) {
             return null;
         }
-        String key = v.value();
+        if (StringUtil.isBlank(v.value()) && v.beanClass() == Class.class) {
+            return null;
+        }
+        String key = v.value().trim();
         Object value;
         if (StringUtil.isBlank(key)) {
             value = getService().getInParam();

@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.annotations.GenerationTime;
+import org.hibernate.annotations.CreationTimestamp;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
-import org.hibernate.annotations.Generated;
 import javax.persistence.Id;
 
 /**
@@ -47,7 +48,7 @@ public class LogMainEntity implements Serializable, Cloneable {
     private Date createTime;
 
     @Id
-    @Column(name = "log_main_id", nullable = false, length = 8)
+    @Column(name = "log_main_id", nullable = false, length = 18)
     public String getLogMainId() {
         return logMainId;
     }
@@ -76,9 +77,10 @@ public class LogMainEntity implements Serializable, Cloneable {
         return userId;
     }
 
-    @Column(name = "create_time", nullable = false, length = 26)
     @Basic
-    @Generated(GenerationTime.INSERT)
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
+    @Column(name = "create_time", nullable = false, length = 26, updatable = false)
     public Date getCreateTime() {
         return createTime;
     }

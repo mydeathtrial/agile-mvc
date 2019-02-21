@@ -39,14 +39,14 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     @Remark("优先级")
     private Integer order;
 
-    @Column(name = "sys_bt_task_target_id", nullable = false, length = 8)
+    @Column(name = "sys_bt_task_target_id", nullable = false, length = 18)
     @Id
     public String getSysBtTaskTargetId() {
         return sysBtTaskTargetId;
     }
 
+    @Column(name = "sys_task_id", nullable = false, length = 18)
     @Basic
-    @Column(name = "sys_task_id", nullable = false, length = 8)
     public String getSysTaskId() {
         return sysTaskId;
     }

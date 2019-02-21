@@ -13,6 +13,7 @@ import java.sql.Date;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -239,6 +240,45 @@ public class ObjectUtil extends ObjectUtils {
     }
 
     /**
+     * 对象转属性下划线式key值Map结构
+     *
+     * @param o 对象
+     * @return Map
+     */
+    public static Map<String, Object> getUnderlineMapFromObject(Object o) {
+        Field[] fields = o.getClass().getDeclaredFields();
+        Map<String, Object> result = new HashMap<>(fields.length);
+        if (fields.length > 0) {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                String key = StringUtil.camelToUnderline(field.getName());
+                try {
+                    result.put(key, field.get(o));
+                } catch (IllegalAccessException ignored) {
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 对象集转Map集，转属性下划线式key值
+     *
+     * @param list 对象集合
+     * @return map集合
+     */
+    public static List<Map<String, Object>> getUnderlineMapFromListObject(Iterable<Object> list) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        if (list != null) {
+            for (Object o : list) {
+                result.add(getUnderlineMapFromObject(o));
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * 从Map对象中获取指定类型对象
      *
      * @param clazz  想要获取的对象类型
@@ -279,6 +319,8 @@ public class ObjectUtil extends ObjectUtils {
                         if (!type.isArray() && value.getClass().isArray()) {
                             targetValue = cast(field.getType(), ((String[]) value)[0]);
                         } else if (type.isArray() && value.getClass().isArray()) {
+                            targetValue = value;
+                        } else if (List.class.isAssignableFrom(type) && List.class.isAssignableFrom(value.getClass())) {
                             targetValue = value;
                         } else {
                             targetValue = cast(type, value);
@@ -425,8 +467,8 @@ public class ObjectUtil extends ObjectUtils {
      * @param clazz 类
      * @return 注解结果集
      */
-    public static <T extends Annotation> List<T> getAllEntityPropertyAnnotation(Class clazz, Field field, Class<T> annotation) throws NoSuchMethodException {
-        List<T> list = new ArrayList<>();
+    public static <T extends Annotation> Set<T> getAllEntityPropertyAnnotation(Class clazz, Field field, Class<T> annotation) throws NoSuchMethodException {
+        Set<T> list = new HashSet<>();
         T fieldDeclaredAnnotations = field.getDeclaredAnnotation(annotation);
         if (fieldDeclaredAnnotations != null) {
             list.add(fieldDeclaredAnnotations);
