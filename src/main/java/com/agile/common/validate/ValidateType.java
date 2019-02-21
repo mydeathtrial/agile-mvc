@@ -13,6 +13,9 @@ import java.util.List;
  * @author 佟盟 on 2018/11/16
  */
 public enum ValidateType implements ValidateInterface {
+    /**
+     * 正则校验类型
+     */
     NO,
     EMAIL(Constant.RegularAbout.EMAIL, "邮箱"),
     DOMAIN(Constant.RegularAbout.DOMAIN, "域名"),
@@ -103,7 +106,7 @@ public enum ValidateType implements ValidateInterface {
 
     private ValidateMsg validate(String key, Object value, Validate validate) {
         ValidateMsg v = new ValidateMsg(key, value);
-        if (value != null) {
+        if (value != null && !StringUtil.isBlank(value.toString())) {
             boolean state;
             if (validate.validateType() != NO) {
                 state = StringUtil.containMatchedString(regex, String.valueOf(value));
