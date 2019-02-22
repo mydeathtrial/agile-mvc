@@ -10,11 +10,11 @@ import com.alibaba.druid.sql.visitor.functions.Char;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Insert;
-import org.hibernate.sql.Update;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.FetchType;
@@ -24,7 +24,13 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -84,12 +90,29 @@ public class ColumnModel {
         temp.append("name = \"").append(columnName).append("\"");
         if ("0".equals(nullable)) {
             temp.append(", nullable = false");
-            setImport(NotEmpty.class, Insert.class, Update.class);
-            if (Boolean.valueOf(isPrimaryKey)) {
-                setAnnotation("@NotEmpty(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
-                setImport(NotEmpty.class, Delete.class);
+            setImport(NotBlank.class, Insert.class, Update.class);
+            if (javaType == String.class) {
+                if (Boolean.valueOf(isPrimaryKey)) {
+                    if (javaType == String.class) {
+                        setAnnotation("@NotBlank(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
+                        setImport(Delete.class);
+                    }
+                } else {
+                    setAnnotation(String.format("@NotBlank(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
+                    setImport(Insert.class);
+                }
+                setImport(NotBlank.class, Update.class);
             } else {
-                setAnnotation(String.format("@NotEmpty(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
+                if (Boolean.valueOf(isPrimaryKey)) {
+                    if (javaType == String.class) {
+                        setAnnotation("@NotNull(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
+                        setImport(Delete.class);
+                    }
+                } else {
+                    setAnnotation(String.format("@NotNull(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
+                    setImport(Insert.class);
+                }
+                setImport(NotNull.class, Update.class);
             }
         }
         if (!StringUtil.isEmpty(columnDef)) {
@@ -97,11 +120,23 @@ public class ColumnModel {
         }
         if (columnSize > 0) {
             temp.append(", length = ").append(columnSize);
-            setImport(Length.class, Insert.class, Update.class);
-            setAnnotation(String.format("@Length(max = %s, message = \"最长为%s个字符\", groups = {Insert.class, Update.class})", columnSize, columnSize));
+            if (javaType == String.class) {
+                setImport(Length.class, Insert.class, Update.class);
+                setAnnotation(String.format("@Length(max = %s, message = \"最长为%s个字符\", groups = {Insert.class, Update.class})", columnSize, columnSize));
+            } else if (javaType == int.class || javaType == Integer.class) {
+                setImport(Max.class, Min.class);
+                setAnnotation(String.format("@Max(value = %s, groups = {Insert.class, Update.class})", Integer.MAX_VALUE));
+                setAnnotation(String.format("@Min(value = %s, groups = {Insert.class, Update.class})", Constant.NumberAbout.ZERO));
+            } else if (javaType == long.class || javaType == Long.class) {
+                setImport(DecimalMax.class, DecimalMin.class);
+                setAnnotation(String.format("@DecimalMax(value = \"%s\", groups = {Insert.class, Update.class})", Long.MAX_VALUE));
+                setAnnotation(String.format("@DecimalMin(value = \"%s\", groups = {Insert.class, Update.class})", Constant.NumberAbout.ZERO));
+            }
         }
         if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
             temp.append(", updatable = false");
+            setImport(Past.class);
+            setAnnotation("@Past");
         }
         setAnnotation(String.format("@Column(%s)", temp));
 

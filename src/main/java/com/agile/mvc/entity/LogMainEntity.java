@@ -11,17 +11,19 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import com.agile.common.annotation.Remark;
+import javax.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.Temporal;
 import java.util.Date;
 import javax.persistence.TemporalType;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import org.apache.ibatis.annotations.Delete;
+import javax.validation.constraints.NotNull;
+import com.agile.common.annotation.Remark;
+import javax.validation.constraints.Past;
+import javax.persistence.Temporal;
+import org.apache.ibatis.annotations.Update;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
  * 描述：[系统管理]日志表
@@ -52,7 +54,7 @@ public class LogMainEntity implements Serializable, Cloneable {
     @Remark("操作时间")
     private Date createTime;
 
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     @Column(name = "log_main_id", nullable = false, length = 18)
@@ -62,8 +64,8 @@ public class LogMainEntity implements Serializable, Cloneable {
 
     @Column(name = "business_code", nullable = false, length = 6)
     @Basic
+    @NotBlank(message = "业务编码不能为空", groups = {Insert.class, Update.class})
     @Length(max = 6, message = "最长为6个字符", groups = {Insert.class, Update.class})
-    @NotEmpty(message = "业务编码不能为空", groups = {Insert.class, Update.class})
     public String getBusinessCode() {
         return businessCode;
     }
@@ -82,7 +84,7 @@ public class LogMainEntity implements Serializable, Cloneable {
         return targetCode;
     }
 
-    @NotEmpty(message = "操作人不能为空", groups = {Insert.class, Update.class})
+    @NotBlank(message = "操作人不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
     @Column(name = "user_id", nullable = false, length = 8)
@@ -90,10 +92,10 @@ public class LogMainEntity implements Serializable, Cloneable {
         return userId;
     }
 
-    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
-    @NotEmpty(message = "操作时间不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
+    @NotNull(message = "操作时间不能为空", groups = {Insert.class, Update.class})
+    @Past
     @CreationTimestamp
     @Column(name = "create_time", nullable = false, length = 26, updatable = false)
     public Date getCreateTime() {

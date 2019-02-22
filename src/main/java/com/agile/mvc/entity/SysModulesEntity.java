@@ -1,26 +1,35 @@
 package com.agile.mvc.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.Basic;
-import java.io.Serializable;
+import com.agile.common.annotation.Remark;
+import com.agile.common.util.CollectionsUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import com.agile.common.annotation.Remark;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
 import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 描述：[系统管理]模块
+ *
  * @author agile gennerator
  */
 @Setter
@@ -37,49 +46,101 @@ public class SysModulesEntity implements Serializable, Cloneable {
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysModulesId;
+    @Remark("模块上级")
+    @Builder.Default
+    private String parentId = ROOT_ID;
     @Remark("模块名称")
     private String name;
     @Remark("模块说明")
     private String desc;
-    @Remark("模块上级")
-    private String parentId;
     @Remark("模块地址")
     private String url;
-    @Remark("级别")
-    private String level;
     @Remark("是否可用")
     private Boolean enable;
     @Remark("优先级")
     private Integer order;
 
+    private List<SysModulesEntity> children = new ArrayList<>();
+    @Transient
+    public List<SysModulesEntity> getChildren() {
+        return children;
+    }
+
+    /**
+     * 根节点父级主键标识
+     */
+    private static final String ROOT_ID = "root";
+    /**
+     * 排序字段
+     */
+    private static final String SORT_COLUMN = "order";
+
+    /**
+     * 构建树形结构
+     *
+     * @param list 构建源数据
+     * @return 树形结构数据集
+     */
+    public static List<SysModulesEntity> createTree(List<SysModulesEntity> list) {
+        List<SysModulesEntity> roots = new ArrayList<>();
+        for (SysModulesEntity entity : list) {
+            if (ROOT_ID.equals(entity.getParentId())) {
+                entity.setChildren(createChildren(entity, list));
+                roots.add(entity);
+            }
+        }
+        CollectionsUtil.sort(roots, SORT_COLUMN);
+        return roots;
+    }
+
+    /**
+     * 获取子菜单
+     *
+     * @param parent 父节点
+     * @param list   全部节点
+     * @return 子菜单
+     */
+    public static List<SysModulesEntity> createChildren(SysModulesEntity parent, List<SysModulesEntity> list) {
+        List<SysModulesEntity> children = new ArrayList<>();
+        for (SysModulesEntity entity : list) {
+            if (parent.getSysModulesId().equals(entity.getParentId())) {
+                entity.setChildren(createChildren(entity, list));
+                children.add(entity);
+            }
+        }
+        CollectionsUtil.sort(children, SORT_COLUMN);
+        parent.setChildren(children);
+        return children;
+    }
+
     @Column(name = "SYS_MODULES_ID", nullable = false, length = 18)
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysModulesId() {
         return sysModulesId;
     }
 
-    @NotEmpty(message = "模块名称不能为空", groups = {Insert.class, Update.class})
+    @Column(name = "PARENT_ID", columnDefinition = "VARCHAR default root", length = 18)
+    @Basic
+    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
+    public String getParentId() {
+        return parentId;
+    }
+
+    @NotBlank(message = "模块名称不能为空", groups = {Insert.class, Update.class})
     @Length(max = 24, message = "最长为24个字符", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "NAME", nullable = false, length = 24)
+    @Column(name = "`NAME`", nullable = false, length = 24)
     public String getName() {
         return name;
     }
 
     @Length(max = 200, message = "最长为200个字符", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "DESC", length = 200)
+    @Column(name = "`DESC`", length = 200)
     public String getDesc() {
         return desc;
-    }
-
-    @Column(name = "PARENT_ID", length = 8)
-    @Basic
-    @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
-    public String getParentId() {
-        return parentId;
     }
 
     @Column(name = "URL", length = 100)
@@ -89,23 +150,16 @@ public class SysModulesEntity implements Serializable, Cloneable {
         return url;
     }
 
+    @Column(name = "`ENABLE`", columnDefinition = "BIT default 0", length = 1)
     @Basic
-    @Column(name = "LEVEL", length = 4)
-    @Length(max = 4, message = "最长为4个字符", groups = {Insert.class, Update.class})
-    public String getLevel() {
-        return level;
-    }
-
-    @Basic
-    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
-    @Column(name = "ENABLE", length = 1)
     public Boolean getEnable() {
         return enable;
     }
 
-    @Length(max = 10, message = "最长为10个字符", groups = {Insert.class, Update.class})
+    @Min(value = 0, groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "ORDER", length = 10)
+    @Column(name = "`ORDER`", length = 10)
+    @Max(value = 2147483647, groups = {Insert.class, Update.class})
     public Integer getOrder() {
         return order;
     }

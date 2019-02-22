@@ -46,7 +46,6 @@ public final class LoggerFactory {
     private static Configuration config = ctx.getConfiguration();
     private static LoggerProperties loggerProperties = FactoryUtil.getBean(LoggerProperties.class);
     private static String path;
-    private static final String DIR_NAME = "logs/";
     private static final String PATTERN = "%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %p ] [ %c ] %m%n}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}";
 
     static {
@@ -59,7 +58,9 @@ public final class LoggerFactory {
             path += Constant.RegularAbout.SLASH;
         }
         loggerProperties.setPackageUri(path);
-        path += DIR_NAME;
+        if (!path.endsWith(Constant.RegularAbout.SLASH)) {
+            path += Constant.RegularAbout.SLASH;
+        }
 
         for (Map.Entry<String, Level[]> packageInfo : loggerProperties.getPackageName().entrySet()) {
             Level[] levels = packageInfo.getValue();

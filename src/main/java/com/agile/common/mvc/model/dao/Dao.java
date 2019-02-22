@@ -670,7 +670,7 @@ public class Dao {
         int count = Integer.parseInt(countQuery.getSingleResult().toString());
 
         //取查询结果集
-        if (count > 0) {
+        if (count >= 0) {
             List content;
             if (clazz != null) {
                 content = findAll(sql, clazz, (page - Constant.NumberAbout.ONE) * size, size, parameters);

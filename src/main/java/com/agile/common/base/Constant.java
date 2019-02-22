@@ -65,6 +65,7 @@ public class Constant {
      * 正则表达式
      */
     public static class RegularAbout {
+        public static final String MINUS = "-";
         public static final String NULL = "";
         public static final String UNDER_LINE = "_";
         public static final String SEMICOLON = ";";

@@ -114,11 +114,10 @@ public class MainService implements ServiceInterface {
         if (jsonNode != null) {
             try {
                 return JSONUtil.toBean(clazz, jsonNode.toString());
-            } catch (IOException e) {
-                return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
+            } catch (IOException ignored) {
             }
         }
-        return null;
+        return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
     }
 
     /**
@@ -388,7 +387,7 @@ public class MainService implements ServiceInterface {
                     .getAuthentication()
                     .getDetails();
         } catch (Exception e) {
-            return new SecurityUser(SysUsersEntity.builder().name("土豆").saltKey("admin").saltValue("密码").sysUsersId("123456").build(), null);
+            return new SecurityUser(SysUsersEntity.builder().name("土豆").saltKey("admin").saltValue("密码").sysUsersId("1").build(), null);
         }
     }
 }

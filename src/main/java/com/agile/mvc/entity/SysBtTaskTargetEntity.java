@@ -12,12 +12,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+import org.apache.ibatis.annotations.Delete;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import org.apache.ibatis.annotations.Update;
+import javax.validation.constraints.NotNull;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
  * 描述：[系统管理]定时任务目标任务表
@@ -45,14 +48,14 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     private Integer order;
 
     @Column(name = "sys_bt_task_target_id", nullable = false, length = 18)
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysBtTaskTargetId() {
         return sysBtTaskTargetId;
     }
 
-    @NotEmpty(message = "定时任务标志不能为空", groups = {Insert.class, Update.class})
+    @NotBlank(message = "定时任务标志不能为空", groups = {Insert.class, Update.class})
     @Column(name = "sys_task_id", nullable = false, length = 18)
     @Basic
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
@@ -60,18 +63,19 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
         return sysTaskId;
     }
 
-    @NotEmpty(message = "目标方法主键不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     @Column(name = "sys_task_target_id", nullable = false, length = 255)
+    @NotBlank(message = "目标方法主键不能为空", groups = {Insert.class, Update.class})
     public String getSysTaskTargetId() {
         return sysTaskTargetId;
     }
 
     @Column(name = "order", nullable = false, length = 3)
-    @NotEmpty(message = "优先级不能为空", groups = {Insert.class, Update.class})
+    @Min(value = 0, groups = {Insert.class, Update.class})
     @Basic
-    @Length(max = 3, message = "最长为3个字符", groups = {Insert.class, Update.class})
+    @NotNull(message = "优先级不能为空", groups = {Insert.class, Update.class})
+    @Max(value = 2147483647, groups = {Insert.class, Update.class})
     public Integer getOrder() {
         return order;
     }

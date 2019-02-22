@@ -31,12 +31,11 @@ import java.util.Set;
  */
 public class BusinessService<T> extends MainService {
     private Class<T> entityClass;
-    private final String id = "id";
-    private final String page = "page";
-    private final String size = "size";
-    private final String sortColumn = "sort-info";
-    private final String sortDirection = "sort-direction";
-    private final int length = 8;
+    private static final String ID = "id";
+    private static final String PAGE_NUM = "pageNum";
+    private static final String PAGE_SIZE = "pageSize";
+    private static final String SORT_COLUMN = "sorts";
+    private static final int DEF_LENGTH = 8;
 
     public BusinessService() {
         Type genType = getClass().getGenericSuperclass();
@@ -93,7 +92,7 @@ public class BusinessService<T> extends MainService {
         if (!isGenerate && idValue == null) {
             String idValueTemp;
             Set<Column> columns = ObjectUtil.getAllEntityPropertyAnnotation(entityClass, idField, Column.class);
-            int idLength = length;
+            int idLength = DEF_LENGTH;
             if (columns != null && columns.size() > 0) {
                 idLength = columns.iterator().next().length();
             }
@@ -111,7 +110,7 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN delete() throws NoSuchIDException {
         T entity = getInParam(entityClass);
-        boolean require = this.containsKey(id);
+        boolean require = this.containsKey(ID);
         if (require && ObjectUtil.isEmpty(entity)) {
             dao.deleteInBatch(entityClass, getIds().toArray());
             return RETURN.SUCCESS;
@@ -141,8 +140,8 @@ public class BusinessService<T> extends MainService {
         }
 
         Field field = dao.getIdField(entityClass);
-        if (containsKey(id)) {
-            field.set(entity, getInParam(id, String.class));
+        if (containsKey(ID)) {
+            field.set(entity, getInParam(ID, String.class));
         } else if (field.get(entity) == null) {
             return RETURN.PARAMETER_ERROR;
         }
@@ -161,7 +160,7 @@ public class BusinessService<T> extends MainService {
         if (entity == null) {
             entity = entityClass.newInstance();
         }
-        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam(page, Integer.class, defPage), getInParam(size, Integer.class, defSize), getSort()));
+        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam(PAGE_NUM, Integer.class, defPage), getInParam(PAGE_SIZE, Integer.class, defSize), getSort()));
         return RETURN.SUCCESS;
     }
 
@@ -170,7 +169,7 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN query() throws NoSuchIDException {
         T entity = getInParam(entityClass);
-        boolean require = this.containsKey(id);
+        boolean require = this.containsKey(ID);
         if (require && ObjectUtil.isEmpty(entity)) {
             setOutParam(Constant.ResponseAbout.RESULT, dao.findAllById(entityClass, getIds()));
         } else if (!require && !ObjectUtil.isEmpty(entity)) {
@@ -193,7 +192,7 @@ public class BusinessService<T> extends MainService {
         }
         Class<?> type = idField.getType();
         List<Object> list = new ArrayList<>();
-        String[] ids = this.getInParamOfArray(id);
+        String[] ids = this.getInParamOfArray(ID);
         for (Object idValue : ids) {
             if (StringUtil.isString(idValue)) {
                 String v = idValue.toString();
@@ -214,11 +213,19 @@ public class BusinessService<T> extends MainService {
     }
 
     private Sort getSort() {
-        Sort.Direction direction = Sort.Direction.fromString(getInParam(sortDirection, String.class, "asc"));
         Sort sort = Sort.unsorted();
-        if (this.containsKey(sortColumn)) {
-            List<String> column = Arrays.asList(getInParamOfArray(sortColumn));
-            sort = new Sort(direction, column);
+        if (this.containsKey(SORT_COLUMN)) {
+            List<String> columns = Arrays.asList(getInParamOfArray(SORT_COLUMN));
+            List<Sort.Order> orders = new ArrayList<>(columns.size());
+            for (String column : columns) {
+                if (column.startsWith(Constant.RegularAbout.MINUS)) {
+                    orders.add(new Sort.Order(Sort.Direction.DESC, column));
+                } else {
+                    orders.add(new Sort.Order(Sort.Direction.ASC, column));
+                }
+
+            }
+            sort = Sort.by(orders);
         }
         return sort;
     }
@@ -227,13 +234,13 @@ public class BusinessService<T> extends MainService {
      * 查询
      */
     public RETURN queryById() {
-        boolean require = this.containsKey(id);
+        boolean require = this.containsKey(ID);
         if (!require) {
             return RETURN.PARAMETER_ERROR;
         }
 
         T entity = getInParam(entityClass);
-        T target = dao.findOne(entityClass, getInParam(id, String.class));
+        T target = dao.findOne(entityClass, getInParam(ID, String.class));
         if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity, target)) {
             target = null;
         }

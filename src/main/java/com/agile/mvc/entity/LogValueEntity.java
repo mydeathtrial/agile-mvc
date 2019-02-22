@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Update;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
  * 描述：[系统管理]日志相关字段值变动信息
@@ -50,8 +50,8 @@ public class LogValueEntity implements Serializable, Cloneable {
     @Remark("字段含义")
     private String columnInfo;
 
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Column(name = "log_value_id", nullable = false, length = 18)
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getLogValueId() {
@@ -60,24 +60,24 @@ public class LogValueEntity implements Serializable, Cloneable {
 
     @Column(name = "log_table_id", nullable = false, length = 18)
     @Basic
-    @NotEmpty(message = "日志相关表标识不能为空", groups = {Insert.class, Update.class})
+    @NotBlank(message = "日志相关表标识不能为空", groups = {Insert.class, Update.class})
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getLogTableId() {
         return logTableId;
     }
 
     @Length(max = 64, message = "最长为64个字符", groups = {Insert.class, Update.class})
+    @NotBlank(message = "字段不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "column_name", nullable = false, length = 64)
-    @NotEmpty(message = "字段不能为空", groups = {Insert.class, Update.class})
     public String getColumnName() {
         return columnName;
     }
 
+    @NotBlank(message = "字段类型不能为空", groups = {Insert.class, Update.class})
     @Column(name = "column_type", nullable = false, length = 64)
     @Length(max = 64, message = "最长为64个字符", groups = {Insert.class, Update.class})
     @Basic
-    @NotEmpty(message = "字段类型不能为空", groups = {Insert.class, Update.class})
     public String getColumnType() {
         return columnType;
     }

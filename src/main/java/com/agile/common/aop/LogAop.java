@@ -44,6 +44,7 @@ public class LogAop {
     private static final int LOG_TAB = 10;
     private static final int REQUEST_INDEX = 2;
     private static final int METHOD_INDEX = 1;
+    private static final String JSON_ERROR = "特殊入参无法进行json化处理";
     /**
      * 日志线程池
      */
@@ -162,7 +163,13 @@ public class LogAop {
                 if (e == null) {
                     String outStr = JSONUtil.toStringPretty(outParam, LOG_TAB);
                     String print = (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
-                    logger.info(String.format(LOG_TEMPLATE, SUCCESS, ip, url, serviceClass.getSimpleName(), methodName, JSONUtil.toStringPretty(inParam, LOG_TAB), print, time));
+                    String inParamLog;
+                    try {
+                        inParamLog = JSONUtil.toStringPretty(inParam, LOG_TAB);
+                    } catch (Exception e) {
+                        inParamLog = JSON_ERROR;
+                    }
+                    logger.info(String.format(LOG_TEMPLATE, SUCCESS, ip, url, serviceClass.getSimpleName(), methodName, inParamLog, print, time));
                 } else {
                     logger.error(String.format(ERROR_LOG_TEMPLATE, ERROR, e.getClass(), e.getMessage(), ip, url, serviceClass.getSimpleName(), methodName, JSONUtil.toStringPretty(inParam, LOG_TAB), time));
                     logger.error(DETAIL_ERROR_INFO, e);

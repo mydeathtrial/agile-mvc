@@ -36,7 +36,6 @@ import java.util.Properties;
 
 /**
  * @author 佟盟 on 2018/8/22
- *
  * @author 佟盟
  */
 @Component

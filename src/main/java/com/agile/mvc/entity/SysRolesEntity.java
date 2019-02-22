@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Update;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
  * 描述：[系统管理]角色
@@ -44,8 +44,8 @@ public class SysRolesEntity implements Serializable, Cloneable {
     @Remark("是否可用")
     private Boolean enable;
 
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Column(name = "SYS_ROLES_ID", nullable = false, length = 18)
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysRolesId() {
@@ -59,16 +59,15 @@ public class SysRolesEntity implements Serializable, Cloneable {
         return roleName;
     }
 
-    @Column(name = "ROLE_DESC", length = 200)
-    @Length(max = 200, message = "最长为200个字符", groups = {Insert.class, Update.class})
+    @Length(max = 100, message = "最长为100个字符", groups = {Insert.class, Update.class})
+    @Column(name = "ROLE_DESC", length = 100)
     @Basic
     public String getRoleDesc() {
         return roleDesc;
     }
 
+    @Column(name = "ENABLE", columnDefinition = "BIT default 0", length = 1)
     @Basic
-    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
-    @Column(name = "ENABLE", length = 1)
     public Boolean getEnable() {
         return enable;
     }

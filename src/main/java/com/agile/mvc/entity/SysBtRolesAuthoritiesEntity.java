@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Update;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
  * 描述：[系统管理]角色权限表
@@ -42,16 +42,16 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
     @Remark("角色唯一标识")
     private String roleId;
 
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Column(name = "SYS_BT_ROLES_AUTHORITIES_ID", nullable = false, length = 18)
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysBtRolesAuthoritiesId() {
         return sysBtRolesAuthoritiesId;
     }
 
-    @NotEmpty(message = "权限唯一标识不能为空", groups = {Insert.class, Update.class})
     @Basic
+    @NotBlank(message = "权限唯一标识不能为空", groups = {Insert.class, Update.class})
     @Column(name = "AUTHORITY_ID", nullable = false, length = 18)
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getAuthorityId() {
@@ -59,8 +59,8 @@ public class SysBtRolesAuthoritiesEntity implements Serializable, Cloneable {
     }
 
     @Column(name = "ROLE_ID", nullable = false, length = 18)
+    @NotBlank(message = "角色唯一标识不能为空", groups = {Insert.class, Update.class})
     @Basic
-    @NotEmpty(message = "角色唯一标识不能为空", groups = {Insert.class, Update.class})
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getRoleId() {
         return roleId;

@@ -106,7 +106,7 @@ public class ApiUtil {
         RequestMappingInfo defaultRequestMappingInfo = handler.getDefaultFroMethod(method, clazz);
         if (defaultRequestMappingInfo != null) {
             getMappingHandlerMapping().registerHandlerMethod(bean, method, defaultRequestMappingInfo);
-            addMappingInfoCache(beanName, bean, method, defaultRequestMappingInfo);
+//            addMappingInfoCache(beanName, bean, method, defaultRequestMappingInfo);
             printLog(beanName, method, defaultRequestMappingInfo);
         }
     }

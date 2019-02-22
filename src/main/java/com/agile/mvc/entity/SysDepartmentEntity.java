@@ -11,18 +11,22 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import com.agile.common.annotation.Remark;
+import javax.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
-import javax.persistence.Temporal;
 import java.util.Date;
 import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.TemporalType;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import org.apache.ibatis.annotations.Delete;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import com.agile.common.annotation.Remark;
+import javax.validation.constraints.Past;
+import javax.persistence.Temporal;
+import javax.validation.constraints.Max;
+import org.apache.ibatis.annotations.Update;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
 
@@ -42,38 +46,40 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
     @Remark("部门主键")
     private String sysDepartId;
     @Remark("父主键")
-    private String parentId;
+    @Builder.Default
+    private String parentId = "root";
     @Remark("名字")
     private String departName;
     @Remark("描述")
     private String departDesc;
     @Remark("排序")
     private Integer sort;
+    @Remark("是否可用")
+    private Boolean enable;
     @Remark("更新时间")
     private Date updateTime;
     @Remark("创建时间")
     private Date createTime;
-    @Remark("是否可用")
-    private Boolean enable;
 
     @Column(name = "sys_depart_id", nullable = false, length = 18)
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getSysDepartId() {
         return sysDepartId;
     }
 
+    @Column(name = "parent_id", columnDefinition = "VARCHAR default root", length = 18)
     @Basic
-    @Column(name = "parent_id", length = 18)
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getParentId() {
         return parentId;
     }
 
     @Basic
+    @Column(name = "depart_name", nullable = false, length = 20)
     @Length(max = 20, message = "最长为20个字符", groups = {Insert.class, Update.class})
-    @Column(name = "depart_name", length = 20)
+    @NotBlank(message = "名字不能为空", groups = {Insert.class, Update.class})
     public String getDepartName() {
         return departName;
     }
@@ -85,14 +91,20 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
         return departDesc;
     }
 
-    @Length(max = 10, message = "最长为10个字符", groups = {Insert.class, Update.class})
-    @Column(name = "sort", length = 10)
+    @Column(name = "sort", columnDefinition = "TINYINT default 0", length = 3)
+    @Min(value = 0, groups = {Insert.class, Update.class})
     @Basic
+    @Max(value = 2147483647, groups = {Insert.class, Update.class})
     public Integer getSort() {
         return sort;
     }
 
-    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
+    @Basic
+    @Column(name = "enable", columnDefinition = "BIT default 0", length = 1)
+    public Boolean getEnable() {
+        return enable;
+    }
+
     @UpdateTimestamp
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
@@ -101,20 +113,14 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
         return updateTime;
     }
 
-    @Length(max = 26, message = "最长为26个字符", groups = {Insert.class, Update.class})
+    @NotNull(message = "创建时间不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
+    @Past
     @CreationTimestamp
-    @Column(name = "create_time", length = 26, updatable = false)
+    @Column(name = "create_time", nullable = false, length = 26, updatable = false)
     public Date getCreateTime() {
         return createTime;
-    }
-
-    @Column(name = "enable", length = 1)
-    @Basic
-    @Length(max = 1, message = "最长为1个字符", groups = {Insert.class, Update.class})
-    public Boolean getEnable() {
-        return enable;
     }
 
 

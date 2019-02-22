@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import com.agile.common.annotation.Remark;
-import org.hibernate.sql.Delete;
-import org.hibernate.sql.Update;
-import org.hibernate.sql.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Update;
 import javax.persistence.Id;
+import org.hibernate.validator.constraints.Length;
+import org.apache.ibatis.annotations.Insert;
 
 /**
  * 描述：[系统管理]权限资源表
@@ -42,7 +42,7 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
     @Remark("权限唯一标识")
     private String authorityId;
 
-    @NotEmpty(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     @Column(name = "SYS_BT_AUTHORITIES_RESOURCES_ID", nullable = false, length = 18)
@@ -50,16 +50,16 @@ public class SysBtAuthoritiesResourcesEntity implements Serializable, Cloneable 
         return sysBtAuthoritiesResourcesId;
     }
 
-    @NotEmpty(message = "资源唯一标识不能为空", groups = {Insert.class, Update.class})
     @Basic
+    @NotBlank(message = "资源唯一标识不能为空", groups = {Insert.class, Update.class})
     @Column(name = "RESOURCE_ID", nullable = false, length = 18)
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getResourceId() {
         return resourceId;
     }
 
-    @NotEmpty(message = "权限唯一标识不能为空", groups = {Insert.class, Update.class})
     @Basic
+    @NotBlank(message = "权限唯一标识不能为空", groups = {Insert.class, Update.class})
     @Column(name = "AUTHORITY_ID", nullable = false, length = 18)
     @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getAuthorityId() {

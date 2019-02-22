@@ -1,15 +1,108 @@
 package com.agile.mvc.service;
 
+import com.agile.common.annotation.Mapping;
+import com.agile.common.annotation.Models;
+import com.agile.common.annotation.Validate;
+import com.agile.common.annotation.Validates;
+import com.agile.common.base.RETURN;
+import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
 import org.springframework.stereotype.Service;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Insert;
 import com.agile.mvc.entity.LogTableEntity;
 
 /**
  * @author agile generator
  */
-@Api(value = "[系统管理]日志相关表变动信息")
+@Api(description = "[系统管理]日志相关表变动信息")
+@Mapping("/api/LogTableService")
 @Service
 public class LogTableService extends BusinessService<LogTableEntity> {
+    @ApiOperation(value = "新增[系统管理]日志相关表变动信息", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "LogTableEntity")
+    })
+    @Models({LogTableEntity.class})
+    @Validate(beanClass = LogTableEntity.class, validateGroups = Insert.class)
+    @Mapping(value = "/save", method = RequestMethod.POST)
+    public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
+        return super.save();
+    }
 
+    @ApiOperation(value = "删除[系统管理]日志相关表变动信息", httpMethod = "DELETE", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+    })
+    @Validate(beanClass = LogTableEntity.class, validateGroups = Delete.class)
+    @Mapping(path = "/{id}/delete", method = RequestMethod.DELETE)
+    public RETURN customDelete() throws NoSuchIDException {
+        return super.delete();
+    }
+
+    @ApiOperation(value = "更新[系统管理]日志相关表变动信息", httpMethod = "UPDATE", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "LogTableEntity"),
+            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+    })
+    @Models({LogTableEntity.class})
+    @Validate(beanClass = LogTableEntity.class, validateGroups = Update.class)
+    @Mapping(value = "/{id}/update", method = RequestMethod.POST)
+    public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
+        return super.update();
+    }
+
+    @ApiOperation(value = "[系统管理]日志相关表变动信息分页查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "logTableId", value = "唯一标识", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "logMainId", value = "日志标识", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "tableSchema", value = "数据库", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "tableName", value = "表名", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "operationType", value = "操作类型", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "operationOrder", value = "操作顺序", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String")
+    })
+    @Models({LogTableEntity.class})
+    @Mapping(path = "/pageQuery")
+    @Validates({
+            @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
+            @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
+    })
+    public RETURN customPageQuery() throws IllegalAccessException, InstantiationException {
+        return super.pageQuery();
+    }
+
+    @ApiOperation(value = "[系统管理]日志相关表变动信息查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "logTableId", value = "唯一标识", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "logMainId", value = "日志标识", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "tableSchema", value = "数据库", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "tableName", value = "表名", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "operationType", value = "操作类型", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "operationOrder", value = "操作顺序", paramType = "query", dataType = "int"),
+    })
+    @Models({LogTableEntity.class})
+    @Mapping(path = "/query")
+    public RETURN customQuery() throws NoSuchIDException {
+        return super.query();
+    }
+
+    @ApiOperation(value = "根据主键查询[系统管理]日志相关表变动信息", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+    })
+    @Models({LogTableEntity.class})
+    @Mapping(path = "/{id}")
+    public RETURN customQueryById() {
+        return super.queryById();
+    }
 }

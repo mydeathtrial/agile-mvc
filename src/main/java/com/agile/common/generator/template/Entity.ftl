@@ -38,7 +38,7 @@ public class ${entityName} implements Serializable, Cloneable {
     <#if property.defValue??>
     @Builder.Default
     </#if>
-    private ${property.javaSimpleTypeName} ${property.javaName}<#if property.defValue??> = ${property.defValue}</#if>;
+    private ${property.javaSimpleTypeName} ${property.javaName}<#if property.defValue??> = <#if property.javaSimpleTypeName=="Boolean" ||  property.javaSimpleTypeName=="boolean"><#if property.defValue=="0">false<#else>true</#if><#else>${property.defValue}</#if></#if>;
 </#list>
 
 <#list columns as property>
