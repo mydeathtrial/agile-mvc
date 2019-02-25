@@ -72,8 +72,9 @@ public class MainController {
 
     /**
      * 非法请求处理器
-     * @param currentRequest 请求
-     * @param  currentResponse 响应
+     *
+     * @param currentRequest  请求
+     * @param currentResponse 响应
      * @return 视图
      * @throws UnlawfulRequestException 非法路径请求
      */
@@ -617,6 +618,7 @@ public class MainController {
 
     /**
      * 获取当前线程下Service缓存
+     *
      * @return 服务
      */
     private ServiceInterface getService() {
@@ -625,6 +627,7 @@ public class MainController {
 
     /**
      * 获取当前线程下方法缓存
+     *
      * @return 方法
      */
     private Method getMethod() {

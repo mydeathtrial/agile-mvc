@@ -1,10 +1,13 @@
 package com.agile.common.security;
 
+import com.agile.common.base.Constant;
+import com.agile.common.cache.Cache;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.ServletUtil;
+import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
 import com.agile.mvc.entity.SysLoginEntity;
 import org.springframework.security.core.Authentication;
@@ -30,6 +33,28 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
 
     @Override
     public void onAuthentication(Authentication authentication, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws SessionAuthenticationException {
+        String token;
+
+        //判断策略
+        if (securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
+            token = difficultToken(authentication, httpServletRequest);
+        } else {
+            token = easyToken(authentication, httpServletRequest);
+        }
+
+        //通知前端
+        notice(httpServletResponse, token);
+
+    }
+
+    /**
+     * 复杂令牌策略
+     *
+     * @param authentication     权限信息
+     * @param httpServletRequest 请求
+     * @return 令牌
+     */
+    private String difficultToken(Authentication authentication, HttpServletRequest httpServletRequest) {
         SecurityUser userDetails = (SecurityUser) authentication.getDetails();
         final int digit = 8;
         String salt = RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER);
@@ -46,11 +71,37 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
 
         CacheUtil.put(saltsKey, CacheUtil.get(saltsKey) == null ? salt : String.format("%s%s", Objects.requireNonNull(CacheUtil.get(saltsKey)).toString(), salt));
         CacheUtil.put(cacheKey, authentication);
+        return TokenUtil.generateToken(cacheKey, salt, userDetails.getPassword());
+    }
 
-        String agileToken = TokenUtil.generateToken(cacheKey, salt, userDetails.getPassword());
+    /**
+     * 简单令牌策略
+     *
+     * @param authentication     权限信息
+     * @param httpServletRequest 请求
+     * @return 令牌
+     */
+    private String easyToken(Authentication authentication, HttpServletRequest httpServletRequest) {
+        String token = TokenUtil.getToken(httpServletRequest, securityProperties.getTokenHeader());
+        Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
+
+        if (StringUtil.isEmpty(token)) {
+            SecurityUser userDetails = (SecurityUser) authentication.getDetails();
+            token = TokenUtil.generateToken(userDetails.getSaltKey(), userDetails.getPassword());
+            tokenCache.put(token, authentication, securityProperties.getTokenTimeout());
+        } else {
+            CacheUtil.put(token, authentication, securityProperties.getTokenTimeout());
+        }
+        return token;
+    }
+
+    /**
+     * 通知前端
+     */
+    private void notice(HttpServletResponse httpServletResponse, String agileToken) {
         Cookie cookie = new Cookie(securityProperties.getTokenHeader(), agileToken);
         cookie.setHttpOnly(true);
-        cookie.setPath("/");
+        cookie.setPath(Constant.RegularAbout.SLASH);
         httpServletResponse.addCookie(cookie);
         httpServletResponse.setHeader(securityProperties.getTokenHeader(), agileToken);
     }

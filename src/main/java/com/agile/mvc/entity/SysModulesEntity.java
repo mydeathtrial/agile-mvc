@@ -1,11 +1,11 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
+import com.agile.common.base.Constant;
 import com.agile.common.util.CollectionsUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
@@ -25,7 +25,9 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 描述：[系统管理]模块
@@ -61,6 +63,7 @@ public class SysModulesEntity implements Serializable, Cloneable {
     private Integer order;
 
     private List<SysModulesEntity> children = new ArrayList<>();
+
     @Transient
     public List<SysModulesEntity> getChildren() {
         return children;
@@ -94,6 +97,52 @@ public class SysModulesEntity implements Serializable, Cloneable {
     }
 
     /**
+     * 构建树形结构
+     *
+     * @param list 构建源数据
+     * @return 树形结构数据集
+     */
+    public static List<Map<String, Object>> createTree2(List<SysModulesEntity> list) {
+        List<Map<String, Object>> roots = new ArrayList<>();
+        for (SysModulesEntity entity : list) {
+            if (ROOT_ID.equals(entity.getParentId())) {
+                roots.add(createMap(entity, list));
+            }
+        }
+        CollectionsUtil.sort(roots, SORT_COLUMN);
+        return roots;
+    }
+
+    /**
+     * 获取子菜单
+     *
+     * @param parent 父节点
+     * @param list   全部节点
+     * @return 子菜单
+     */
+    public static List<Map<String, Object>> createChildren2(SysModulesEntity parent, List<SysModulesEntity> list) {
+        List<Map<String, Object>> children = new ArrayList<>();
+        for (SysModulesEntity entity : list) {
+            if (parent.getSysModulesId().equals(entity.getParentId())) {
+                children.add(createMap(entity, list));
+            }
+        }
+        CollectionsUtil.sort(children, SORT_COLUMN);
+        return children;
+    }
+
+    private static Map<String, Object> createMap(SysModulesEntity entity, List<SysModulesEntity> list) {
+        Map<String, Object> map = new HashMap<>(Constant.NumberAbout.THREE);
+        map.put("name", entity.getUrl());
+        map.put("order", entity.getOrder());
+        map.put("meta", new HashMap<String, Object>(Constant.NumberAbout.ONE) {{
+            put("title", entity.getName());
+        }});
+        map.put("children", createChildren2(entity, list));
+        return map;
+    }
+
+    /**
      * 获取子菜单
      *
      * @param parent 父节点
@@ -109,7 +158,6 @@ public class SysModulesEntity implements Serializable, Cloneable {
             }
         }
         CollectionsUtil.sort(children, SORT_COLUMN);
-        parent.setChildren(children);
         return children;
     }
 

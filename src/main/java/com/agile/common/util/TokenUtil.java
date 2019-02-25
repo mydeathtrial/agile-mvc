@@ -38,6 +38,13 @@ public class TokenUtil {
         return generateToken(claims);
     }
 
+    /**
+     * 根据 TokenDetail 生成 Token
+     */
+    public static String generateToken(String salt, String saltValue) {
+        return generateToken("NO_KEY", salt, saltValue);
+    }
+
     public static String getToken(HttpServletRequest request, String key) {
         String token = request.getHeader(key);
         if (StringUtil.isBlank(token)) {

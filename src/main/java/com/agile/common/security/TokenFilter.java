@@ -1,5 +1,6 @@
 package com.agile.common.security;
 
+import com.agile.common.cache.Cache;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
@@ -58,40 +59,49 @@ public class TokenFilter extends OncePerRequestFilter {
             }
             String token = TokenUtil.getToken(request, securityProperties.getTokenHeader());
             if (StringUtil.isBlank(token)) {
-                throw new NoSignInException(null);
+                throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
             }
 
-            if (!TokenUtil.validateToken(token)) {
-                throw new TokenIllegalException(null);
-            }
-
-            Claims claims = TokenUtil.getClaimsFromToken(token);
-            assert claims != null;
-            String cacheKey = claims.get(TokenUtil.AUTHENTICATION_CACHE_KEY).toString();
-            String saltsKey = cacheKey + "_SALT";
-            String oldSalt = claims.get(TokenUtil.AUTHENTICATION_CACHE_SALT_KEY).toString();
-            String salts = Objects.requireNonNull(CacheUtil.get(saltsKey)).toString();
-            Authentication authentication = (Authentication) CacheUtil.get(cacheKey);
-            if (ObjectUtil.isEmpty(authentication)) {
-                throw new TokenIllegalException(null);
-            }
-            if (!salts.contains(oldSalt)) {
-                throw new TokenIllegalException(null);
-            }
-            SecurityUser userDetails = (SecurityUser) authentication.getDetails();
-            securityUserDetailsService.validate(userDetails);
-
-            String oldSaltValue = claims.get(TokenUtil.AUTHENTICATION_CREATE_SALT_VALUE).toString();
-            String currentSaltValue = userDetails.getPassword();
-            if (!oldSaltValue.equals(currentSaltValue)) {
-                throw new TokenIllegalException(null);
-            }
-            if (signOutUrl.matches(request)) {
-                securityUserDetailsService.updateLoginInfo(oldSalt);
-                CacheUtil.put(saltsKey, salts.replaceAll(oldSalt, ""));
+            //判断策略
+            if (securityProperties.getTokenType() == SecurityProperties.TokenType.EASY) {
+                Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
+                Authentication cache = tokenCache.get(token, Authentication.class);
+                if (cache == null) {
+                    throw new TokenIllegalException("身份令牌验证失败");
+                }
+                SecurityContextHolder.getContext().setAuthentication(cache);
             } else {
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                refreshToken(authentication, response, oldSalt, userDetails.getSaltValue());
+                if (!TokenUtil.validateToken(token)) {
+                    throw new TokenIllegalException("身份令牌验证失败");
+                }
+                Claims claims = TokenUtil.getClaimsFromToken(token);
+                assert claims != null;
+                String cacheKey = claims.get(TokenUtil.AUTHENTICATION_CACHE_KEY).toString();
+                String saltsKey = cacheKey + "_SALT";
+                String oldSalt = claims.get(TokenUtil.AUTHENTICATION_CACHE_SALT_KEY).toString();
+                String salts = Objects.requireNonNull(CacheUtil.get(saltsKey)).toString();
+                Authentication authentication = CacheUtil.get(cacheKey, Authentication.class);
+                if (ObjectUtil.isEmpty(authentication)) {
+                    throw new TokenIllegalException(null);
+                }
+                if (!salts.contains(oldSalt)) {
+                    throw new TokenIllegalException(null);
+                }
+                SecurityUser userDetails = (SecurityUser) authentication.getDetails();
+                securityUserDetailsService.validate(userDetails);
+
+                String oldSaltValue = claims.get(TokenUtil.AUTHENTICATION_CREATE_SALT_VALUE).toString();
+                String currentSaltValue = userDetails.getPassword();
+                if (!oldSaltValue.equals(currentSaltValue)) {
+                    throw new TokenIllegalException(null);
+                }
+                if (signOutUrl.matches(request)) {
+                    securityUserDetailsService.updateLoginInfo(oldSalt);
+                    CacheUtil.put(saltsKey, salts.replaceAll(oldSalt, ""));
+                } else {
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    refreshToken(authentication, response, oldSalt, userDetails.getSaltValue());
+                }
             }
             filterChain.doFilter(request, response);
         } catch (Exception e) {

@@ -129,9 +129,8 @@ public class SysModulesService extends BusinessService<SysModulesEntity> {
                 "INNER JOIN sys_roles ON sys_roles.SYS_ROLES_ID = sys_bt_roles_moudles.ROLE_ID\n" +
                 "INNER JOIN sys_bt_users_roles ON sys_roles.SYS_ROLES_ID = sys_bt_users_roles.ROLE_ID\n" +
                 "WHERE sys_bt_users_roles.USER_ID = ?";
-
-        List<SysModulesEntity> list = dao.findAll(sql, SysModulesEntity.class, getUser().getSysUsersId());
-        return SysModulesEntity.createTree(list);
+        List<SysModulesEntity> list = dao.findAll(sql, SysModulesEntity.class, "1");
+        return SysModulesEntity.createTree2(list);
     }
 
 }

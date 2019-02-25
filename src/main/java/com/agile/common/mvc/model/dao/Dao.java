@@ -545,7 +545,7 @@ public class Dao {
             if (result != null) {
                 return result;
             }
-        } catch (NoSuchIDException e) {
+        } catch (Exception e) {
 
             Query query = creatQuery(sql, parameters);
             ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);

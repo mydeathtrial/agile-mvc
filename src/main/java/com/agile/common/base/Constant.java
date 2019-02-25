@@ -39,6 +39,10 @@ public class Constant {
         public static final int EIGHT = 8;
         public static final int NINE = 9;
         public static final int TEN = 10;
+        public static final int ELEVEN = 11;
+        public static final int TWELVE = 12;
+        public static final int THIRTY_ONE = 31;
+        public static final int TWENTY_FOUR = 24;
         public static final int HUNDRED = 100;
         public static final int THOUSAND = 1000;
     }
@@ -99,7 +103,8 @@ public class Constant {
         public static final String ACCOUNT = "^[a-zA-Z][a-zA-Z0-9_]{4,15}$";
         public static final String PASSWORD = "^[a-zA-Z]\\w{5,17}$";
         public static final String STRONG_PASSWORD = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$";
-        public static final String DATE_YYYY_MM_DD = "^\\d{4}-\\d{1,2}-\\d{1,2}";
+        public static final String DATE_YYYY_MM_DD = "^((((19|20)\\d{2})-(0?[13-9]|1[012])-(0?[1-9]|[12]\\d|30))|(((19|20)\\d{2})-(0?[13578]|1[02])-31)" +
+                "|(((19|20)\\d{2})-0?2-(0?[1-9]|1\\d|2[0-8]))|((((19|20)([13579][26]|[2468][048]|0[48]))|(2000))-0?2-29))$";
         public static final String MONTH = "^(0?[1-9]|1[0-2])$";
         public static final String DAY = "^((0?[1-9])|((1|2)[0-9])|30|31)$";
         public static final String MONEY = "^(0|-?[1-9][0-9]*)$";

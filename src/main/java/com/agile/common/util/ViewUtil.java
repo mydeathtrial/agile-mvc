@@ -170,15 +170,12 @@ public class ViewUtil {
         m.setModel(model);
         for (Map.Entry<String, Object> entry : model.entrySet()) {
             Object value = entry.getValue();
-            if (value == null) {
-                continue;
-            }
             if (FileUtil.isFile(value)) {
                 m.addFile(value);
             } else if (value instanceof Page) {
                 m.addPage(entry.getKey());
                 m.put(entry.getKey(), ((Page) value).getPage());
-            } else if (Map.class.isAssignableFrom(value.getClass())) {
+            } else if (value != null && Map.class.isAssignableFrom(value.getClass())) {
                 Model inm = modelProcessing((Map<String, Object>) value);
                 m.addFiles(inm.getFiles());
                 m.addPages(inm.getPages());

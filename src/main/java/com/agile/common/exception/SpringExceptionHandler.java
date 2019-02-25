@@ -5,7 +5,6 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.StringUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,32 +47,17 @@ public class SpringExceptionHandler {
 
         assert r != null;
         Head head = new Head(r);
-        String msgStr = printLog(e);
 
         AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
-            modelAndView = abstractResponseFormat.buildResponse(head, msgStr);
+            modelAndView = abstractResponseFormat.buildResponse(head, null);
         } else {
             modelAndView = new ModelAndView();
             modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
-            modelAndView.addObject(Constant.ResponseAbout.RESULT, msgStr);
+            modelAndView.addObject(Constant.ResponseAbout.RESULT, null);
         }
 
         return modelAndView;
-    }
-
-    private String printLog(Throwable e) {
-        StackTraceElement msg = e.getStackTrace()[0];
-        String exclass = msg.getClassName();
-        String method = msg.getMethodName();
-        int lineNumber = msg.getLineNumber();
-
-        String msgStr = String.format(ERROR_MESSAGE_TEMPLATE, exclass, method, lineNumber);
-
-        if (!StringUtil.isEmpty(e.getMessage())) {
-            msgStr += String.format(ERROR_DETAIL_MESSAGE_TEMPLATE, e.getMessage());
-        }
-        return msgStr;
     }
 
 }

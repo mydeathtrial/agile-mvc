@@ -41,7 +41,7 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
             if (remark != null) {
                 try {
                     String param = remark.value();
-                    if (Constant.ResponseAbout.RESULT.equals(param)) {
+                    if (Constant.ResponseAbout.RESULT.equals(param) && result != null) {
                         boolean isMap = Map.class.isAssignableFrom(result.getClass());
                         if (isMap && ((Map) result).containsKey(Constant.ResponseAbout.RESULT)) {
                             Object o = ((Map) result).get(Constant.ResponseAbout.RESULT);

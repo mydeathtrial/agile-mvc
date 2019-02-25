@@ -69,12 +69,16 @@ public class BusinessService<T> extends MainService {
         return false;
     }
 
+    public RETURN save() throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
+        T entity = getInParam(entityClass);
+        return save(entity);
+    }
+
     /**
      * 新增
      */
-    public RETURN save() throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
+    public RETURN save(T entity) throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
 
-        T entity = getInParam(entityClass);
         if (validateInParam(entity) || !ObjectUtil.isValidity(entity)) {
             return RETURN.PARAMETER_ERROR;
         }

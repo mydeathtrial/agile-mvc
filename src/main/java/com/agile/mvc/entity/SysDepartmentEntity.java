@@ -1,35 +1,34 @@
 package com.agile.mvc.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.Basic;
-import java.io.Serializable;
+import com.agile.common.annotation.Remark;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import javax.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
-import java.util.Date;
-import org.hibernate.annotations.UpdateTimestamp;
-import javax.persistence.TemporalType;
 import org.apache.ibatis.annotations.Delete;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import com.agile.common.annotation.Remark;
-import javax.validation.constraints.Past;
-import javax.persistence.Temporal;
-import javax.validation.constraints.Max;
-import org.apache.ibatis.annotations.Update;
-import javax.persistence.Id;
-import org.hibernate.validator.constraints.Length;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Past;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
-
  * @author agile gennerator
  */
 @Setter
@@ -113,12 +112,11 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
         return updateTime;
     }
 
-    @NotNull(message = "创建时间不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
     @Past
     @CreationTimestamp
-    @Column(name = "create_time", nullable = false, length = 26, updatable = false)
+    @Column(name = "create_time", length = 26, updatable = false)
     public Date getCreateTime() {
         return createTime;
     }

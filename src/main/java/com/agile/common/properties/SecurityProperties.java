@@ -51,4 +51,20 @@ public class SecurityProperties {
      * 登陆密码表单名
      */
     private String loginPassword = "password";
+
+    private TokenType tokenType = TokenType.EASY;
+
+    /**
+     * Token级别
+     */
+    public enum TokenType {
+        /**
+         * 容易
+         */
+        EASY,
+        /**
+         * 难
+         */
+        DIFFICULT
+    }
 }
