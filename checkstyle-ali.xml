@@ -8,9 +8,9 @@
     <!-- 检查文件是否以一个空行结束 -->
     <!--<module name="NewlineAtEndOfFile"/>-->
 
-    <!-- 文件长度不超过1500行 -->
+    <!-- 文件长度不超过3000行 -->
     <module name="FileLength">
-        <property name="max" value="1500"/>
+        <property name="max" value="3000"/>
     </module>
 
     <!-- 每个java文件一个语法树 -->
@@ -56,7 +56,7 @@
         <module name="PackageName">
             <!-- <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$" /> -->
             <!--<property name="format" value="com.[agile.|agile][a-z]+(\.[a-z][a-z0-9]*)*$"/>-->
-            <property name="format" value="com.agile[.]?(\.[a-z][a-z0-9]*)*(\.[a-z][a-z0-9]*)"/>
+            <property name="format" value="com.agile([.][a-z]*)*"/>
             <message key="name.invalidPattern" value="包名 ''{0}'' 不符合 Idss 规范,请使用 com.agile 开头. 要符合 ''{1}'' 格式"/>
         </module>
         <!-- 仅仅是static型的变量（不包括static final型）的检查 -->
@@ -201,7 +201,7 @@
         </module>
         <!-- return个数 3个-->
         <module name="ReturnCount">
-            <property name="max" value="5"/>
+            <property name="max" value="6"/>
         </module>
         <!--try catch 异常处理数量 3-->
         <module name="NestedTryDepth ">
