@@ -68,6 +68,9 @@ public class ApiUtil {
      */
     public static void registerApiMapping(String beanName, Object bean) {
         Class<?> realClass = ProxyUtils.getUserClass(bean);
+        if (realClass == Class.class) {
+            realClass = bean.getClass();
+        }
         if (realClass == null || realClass.getAnnotation(NotAPI.class) != null) {
             return;
         }
@@ -125,7 +128,7 @@ public class ApiUtil {
         apiInfoCache.put(key, apiInfo);
     }
 
-    private static ApiInfo getApiInfoCache(Object bean, Method method) {
+    public static ApiInfo getApiInfoCache(Object bean, Method method) {
         String key = String.format("%s.%s", bean, method.getName());
         return apiInfoCache.get(key);
     }

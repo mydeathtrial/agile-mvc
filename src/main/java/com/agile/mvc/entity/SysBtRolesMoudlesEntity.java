@@ -15,9 +15,9 @@ import com.agile.common.annotation.Remark;
 import javax.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Update;
-import javax.persistence.Id;
-import org.hibernate.validator.constraints.Length;
 import org.apache.ibatis.annotations.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]角色模块表

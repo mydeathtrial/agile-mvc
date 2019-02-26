@@ -20,6 +20,7 @@ import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.FileUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
+import com.agile.common.util.ViewUtil;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
@@ -205,7 +206,7 @@ public class MainController {
         List<ValidateMsg> validateMessages = handleInParamValidate();
         if (validateMessages != null && validateMessages.size() > 0) {
             assert RETURN.PARAMETER_ERROR != null;
-            return getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
+            return ViewUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
         }
 
         //调用目标方法
@@ -228,36 +229,11 @@ public class MainController {
             modelAndView.addAllObjects((AbstractResponseFormat) returnData);
             return modelAndView;
         }
-        ModelAndView modelAndView = getResponseFormatData(returnData instanceof RETURN ? new Head((RETURN) returnData) : null, getService().getOutParam());
+        ModelAndView modelAndView = ViewUtil.getResponseFormatData(returnData instanceof RETURN ? new Head((RETURN) returnData) : null, getService().getOutParam());
 
         //清理缓存
         clear();
 
-        return modelAndView;
-    }
-
-    /**
-     * 格式化响应报文
-     *
-     * @param head   头信息
-     * @param result 体信息
-     * @return 格式化后的ModelAndView
-     */
-    private ModelAndView getResponseFormatData(Head head, Object result) {
-        ModelAndView modelAndView = new ModelAndView();
-        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
-        if (abstractResponseFormat != null) {
-            modelAndView = abstractResponseFormat.buildResponse(head, result);
-        } else {
-            if (head != null) {
-                modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
-            }
-            if (Map.class.isAssignableFrom(result.getClass())) {
-                modelAndView.addAllObjects((Map<String, ?>) result);
-            } else {
-                modelAndView.addObject(Constant.ResponseAbout.RESULT, result);
-            }
-        }
         return modelAndView;
     }
 

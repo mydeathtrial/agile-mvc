@@ -1,5 +1,8 @@
 package com.agile.common.util;
 
+import com.agile.common.base.AbstractResponseFormat;
+import com.agile.common.base.Constant;
+import com.agile.common.base.Head;
 import com.agile.common.mybatis.Page;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -47,6 +50,35 @@ public class ViewUtil {
     private Locale locale;
     @Nullable
     private RequestToViewNameTranslator viewNameTranslator;
+
+    /**
+     * 格式化响应报文
+     *
+     * @param head   头信息
+     * @param result 体信息
+     * @return 格式化后的ModelAndView
+     */
+    public static ModelAndView getResponseFormatData(Head head, Object result) {
+        ModelAndView modelAndView = new ModelAndView();
+        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
+        if (abstractResponseFormat != null) {
+            modelAndView = abstractResponseFormat.buildResponse(head, result);
+        } else {
+            if (head != null) {
+                modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
+            }
+            if (Map.class.isAssignableFrom(result.getClass())) {
+                modelAndView.addAllObjects((Map<String, ?>) result);
+            } else {
+                modelAndView.addObject(Constant.ResponseAbout.RESULT, result);
+            }
+        }
+        return modelAndView;
+    }
+
+    public static void render(Head head, Object result, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        render(getResponseFormatData(head, result), request, response);
+    }
 
     public static void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
@@ -232,4 +264,6 @@ public class ViewUtil {
             this.model = model;
         }
     }
+
+
 }

@@ -120,7 +120,7 @@ public class AgileGenerator {
     /**
      * 初始化环境
      */
-    static void init() {
+    public static void init() {
         initSpringContext();
         initDBInfo();
     }

@@ -13,17 +13,17 @@ import lombok.Setter;
 import lombok.ToString;
 import javax.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
-import java.util.Date;
 import javax.persistence.TemporalType;
+import java.util.Date;
 import org.apache.ibatis.annotations.Delete;
 import javax.validation.constraints.NotNull;
 import com.agile.common.annotation.Remark;
 import javax.validation.constraints.Past;
 import javax.persistence.Temporal;
 import org.apache.ibatis.annotations.Update;
-import javax.persistence.Id;
-import org.hibernate.validator.constraints.Length;
 import org.apache.ibatis.annotations.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]日志表

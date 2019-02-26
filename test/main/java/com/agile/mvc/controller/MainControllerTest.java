@@ -2,12 +2,26 @@ package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
 import com.agile.common.config.AgileAutoConfiguration;
+import com.agile.common.config.DataFactoryAutoConfiguration;
+import com.agile.common.config.DruidAutoConfiguration;
+import com.agile.common.config.EhCacheAutoConfiguration;
+import com.agile.common.config.GeneratorConfig;
+import com.agile.common.config.KaptchaAutoConfiguration;
+import com.agile.common.config.RedisAutoConfiguration;
+import com.agile.common.config.SpringMvcAutoConfiguration;
+import com.agile.common.container.BeanDefinitionRegistryPostProcessor;
+import com.agile.common.container.MappingHandlerMapping;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.PropertiesUtil;
+import com.agile.mvc.App;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
@@ -27,9 +41,8 @@ import java.nio.charset.StandardCharsets;
  * @author 佟盟 on 2017/5/5
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {AgileAutoConfiguration.class})
-@Transactional(transactionManager = "transactionManager", isolation = Isolation.READ_COMMITTED)
-public class MainControllerTest {
+@ContextConfiguration(classes = {AgileAutoConfiguration.class, RedisAutoConfiguration.class})
+public class MainControllerTest implements ApplicationContextAware {
     private static RequestMappingHandlerMapping handlerMapping;
     private static RequestMappingHandlerAdapter handlerAdapter;
     private static MockHttpServletRequest request;
@@ -46,7 +59,7 @@ public class MainControllerTest {
      */
     @Before
     public void setUp() {
-        handlerMapping = FactoryUtil.getBean(RequestMappingHandlerMapping.class);
+        handlerMapping = FactoryUtil.getBean(MappingHandlerMapping.class);
         if (handlerMapping == null) {
             handlerMapping = (RequestMappingHandlerMapping) FactoryUtil.getBean("requestMappingHandlerMapping");
         }
@@ -116,4 +129,8 @@ public class MainControllerTest {
         }
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        FactoryUtil.setApplicationContext(applicationContext);
+    }
 }

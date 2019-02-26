@@ -21,12 +21,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author agile gennerator
@@ -59,6 +62,8 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
     private Date updateTime;
     @Remark("创建时间")
     private Date createTime;
+    @Transient
+    private List<SysDepartmentEntity> children = new ArrayList<>();
 
     @Column(name = "sys_depart_id", nullable = false, length = 18)
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
@@ -130,4 +135,5 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
             return null;
         }
     }
+
 }

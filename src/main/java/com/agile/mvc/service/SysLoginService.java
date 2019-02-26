@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysLoginEntity;
  * @author agile generator
  */
 @Api(description = "SysLoginService")
-@Mapping("/api/SysLoginService")
+@Mapping("/api/sys-login")
 @Service
 public class SysLoginService extends BusinessService<SysLoginEntity> {
     @ApiOperation(value = "新增", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -32,7 +32,7 @@ public class SysLoginService extends BusinessService<SysLoginEntity> {
     })
     @Models({SysLoginEntity.class})
     @Validate(beanClass = SysLoginEntity.class, validateGroups = Insert.class)
-    @Mapping(value = "/save", method = RequestMethod.POST)
+    @Mapping(value = "/sys-login", method = RequestMethod.POST)
     public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
         return super.save();
     }
@@ -42,37 +42,32 @@ public class SysLoginService extends BusinessService<SysLoginEntity> {
             @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
     })
     @Validate(beanClass = SysLoginEntity.class, validateGroups = Delete.class)
-    @Mapping(path = "/{id}/delete", method = RequestMethod.DELETE)
+    @Mapping(path = "/sys-login/{id}", method = RequestMethod.DELETE)
     public RETURN customDelete() throws NoSuchIDException {
         return super.delete();
     }
 
-    @ApiOperation(value = "更新", httpMethod = "UPDATE", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "更新", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysLoginEntity"),
             @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
     })
     @Models({SysLoginEntity.class})
     @Validate(beanClass = SysLoginEntity.class, validateGroups = Update.class)
-    @Mapping(value = "/{id}/update", method = RequestMethod.POST)
+    @Mapping(value = "/sys-login/{id}", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "分页查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysLoginId", value = "主键", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "sysUserId", value = "账号主键", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "loginTime", value = "登陆时间", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "logoutTime", value = "退出时间", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "loginIp", value = "登陆IP地址", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "token", value = "口令", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysLoginEntity"),
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
     })
     @Models({SysLoginEntity.class})
-    @Mapping(path = "/pageQuery")
+    @Mapping(path = "/sys-login/{pageNum}/{pageSize}", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -91,7 +86,7 @@ public class SysLoginService extends BusinessService<SysLoginEntity> {
             @ApiImplicitParam(name = "token", value = "口令", paramType = "query", dataType = "String"),
     })
     @Models({SysLoginEntity.class})
-    @Mapping(path = "/query")
+    @Mapping(path = "/sys-login")
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }
@@ -101,7 +96,7 @@ public class SysLoginService extends BusinessService<SysLoginEntity> {
             @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
     })
     @Models({SysLoginEntity.class})
-    @Mapping(path = "/{id}")
+    @Mapping(path = "/sys-login/{id}", method = RequestMethod.GET)
     public RETURN customQueryById() {
         return super.queryById();
     }

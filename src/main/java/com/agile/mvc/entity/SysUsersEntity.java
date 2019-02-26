@@ -1,34 +1,32 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Basic;
+import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Update;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.validator.constraints.Length;
-
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Past;
-import java.io.Serializable;
+import org.hibernate.annotations.CreationTimestamp;
 import java.util.Date;
+import javax.persistence.TemporalType;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.apache.ibatis.annotations.Delete;
+import com.agile.common.annotation.Remark;
+import javax.validation.constraints.Past;
+import javax.persistence.Temporal;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]用户
- *
  * @author agile gennerator
  */
 @Setter
@@ -69,7 +67,7 @@ public class SysUsersEntity implements Serializable, Cloneable {
     @Remark("直属领导")
     private String leader;
     @Remark("员工性别 0:男 1:女")
-    private Integer sex;
+    private Boolean sex;
     @Remark("联系电话")
     private String telephone;
     @Remark("电子邮箱")
@@ -166,7 +164,7 @@ public class SysUsersEntity implements Serializable, Cloneable {
 
     @Column(name = "sex", columnDefinition = "BIT default 0", length = 1)
     @Basic
-    public Integer getSex() {
+    public Boolean getSex() {
         return sex;
     }
 
@@ -201,6 +199,7 @@ public class SysUsersEntity implements Serializable, Cloneable {
     public Date getUpdateTime() {
         return updateTime;
     }
+
 
     @Override
     public SysUsersEntity clone() {

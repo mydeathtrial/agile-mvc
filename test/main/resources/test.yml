@@ -1,211 +1,103 @@
 agile:
   version: ${project.version}
   title: ${project.description}
-  activiti:
-    enable: false
-    database_schema_update: true
-    history: full
-    mail:
-      server_host: 123
-      server_post: ''
+  mail:
+    server-host: 123
+    server-port: 8249
+    server-default-from: mydeathtrial@163.com
   cache:
     proxy: ehcache
-  druid:
-    data_base_ip: 127.0.0.1
-    data_base_name: agile_db
-    data_base_password: 123456
-    data_base_port: 3306
-    data_base_url_param: serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true
-    data_base_username: root
-    exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
-    filters: stat,wall
-    global_data_source_stat: true
-    init_size: 1
-    manager_name: admin
-    manager_password: admin
-    max_active: 100
-    max_pool_prepared_statement_per_connection_size: 20
-    max_wait: 60000
-    min_evictable_idle_time_millis: 300000
-    min_idle: 1
-    pool_prepared_statements: true
-    remove_abandoned: true
-    remove_abandoned_timeout: 300000
-    reset_enable: true
-    session_stat_max_count: 100000
-    test_on_borrow: false
-    test_on_return: false
-    test_while_idle: true
-    type: mysql
-    time_between_eviction_runs_millis: 60000
-    url: /druid
   generator:
-    db_index:
-    api_url: D:/workspace/agile/src/main/webapp/static/plus/swagger/
-    column_type:
-      bigint: Long
-      bit: Boolean
-      char: String
-      datetime: Date
-      time: Date
-      date: Date
-      mediumtext: String
-      bolb: byte[]
-      clob: String
-      decimal: Double
-      double: Double
-      float: Float
-      image: byte[]
-      int: Integer
-      longblob: Byte
-      money: Double
-      nchar: String
-      number: BigDecimal
-      numeric: Double
-      nvarchar: String
-      real: Double
-      smallint: Short
-      smallmoney: Double
-      text: String
-      timestamp: Date
-      tinyint: Integer
-      varchar: String
-      varchar2: String
-      tinytext: String
-      longtext: String
-      character: String
-    entity_prefix: ''
-    entity_suffix: Entity
-    entity_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
-    es_entity_prefix: ''
-    es_entity_suffix: Entity
-    es_entity_url: D:/workspace/agile/src/main/java/com/agile/mvc/entity/
-    service_prefix: ''
-    service_suffix: Service
-    service_url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service
-    test_prefix: ''
-    test_suffix: ServiceTest
-    test_url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table_name: 'log_%,dictionary_%,sys_%'
-  jpa:
-    current_session_context_class: thread
-    format_sql: true
-    generate_ddl: true
-    hbm2ddl: none
-    show_sql: false
-    use_query_cache: true
-    use_second_level_cache: false
-    use_structured_entries: false
-    use_sql_comments: false
+    entity-prefix: ''
+    entity-suffix: Entity
+    entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
+    service-prefix: ''
+    service-suffix: Service
+    service-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service
+    test-prefix: ''
+    test-suffix: ServiceTest
+    test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
+    table-name: 'sys_%,log_%,dictionary_%'
   ehcache:
-    max_entries_local_heap: 10000
-    max_entries_local_disk: 10000000
-    time_to_idle: 120
-    time_to_live: 120
-    disk_spool_buffer_size: 30
+    max-entries-local-heap: 10000
+    max-entries-local-disk: 10000000
+    time-to-idle: 120
+    time-to-live: 120
+    disk-spool-buffer-size: 30
     blocking: false
     eternal: false
-    memory_store_eviction_policy: LFU
-    disk_expiry_thread_interval_seconds: 120
+    memory-store-eviction-policy: LFU
+    disk-expiry-thread-interval-seconds: 120
   kaptcha:
     enable: false
-    token_header: CODE_TOKEN
+    token-header: CODE_TOKEN
     border: 'no'
-    border_color: black
-    image_height: 45
-    image_width: 125
-    textproducer_char_length: 4
-    textproducer_font_color: black
-    textproducer_font_names: 宋体,楷体,微软雅黑
-    textproducer_font_size: 40
-    live_time: 60
+    border-color: black
+    image-height: 45
+    image-width: 125
+    textproducer-char-length: 4
+    textproducer-font-color: black
+    textproducer-font-names: 宋体,楷体,微软雅黑
+    textproducer-font-size: 40
+    live-time: 60
     url: /code
     text:
   log:
-    package_uri: ${LOCAL_LOGS_PATH:-logs}/
-    trigger_type: size
-    trigger_value: 1M
-    package:
-  #      org: debug,info,error
-  #      org.springframework: debug,info,error
-  #      org.hibernate: debug,info,error
-  #      io.sringfox: debug,info,error
-  #      redis: debug,info,error
-  #      com.alibaba: debug,info,error
+    package-uri: ${LOCAL_LOGS_PATH:-logs}/
+    trigger-type: size
+    trigger-value: 1M
+    package-name:
+      org.springframework: info,error
   redis:
     host: 127.0.0.1
-    max_idle: 300
-    max_wait_millis: 1000
-    min_idle: 0
+    max-idle: 300
+    max-wait-millis: 1000
+    min-idle: 0
     pass: ''
     port: 6379
-    test_on_borrow: true
-    test_on_return: false
+    test-on-borrow: true
+    test-on-return: false
     duration: 30
   security:
     enable: false
-    exclude_url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
-    login_out_url: /logout
-    login_url: /login
-    login_username: username
-    login_password: password
-    verification_code: code
-    token_key: 23617641641
-    token_timeout: 1800
-    token_header: AGILE_TOKEN
-  servlet:
-    allow_credentials: true
-    allow_headers: Content-Type,X-CSRF-TOKEN,JSESSIONID
-    allow_methods: GET,POST,PUT,DELETE,OPTIONS,JSONP
-    allow_origin: '*'
-    character: utf-8
+    exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
+    login-out-url: /logout
+    login-url: /login
+    login-username: username
+    login-password: password
+    verification-code: code
+    token-key: 23617641641
+    token-timeout: 1800
+    token-header: AGILE-TOKEN
+  cors:
+    allow-credentials: true
+    allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID
+    allow-methods: GET,POST,PUT,DELETE,OPTIONS,JSONP
+    allow-origin: '*'
   task:
     enable: false
-  upload:
-    default_encoding: utf-8
-    include_format: txt,excel
-    max_upload_size: 204800
-  download:
-    temp_path: 'D://'
   elasticsearch:
     enable: false
-    cluster_name: argus
-    cluster_nodes: 192.168.200.94:39390,192.168.200.95:39390
-    cluster_hosts: 192.168.200.94:39390
-    pool_size: 5
-    index_date_format: yyyyMMdd
-    time_field: create_time
-    id_field: id
-    raw_msg_filed: raw_msg
-    scroll_time_value: 60000
-    scroll_set_size: 30000
+    cluster-name: argus
+    cluster-nodes: 192.168.200.94:39390,192.168.200.95:39390
+    cluster-hosts: 192.168.200.94:39390
+    pool-size: 5
+    index-date-format: yyyyMMdd
+    time-field: create_time
+    id-field: id
+    raw-msg-filed: raw_msg
+    scroll-time-value: 60000
+    scroll-set-size: 30000
   swagger:
     enable: true
     title: Agile 平台API文档
     description: 这是个不错的文档
-    terms_of_service_url: http://www.baidu.com
+    terms-of-service-url: http://www.baidu.com
     version: ${project.version}
-  kafka:
-    consumer:
-      enable: false
-      group_id: monitor
-      auto_offset_reset: latest
-      bootstrap_servers: ip1:9092,ip2:9092,ip3:9092
-      enable_auto_commit: true
-      auto_commit_interval_ms: 1000
-      session_timeout_ms: 30000
-      key_deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value_deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      enable: false
-      bootstrap_servers: ip1:9092,ip2:9092,ip3:9092
-      acks: all
-      retries: 3
-      linger_ms: 10
-      buffer_memory: 40960
-      batch_size: 4096
-      default_topic: nwbs-eval-task
-      key_deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value_deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  websocket:
-    enable: true
+spring:
+  jpa:
+    properties:
+      hibernate:
+        cache:
+          region:
+            factory_class: com.agile.common.cache.ehcache.EhCacheRegionFactory

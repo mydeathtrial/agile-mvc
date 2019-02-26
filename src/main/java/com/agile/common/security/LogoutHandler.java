@@ -1,5 +1,7 @@
 package com.agile.common.security;
 
+import com.agile.common.base.Constant;
+import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import com.agile.common.cache.Cache;
 import com.agile.common.properties.SecurityProperties;
@@ -10,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,19 +26,25 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        clearToken(request);
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject(RETURN.LOGOUT_SUCCESS);
+        clearToken(request, response);
+
         try {
-            ViewUtil.render(modelAndView, request, response);
+            assert RETURN.LOGOUT_SUCCESS != null;
+            ViewUtil.render(new Head(RETURN.LOGOUT_SUCCESS), null, request, response);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void clearToken(HttpServletRequest httpServletRequest) {
+    private void clearToken(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
         String token = TokenUtil.getToken(httpServletRequest, securityProperties.getTokenHeader());
         Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
         tokenCache.evict(token);
+
+        Cookie cookie = new Cookie(securityProperties.getTokenHeader(), null);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        cookie.setPath(Constant.RegularAbout.SLASH);
+        httpServletResponse.addCookie(cookie);
     }
 }

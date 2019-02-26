@@ -22,7 +22,7 @@ public final class StringUtil extends StringUtils {
      * @param text 任意字符串
      * @return 返回驼峰字符串
      */
-    public static String camelToUnderline(String text) {
+    public static String camelToSpilt(String text, String split) {
         String regex = Constant.RegularAbout.UPER;
         if (!haveMatchedString(regex, text)) {
             return text;
@@ -33,12 +33,16 @@ public final class StringUtil extends StringUtils {
         int i = 0;
         while (matcher.find()) {
             int position = matcher.start() + i;
-            if (position >= 1 && !"_".equals(cacheStr.substring(position - 1, position))) {
-                cacheStr.replace(position, position + 1, "_" + cacheStr.substring(position, position + 1).toLowerCase());
+            if (position >= 1 && !split.equals(cacheStr.substring(position - 1, position))) {
+                cacheStr.replace(position, position + 1, split + cacheStr.substring(position, position + 1).toLowerCase());
                 i++;
             }
         }
         return cacheStr.toString();
+    }
+
+    public static String camelToUnderline(String text) {
+        return camelToSpilt(text, Constant.RegularAbout.UNDER_LINE);
     }
 
     /**

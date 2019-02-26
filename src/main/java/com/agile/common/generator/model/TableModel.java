@@ -1,6 +1,7 @@
 package com.agile.common.generator.model;
 
 import com.agile.common.annotation.Remark;
+import com.agile.common.base.Constant;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
@@ -42,6 +43,7 @@ public class TableModel {
     private Set<String> imports = new HashSet<>();
     private String serviceName;
     private String entityName;
+    private String entityCenterLineName;
     private String javaName;
     private String servicePackageName;
     private String entityPackageName;
@@ -74,6 +76,7 @@ public class TableModel {
 
         this.serviceName = properties.getServicePrefix() + javaName + properties.getServiceSuffix();
         this.entityName = properties.getEntityPrefix() + javaName + properties.getEntitySuffix();
+        this.entityCenterLineName = StringUtil.camelToSpilt(javaName, Constant.RegularAbout.MINUS).toLowerCase();
     }
 
     public void setImport(Set<Class> classes) {

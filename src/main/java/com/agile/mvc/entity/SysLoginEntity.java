@@ -16,9 +16,9 @@ import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Update;
-import javax.persistence.Id;
-import org.hibernate.validator.constraints.Length;
 import org.apache.ibatis.annotations.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.persistence.Id;
 
 /**
 

@@ -18,9 +18,9 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.ibatis.annotations.Update;
 import javax.validation.constraints.NotNull;
-import javax.persistence.Id;
-import org.hibernate.validator.constraints.Length;
 import org.apache.ibatis.annotations.Insert;
+import org.hibernate.validator.constraints.Length;
+import javax.persistence.Id;
 
 /**
  * 描述：[系统管理]定时任务目标任务表

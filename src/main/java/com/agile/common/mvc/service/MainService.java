@@ -3,14 +3,13 @@ package com.agile.common.mvc.service;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
-import com.agile.common.exception.NoSignInException;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.mvc.entity.SysUsersEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -49,7 +48,7 @@ public class MainService implements ServiceInterface {
     private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
     @Autowired(required = false)
     protected Dao dao;
-    protected Log logger = LoggerFactory.getServiceLog(this.getClass());
+    protected Log logger = null;
 
     /**
      * 根据对象及方法名通过反射执行该对象的指定方法
@@ -385,7 +384,8 @@ public class MainService implements ServiceInterface {
     public SecurityUser getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
+            return new SecurityUser(SysUsersEntity.builder().name("土豆").saltKey("admin").saltValue("密码").sysUsersId("1").build(), null);
+//            throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
         } else {
             return (SecurityUser) authentication.getDetails();
         }

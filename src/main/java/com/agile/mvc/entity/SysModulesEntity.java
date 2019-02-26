@@ -61,13 +61,8 @@ public class SysModulesEntity implements Serializable, Cloneable {
     private Boolean enable;
     @Remark("优先级")
     private Integer order;
-
-    private List<SysModulesEntity> children = new ArrayList<>();
-
     @Transient
-    public List<SysModulesEntity> getChildren() {
-        return children;
-    }
+    private List<SysModulesEntity> children = new ArrayList<>();
 
     /**
      * 根节点父级主键标识
@@ -84,25 +79,7 @@ public class SysModulesEntity implements Serializable, Cloneable {
      * @param list 构建源数据
      * @return 树形结构数据集
      */
-    public static List<SysModulesEntity> createTree(List<SysModulesEntity> list) {
-        List<SysModulesEntity> roots = new ArrayList<>();
-        for (SysModulesEntity entity : list) {
-            if (ROOT_ID.equals(entity.getParentId())) {
-                entity.setChildren(createChildren(entity, list));
-                roots.add(entity);
-            }
-        }
-        CollectionsUtil.sort(roots, SORT_COLUMN);
-        return roots;
-    }
-
-    /**
-     * 构建树形结构
-     *
-     * @param list 构建源数据
-     * @return 树形结构数据集
-     */
-    public static List<Map<String, Object>> createTree2(List<SysModulesEntity> list) {
+    public static List<Map<String, Object>> createTree(List<SysModulesEntity> list) {
         List<Map<String, Object>> roots = new ArrayList<>();
         for (SysModulesEntity entity : list) {
             if (ROOT_ID.equals(entity.getParentId())) {
@@ -120,7 +97,7 @@ public class SysModulesEntity implements Serializable, Cloneable {
      * @param list   全部节点
      * @return 子菜单
      */
-    public static List<Map<String, Object>> createChildren2(SysModulesEntity parent, List<SysModulesEntity> list) {
+    public static List<Map<String, Object>> createChildren(SysModulesEntity parent, List<SysModulesEntity> list) {
         List<Map<String, Object>> children = new ArrayList<>();
         for (SysModulesEntity entity : list) {
             if (parent.getSysModulesId().equals(entity.getParentId())) {
@@ -138,27 +115,8 @@ public class SysModulesEntity implements Serializable, Cloneable {
         map.put("meta", new HashMap<String, Object>(Constant.NumberAbout.ONE) {{
             put("title", entity.getName());
         }});
-        map.put("children", createChildren2(entity, list));
+        map.put("children", createChildren(entity, list));
         return map;
-    }
-
-    /**
-     * 获取子菜单
-     *
-     * @param parent 父节点
-     * @param list   全部节点
-     * @return 子菜单
-     */
-    public static List<SysModulesEntity> createChildren(SysModulesEntity parent, List<SysModulesEntity> list) {
-        List<SysModulesEntity> children = new ArrayList<>();
-        for (SysModulesEntity entity : list) {
-            if (parent.getSysModulesId().equals(entity.getParentId())) {
-                entity.setChildren(createChildren(entity, list));
-                children.add(entity);
-            }
-        }
-        CollectionsUtil.sort(children, SORT_COLUMN);
-        return children;
     }
 
     @Column(name = "SYS_MODULES_ID", nullable = false, length = 18)

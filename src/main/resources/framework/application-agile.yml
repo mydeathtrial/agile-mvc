@@ -17,7 +17,7 @@ agile:
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: 'sys_%,log_%,dictionary_%'
+    table-name: 'sys_authorities,sys_bt_%,sys_login,sys_resources,sys_roles,sys_users,log_%,dictionary_%'
   ehcache:
     max-entries-local-heap: 10000
     max-entries-local-disk: 10000000
@@ -40,7 +40,7 @@ agile:
     textproducer-font-names: 宋体,楷体,微软雅黑
     textproducer-font-size: 40
     live-time: 60
-    url: /code
+    url: /api/authcode
     text:
   log:
     package-uri: ${LOCAL_LOGS_PATH:-logs}/
@@ -61,8 +61,8 @@ agile:
   security:
     enable: false
     exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
-    login-out-url: /logout
-    login-url: /login
+    login-out-url: /api/logout
+    login-url: /api/login
     login-username: username
     login-password: password
     verification-code: code

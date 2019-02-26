@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.JpaBaseConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -27,7 +28,7 @@ import java.util.Collections;
  */
 @EnableConfigurationProperties(value = {DruidConfigProperties.class})
 @ConditionalOnClass(DruidDataSource.class)
-@AutoConfigureBefore(DataSourceAutoConfiguration.class)
+@AutoConfigureBefore({DataSourceAutoConfiguration.class, JpaBaseConfiguration.class})
 @Configuration
 public class DruidAutoConfiguration {
     private final DruidConfigProperties druidConfigProperty;
