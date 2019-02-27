@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysBtRolesMoudlesEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]角色模块表")
-@Mapping("/api/sys-bt-roles-moudles")
+@Mapping("/api/sys")
 @Service
 public class SysBtRolesMoudlesService extends BusinessService<SysBtRolesMoudlesEntity> {
     @ApiOperation(value = "新增[系统管理]角色模块表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

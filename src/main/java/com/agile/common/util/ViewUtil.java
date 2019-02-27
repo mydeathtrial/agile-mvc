@@ -1,9 +1,15 @@
 package com.agile.common.util;
 
 import com.agile.common.base.AbstractResponseFormat;
+import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
+import com.agile.common.base.RequestWrapper;
 import com.agile.common.mybatis.Page;
+import com.agile.common.view.ForwardView;
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -17,18 +23,26 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.RequestToViewNameTranslator;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.ViewResolver;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.util.UriUtils;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -36,6 +50,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author 佟盟 on 2018/8/22
@@ -50,6 +65,146 @@ public class ViewUtil {
     private Locale locale;
     @Nullable
     private RequestToViewNameTranslator viewNameTranslator;
+
+    /**
+     * 根据servlet请求、认证信息、目标服务名、目标方法名处理入参
+     */
+    public static Map<String, Object> handleInParam(HttpServletRequest currentRequest) {
+        final int length = 16;
+        Map<String, Object> inParam = new HashMap<>(length);
+
+        Map<String, String[]> parameterMap = currentRequest.getParameterMap();
+        if (parameterMap.size() > 0) {
+            for (Map.Entry<String, String[]> map : parameterMap.entrySet()) {
+                String[] v = map.getValue();
+                if (v.length == 1) {
+                    inParam.put(map.getKey(), v[0]);
+                } else {
+                    inParam.put(map.getKey(), v);
+                }
+            }
+        }
+
+        if (currentRequest instanceof RequestWrapper) {
+            Map<String, String[]> forwardMap = ((RequestWrapper) currentRequest).getForwardParameterMap();
+            for (Map.Entry<String, String[]> map : forwardMap.entrySet()) {
+                inParam.put(map.getKey(), map.getValue());
+            }
+        }
+
+        //判断是否存在文件上传
+        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(currentRequest.getSession().getServletContext());
+        if (multipartResolver.isMultipart(currentRequest)) {
+            Map<String, Object> formData = FileUtil.getFileFormRequest(currentRequest);
+            for (String key : formData.keySet()) {
+                if (inParam.containsKey(key)) {
+                    continue;
+                }
+                inParam.put(key, formData.get(key));
+            }
+        } else {
+            Map<String, Object> bodyParam = ServletUtil.getBody(currentRequest);
+            if (bodyParam != null) {
+                inParam.putAll(bodyParam);
+            }
+        }
+
+        Enumeration<String> attributeNames = currentRequest.getAttributeNames();
+        while (attributeNames.hasMoreElements()) {
+            String key = attributeNames.nextElement();
+            String prefix = ForwardView.getPrefix();
+            if (key.startsWith(prefix)) {
+                inParam.put(key.replace(prefix, ""), currentRequest.getAttribute(key));
+            }
+        }
+
+        //处理Mapping参数
+        String uri = currentRequest.getRequestURI();
+        String extension = UriUtils.extractFileExtension(uri);
+        if ("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension)) {
+            uri = uri.replaceAll("." + extension, "");
+        }
+        ApiInfo info = ApiUtil.getApiCache(currentRequest);
+
+        //处理路径入参
+        if (info != null) {
+            RequestMappingInfo requestMappingInfo = info.getRequestMappingInfo();
+            if (requestMappingInfo != null) {
+                Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
+                for (String mapping : mappingCache) {
+                    String[] uris = StringUtil.split(uri, Constant.RegularAbout.SLASH);
+                    String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);
+                    if (uris.length == targetParams.length) {
+                        for (int i = 0; i < targetParams.length; i++) {
+                            String targetParam = targetParams[i];
+                            String value = uris[i];
+                            Map<String, String> params = StringUtil.getParamFromMapping(value, targetParam);
+                            if (params != null && params.size() > 0) {
+                                inParam.putAll(params);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        //将处理过的所有请求参数传入调用服务对象
+        return inParam;
+    }
+
+    public static <T> T getInParam(Map<String, Object> map, String key, Class<T> clazz) {
+        T result = null;
+        if (map.containsKey(key)) {
+            Object v = map.get(key);
+            if (ClassUtil.canCastClass(clazz)) {
+                result = ObjectUtil.cast(clazz, v);
+            }
+        } else {
+            Object jsonNode = map.get(Constant.ResponseAbout.BODY);
+            if (jsonNode != null) {
+                JsonNode json = ((JsonNode) jsonNode);
+                JsonNode value = json.get(key);
+                if (value != null && !value.isNull()) {
+                    if (clazz == String.class && value.isTextual()) {
+                        result = (T) value.textValue();
+                    } else if (clazz == Integer.class && value.isInt()) {
+                        result = (T) Integer.valueOf(value.intValue());
+                    } else if (clazz == Long.class && value.isLong()) {
+                        result = (T) Long.valueOf(value.longValue());
+                    } else if (clazz == BigInteger.class && value.isBigInteger()) {
+                        result = (T) value.bigIntegerValue();
+                    } else if (clazz == byte[].class && value.isBinary()) {
+                        try {
+                            result = (T) value.binaryValue();
+                        } catch (IOException ignored) {
+                        }
+                    } else if (clazz == BigDecimal.class && value.isBigDecimal()) {
+                        result = (T) BigDecimal.valueOf(value.asLong());
+                    } else if (clazz == boolean.class && value.isBoolean()) {
+                        result = (T) Boolean.valueOf(value.booleanValue());
+                    } else if (clazz == double.class && value.isDouble()) {
+                        result = (T) Double.valueOf(value.doubleValue());
+                    } else if (clazz == float.class && value.isFloat()) {
+                        result = (T) Float.valueOf(value.floatValue());
+                    } else if (clazz == short.class && value.isShort()) {
+                        result = (T) Short.valueOf(value.shortValue());
+                    } else if (clazz == Number.class && value.isNumber()) {
+                        result = (T) value.numberValue();
+                    } else if (clazz == Date.class && value.isLong()) {
+                        result = (T) new Date(value.longValue());
+                    } else if (clazz == Date.class && value.isTextual()) {
+                        result = ObjectUtil.cast(clazz, value.asText());
+                    } else {
+                        try {
+                            result = JSONUtil.toBean(clazz, value.toString());
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
 
     /**
      * 格式化响应报文
@@ -67,7 +222,7 @@ public class ViewUtil {
             if (head != null) {
                 modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
             }
-            if (Map.class.isAssignableFrom(result.getClass())) {
+            if (result != null && Map.class.isAssignableFrom(result.getClass())) {
                 modelAndView.addAllObjects((Map<String, ?>) result);
             } else {
                 modelAndView.addObject(Constant.ResponseAbout.RESULT, result);
@@ -227,41 +382,27 @@ public class ViewUtil {
     /**
      * 返回数据经过加公后产生的模型辅助类
      */
+    @Getter
+    @Setter
     public static class Model extends LinkedHashMap<String, Object> {
         List<Object> files = new ArrayList<>();
         List<String> pages = new ArrayList<>();
         Map<String, Object> model;
 
-        public List<Object> getFiles() {
-            return files;
-        }
-
-        public void addFile(Object file) {
+        void addFile(Object file) {
             this.files.add(file);
         }
 
-        public void addFiles(List<Object> files) {
+        void addFiles(List<Object> files) {
             this.files.addAll(files);
         }
 
-        public List<String> getPages() {
-            return pages;
-        }
-
-        public void addPage(String page) {
+        void addPage(String page) {
             this.pages.add(page);
         }
 
-        public void addPages(List<String> pages) {
+        void addPages(List<String> pages) {
             this.pages.addAll(pages);
-        }
-
-        public Map<String, Object> getModel() {
-            return model;
-        }
-
-        public void setModel(Map<String, Object> model) {
-            this.model = model;
         }
     }
 

@@ -5,9 +5,11 @@ import com.agile.common.exception.VerificationCodeException;
 import com.agile.common.exception.VerificationCodeNon;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
+import com.agile.common.util.AesUtil;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
+import com.agile.common.util.ViewUtil;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author 佟盟 on 2017/1/13
@@ -29,6 +32,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     private final String username;
     private final String password;
+    private final String code;
     private final FailureHandler failureHandler;
     private final SuccessHandler successHandler;
     private final AuthenticationProvider loginStrategyProvider;
@@ -40,6 +44,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         super(new AntPathRequestMatcher(securityProperties.getLoginUrl()));
         this.username = securityProperties.getLoginUsername();
         this.password = securityProperties.getLoginPassword();
+        this.code = securityProperties.getVerificationCode();
         this.failureHandler = new FailureHandler();
         this.successHandler = new SuccessHandler();
         this.loginStrategyProvider = loginStrategyProvider;
@@ -63,8 +68,13 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
-        String sourceUsername = request.getParameter(this.username);
-        String sourcePassword = request.getParameter(this.password);
+        Map<String, Object> params = ViewUtil.handleInParam(request);
+        String sourceUsername = ViewUtil.getInParam(params, this.username, String.class);
+        String sourcePassword = ViewUtil.getInParam(params, this.password, String.class);
+        String validateCode = ViewUtil.getInParam(params, this.code, String.class);
+
+        //解密
+        sourcePassword = AesUtil.aesDecrypt(sourcePassword);
 
         if (StringUtil.isEmpty(sourceUsername)) {
             throw new NoCompleteFormSign();
@@ -75,7 +85,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
         //验证验证码
         if (kaptchaConfigProperties.isEnable()) {
-            validateCode(request, response);
+            validateCode(validateCode, request, response);
         }
 
         //生成认证信息
@@ -88,8 +98,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
     }
 
-    private void validateCode(HttpServletRequest request, HttpServletResponse response) {
-        String inCode = request.getParameter(securityProperties.getVerificationCode());
+    private void validateCode(String inCode, HttpServletRequest request, HttpServletResponse response) {
         if (inCode == null) {
             throw new VerificationCodeNon(null);
         }
@@ -97,8 +106,8 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         if (codeToken == null) {
             throw new VerificationCodeException(null);
         }
-        Object code = CacheUtil.get(codeToken);
-        if (code == null || !code.toString().equalsIgnoreCase(inCode)) {
+        Object cacheCodeToken = CacheUtil.get(codeToken);
+        if (cacheCodeToken == null || !cacheCodeToken.toString().equalsIgnoreCase(inCode)) {
             throw new VerificationCodeException(null);
         }
         Cookie cookie = new Cookie(kaptchaConfigProperties.getTokenHeader(), null);

@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysResourcesEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]资源")
-@Mapping("/api/sys-resources")
+@Mapping("/api/sys")
 @Service
 public class SysResourcesService extends BusinessService<SysResourcesEntity> {
     @ApiOperation(value = "新增[系统管理]资源", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

@@ -23,7 +23,7 @@ import com.agile.mvc.entity.LogTableEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]日志相关表变动信息")
-@Mapping("/api/log-table")
+@Mapping("/api/sys")
 @Service
 public class LogTableService extends BusinessService<LogTableEntity> {
     @ApiOperation(value = "新增[系统管理]日志相关表变动信息", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

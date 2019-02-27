@@ -17,22 +17,16 @@ import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.FileUtil;
-import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.ViewUtil;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
-import com.agile.common.view.ForwardView;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,8 +36,6 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -515,81 +507,11 @@ public class MainController {
      * 根据servlet请求、认证信息、目标服务名、目标方法名处理入参
      */
     private void handleInParam() {
-        final int length = 16;
         getService().initInParam();
         HttpServletRequest currentRequest = request.get();
-        Map<String, Object> inParam = new HashMap<>(length);
 
-        Map<String, String[]> parameterMap = currentRequest.getParameterMap();
-        if (parameterMap.size() > 0) {
-            for (Map.Entry<String, String[]> map : parameterMap.entrySet()) {
-                String[] v = map.getValue();
-                if (v.length == 1) {
-                    inParam.put(map.getKey(), v[0]);
-                } else {
-                    inParam.put(map.getKey(), v);
-                }
-            }
-        }
-
-        if (currentRequest instanceof RequestWrapper) {
-            Map<String, String[]> forwardMap = ((RequestWrapper) currentRequest).getForwardParameterMap();
-            for (Map.Entry<String, String[]> map : forwardMap.entrySet()) {
-                inParam.put(map.getKey(), map.getValue());
-            }
-        }
-
-        //判断是否存在文件上传
-        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(currentRequest.getSession().getServletContext());
-        if (multipartResolver.isMultipart(currentRequest)) {
-            inParam.putAll(FileUtil.getFileFormRequest(currentRequest));
-        } else {
-            Map<String, Object> bodyParam = ServletUtil.getBody(currentRequest);
-            if (bodyParam != null) {
-                inParam.putAll(bodyParam);
-            }
-        }
-
-        Enumeration<String> attributeNames = currentRequest.getAttributeNames();
-        while (attributeNames.hasMoreElements()) {
-            String key = attributeNames.nextElement();
-            String prefix = ForwardView.getPrefix();
-            if (key.startsWith(prefix)) {
-                inParam.put(key.replace(prefix, ""), currentRequest.getAttribute(key));
-            }
-        }
-
-        //处理Mapping参数
-        String uri = currentRequest.getRequestURI();
-        String extension = UriUtils.extractFileExtension(uri);
-        if ("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension)) {
-            uri = uri.replaceAll("." + extension, "");
-        }
-        ApiInfo info = ApiUtil.getApiCache(currentRequest);
-
-        //处理路径入参
-        if (info != null) {
-            RequestMappingInfo requestMappingInfo = info.getRequestMappingInfo();
-            if (requestMappingInfo != null) {
-                Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
-                for (String mapping : mappingCache) {
-                    String[] uris = StringUtil.split(uri, Constant.RegularAbout.SLASH);
-                    String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);
-                    if (uris.length == targetParams.length) {
-                        for (int i = 0; i < targetParams.length; i++) {
-                            String targetParam = targetParams[i];
-                            String value = uris[i];
-                            Map<String, String> params = StringUtil.getParamFromMapping(value, targetParam);
-                            if (params != null && params.size() > 0) {
-                                inParam.putAll(params);
-                            }
-                        }
-                    }
-                }
-            }
-        }
         //将处理过的所有请求参数传入调用服务对象
-        getService().setInParam(inParam);
+        getService().setInParam(ViewUtil.handleInParam(currentRequest));
     }
 
     /**

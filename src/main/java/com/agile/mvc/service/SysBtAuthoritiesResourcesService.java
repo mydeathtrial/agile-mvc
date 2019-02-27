@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysBtAuthoritiesResourcesEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]权限资源表")
-@Mapping("/api/sys-bt-authorities-resources")
+@Mapping("/api/sys")
 @Service
 public class SysBtAuthoritiesResourcesService extends BusinessService<SysBtAuthoritiesResourcesEntity> {
     @ApiOperation(value = "新增[系统管理]权限资源表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

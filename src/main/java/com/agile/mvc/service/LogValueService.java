@@ -23,7 +23,7 @@ import com.agile.mvc.entity.LogValueEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]日志相关字段值变动信息")
-@Mapping("/api/log-value")
+@Mapping("/api/sys")
 @Service
 public class LogValueService extends BusinessService<LogValueEntity> {
     @ApiOperation(value = "新增[系统管理]日志相关字段值变动信息", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

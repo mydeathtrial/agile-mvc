@@ -26,7 +26,7 @@ import java.util.List;
  * @author agile generator
  */
 @Api(description = "[系统管理]角色")
-@Mapping("/api/sys-roles")
+@Mapping("/api/sys")
 @Service
 public class SysRolesService extends BusinessService<SysRolesEntity> {
     @ApiOperation(value = "新增[系统管理]角色", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

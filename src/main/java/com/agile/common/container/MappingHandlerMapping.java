@@ -1,6 +1,7 @@
 package com.agile.common.container;
 
 import com.agile.common.annotation.Mapping;
+import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
@@ -67,9 +68,11 @@ public class MappingHandlerMapping extends RequestMappingHandlerMapping {
     private String createDefaultMappingPath(AnnotatedElement element) {
         StringBuilder path = new StringBuilder();
         if (element instanceof Class) {
-            path.append(String.format("/api/{service:%s}", StringUtil.camelToUrlRegex(((Class) element).getSimpleName())));
+            path.append(String.format("/api/%s", StringUtil.camelToSpilt(((Class) element).getSimpleName(), Constant.RegularAbout.MINUS).toLowerCase()));
+            //path.append(String.format("/api/{service:%s}", StringUtil.camelToUrlRegex(((Class) element).getSimpleName())));
         } else if (element instanceof Method) {
-            path.append(String.format("/{method:%s}", StringUtil.camelToUrlRegex(((Method) element).getName())));
+            path.append(String.format("/%s", StringUtil.camelToSpilt(((Method) element).getName(), Constant.RegularAbout.MINUS).toLowerCase()));
+            //path.append(String.format("/{method:%s}", StringUtil.camelToUrlRegex(((Method) element).getName())));
         }
         return path.toString();
     }

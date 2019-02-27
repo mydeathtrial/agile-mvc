@@ -23,7 +23,7 @@ import com.agile.mvc.entity.DictionaryMainEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]字典表")
-@Mapping("/api/dictionary-main")
+@Mapping("/api/sys")
 @Service
 public class DictionaryMainService extends BusinessService<DictionaryMainEntity> {
     @ApiOperation(value = "新增[系统管理]字典表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

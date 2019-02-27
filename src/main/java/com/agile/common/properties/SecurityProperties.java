@@ -52,8 +52,25 @@ public class SecurityProperties {
      */
     private String loginPassword = "password";
 
+    /**
+     * token类型
+     */
     private TokenType tokenType = TokenType.EASY;
 
+    /**
+     * 密钥
+     */
+    private String aesKey = "idssinsightkey01";
+
+    /**
+     * 偏移量
+     */
+    private String aesOffset = "3612213421341234";
+
+    /**
+     * 算法模式
+     */
+    private String algorithmModel = "AES/CBC/PKCS5Padding";
     /**
      * Token级别
      */

@@ -52,6 +52,10 @@ public class KaptchaConfigProperties {
      */
     private String textproducerFontNames = "微软雅黑";
     /**
+     * 边框厚度
+     */
+    private String thickness = "1";
+    /**
      * 依据的文字集
      */
     private String text;

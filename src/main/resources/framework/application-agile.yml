@@ -6,7 +6,7 @@ agile:
     server-port: 8249
     server-default-from: mydeathtrial@163.com
   cache:
-    proxy: redis
+    proxy: ehcache
   generator:
     entity-prefix: ''
     entity-suffix: Entity
@@ -29,8 +29,8 @@ agile:
     memory-store-eviction-policy: LFU
     disk-expiry-thread-interval-seconds: 120
   kaptcha:
-    enable: false
-    token-header: CODE_TOKEN
+    enable: true
+    token-header: authCode
     border: 'no'
     border-color: black
     image-height: 45
@@ -59,16 +59,16 @@ agile:
     test-on-return: false
     duration: 30
   security:
-    enable: false
+    enable: true
     exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login-out-url: /api/logout
     login-url: /api/login
-    login-username: username
+    login-username: userName
     login-password: password
-    verification-code: code
+    verification-code: authCode
     token-key: 23617641641
     token-timeout: 1800
-    token-header: AGILE-TOKEN
+    token-header: authToken
   cors:
     allow-credentials: true
     allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID

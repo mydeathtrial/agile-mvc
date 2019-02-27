@@ -1,13 +1,10 @@
 package com.agile.common.base;
 
 import com.agile.common.annotation.Remark;
-import com.agile.common.util.MapUtil;
-import com.agile.common.util.StringUtil;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,15 +13,6 @@ import java.util.Map;
  * @author 佟盟 on 2018/11/2
  */
 public abstract class AbstractResponseFormat extends LinkedHashMap<String, Object> {
-    /**
-     * 构建响应文
-     *
-     * @return 返回响应模板本身
-     */
-    public AbstractResponseFormat buildResponse() {
-        MapUtil.coverMap(this, this);
-        return this;
-    }
 
     /**
      * 构建响应报文体
@@ -34,6 +22,8 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
      * @return 返回ModelAndView
      */
     public ModelAndView buildResponse(Head head, Object result) {
+        Map<String, Object> map = new HashMap<>(Constant.NumberAbout.FOUR);
+
         Field[] fields = this.getClass().getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
@@ -41,20 +31,24 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
             if (remark != null) {
                 try {
                     String param = remark.value();
-                    if (Constant.ResponseAbout.RESULT.equals(param) && result != null) {
+                    if (Constant.ResponseAbout.RESULT.equals(param)) {
+                        if (result == null) {
+                            map.put(field.getName(), null);
+                            continue;
+                        }
                         boolean isMap = Map.class.isAssignableFrom(result.getClass());
                         if (isMap && ((Map) result).containsKey(Constant.ResponseAbout.RESULT)) {
                             Object o = ((Map) result).get(Constant.ResponseAbout.RESULT);
                             if (o.getClass() == PageImpl.class) {
-                                field.set(this, new HashMap<String, Object>(Constant.NumberAbout.TWO) {{
+                                map.put(field.getName(), new HashMap<String, Object>(Constant.NumberAbout.TWO) {{
                                     put("total", ((PageImpl) o).getTotalElements());
                                     put("data", ((PageImpl) o).getContent());
                                 }});
                             } else {
-                                field.set(this, ((Map) result).get(Constant.ResponseAbout.RESULT));
+                                map.put(field.getName(), ((Map) result).get(Constant.ResponseAbout.RESULT));
                             }
                         } else {
-                            field.set(this, result);
+                            map.put(field.getName(), result);
                         }
                     } else {
                         if (head == null) {
@@ -62,20 +56,15 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
                         }
                         Field f = Head.class.getDeclaredField(remark.value());
                         f.setAccessible(true);
-                        try {
-                            field.set(this, f.get(head));
-                        } catch (Exception e) {
-                            Method set = this.getClass().getDeclaredMethod("set" + StringUtil.toUpperName(field.getName()), f.getType());
-                            set.setAccessible(true);
-                            set.invoke(this, f.get(head));
-                        }
+                        map.put(field.getName(), f.get(head));
+
                     }
                 } catch (Exception ignored) {
                 }
             }
         }
         ModelAndView mv = new ModelAndView();
-        mv.addAllObjects(buildResponse());
+        mv.addAllObjects(map);
         return mv;
     }
 }

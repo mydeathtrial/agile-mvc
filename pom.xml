@@ -7,7 +7,7 @@
     <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
-    
+
     <!--资源库-->
     <repositories>
         <repository>
@@ -24,17 +24,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-common</artifactId>
-            <version>2.0.3.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.agileframework</groupId>
-                    <artifactId>agile</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -50,7 +39,9 @@
                         <id>validate</id>
                         <phase>validate</phase>
                         <configuration> <!-- 配置文件的路径，在style文件夹下 -->
-                            <configLocation>http://localhost:8081/repository/maven-releases/com/agileframework/checkstyle/1.0/checkstyle-1.0.xm;</configLocation>
+                            <configLocation>
+                                http://localhost:8081/repository/maven-releases/com/agileframework/checkstyle/1.0/checkstyle-1.0.xm;
+                            </configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
@@ -86,23 +77,23 @@
                 </executions>
             </plugin>
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
-                <!--<version>2.10.4</version>-->
-                <!--<configuration>-->
-                    <!--<encoding>UTF-8</encoding>-->
-                    <!--<aggregate>true</aggregate>-->
-                    <!--<charset>UTF-8</charset>-->
-                    <!--<docencoding>UTF-8</docencoding>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>attach-javadocs</id>-->
-                        <!--<goals>-->
-                            <!--<goal>jar</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+            <!--<version>2.10.4</version>-->
+            <!--<configuration>-->
+            <!--<encoding>UTF-8</encoding>-->
+            <!--<aggregate>true</aggregate>-->
+            <!--<charset>UTF-8</charset>-->
+            <!--<docencoding>UTF-8</docencoding>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<id>attach-javadocs</id>-->
+            <!--<goals>-->
+            <!--<goal>jar</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
         </plugins>
     </build>

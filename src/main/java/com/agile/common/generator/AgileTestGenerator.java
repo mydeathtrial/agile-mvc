@@ -1,12 +1,17 @@
 package com.agile.common.generator;
 
 import com.agile.common.annotation.Mapping;
+import com.agile.common.annotation.Models;
+import com.agile.common.annotation.Remark;
 import com.agile.common.base.ApiInfo;
 import com.agile.common.generator.model.ShowDocModel;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.ApiUtil;
+import com.agile.common.util.ClassUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.FreemarkerUtil;
+import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.StringUtil;
 import freemarker.template.TemplateException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -14,8 +19,10 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
 
+import javax.persistence.Column;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,13 +38,13 @@ import java.util.Set;
 public class AgileTestGenerator {
     private static GeneratorProperties generator;
 
-    public static void main(String[] args) throws IOException, TemplateException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws IOException, TemplateException, InstantiationException, IllegalAccessException, NoSuchMethodException {
         AgileGenerator.init();
         generator = FactoryUtil.getBean(GeneratorProperties.class);
         creatTest("./src/main/java/com/agile/mvc/service");
     }
 
-    private static void creatTest(String path) throws IOException, TemplateException, IllegalAccessException, InstantiationException {
+    private static void creatTest(String path) throws IOException, TemplateException, IllegalAccessException, InstantiationException, NoSuchMethodException {
         File directory = new File(path);
         String packageName = AgileGenerator.getPackPath(path);
         if (directory.isDirectory()) {
@@ -123,7 +130,9 @@ public class AgileTestGenerator {
         System.exit(0);
     }
 
-    private static ShowDocModel parsingMethod(ApiInfo apiInfo) {
+
+    private static ShowDocModel parsingMethod(ApiInfo apiInfo) throws NoSuchMethodException {
+
         Class<?> clazz = apiInfo.getBean().getClass();
         Method method = apiInfo.getMethod();
 
@@ -149,10 +158,18 @@ public class AgileTestGenerator {
 
         builder.url(apiInfo.getRequestMappingInfo().getPatternsCondition().getPatterns());
 
+        Models models = method.getDeclaredAnnotation(Models.class);
+
         ApiImplicitParams apiImplicitParams = method.getDeclaredAnnotation(ApiImplicitParams.class);
         if (apiImplicitParams != null && apiImplicitParams.value().length > 0) {
             Set<ShowDocModel.Param> paramSet = new HashSet<>();
             for (ApiImplicitParam apiImplicitParam : apiImplicitParams.value()) {
+                String type = apiImplicitParam.dataType();
+                Class model = getModel(models, type);
+                if (model != null && !StringUtil.isBlank(type)) {
+                    createParamsFromModel(model, paramSet);
+                    continue;
+                }
                 ShowDocModel.Param param = new ShowDocModel.Param();
                 param.setDesc(apiImplicitParam.value());
                 param.setName(apiImplicitParam.name());
@@ -163,5 +180,36 @@ public class AgileTestGenerator {
             builder.requestParams(paramSet);
         }
         return builder.build();
+    }
+
+    private static void createParamsFromModel(Class model, Set<ShowDocModel.Param> paramSet) throws NoSuchMethodException {
+        Field[] fields = model.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                ShowDocModel.Param param = new ShowDocModel.Param();
+                Remark remark = field.getDeclaredAnnotation(Remark.class);
+                Column column = ObjectUtil.getAllEntityPropertyAnnotation(model, field, Column.class);
+                param.setDesc(remark == null ? field.getName() : remark.value());
+                param.setName(param.getDesc());
+                param.setNullable(column != null && column.nullable());
+                param.setType(ClassUtil.toSwaggerTypeFromName(field.getType()));
+                paramSet.add(param);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static Class getModel(Models models, String type) {
+        if (models == null || type == null) {
+            return null;
+        }
+        Class[] clazzes = models.value();
+        for (Class clazz : clazzes) {
+            if (clazz.getSimpleName().equals(type)) {
+                return clazz;
+            }
+        }
+        return null;
     }
 }

@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysUsersEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]用户")
-@Mapping("/api/sys-users")
+@Mapping("/api/sys")
 @Service
 public class SysUsersService extends BusinessService<SysUsersEntity> {
     @ApiOperation(value = "新增[系统管理]用户", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

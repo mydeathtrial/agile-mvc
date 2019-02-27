@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysAuthoritiesEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]权限")
-@Mapping("/api/sys-authorities")
+@Mapping("/api/sys")
 @Service
 public class SysAuthoritiesService extends BusinessService<SysAuthoritiesEntity> {
     @ApiOperation(value = "新增[系统管理]权限", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

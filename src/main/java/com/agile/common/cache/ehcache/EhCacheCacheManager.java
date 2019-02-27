@@ -8,6 +8,7 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 
 /**
  * @author 佟盟 on 2018/9/6
@@ -39,6 +40,15 @@ public class EhCacheCacheManager extends org.springframework.cache.ehcache.EhCac
 
     @Override
     public com.agile.common.cache.Cache getCustomCache(String cacheName) {
-        return (com.agile.common.cache.Cache) getCache(cacheName);
+        Cache cache = getCache(cacheName);
+        if (cache == null) {
+            return (com.agile.common.cache.Cache) getMissingCache(cacheName);
+        }
+        return (com.agile.common.cache.Cache) cache;
+    }
+
+    @Override
+    protected Cache getMissingCache(String name) {
+        return new EhCacheCache(Objects.requireNonNull(this.getCacheManager()).addCacheIfAbsent(name));
     }
 }

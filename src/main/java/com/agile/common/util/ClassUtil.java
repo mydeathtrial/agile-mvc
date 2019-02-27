@@ -52,62 +52,17 @@ public class ClassUtil extends ClassUtils {
     /**
      * 基本类型转换包装类
      *
-     * @param name 类型名字
+     * @param clazz 类型
      * @return 包装类名字
      */
-    public static String toSwaggerTypeFromName(String name) {
-        String result;
-        switch (name) {
-            case "byte":
-                result = "string";
-                break;
-            case "Byte":
-                result = "string";
-                break;
-            case "short":
-                result = "integer";
-                break;
-            case "Short":
-                result = "integer";
-                break;
-            case "int":
-                result = "integer";
-                break;
-            case "Integer":
-                result = "integer";
-                break;
-            case "long":
-                result = "integer";
-                break;
-            case "Long":
-                result = "integer";
-                break;
-            case "char":
-                result = "string";
-                break;
-            case "Character":
-                result = "string";
-                break;
-            case "Timestamp":
-                result = "string";
-                break;
-            case "Date":
-                result = "string";
-                break;
-            case "String":
-                result = "string";
-                break;
-            case "Boolean":
-                result = "boolean";
-                break;
-            case "Double":
-                result = "number";
-                break;
-            case "Float":
-                result = "number";
-                break;
-            default:
-                result = name;
+    public static String toSwaggerTypeFromName(Class clazz) {
+        String result = "String";
+        if (clazz == short.class || clazz == Short.class || clazz == int.class || clazz == Integer.class || clazz == long.class || clazz == Long.class) {
+            result = "integer";
+        } else if (clazz == boolean.class || clazz == Boolean.class) {
+            result = "boolean";
+        } else if (clazz == double.class || clazz == Double.class || clazz == float.class || clazz == Float.class) {
+            result = "number";
         }
         return result;
     }

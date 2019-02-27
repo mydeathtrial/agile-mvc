@@ -108,7 +108,7 @@ public class SysModulesService extends BusinessService<SysModulesEntity> {
     }
 
     @ApiOperation(value = "查询菜单树", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    @Mapping(path = "/modules/tree", method = RequestMethod.GET)
+    @Mapping(path = {"/modules/tree", "/menus"}, method = RequestMethod.GET)
     public Object menus() {
         String sql = "SELECT\n" +
                 "sys_modules.SYS_MODULES_ID,\n" +

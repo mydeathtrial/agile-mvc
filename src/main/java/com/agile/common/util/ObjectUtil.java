@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.base.Constant;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
@@ -84,9 +85,14 @@ public class ObjectUtil extends ObjectUtils {
                 if (targetProperty == null) {
                     continue;
                 }
+                Class<?> type = targetProperty.getType();
+                if (!type.isAssignableFrom(value.getClass())) {
+                    value = cast(type, targetProperty);
+                }
 
                 targetProperty.setAccessible(true);
                 targetProperty.set(target, value);
+
             } catch (Exception ignored) {
             }
         }
@@ -467,32 +473,32 @@ public class ObjectUtil extends ObjectUtils {
      * @param clazz 类
      * @return 注解结果集
      */
-    public static <T extends Annotation> Set<T> getAllEntityPropertyAnnotation(Class clazz, Field field, Class<T> annotation) throws NoSuchMethodException {
-        Set<T> list = new HashSet<>();
+    public static <T extends Annotation> T getAllEntityPropertyAnnotation(Class clazz, Field field, Class<T> annotation) throws NoSuchMethodException {
+        T result = null;
         T fieldDeclaredAnnotations = field.getDeclaredAnnotation(annotation);
         if (fieldDeclaredAnnotations != null) {
-            list.add(fieldDeclaredAnnotations);
+            result = fieldDeclaredAnnotations;
         }
 
         T fieldAnnotations = field.getAnnotation(annotation);
         if (fieldAnnotations != null) {
-            list.add(fieldAnnotations);
+            result = fieldAnnotations;
         }
 
         String getMethodName = String.format("get%s", StringUtil.toUpperName(field.getName()));
         Method declaredMethod = clazz.getDeclaredMethod(getMethodName);
         T methodDeclaredAnnotations = declaredMethod.getDeclaredAnnotation(annotation);
         if (methodDeclaredAnnotations != null) {
-            list.add(methodDeclaredAnnotations);
+            result = methodDeclaredAnnotations;
         }
 
         Method method = clazz.getMethod(getMethodName);
         T methodAnnotations = method.getAnnotation(annotation);
         if (methodAnnotations != null) {
-            list.add(methodAnnotations);
+            result = methodAnnotations;
         }
 
-        return list;
+        return result;
     }
 
     private static void addAll(Annotation[] methodAnnotations, List<Annotation> list) {
@@ -572,8 +578,14 @@ public class ObjectUtil extends ObjectUtils {
             String format = "yyyy-MM-dd";
             if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
                 format = "yyyy-MM-dd HH:mm:ss";
-            } else if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2}", valueStr)) {
+            } else if (StringUtil.containMatchedString("[\\d]{4}/[\\d]{1,2}/[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
+                format = "yyyy/MM/dd HH:mm:ss";
+            } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYYIMMIDD, valueStr)) {
+                format = "yyyy/MM/dd";
+            } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYY_MM_DD, valueStr)) {
                 format = "yyyy-MM-dd";
+            } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYYMMDD, valueStr)) {
+                format = "yyyyMMdd";
             } else if (StringUtil.containMatchedString("[\\d]+", valueStr)) {
                 temp = new java.util.Date(Long.parseLong(valueStr));
             }

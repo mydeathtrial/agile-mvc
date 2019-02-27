@@ -88,10 +88,8 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         if (StringUtil.isEmpty(token)) {
             SecurityUser userDetails = (SecurityUser) authentication.getDetails();
             token = TokenUtil.generateToken(userDetails.getSaltKey(), userDetails.getPassword());
-            tokenCache.put(token, authentication, securityProperties.getTokenTimeout());
-        } else {
-            CacheUtil.put(token, authentication, securityProperties.getTokenTimeout());
         }
+        tokenCache.put(token, authentication, securityProperties.getTokenTimeout());
         return token;
     }
 

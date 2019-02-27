@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysLoginEntity;
  * @author agile generator
  */
 @Api(description = "SysLoginService")
-@Mapping("/api/sys-login")
+@Mapping("/api/sys")
 @Service
 public class SysLoginService extends BusinessService<SysLoginEntity> {
     @ApiOperation(value = "新增", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)

@@ -6,9 +6,9 @@ import com.agile.common.base.RETURN;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
 import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.ClassUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.ViewUtil;
 import com.agile.mvc.entity.SysUsersEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import net.sf.json.JSON;
@@ -25,9 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -65,7 +62,7 @@ public class MainService implements ServiceInterface {
             Object returnData = method.invoke(object);
             if (returnData instanceof AbstractResponseFormat) {
                 //如果是自定义报文bean，则格式化报文
-                setOutParam(((AbstractResponseFormat) returnData).buildResponse());
+                setOutParam(((AbstractResponseFormat) returnData));
             } else if (returnData instanceof RETURN) {
                 //如果是头信息，则交给控制层处理
                 return returnData;
@@ -172,58 +169,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(String key, Class<T> clazz) {
-        T result = null;
-        if (containsKey(key)) {
-            Object v = getInParam(key);
-            if (ClassUtil.canCastClass(clazz)) {
-                result = ObjectUtil.cast(clazz, v);
-            }
-        } else {
-            Object jsonNode = getInParam(Constant.ResponseAbout.BODY);
-            if (jsonNode != null) {
-                JsonNode json = ((JsonNode) jsonNode);
-                JsonNode value = json.get(key);
-                if (value != null && !value.isNull()) {
-                    if (clazz == String.class && value.isTextual()) {
-                        result = (T) value.textValue();
-                    } else if (clazz == Integer.class && value.isInt()) {
-                        result = (T) Integer.valueOf(value.intValue());
-                    } else if (clazz == Long.class && value.isLong()) {
-                        result = (T) Long.valueOf(value.longValue());
-                    } else if (clazz == BigInteger.class && value.isBigInteger()) {
-                        result = (T) value.bigIntegerValue();
-                    } else if (clazz == byte[].class && value.isBinary()) {
-                        try {
-                            result = (T) value.binaryValue();
-                        } catch (IOException ignored) {
-                        }
-                    } else if (clazz == BigDecimal.class && value.isBigDecimal()) {
-                        result = (T) BigDecimal.valueOf(value.asLong());
-                    } else if (clazz == boolean.class && value.isBoolean()) {
-                        result = (T) Boolean.valueOf(value.booleanValue());
-                    } else if (clazz == double.class && value.isDouble()) {
-                        result = (T) Double.valueOf(value.doubleValue());
-                    } else if (clazz == float.class && value.isFloat()) {
-                        result = (T) Float.valueOf(value.floatValue());
-                    } else if (clazz == short.class && value.isShort()) {
-                        result = (T) Short.valueOf(value.shortValue());
-                    } else if (clazz == Number.class && value.isNumber()) {
-                        result = (T) value.numberValue();
-                    } else if (clazz == Date.class && value.isLong()) {
-                        result = (T) new Date(value.longValue());
-                    } else if (clazz == Date.class && value.isTextual()) {
-                        result = ObjectUtil.cast(clazz, value.asText());
-                    } else {
-                        try {
-                            result = JSONUtil.toBean(clazz, value.toString());
-                        } catch (IOException ignored) {
-                        }
-                    }
-                }
-            }
-        }
-
-        return result;
+        return ViewUtil.getInParam(getInParam(), key, clazz);
     }
 
     /**
@@ -249,7 +195,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected String[] getInParamOfArray(String key) {
-        Object o = inParam.get().get(key);
+        Object o = getInParam().get(key);
         if (o == null) {
             return null;
         }

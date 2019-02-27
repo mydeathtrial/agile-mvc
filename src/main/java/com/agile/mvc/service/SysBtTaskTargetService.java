@@ -23,7 +23,7 @@ import com.agile.mvc.entity.SysBtTaskTargetEntity;
  * @author agile generator
  */
 @Api(description = "[系统管理]定时任务目标任务表")
-@Mapping("/api/sys-bt-task-target")
+@Mapping("/api/sys")
 @Service
 public class SysBtTaskTargetService extends BusinessService<SysBtTaskTargetEntity> {
     @ApiOperation(value = "新增[系统管理]定时任务目标任务表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
