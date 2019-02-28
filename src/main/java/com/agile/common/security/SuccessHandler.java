@@ -2,6 +2,7 @@ package com.agile.common.security;
 
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ViewUtil;
@@ -28,8 +29,9 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
             ViewUtil.render(new Head(RETURN.SUCCESS), new HashMap<String, String>(1) {{
                 put("token", token);
             }}, request, response);
+            LoggerFactory.AUTHORITY_LOG.info(String.format("成功登陆[令牌：%s]", token));
         } catch (Exception e) {
-            e.printStackTrace();
+            LoggerFactory.AUTHORITY_LOG.debug(e);
         }
     }
 }

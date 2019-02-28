@@ -153,12 +153,8 @@ public class ViewUtil {
 
     public static <T> T getInParam(Map<String, Object> map, String key, Class<T> clazz) {
         T result = null;
-        if (map.containsKey(key)) {
-            Object v = map.get(key);
-            if (ClassUtil.canCastClass(clazz)) {
-                result = ObjectUtil.cast(clazz, v);
-            }
-        } else {
+
+        if (map.containsKey(Constant.ResponseAbout.BODY)) {
             Object jsonNode = map.get(Constant.ResponseAbout.BODY);
             if (jsonNode != null) {
                 JsonNode json = ((JsonNode) jsonNode);
@@ -194,12 +190,15 @@ public class ViewUtil {
                     } else if (clazz == Date.class && value.isTextual()) {
                         result = ObjectUtil.cast(clazz, value.asText());
                     } else {
-                        try {
-                            result = JSONUtil.toBean(clazz, value.toString());
-                        } catch (IOException ignored) {
-                        }
+                        result = JSONUtil.toBean(clazz, value.toString());
                     }
                 }
+            }
+        }
+        if (result == null && map.containsKey(key)) {
+            Object v = map.get(key);
+            if (ClassUtil.canCastClass(clazz)) {
+                result = ObjectUtil.cast(clazz, v);
             }
         }
 

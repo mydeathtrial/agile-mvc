@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -191,7 +190,7 @@ public class BusinessService<T> extends MainService {
         }
         Class<?> type = idField.getType();
         List<Object> list = new ArrayList<>();
-        String[] ids = this.getInParamOfArray(ID);
+        List<String> ids = this.getInParamOfArray(ID);
         for (Object idValue : ids) {
             if (StringUtil.isString(idValue)) {
                 String v = idValue.toString();
@@ -214,7 +213,7 @@ public class BusinessService<T> extends MainService {
     private Sort getSort() {
         Sort sort = Sort.unsorted();
         if (this.containsKey(SORT_COLUMN)) {
-            List<String> columns = Arrays.asList(getInParamOfArray(SORT_COLUMN));
+            List<String> columns = getInParamOfArray(SORT_COLUMN);
             List<Sort.Order> orders = new ArrayList<>(columns.size());
             for (String column : columns) {
                 if (column.startsWith(Constant.RegularAbout.MINUS)) {

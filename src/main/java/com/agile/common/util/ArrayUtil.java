@@ -2,6 +2,7 @@ package com.agile.common.util;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -47,11 +48,11 @@ public class ArrayUtil extends ArrayUtils {
         return Arrays.asList(array);
     }
 
-    public static <T> T[] cast(Class<T> clazz, Object[] objects) {
-        Object[] result = new Object[objects.length];
+    public static <T> List<T> cast(Class<T> clazz, Object[] objects) {
+        List<T> result = new ArrayList<>();
         for (int i = 0; i < objects.length; i++) {
-            result[i] = ObjectUtil.cast(clazz, objects[i]);
+            result.add(ObjectUtil.cast(clazz, objects[i]));
         }
-        return (T[]) result;
+        return result;
     }
 }

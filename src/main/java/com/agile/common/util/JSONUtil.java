@@ -17,6 +17,11 @@ import net.sf.json.util.JSONUtils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author mydeathtrial on 2017/5/9
@@ -134,12 +139,20 @@ public class JSONUtil {
         return o;
     }
 
-    public static <T> T toBean(Class<T> clazz, String str) throws IOException {
-        return objectMapper.readValue(str, clazz);
+    public static <T> T toBean(Class<T> clazz, String str) {
+        try {
+            return objectMapper.readValue(str, clazz);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
-    public static JsonNode toJsonNode(String jsonStr) throws IOException {
-        return objectMapper.readTree(jsonStr);
+    public static JsonNode toJsonNode(String jsonStr) {
+        try {
+            return objectMapper.readTree(jsonStr);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public static <T> T toBeanByNetSf(Class<T> clazz, JSONObject json) {
@@ -156,5 +169,46 @@ public class JSONUtil {
         } catch (Exception ignored) {
         }
         return null;
+    }
+
+    public static Map<String, Object> jsonObjectCoverMap(JSONObject json) {
+
+        if (json == null) {
+            return null;
+        }
+        Map<String, Object> result = new HashMap<>(json.size());
+
+        Iterator it = json.keys();
+        while (it.hasNext()) {
+            String selfKey = it.next().toString();
+            Object o = json.get(selfKey);
+            if (JSONObject.class.isAssignableFrom(o.getClass())) {
+                result.put(selfKey, jsonObjectCoverMap((JSONObject) o));
+            } else if (JSONArray.class.isAssignableFrom(o.getClass())) {
+                result.put(selfKey, jsonArrayCoverArray((JSONArray) o));
+            } else {
+                result.put(selfKey, o);
+            }
+        }
+        return result;
+    }
+
+    public static Object[] jsonArrayCoverArray(JSONArray jsonArray) {
+        if (jsonArray == null) {
+            return null;
+        }
+        List<Object> result = new ArrayList<>();
+        for (Object o : jsonArray) {
+            if (JSON.class.isAssignableFrom(o.getClass())) {
+                if (JSONObject.class.isAssignableFrom(o.getClass())) {
+                    result.add(jsonObjectCoverMap((JSONObject) o));
+                } else if (JSONArray.class.isAssignableFrom(o.getClass())) {
+                    result.add(jsonArrayCoverArray((JSONArray) o));
+                }
+            } else {
+                result.add(o);
+            }
+        }
+        return result.toArray();
     }
 }

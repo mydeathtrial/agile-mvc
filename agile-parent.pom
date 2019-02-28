@@ -5,7 +5,7 @@
     <groupId>com.agileframework</groupId>
     <artifactId>agile-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>agile-parent</name>
     <description>Agile工程父级POM支持</description>
 
@@ -59,7 +59,7 @@
         <snakeyaml.version>1.23</snakeyaml.version>
         <poi.version>4.0.0</poi.version>
         <elasticsearch.version>5.2.2</elasticsearch.version>
-        <datafactory5.2.2.version>3.0.7</datafactory5.2.2.version>
+        <datafactory5.2.2.version>[1.0.0,)</datafactory5.2.2.version>
         <javacsv.version>2.0</javacsv.version>
         <lombok.version>1.18.4</lombok.version>
         <disruptor.version>3.4.2</disruptor.version>

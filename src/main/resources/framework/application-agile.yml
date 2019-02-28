@@ -59,7 +59,7 @@ agile:
     test-on-return: false
     duration: 30
   security:
-    enable: true
+    enable: false
     exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login-out-url: /api/logout
     login-url: /api/login

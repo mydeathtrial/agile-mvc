@@ -68,9 +68,8 @@ public final class LoggerFactory {
             createLogger(packageName, packageName, levels);
         }
     }
-
     public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
-    public static final Log TASK_LOG = createPlugLogger("task", "agile.task.enable", TaskService.class, Level.INFO, Level.ERROR);
+    public static final Log AUTHORITY_LOG = createLogger("authority", WebInitializer.class, Level.DEBUG, Level.ERROR);
     public static final Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
     public static final Log CACHE_LOG = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
     public static final Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);

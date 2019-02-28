@@ -1,5 +1,6 @@
 package com.agile.common.aop;
 
+import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
 import com.agile.common.mvc.service.MainService;
@@ -73,6 +74,9 @@ public class LogAop {
         HttpServletRequest request = (HttpServletRequest) joinPoint.getArgs()[REQUEST_INDEX];
         Method method = (Method) joinPoint.getArgs()[METHOD_INDEX];
         Map<String, Object> inParam = service.getInParam();
+        if(inParam.containsKey(Constant.ResponseAbout.BODY)){
+            inParam.remove(Constant.ResponseAbout.BODY);
+        }
         try {
             result = joinPoint.proceed();
         } catch (Throwable throwable) {

@@ -79,15 +79,15 @@ public class SecurityUserDetailsService implements UserDetailsService {
 
     public void validate(UserDetails securityUser) throws AuthenticationException {
         if (securityUser == null) {
-            throw new UsernameNotFoundException(null);
+            throw new UsernameNotFoundException("用户信息不存在");
         } else if (!securityUser.isEnabled()) {
-            throw new DisabledException(null);
+            throw new DisabledException("账号已禁用");
         } else if (!securityUser.isAccountNonExpired()) {
-            throw new AccountExpiredException(null);
+            throw new AccountExpiredException("账号已禁用过期");
         } else if (!securityUser.isAccountNonLocked()) {
-            throw new LockedException(null);
+            throw new LockedException("账号已锁定");
         } else if (!securityUser.isCredentialsNonExpired()) {
-            throw new CredentialsExpiredException(null);
+            throw new CredentialsExpiredException("账号令牌过期");
         }
     }
 }

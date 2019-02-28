@@ -7,17 +7,19 @@ import com.agile.common.annotation.Validates;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
-import org.springframework.stereotype.Service;
+import com.agile.mvc.entity.SysUsersEntity;
+import com.agile.mvc.entity.common.ResponseData;
+import com.agile.mvc.entity.dashboard.DaComponentEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.annotations.Insert;
-import com.agile.mvc.entity.SysUsersEntity;
+import org.apache.ibatis.annotations.Update;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * @author agile generator
@@ -110,5 +112,10 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
     @Mapping(path = "/sys-users/{id}", method = RequestMethod.GET)
     public RETURN customQueryById() {
         return super.queryById();
+    }
+
+    public Object test() {
+        getInParam("component",DaComponentEntity.class);
+        return new ResponseData(ResponseData.STATUS.success, null, null, null);
     }
 }

@@ -3,6 +3,7 @@ package com.agile.common.mvc.service;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.SecurityUser;
 import com.agile.common.util.ArrayUtil;
@@ -22,12 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,7 +45,7 @@ public class MainService implements ServiceInterface {
     private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
     @Autowired(required = false)
     protected Dao dao;
-    protected Log logger = null;
+    protected Log logger = LoggerFactory.getServiceLog(this.getClass());
 
     /**
      * 根据对象及方法名通过反射执行该对象的指定方法
@@ -54,7 +54,7 @@ public class MainService implements ServiceInterface {
      * @return 返回执行结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Object executeMethod(Object object, Method method, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
 
         initOutParam();
@@ -62,7 +62,9 @@ public class MainService implements ServiceInterface {
             Object returnData = method.invoke(object);
             if (returnData instanceof AbstractResponseFormat) {
                 //如果是自定义报文bean，则格式化报文
-                setOutParam(((AbstractResponseFormat) returnData));
+                AbstractResponseFormat formatData = ((AbstractResponseFormat) returnData);
+                setOutParam(Constant.ResponseAbout.RESULT, formatData.getResult());
+                return formatData.getReturn();
             } else if (returnData instanceof RETURN) {
                 //如果是头信息，则交给控制层处理
                 return returnData;
@@ -86,7 +88,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void setInParam(String key, Object o) {
-        MainService.inParam.get().put(key, o);
+        inParam.get().put(key, o);
     }
 
     /**
@@ -96,7 +98,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected Object getInParam(String key) {
-        return inParam.get().get(key);
+        return getInParam().get(key);
     }
 
     /**
@@ -107,14 +109,15 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(Class<T> clazz) {
+        T result = null;
         Object jsonNode = getInParam(Constant.ResponseAbout.BODY);
         if (jsonNode != null) {
-            try {
-                return JSONUtil.toBean(clazz, jsonNode.toString());
-            } catch (IOException ignored) {
-            }
+            result = JSONUtil.toBean(clazz, jsonNode.toString());
         }
-        return ObjectUtil.getObjectFromMap(clazz, this.getInParam());
+        if (result == null) {
+            result = ObjectUtil.getObjectFromMap(clazz, this.getInParam());
+        }
+        return result;
     }
 
     /**
@@ -194,16 +197,8 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    protected String[] getInParamOfArray(String key) {
-        Object o = getInParam().get(key);
-        if (o == null) {
-            return null;
-        }
-        if (o.getClass().isArray()) {
-            return (String[]) o;
-        } else {
-            return new String[]{String.valueOf(o)};
-        }
+    protected List<String> getInParamOfArray(String key) {
+        return getInParamOfArray(key, String.class);
     }
 
     /**
@@ -212,12 +207,16 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    protected <T> T[] getInParamOfArray(String key, Class<T> clazz) {
-        String[] value = getInParamOfArray(key);
-        if (value != null && value.length > 0) {
-            return ArrayUtil.cast(clazz, value);
+    protected <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
+        Object o = getInParam().get(key);
+        if (o == null) {
+            return null;
         }
-        return null;
+        if (o.getClass().isArray()) {
+            return ArrayUtil.cast(clazz, (Object[]) o);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -240,35 +239,28 @@ public class MainService implements ServiceInterface {
         Map<String, Object> map = inParam.get();
         Object body = map.get(Constant.ResponseAbout.BODY);
         if (body != null) {
+            Map<String, Object> result = new HashMap<>(map);
 
             String bodyString = body.toString();
             if (bodyString != null) {
                 JSON json = JSONUtil.toJSON(bodyString);
-                if (json == null) {
-                    return map;
-                }
-
-                Map<String, Object> withBodyParam = new HashMap<>(json.size() + map.size());
-                withBodyParam.putAll(map);
-
-                if (json.isArray()) {
-                    Iterator it = ((JSONArray) json).iterator();
-                    int index = 0;
-                    while (it.hasNext()) {
-                        withBodyParam.put(Integer.toString(index), it.next());
+                if (JSONObject.class.isAssignableFrom(json.getClass())) {
+                    Map<String, Object> bodyParam = JSONUtil.jsonObjectCoverMap((JSONObject) json);
+                    if (bodyParam != null) {
+                        result.putAll(bodyParam);
                     }
-                } else {
-                    Iterator it = ((JSONObject) json).keys();
-                    while (it.hasNext()) {
-                        String key = it.next().toString();
-                        withBodyParam.put(key, ((JSONObject) json).get(key));
+                } else if (JSONArray.class.isAssignableFrom(json.getClass())) {
+                    Object[] bodyParam = JSONUtil.jsonArrayCoverArray((JSONArray) json);
+                    if (bodyParam != null) {
+                        result.put(Constant.ResponseAbout.BODY, bodyParam);
                     }
                 }
-                return withBodyParam;
             }
+            return result;
         }
         return map;
     }
+
 
     /**
      * 控制层中调用该方法设置服务入参

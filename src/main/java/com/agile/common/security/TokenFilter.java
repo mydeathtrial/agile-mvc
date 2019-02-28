@@ -3,6 +3,7 @@ package com.agile.common.security;
 import com.agile.common.cache.Cache;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.exception.TokenIllegalException;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.ObjectUtil;
@@ -108,6 +109,7 @@ public class TokenFilter extends OncePerRequestFilter {
             if (e instanceof AuthenticationException) {
                 exceptionHandler(request, response, (AuthenticationException) e);
             } else {
+                LoggerFactory.AUTHORITY_LOG.error(e);
                 exceptionHandler(request, response, new TokenIllegalException(null));
             }
         }

@@ -6,14 +6,14 @@
 
     <artifactId>agile-boot-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <name>agile-boot-parent</name>
     <description>Agile SpringBoot工程父级POM支持</description>
 
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-parent</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.2</version>
         <relativePath/>
     </parent>
 
@@ -64,6 +64,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- spring data jpa支持 -->
@@ -91,6 +92,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!--健康检查-->
@@ -314,7 +316,7 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.idss</groupId>
+            <groupId>com.idss.agile</groupId>
             <artifactId>datafactory5.2.2</artifactId>
             <version>${datafactory5.2.2.version}</version>
             <scope>provided</scope>

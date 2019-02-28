@@ -3,8 +3,6 @@ package com.agile.common.security;
 import com.agile.common.exception.RepeatAccount;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.PasswordUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author 佟盟 on 2017/1/13
  */
 public class JwtAuthenticationProvider implements AuthenticationProvider {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private SecurityUserDetailsService userDetailsService;
 
     public JwtAuthenticationProvider(SecurityUserDetailsService userDetailsService) {
@@ -62,13 +59,12 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      */
     private void checkPassword(Authentication authentication, UserDetails user) {
         if (authentication.getCredentials() == null) {
-            this.logger.debug("未找到密码");
-            throw new BadCredentialsException(null);
+            throw new BadCredentialsException("未找到密码");
         } else {
             String presentedPassword = authentication.getCredentials().toString();
-            if (!PasswordUtil.decryption(presentedPassword, user.getPassword())) {
-                this.logger.debug("密码匹配失败");
-                throw new BadCredentialsException(null);
+            String cipher = user.getPassword();
+            if (!PasswordUtil.decryption(presentedPassword, cipher)) {
+                throw new BadCredentialsException(String.format("密码匹配失败,[输入项：%s][目标值：%s]", presentedPassword, cipher));
             }
         }
     }

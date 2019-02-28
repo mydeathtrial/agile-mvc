@@ -90,29 +90,26 @@ public class ColumnModel {
         temp.append("name = \"").append(columnName).append("\"");
         if ("0".equals(nullable)) {
             temp.append(", nullable = false");
-            setImport(NotBlank.class, Insert.class, Update.class);
             if (javaType == String.class) {
                 if (Boolean.valueOf(isPrimaryKey)) {
                     if (javaType == String.class) {
                         setAnnotation("@NotBlank(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
-                        setImport(Delete.class);
+                        setImport(Update.class, NotBlank.class, Delete.class);
                     }
                 } else {
                     setAnnotation(String.format("@NotBlank(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
-                    setImport(Insert.class);
+                    setImport(Insert.class, NotBlank.class, Update.class);
                 }
-                setImport(NotBlank.class, Update.class);
             } else {
                 if (Boolean.valueOf(isPrimaryKey)) {
                     if (javaType == String.class) {
                         setAnnotation("@NotNull(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
-                        setImport(Delete.class);
+                        setImport(Delete.class, NotNull.class, Update.class);
                     }
                 } else {
                     setAnnotation(String.format("@NotNull(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
-                    setImport(Insert.class);
+                    setImport(Insert.class, Update.class, NotNull.class);
                 }
-                setImport(NotNull.class, Update.class);
             }
         }
         if (!StringUtil.isEmpty(columnDef)) {
