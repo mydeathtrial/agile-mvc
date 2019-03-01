@@ -1,6 +1,5 @@
 package com.agile.common.task;
 
-import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.ObjectUtil;
 import com.agile.mvc.entity.SysTaskEntity;
 import lombok.Getter;

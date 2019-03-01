@@ -8,8 +8,6 @@ import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.mvc.entity.SysUsersEntity;
-import com.agile.mvc.entity.common.ResponseData;
-import com.agile.mvc.entity.dashboard.DaComponentEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -114,8 +112,4 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
         return super.queryById();
     }
 
-    public Object test() {
-        getInParam("component",DaComponentEntity.class);
-        return new ResponseData(ResponseData.STATUS.success, null, null, null);
-    }
 }
