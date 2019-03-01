@@ -4,6 +4,7 @@ import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.FactoryUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,8 +19,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class SpringExceptionHandler {
 
     private static final String MESSAGE_PREFIX = "agile.exception.%s";
-    private static final String ERROR_MESSAGE_TEMPLATE = "[类:%s][方法:%s][行:%s]";
-    private static final String ERROR_DETAIL_MESSAGE_TEMPLATE = "[信息:%s]";
 
     @ExceptionHandler(Throwable.class)
     public ModelAndView allExceptionHandler(Throwable e) {
@@ -28,6 +27,7 @@ public class SpringExceptionHandler {
 
 
     public ModelAndView createModelAndView(Throwable e) {
+        LoggerFactory.COMMON_LOG.error(e);
         ModelAndView modelAndView;
 
         RETURN r;

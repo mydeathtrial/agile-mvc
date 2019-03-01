@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -45,7 +46,7 @@ public class ApiUtil {
             return;
         }
 
-        addApiInfoCache(new ApiInfo(bean, method, beanName, requestMappingInfo));
+        addApiInfoCache(bean, method, beanName, requestMappingInfo);
     }
 
     private static void printLog(String beanName, Method method, RequestMappingInfo requestMappingInfo) {
@@ -117,19 +118,28 @@ public class ApiUtil {
     /**
      * API信息缓存
      *
-     * @param apiInfo API信息对象
+     * @param bean               服务
+     * @param method             方法
+     * @param beanName           服务名
+     * @param requestMappingInfo 映射信息
      */
-    private static void addApiInfoCache(ApiInfo apiInfo) {
-        String method = apiInfo.getMethod().getName();
-        String key = String.format("%s.%s", apiInfo.getBean(), method);
+    private static void addApiInfoCache(Object bean, Method method, String beanName, RequestMappingInfo requestMappingInfo) {
+        String key = String.format("%s.%s", bean, method);
+
+        ApiInfo apiInfo;
         if (apiInfoCache.containsKey(key)) {
-            key += ":2";
+            apiInfo = apiInfoCache.get(key);
+            apiInfo.add(requestMappingInfo);
+        } else {
+            apiInfo = new ApiInfo(bean, method, beanName, new HashSet<RequestMappingInfo>() {{
+                add(requestMappingInfo);
+            }});
         }
         apiInfoCache.put(key, apiInfo);
     }
 
     public static ApiInfo getApiInfoCache(Object bean, Method method) {
-        String key = String.format("%s.%s", bean, method.getName());
+        String key = String.format("%s.%s", bean, method);
         return apiInfoCache.get(key);
     }
 

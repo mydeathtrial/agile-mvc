@@ -498,8 +498,10 @@ public class Dao {
      * @return 分页信息
      */
     public <T> Page findAll(T object, int page, int size, Sort sort) {
-        if (!validatePageInfo(page, size)) {
-            return null;
+        validatePageInfo(page, size);
+
+        if (object.getClass() == Class.class) {
+            return this.getRepository((Class) object).findAll(PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
         }
         Example<T> example = Example.of(object);
         return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
@@ -597,14 +599,13 @@ public class Dao {
         return new ArrayList<>(0);
     }
 
-    public static boolean validatePageInfo(int page, int size) throws IllegalArgumentException {
+    public static void validatePageInfo(int page, int size) throws IllegalArgumentException {
         if (size < 1) {
             throw new IllegalArgumentException("每页显示条数最少为数字 1");
         }
         if (page < 1) {
             throw new IllegalArgumentException("最小页为数字 1");
         }
-        return true;
     }
 
     /**
@@ -619,9 +620,7 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> Page<T> findPageBySQL(String sql, String countSql, int page, int size, Class<T> clazz, Object... parameters) {
-        if (!validatePageInfo(page, size)) {
-            return null;
-        }
+        validatePageInfo(page, size);
         PageImpl pageDate = null;
         PageRequest pageable;
 
@@ -923,9 +922,7 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> Page<T> findAll(Class<T> tableClass, int page, int size) {
-        if (!validatePageInfo(page, size)) {
-            return null;
-        }
+        validatePageInfo(page, size);
         return getRepository(tableClass).findAll(PageRequest.of(page - Constant.NumberAbout.ONE, size));
     }
 

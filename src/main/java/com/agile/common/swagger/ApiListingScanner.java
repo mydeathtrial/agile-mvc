@@ -12,6 +12,7 @@ import com.google.common.collect.Multimap;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import springfox.documentation.PathProvider;
 import springfox.documentation.builders.ApiListingBuilder;
 import springfox.documentation.schema.Model;
@@ -129,37 +130,40 @@ public class ApiListingScanner extends springfox.documentation.spring.web.scanne
         Map<String, ResourceGroup> resourceGroupCache = new HashMap<>(LENGTH);
         Map<ResourceGroup, List<RequestMappingContext>> requestMappingContextListCache = new HashMap<>(LENGTH);
         for (ApiInfo apiInfo : list) {
-            if (apiInfo.getRequestMappingInfo() == null) {
+            Set<RequestMappingInfo> apiInfoRequestMappingInfos = apiInfo.getRequestMappingInfos();
+            if (apiInfoRequestMappingInfos == null || apiInfoRequestMappingInfos.size() == 0) {
                 continue;
             }
-            RequestMappingContext requestMappingContext = new RequestMappingContext(
-                    context.getDocumentationContext(),
-                    new WebMvcRequestHandler(
-                            new HandlerMethodResolver(typeResolver),
-                            apiInfo.getRequestMappingInfo(),
-                            new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())
-                    )
-            );
 
-            String groupName = requestMappingContext.getGroupName();
-            Class<?> bean = AopUtils.getTargetClass(apiInfo.getBean());
+            for (RequestMappingInfo requestMappingInfo : apiInfoRequestMappingInfos) {
+                RequestMappingContext requestMappingContext = new RequestMappingContext(
+                        context.getDocumentationContext(),
+                        new WebMvcRequestHandler(
+                                new HandlerMethodResolver(typeResolver),
+                                requestMappingInfo,
+                                new HandlerMethod(apiInfo.getBean(), apiInfo.getMethod())
+                        )
+                );
+                String groupName = requestMappingContext.getGroupName();
+                Class<?> bean = AopUtils.getTargetClass(apiInfo.getBean());
 
-            ResourceGroup currentResourceGroup;
-            if (resourceGroupCache.containsKey(groupName)) {
-                currentResourceGroup = resourceGroupCache.get(groupName);
-            } else {
-                currentResourceGroup = new ResourceGroup(groupName, bean);
-                resourceGroupCache.put(groupName, currentResourceGroup);
+                ResourceGroup currentResourceGroup;
+                if (resourceGroupCache.containsKey(groupName)) {
+                    currentResourceGroup = resourceGroupCache.get(groupName);
+                } else {
+                    currentResourceGroup = new ResourceGroup(groupName, bean);
+                    resourceGroupCache.put(groupName, currentResourceGroup);
+                }
+
+                List<RequestMappingContext> currentRequestMappings;
+                if (requestMappingContextListCache.containsKey(currentResourceGroup)) {
+                    currentRequestMappings = requestMappingContextListCache.get(currentResourceGroup);
+                } else {
+                    currentRequestMappings = new ArrayList<>();
+                    requestMappingContextListCache.put(currentResourceGroup, currentRequestMappings);
+                }
+                currentRequestMappings.add(requestMappingContext);
             }
-
-            List<RequestMappingContext> currentRequestMappings;
-            if (requestMappingContextListCache.containsKey(currentResourceGroup)) {
-                currentRequestMappings = requestMappingContextListCache.get(currentResourceGroup);
-            } else {
-                currentRequestMappings = new ArrayList<>();
-                requestMappingContextListCache.put(currentResourceGroup, currentRequestMappings);
-            }
-            currentRequestMappings.add(requestMappingContext);
         }
 
 //        allResourceGroups.addAll(requestMappingsByResourceGroup.keySet());

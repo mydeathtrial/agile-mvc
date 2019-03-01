@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import javax.persistence.Column;
 import java.io.File;
@@ -118,6 +119,7 @@ public class AgileTestGenerator {
 //                    FreemarkerUtil.generatorProxy("Test.ftl", "./test/main/java/com/agile/mvc/service/", testFileName, data, false);
                 }
             }
+
             for (ApiInfo apiInfo : ApiUtil.getApiInfoCache()) {
                 ShowDocModel node = parsingMethod(apiInfo);
                 if (node == null) {
@@ -126,6 +128,7 @@ public class AgileTestGenerator {
                 String testFileName = apiInfo.getBeanName() + "_" + apiInfo.getMethod().getName() + ".md";
                 FreemarkerUtil.generatorProxy("Showdoc.ftl", "./showdoc/", testFileName, node, false);
             }
+
         }
         System.exit(0);
     }
@@ -156,7 +159,14 @@ public class AgileTestGenerator {
         builder.desc(apiOperation.value());
         builder.method(apiOperation.httpMethod());
 
-        builder.url(apiInfo.getRequestMappingInfo().getPatternsCondition().getPatterns());
+        Set<RequestMappingInfo> requestMappingInfos = apiInfo.getRequestMappingInfos();
+        if (requestMappingInfos != null) {
+            Set<String> urls = new HashSet<>();
+            for (RequestMappingInfo requestMappingInfo : requestMappingInfos) {
+                urls.addAll(requestMappingInfo.getPatternsCondition().getPatterns());
+            }
+            builder.url(urls);
+        }
 
         Models models = method.getDeclaredAnnotation(Models.class);
 
@@ -191,7 +201,7 @@ public class AgileTestGenerator {
                 Remark remark = field.getDeclaredAnnotation(Remark.class);
                 Column column = ObjectUtil.getAllEntityPropertyAnnotation(model, field, Column.class);
                 param.setDesc(remark == null ? field.getName() : remark.value());
-                param.setName(param.getDesc());
+                param.setName(field.getName());
                 param.setNullable(column != null && column.nullable());
                 param.setType(ClassUtil.toSwaggerTypeFromName(field.getType()));
                 paramSet.add(param);

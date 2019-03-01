@@ -61,8 +61,13 @@ public class SysModulesEntity implements Serializable, Cloneable {
     private Boolean enable;
     @Remark("优先级")
     private Integer order;
-    @Transient
+
     private List<SysModulesEntity> children = new ArrayList<>();
+
+    @Transient
+    public List<SysModulesEntity> getChildren() {
+        return children;
+    }
 
     /**
      * 根节点父级主键标识

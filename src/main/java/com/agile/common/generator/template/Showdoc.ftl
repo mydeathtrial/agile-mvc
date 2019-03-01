@@ -5,7 +5,9 @@
 - ${desc}
 
 **请求URL：**
-- ` <#list url as param>${param}</#list> `
+<#list url as param>
+- ` ${param} `
+</#list>
 
 **请求方式：**
 - ${method}
@@ -32,13 +34,12 @@
 
 |参数名|类型|说明|
 |:-----  |:-----|-----                           |
-
 <#if responseParams??>
 <#list responseParams as param>
 |${param.name} |${param.type}   |${param.desc}  |
 </#list>
 <#else>
-|无 |无  |无 |无   |
+|无 |无 |无 |
 </#if>
 **备注**
 

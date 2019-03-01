@@ -75,7 +75,9 @@ public class MybatisInterceptor implements Interceptor {
         return index == 0;
     }
 
-    //修改原始sql语句为分页sql语句
+    /**
+     * 修改原始sql语句为分页sql语句
+     */
     private Object updateSql2Limit(Invocation invocation, MetaObject metaStatementHandler, BoundSql boundSql, int page, int pageSize) throws InvocationTargetException, IllegalAccessException, SQLException {
         Dao.validatePageInfo(page, pageSize);
 

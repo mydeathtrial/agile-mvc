@@ -103,11 +103,15 @@ public class BusinessService<T> extends MainService {
         return RETURN.SUCCESS;
     }
 
+    public RETURN delete() throws NoSuchIDException {
+        return delete(getInParam(entityClass));
+    }
+
     /**
      * 删除
      */
-    public RETURN delete() throws NoSuchIDException {
-        T entity = getInParam(entityClass);
+    public RETURN delete(T entity) throws NoSuchIDException {
+
         boolean require = this.containsKey(ID);
         if (require && ObjectUtil.isEmpty(entity)) {
             dao.deleteInBatch(entityClass, getIds().toArray());
@@ -128,11 +132,14 @@ public class BusinessService<T> extends MainService {
         }
     }
 
+    public RETURN update() throws IllegalAccessException, NoSuchIDException {
+        return update(getInParam(entityClass));
+    }
+
     /**
      * 修改
      */
-    public RETURN update() throws NoSuchIDException, IllegalAccessException {
-        T entity = getInParam(entityClass);
+    public RETURN update(T entity) throws NoSuchIDException, IllegalAccessException {
         if (validateInParam(entity) || ObjectUtil.isEmpty(entity)) {
             return RETURN.PARAMETER_ERROR;
         }
@@ -148,25 +155,33 @@ public class BusinessService<T> extends MainService {
         return RETURN.SUCCESS;
     }
 
+    public RETURN pageQuery() throws IllegalAccessException, InstantiationException {
+        return pageQuery(getInParam(entityClass));
+    }
+
     /**
      * 分页查询
      */
-    public RETURN pageQuery() throws IllegalAccessException, InstantiationException {
+    public RETURN pageQuery(T entity) {
         final int defPage = 0;
         final int defSize = 10;
-        T entity = getInParam(entityClass);
+
         if (entity == null) {
-            entity = entityClass.newInstance();
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entityClass, getInParam(PAGE_NUM, Integer.class, defPage), getInParam(PAGE_SIZE, Integer.class, defSize), getSort()));
+        } else {
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam(PAGE_NUM, Integer.class, defPage), getInParam(PAGE_SIZE, Integer.class, defSize), getSort()));
         }
-        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam(PAGE_NUM, Integer.class, defPage), getInParam(PAGE_SIZE, Integer.class, defSize), getSort()));
         return RETURN.SUCCESS;
+    }
+
+    public RETURN query() throws NoSuchIDException {
+        return query(getInParam(entityClass));
     }
 
     /**
      * 查询
      */
-    public RETURN query() throws NoSuchIDException {
-        T entity = getInParam(entityClass);
+    public RETURN query(T entity) throws NoSuchIDException {
         boolean require = this.containsKey(ID);
         if (require && ObjectUtil.isEmpty(entity)) {
             setOutParam(Constant.ResponseAbout.RESULT, dao.findAllById(entityClass, getIds()));
@@ -228,16 +243,19 @@ public class BusinessService<T> extends MainService {
         return sort;
     }
 
+    public RETURN queryById() {
+        return queryById(getInParam(entityClass));
+    }
+
     /**
      * 查询
      */
-    public RETURN queryById() {
+    public RETURN queryById(T entity) {
         boolean require = this.containsKey(ID);
         if (!require) {
             return RETURN.PARAMETER_ERROR;
         }
 
-        T entity = getInParam(entityClass);
         T target = dao.findOne(entityClass, getInParam(ID, String.class));
         if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity, target)) {
             target = null;

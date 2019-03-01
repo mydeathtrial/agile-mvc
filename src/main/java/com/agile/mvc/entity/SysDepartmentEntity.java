@@ -22,8 +22,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.io.Serializable;
@@ -54,16 +52,19 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
     private String departName;
     @Remark("描述")
     private String departDesc;
-    @Remark("排序")
-    private Integer sort;
     @Remark("是否可用")
     private Boolean enable;
     @Remark("更新时间")
     private Date updateTime;
     @Remark("创建时间")
     private Date createTime;
-    @Transient
+
     private List<SysDepartmentEntity> children = new ArrayList<>();
+
+    @Transient
+    public List<SysDepartmentEntity> getChildren() {
+        return children;
+    }
 
     @Column(name = "sys_depart_id", nullable = false, length = 18)
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
@@ -93,14 +94,6 @@ public class SysDepartmentEntity implements Serializable, Cloneable {
     @Column(name = "depart_desc", length = 100)
     public String getDepartDesc() {
         return departDesc;
-    }
-
-    @Column(name = "sort", columnDefinition = "TINYINT default 0", length = 3)
-    @Min(value = 0, groups = {Insert.class, Update.class})
-    @Basic
-    @Max(value = 2147483647, groups = {Insert.class, Update.class})
-    public Integer getSort() {
-        return sort;
     }
 
     @Basic

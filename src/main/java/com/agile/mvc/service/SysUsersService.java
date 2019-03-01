@@ -5,8 +5,11 @@ import com.agile.common.annotation.Models;
 import com.agile.common.annotation.Validate;
 import com.agile.common.annotation.Validates;
 import com.agile.common.base.RETURN;
+import com.agile.common.exception.CustomException;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
+import com.agile.common.util.PasswordUtil;
+import com.agile.common.validate.ValidateType;
 import com.agile.mvc.entity.SysUsersEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -18,6 +21,8 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
 
 /**
  * @author agile generator
@@ -31,10 +36,23 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity")
     })
     @Models({SysUsersEntity.class})
-    @Validate(beanClass = SysUsersEntity.class, validateGroups = Insert.class)
+    @Validates({
+            @Validate(beanClass = SysUsersEntity.class, validateGroups = Insert.class),
+            @Validate(value = "email", validateType = ValidateType.EMAIL, validateMsg = "请输入正确的邮箱格式")
+    })
     @Mapping(value = "/sys-users", method = RequestMethod.POST)
-    public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
-        return super.save();
+    public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException, CustomException {
+        SysUsersEntity usersEntity = getInParam(SysUsersEntity.class);
+        List<SysUsersEntity> list = dao.findAll(SysUsersEntity.builder().saltKey(usersEntity.getSaltKey()).build());
+        if (list.size() > 0) {
+            throw new CustomException("500", "账号重复");
+        }
+        PasswordUtil.LEVEL level = PasswordUtil.getPasswordLevel(usersEntity.getSaltValue());
+        if (level == PasswordUtil.LEVEL.SO_EASY) {
+            throw new CustomException("200040", "密码强度较低，不可使用");
+        }
+        usersEntity.setSaltValue(PasswordUtil.encryption(usersEntity.getSaltValue()));
+        return super.save(usersEntity);
     }
 
     @ApiOperation(value = "删除[系统管理]用户", httpMethod = "DELETE", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -97,7 +115,7 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
             @ApiImplicitParam(name = "updateTime", value = "修改时间", paramType = "query", dataType = "String"),
     })
     @Models({SysUsersEntity.class})
-    @Mapping(path = "/sys-users")
+    @Mapping(path = "/sys-users", method = RequestMethod.GET)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

@@ -50,8 +50,13 @@ public class SysRolesEntity implements Serializable, Cloneable {
     private String roleDesc;
     @Remark("是否可用")
     private Boolean enable;
+
+    private List<SysRolesEntity> children = new ArrayList<>();
+
     @Transient
-    private List<SysDepartmentEntity> children = new ArrayList<>();
+    public List<SysRolesEntity> getChildren() {
+        return children;
+    }
 
     @Column(name = "SYS_ROLES_ID", nullable = false, length = 18)
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})

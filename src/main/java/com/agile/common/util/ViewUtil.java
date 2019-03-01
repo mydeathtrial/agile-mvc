@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -128,9 +129,12 @@ public class ViewUtil {
 
         //处理路径入参
         if (info != null) {
-            RequestMappingInfo requestMappingInfo = info.getRequestMappingInfo();
-            if (requestMappingInfo != null) {
-                Set<String> mappingCache = requestMappingInfo.getPatternsCondition().getPatterns();
+            Set<RequestMappingInfo> requestMappingInfos = info.getRequestMappingInfos();
+            if (requestMappingInfos != null) {
+                Set<String> mappingCache = new HashSet<>();
+                for (RequestMappingInfo requestMappingInfo : requestMappingInfos) {
+                    mappingCache.addAll(requestMappingInfo.getPatternsCondition().getPatterns());
+                }
                 for (String mapping : mappingCache) {
                     String[] uris = StringUtil.split(uri, Constant.RegularAbout.SLASH);
                     String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);

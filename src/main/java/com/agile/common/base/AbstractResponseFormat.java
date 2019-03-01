@@ -40,6 +40,10 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
      * @return 返回ModelAndView
      */
     public ModelAndView buildResponse(Head head, Object result) {
+        if (head == null) {
+            assert RETURN.SUCCESS != null;
+            head = new Head(RETURN.SUCCESS);
+        }
         ModelAndView modelAndView = new ModelAndView();
         if (result == null) {
             modelAndView.addAllObjects(buildResponseData(head, null));

@@ -62,7 +62,7 @@ public class SysDepartmentService extends BusinessService<SysDepartmentEntity> {
         return super.update();
     }
 
-    @ApiOperation(value = "分页查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysDepartmentEntity"),
             @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),

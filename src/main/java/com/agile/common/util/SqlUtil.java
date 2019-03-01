@@ -57,15 +57,8 @@ public class SqlUtil {
      */
     public static String parserCountSQL(String sql, Map<String, Object> parameters) {
         sql = parserSQL(sql, parameters);
-        // 新建 MySQL Parser
-        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
-        // 使用Parser解析生成AST，这里SQLStatement就是AST
-        SQLStatement statement = parser.parseStatement();
-        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
-        List<SQLSelectItem> items = sqlSelectQueryBlock.getSelectList();
-        items.removeAll(items);
-        items.add(new SQLSelectItem(SQLUtils.toSQLExpr(REPLACE_COUNT)));
-        return sqlSelectQueryBlock.toString();
+
+        return String.format("select count(1) from (%s) _select_table", sql);
     }
 
     public static String parserCountSQL(String sql) {
