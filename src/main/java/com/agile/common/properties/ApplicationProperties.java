@@ -26,6 +26,10 @@ public class ApplicationProperties {
      */
     private String title;
     /**
+     * 模块标签
+     */
+    private String moduleName = "sys";
+    /**
      * 工作ID (0~31)
      */
     long workerId = Constant.NumberAbout.ONE;

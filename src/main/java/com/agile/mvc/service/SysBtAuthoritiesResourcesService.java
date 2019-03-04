@@ -49,25 +49,24 @@ public class SysBtAuthoritiesResourcesService extends BusinessService<SysBtAutho
 
     @ApiOperation(value = "更新[系统管理]权限资源表", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysBtAuthoritiesResourcesEntity"),
-            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysBtAuthoritiesResourcesEntity")
     })
     @Models({SysBtAuthoritiesResourcesEntity.class})
     @Validate(beanClass = SysBtAuthoritiesResourcesEntity.class, validateGroups = Update.class)
-    @Mapping(value = "/sys-bt-authorities-resources/{id}", method = RequestMethod.PUT)
+    @Mapping(value = "/sys-bt-authorities-resources", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "[系统管理]权限资源表分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询[系统管理]权限资源表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysBtAuthoritiesResourcesEntity"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({SysBtAuthoritiesResourcesEntity.class})
-    @Mapping(path = "/sys-bt-authorities-resources/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/sys-bt-authorities-resources/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -76,14 +75,12 @@ public class SysBtAuthoritiesResourcesService extends BusinessService<SysBtAutho
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "[系统管理]权限资源表查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "查询[系统管理]权限资源表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysBtAuthoritiesResourcesId", value = "唯一标识", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "resourceId", value = "资源唯一标识", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "authorityId", value = "权限唯一标识", paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysBtAuthoritiesResourcesEntity")
     })
     @Models({SysBtAuthoritiesResourcesEntity.class})
-    @Mapping(path = "/sys-bt-authorities-resources")
+    @Mapping(path = "/sys-bt-authorities-resources/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

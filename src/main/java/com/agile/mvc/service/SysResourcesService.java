@@ -49,25 +49,24 @@ public class SysResourcesService extends BusinessService<SysResourcesEntity> {
 
     @ApiOperation(value = "更新[系统管理]资源", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysResourcesEntity"),
-            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysResourcesEntity")
     })
     @Models({SysResourcesEntity.class})
     @Validate(beanClass = SysResourcesEntity.class, validateGroups = Update.class)
-    @Mapping(value = "/sys-resources/{id}", method = RequestMethod.PUT)
+    @Mapping(value = "/sys-resources", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "[系统管理]资源分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询[系统管理]资源", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysResourcesEntity"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({SysResourcesEntity.class})
-    @Mapping(path = "/sys-resources/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/sys-resources/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -76,20 +75,12 @@ public class SysResourcesService extends BusinessService<SysResourcesEntity> {
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "[系统管理]资源查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "查询[系统管理]资源", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysResourcesId", value = "唯一标识", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "type", value = "资源类型", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "name", value = "资源名称", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "desc", value = "资源描述", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "path", value = "资源路径", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "priority", value = "优先级", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "enable", value = "是否可用", paramType = "query", dataType = "boolean"),
-            @ApiImplicitParam(name = "issys", value = "是否系统权限", paramType = "query", dataType = "boolean"),
-            @ApiImplicitParam(name = "moduleId", value = "模块", paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysResourcesEntity")
     })
     @Models({SysResourcesEntity.class})
-    @Mapping(path = "/sys-resources")
+    @Mapping(path = "/sys-resources/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

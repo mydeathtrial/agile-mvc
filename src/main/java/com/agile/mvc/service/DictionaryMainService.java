@@ -49,25 +49,24 @@ public class DictionaryMainService extends BusinessService<DictionaryMainEntity>
 
     @ApiOperation(value = "更新[系统管理]字典表", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "DictionaryMainEntity"),
-            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "DictionaryMainEntity")
     })
     @Models({DictionaryMainEntity.class})
     @Validate(beanClass = DictionaryMainEntity.class, validateGroups = Update.class)
-    @Mapping(value = "/dictionary-main/{id}", method = RequestMethod.PUT)
+    @Mapping(value = "/dictionary-main", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "[系统管理]字典表分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询[系统管理]字典表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "DictionaryMainEntity"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({DictionaryMainEntity.class})
-    @Mapping(path = "/dictionary-main/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/dictionary-main/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -76,14 +75,12 @@ public class DictionaryMainService extends BusinessService<DictionaryMainEntity>
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "[系统管理]字典表查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "查询[系统管理]字典表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "dictionaryMainId", value = "主键", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "code", value = "字典编码", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "name", value = "字典名称", paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "DictionaryMainEntity")
     })
     @Models({DictionaryMainEntity.class})
-    @Mapping(path = "/dictionary-main")
+    @Mapping(path = "/dictionary-main/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

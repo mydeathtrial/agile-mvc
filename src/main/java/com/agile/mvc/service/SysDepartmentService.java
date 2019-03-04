@@ -65,12 +65,12 @@ public class SysDepartmentService extends BusinessService<SysDepartmentEntity> {
     @ApiOperation(value = "分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysDepartmentEntity"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({SysDepartmentEntity.class})
-    @Mapping(path = "/department/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/department/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -79,19 +79,12 @@ public class SysDepartmentService extends BusinessService<SysDepartmentEntity> {
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysDepartId", value = "部门主键", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "parentId", value = "父主键", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "departName", value = "名字", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "departDesc", value = "描述", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "sort", value = "排序", paramType = "query", dataType = "int"),
-            @ApiImplicitParam(name = "enable", value = "是否可用", paramType = "query", dataType = "boolean"),
-            @ApiImplicitParam(name = "updateTime", value = "更新时间", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "createTime", value = "创建时间", paramType = "query", dataType = "String"),
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysDepartmentEntity")
     })
     @Models({SysDepartmentEntity.class})
-    @Mapping(path = "/department", method = RequestMethod.GET)
+    @Mapping(path = "/department/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

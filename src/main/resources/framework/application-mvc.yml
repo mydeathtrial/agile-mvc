@@ -20,7 +20,7 @@ spring:
       max-file-size: 2MB
       enabled: true
       file-size-threshold: 100KB
-      location: 'D:/temp'
+      location: 'temp'
   http:
     encoding:
       charset: UTF-8

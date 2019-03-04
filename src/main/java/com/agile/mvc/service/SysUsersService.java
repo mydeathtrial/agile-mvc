@@ -67,25 +67,24 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
 
     @ApiOperation(value = "更新[系统管理]用户", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity"),
-            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity")
     })
     @Models({SysUsersEntity.class})
     @Validate(beanClass = SysUsersEntity.class, validateGroups = Update.class)
-    @Mapping(value = "/sys-users/{id}", method = RequestMethod.PUT)
+    @Mapping(value = "/sys-users", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "[系统管理]用户分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询[系统管理]用户", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({SysUsersEntity.class})
-    @Mapping(path = "/sys-users/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/sys-users/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -94,28 +93,12 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "[系统管理]用户查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "查询[系统管理]用户", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysUsersId", value = "唯一标识", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "sysDepartId", value = "部门主键", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "saltKey", value = "账号", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "saltValueOld", value = "旧密码", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "saltValue", value = "密码", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "name", value = "用户姓名", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "areaId", value = "地区编号", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "expiredTime", value = "过期时间", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "isLocked", value = "用户是否锁定", paramType = "query", dataType = "boolean"),
-            @ApiImplicitParam(name = "onLineStrategy", value = "同时在线策略", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "enabled", value = "是否可用", paramType = "query", dataType = "boolean"),
-            @ApiImplicitParam(name = "leader", value = "直属领导", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "sex", value = "员工性别 0:男 1:女", paramType = "query", dataType = "boolean"),
-            @ApiImplicitParam(name = "telephone", value = "联系电话", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "email", value = "电子邮箱", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "createTime", value = "创建时间", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "updateTime", value = "修改时间", paramType = "query", dataType = "String"),
+        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity")
     })
     @Models({SysUsersEntity.class})
-    @Mapping(path = "/sys-users", method = RequestMethod.GET)
+    @Mapping(path = "/sys-users/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }
@@ -129,5 +112,4 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
     public RETURN customQueryById() {
         return super.queryById();
     }
-
 }

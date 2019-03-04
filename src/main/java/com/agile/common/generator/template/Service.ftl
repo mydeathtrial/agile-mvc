@@ -23,7 +23,7 @@ import ${entityPackageName}.${entityName};
  * @author agile generator
  */
 @Api(description = "<#if (remarks?? && remarks!="")>${remarks}<#else>${serviceName}</#if>")
-@Mapping("/api/${entityCenterLineName}")
+@Mapping("/api/${moduleName}")
 @Service
 public class ${serviceName} extends BusinessService<${entityName}> {
     @ApiOperation(value = "<#if (remarks?? && remarks!="")>新增${remarks}<#else>新增</#if>", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -49,25 +49,24 @@ public class ${serviceName} extends BusinessService<${entityName}> {
 
     @ApiOperation(value = "<#if (remarks?? && remarks!="")>更新${remarks}<#else>更新</#if>", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "${entityName}"),
-            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "${entityName}")
     })
     @Models({${entityName}.class})
     @Validate(beanClass = ${entityName}.class, validateGroups = Update.class)
-    @Mapping(value = "/${entityCenterLineName}/{id}", method = RequestMethod.PUT)
+    @Mapping(value = "/${entityCenterLineName}", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "<#if (remarks?? && remarks!="")>${remarks}分页查询<#else>分页查询</#if>", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "<#if (remarks?? && remarks!="")>分页查询${remarks}<#else>分页查询</#if>", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "${entityName}"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({${entityName}.class})
-    @Mapping(path = "/${entityCenterLineName}/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/${entityCenterLineName}/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -76,14 +75,12 @@ public class ${serviceName} extends BusinessService<${entityName}> {
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "<#if (remarks?? && remarks!="")>${remarks}查询<#else>查询</#if>", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "<#if (remarks?? && remarks!="")>查询${remarks}<#else>查询</#if>", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-<#list columns as property>
-            @ApiImplicitParam(name = "${property.javaName}"<#if property.remarks?? && property.remarks!="">, value = "${property.remarks}"</#if>, paramType = "query", dataType = "<#if property.javaSimpleTypeName == "Boolean" || property.javaSimpleTypeName == "boolean">boolean<#elseif property.javaSimpleTypeName == "Integer" || property.javaSimpleTypeName == "int">int<#elseif property.javaSimpleTypeName == "Long" || property.javaSimpleTypeName == "long">long<#else>String</#if>"),
-</#list>
+        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "${entityName}")
     })
     @Models({${entityName}.class})
-    @Mapping(path = "/${entityCenterLineName}")
+    @Mapping(path = "/${entityCenterLineName}/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

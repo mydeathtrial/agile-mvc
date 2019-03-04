@@ -1,6 +1,7 @@
 agile:
   version: ${project.version}
   title: ${project.description}
+  module-name: 'sys'
   mail:
     server-host: 123
     server-port: 8249

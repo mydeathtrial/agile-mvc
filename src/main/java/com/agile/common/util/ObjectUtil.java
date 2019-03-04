@@ -87,7 +87,7 @@ public class ObjectUtil extends ObjectUtils {
                 }
                 Class<?> type = targetProperty.getType();
                 if (!type.isAssignableFrom(value.getClass())) {
-                    value = cast(type, targetProperty);
+                    value = cast(type, value);
                 }
 
                 targetProperty.setAccessible(true);

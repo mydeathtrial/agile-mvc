@@ -52,25 +52,24 @@ public class SysRolesService extends BusinessService<SysRolesEntity> {
 
     @ApiOperation(value = "更新[系统管理]角色", httpMethod = "PUT", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysRolesEntity"),
-            @ApiImplicitParam(name = "id", value = "唯一标识", paramType = "path", dataType = "String")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysRolesEntity")
     })
     @Models({SysRolesEntity.class})
     @Validate(beanClass = SysRolesEntity.class, validateGroups = Update.class)
-    @Mapping(value = "/sys-roles/{id}", method = RequestMethod.PUT)
+    @Mapping(value = "/sys-roles", method = RequestMethod.PUT)
     public RETURN customUpdate() throws NoSuchIDException, IllegalAccessException {
         return super.update();
     }
 
-    @ApiOperation(value = "[系统管理]角色分页查询", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "分页查询[系统管理]角色", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
             @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysRolesEntity"),
-            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "path", dataType = "int"),
-            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "body", dataType = "String[]")
+            @ApiImplicitParam(name = "pageSize", required = true, value = "页大小", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "pageNum", required = true, value = "页号", paramType = "query", dataType = "int"),
+            @ApiImplicitParam(name = "sorts", value = "排序字段", paramType = "query", dataType = "String[]")
     })
     @Models({SysRolesEntity.class})
-    @Mapping(path = "/sys-roles/{pageNum}/{pageSize}", method = RequestMethod.POST)
+    @Mapping(path = "/sys-roles/list/query", method = RequestMethod.POST)
     @Validates({
             @Validate(value = "pageSize", nullable = false, validateMsgKey = "页号不能为空"),
             @Validate(value = "pageNum", nullable = false, validateMsgKey = "页容量不能为空")
@@ -79,15 +78,12 @@ public class SysRolesService extends BusinessService<SysRolesEntity> {
         return super.pageQuery();
     }
 
-    @ApiOperation(value = "[系统管理]角色查询", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @ApiOperation(value = "查询[系统管理]角色", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysRolesId", value = "角色唯一标识", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "roleName", value = "角色名称", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "roleDesc", value = "角色说明", paramType = "query", dataType = "String"),
-            @ApiImplicitParam(name = "enable", value = "是否可用", paramType = "query", dataType = "boolean"),
+        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysRolesEntity")
     })
     @Models({SysRolesEntity.class})
-    @Mapping(path = "/sys-roles")
+    @Mapping(path = "/sys-roles/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
         return super.query();
     }

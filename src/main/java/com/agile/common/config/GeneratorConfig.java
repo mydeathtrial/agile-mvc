@@ -1,6 +1,7 @@
 package com.agile.common.config;
 
 import com.agile.common.annotation.ExcludeComponentScan;
+import com.agile.common.properties.ApplicationProperties;
 import com.agile.common.properties.DruidConfigProperties;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.properties.LoggerProperties;
@@ -16,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
  * @since 1.0
  */
 @Configuration
-@EnableConfigurationProperties(value = {DruidConfigProperties.class, GeneratorProperties.class, LoggerProperties.class})
+@EnableConfigurationProperties(value = {ApplicationProperties.class, DruidConfigProperties.class, GeneratorProperties.class, LoggerProperties.class})
 @ExcludeComponentScan
 @ComponentScan(basePackages = {"com.agile.common.container", "com.agile.common.properties"})
 public class GeneratorConfig {

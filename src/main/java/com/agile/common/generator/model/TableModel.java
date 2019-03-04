@@ -2,6 +2,7 @@ package com.agile.common.generator.model;
 
 import com.agile.common.annotation.Remark;
 import com.agile.common.base.Constant;
+import com.agile.common.properties.ApplicationProperties;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
@@ -28,6 +29,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 public class TableModel {
+    private String moduleName = FactoryUtil.getBean(ApplicationProperties.class).getModuleName();
     private String tableCat;
     private String tableName;
     private String selfReferencingColName;
