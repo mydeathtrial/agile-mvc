@@ -1,5 +1,8 @@
 package com.agile.common.util;
 
+import com.agile.common.base.Constant;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -252,4 +255,31 @@ public class ResourceUtil {
         }
         return classes;
     }
+
+    /**
+     * 检索所有指定name的配置文件
+     *
+     * @param name
+     * @return
+     */
+    public static Resource[] getResources(String name, String extension) {
+        ClassLoader classLoader = Object.class.getClassLoader();
+        String target = name.replace('.', '/');
+        try {
+            return new PathMatchingResourcePatternResolver(classLoader)
+                    .getResources("classpath*:" + target + "." + extension);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    public static String getClassPath(Resource resource) throws IOException {
+        String classesPath = Class.class.getResource(Constant.RegularAbout.SLASH).getPath();
+        String path = resource.getURL().getPath();
+        if (path.contains(classesPath)) {
+            return path.replaceFirst(classesPath, Constant.RegularAbout.NULL);
+        }
+        return null;
+    }
+
 }

@@ -6,7 +6,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -260,9 +260,9 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         }
         String message = null;
         try {
-            ResourceBundleMessageSource resourceBundleMessageSource = FactoryUtil.getBean(ResourceBundleMessageSource.class);
-            if (resourceBundleMessageSource != null) {
-                message = resourceBundleMessageSource.getMessage(key, params, locale);
+            MessageSource messageSource = FactoryUtil.getBean(MessageSource.class);
+            if (messageSource != null) {
+                message = messageSource.getMessage(key, params, locale);
             }
         } catch (Exception ignored) {
         }
