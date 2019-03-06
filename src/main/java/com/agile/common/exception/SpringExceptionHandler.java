@@ -27,7 +27,6 @@ public class SpringExceptionHandler {
 
 
     public ModelAndView createModelAndView(Throwable e) {
-        LoggerFactory.COMMON_LOG.error(e);
         ModelAndView modelAndView;
 
         RETURN r;
