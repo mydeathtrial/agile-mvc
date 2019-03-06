@@ -1,6 +1,5 @@
 package com.agile.common.view;
 
-import com.agile.common.base.Constant;
 import com.agile.common.util.FileUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.ViewUtil;
@@ -15,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class JsonView extends MappingJackson2JsonView {
         objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
             @Override
             public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                jsonGenerator.writeString(Constant.RegularAbout.NULL);
+                jsonGenerator.writeObject(new HashMap<>(0));
             }
         });
         this.setPrettyPrint(true);

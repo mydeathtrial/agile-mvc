@@ -103,7 +103,7 @@ public class SysDepartmentService extends BusinessService<SysDepartmentEntity> {
     @Mapping(path = "/department/tree", method = RequestMethod.GET)
     public Object departments() throws NoSuchFieldException, IllegalAccessException {
         List<SysDepartmentEntity> list = dao.findAll(SysDepartmentEntity.builder().enable(true).parentId(null).build());
-        List<SysDepartmentEntity> tree = TreeUtil.createTree(list, "sysDepartId", "parentId", "children", "sort", "root");
+        List<SysDepartmentEntity> tree = TreeUtil.createTree(list, "sysDepartId", "parentId", "children", "root");
         setOutParam("departments", tree);
         return RETURN.SUCCESS;
     }

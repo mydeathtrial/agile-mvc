@@ -570,65 +570,73 @@ public class ObjectUtil extends ObjectUtils {
         }
 
         Object temp = null;
-        String valueStr = String.valueOf(value);
-        if (clazz == String.class) {
-            temp = valueStr;
+
+        boolean isSame = Map.class.isAssignableFrom(clazz) && Map.class.isAssignableFrom(value.getClass()) || (clazz == value.getClass());
+        if (isSame) {
+            return (T) value;
         }
-        if (clazz == java.util.Date.class) {
-            String format = "yyyy-MM-dd";
-            if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
-                format = "yyyy-MM-dd HH:mm:ss";
-            } else if (StringUtil.containMatchedString("[\\d]{4}/[\\d]{1,2}/[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
-                format = "yyyy/MM/dd HH:mm:ss";
-            } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYYIMMIDD, valueStr)) {
-                format = "yyyy/MM/dd";
-            } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYY_MM_DD, valueStr)) {
-                format = "yyyy-MM-dd";
-            } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYYMMDD, valueStr)) {
-                format = "yyyyMMdd";
-            } else if (StringUtil.containMatchedString("[\\d]+", valueStr)) {
-                temp = new java.util.Date(Long.parseLong(valueStr));
+        if (Map.class.isAssignableFrom(value.getClass())) {
+            temp = getObjectFromMap(clazz, (Map<String, Object>) value);
+        } else {
+            String valueStr = String.valueOf(value);
+            if (clazz == String.class) {
+                temp = valueStr;
             }
-            if (temp == null) {
-                try {
-                    temp = DateUtil.toDateByFormat(valueStr, format);
-                } catch (ParseException e) {
-                    return null;
+            if (clazz == java.util.Date.class) {
+                String format = "yyyy-MM-dd";
+                if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
+                    format = "yyyy-MM-dd HH:mm:ss";
+                } else if (StringUtil.containMatchedString("[\\d]{4}/[\\d]{1,2}/[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
+                    format = "yyyy/MM/dd HH:mm:ss";
+                } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYYIMMIDD, valueStr)) {
+                    format = "yyyy/MM/dd";
+                } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYY_MM_DD, valueStr)) {
+                    format = "yyyy-MM-dd";
+                } else if (StringUtil.containMatchedString(Constant.RegularAbout.DATE_YYYYMMDD, valueStr)) {
+                    format = "yyyyMMdd";
+                } else if (StringUtil.containMatchedString("[\\d]+", valueStr)) {
+                    temp = new java.util.Date(Long.parseLong(valueStr));
+                }
+                if (temp == null) {
+                    try {
+                        temp = DateUtil.toDateByFormat(valueStr, format);
+                    } catch (ParseException e) {
+                        return null;
+                    }
                 }
             }
+            if (clazz == Date.class) {
+                temp = Date.valueOf(valueStr);
+            }
+            if (clazz == Long.class || clazz == long.class) {
+                temp = Long.parseLong(valueStr);
+            }
+            if (clazz == Integer.class || clazz == int.class) {
+                temp = Integer.parseInt(valueStr);
+            }
+            if (clazz == BigDecimal.class) {
+                temp = new BigDecimal(valueStr);
+            }
+            if (clazz == Double.class || clazz == double.class) {
+                temp = Double.parseDouble(valueStr);
+            }
+            if (clazz == Float.class || clazz == float.class) {
+                temp = Float.parseFloat(valueStr);
+            }
+            if (clazz == Boolean.class || clazz == boolean.class) {
+                temp = Boolean.parseBoolean(valueStr);
+            }
+            if (clazz == Byte.class || clazz == byte.class) {
+                temp = Byte.parseByte(valueStr);
+            }
+            if (clazz == Short.class || clazz == short.class) {
+                temp = Short.parseShort(valueStr);
+            }
+            if (clazz == Character.class || clazz == char.class) {
+                char[] array = valueStr.toCharArray();
+                temp = array.length > 0 ? array[0] : null;
+            }
         }
-        if (clazz == Date.class) {
-            temp = Date.valueOf(valueStr);
-        }
-        if (clazz == Long.class || clazz == long.class) {
-            temp = Long.parseLong(valueStr);
-        }
-        if (clazz == Integer.class || clazz == int.class) {
-            temp = Integer.parseInt(valueStr);
-        }
-        if (clazz == BigDecimal.class) {
-            temp = new BigDecimal(valueStr);
-        }
-        if (clazz == Double.class || clazz == double.class) {
-            temp = Double.parseDouble(valueStr);
-        }
-        if (clazz == Float.class || clazz == float.class) {
-            temp = Float.parseFloat(valueStr);
-        }
-        if (clazz == Boolean.class || clazz == boolean.class) {
-            temp = Boolean.parseBoolean(valueStr);
-        }
-        if (clazz == Byte.class || clazz == byte.class) {
-            temp = Byte.parseByte(valueStr);
-        }
-        if (clazz == Short.class || clazz == short.class) {
-            temp = Short.parseShort(valueStr);
-        }
-        if (clazz == Character.class || clazz == char.class) {
-            char[] array = valueStr.toCharArray();
-            temp = array.length > 0 ? array[0] : null;
-        }
-
         return (T) (temp);
     }
 

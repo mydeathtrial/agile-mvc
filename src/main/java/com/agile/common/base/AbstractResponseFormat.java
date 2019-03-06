@@ -10,20 +10,6 @@ import java.util.Map;
  */
 public abstract class AbstractResponseFormat extends LinkedHashMap<String, Object> {
     /**
-     * 获取返回信息
-     *
-     * @return RETURN
-     */
-    public abstract RETURN getReturn();
-
-    /**
-     * 获取结果信息
-     *
-     * @return result
-     */
-    public abstract Object getResult();
-
-    /**
      * 构建返回数据
      *
      * @param head   头部信息

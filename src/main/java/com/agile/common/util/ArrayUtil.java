@@ -51,7 +51,11 @@ public class ArrayUtil extends ArrayUtils {
     public static <T> List<T> cast(Class<T> clazz, Object[] objects) {
         List<T> result = new ArrayList<>();
         for (int i = 0; i < objects.length; i++) {
-            result.add(ObjectUtil.cast(clazz, objects[i]));
+            T node = ObjectUtil.cast(clazz, objects[i]);
+            if (node == null) {
+                continue;
+            }
+            result.add(node);
         }
         return result;
     }

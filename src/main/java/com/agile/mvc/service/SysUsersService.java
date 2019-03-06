@@ -5,7 +5,6 @@ import com.agile.common.annotation.Models;
 import com.agile.common.annotation.Validate;
 import com.agile.common.annotation.Validates;
 import com.agile.common.base.RETURN;
-import com.agile.common.exception.CustomException;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.common.util.PasswordUtil;
@@ -41,15 +40,15 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
             @Validate(value = "email", validateType = ValidateType.EMAIL, validateMsg = "请输入正确的邮箱格式")
     })
     @Mapping(value = "/sys-users", method = RequestMethod.POST)
-    public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException, CustomException {
+    public RETURN customSave() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
         SysUsersEntity usersEntity = getInParam(SysUsersEntity.class);
         List<SysUsersEntity> list = dao.findAll(SysUsersEntity.builder().saltKey(usersEntity.getSaltKey()).build());
         if (list.size() > 0) {
-            throw new CustomException("500", "账号重复");
+            return RETURN.getMessage("agile.exception.RepeatUser");
         }
         PasswordUtil.LEVEL level = PasswordUtil.getPasswordLevel(usersEntity.getSaltValue());
         if (level == PasswordUtil.LEVEL.SO_EASY) {
-            throw new CustomException("200040", "密码强度较低，不可使用");
+            return RETURN.getMessage("agile.exception.LowPasswordStrength");
         }
         usersEntity.setSaltValue(PasswordUtil.encryption(usersEntity.getSaltValue()));
         return super.save(usersEntity);
@@ -95,7 +94,7 @@ public class SysUsersService extends BusinessService<SysUsersEntity> {
 
     @ApiOperation(value = "查询[系统管理]用户", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysUsersEntity")
     })
     @Models({SysUsersEntity.class})
     @Mapping(path = "/sys-users/query", method = RequestMethod.POST)

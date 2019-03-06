@@ -314,7 +314,7 @@ public class MainController {
 
         ValidateType validateType = v.validateType();
         if (value != null && value.getClass().isArray()) {
-            List<ValidateMsg> rs = validateType.validateArray(key, (String[]) value, v);
+            List<ValidateMsg> rs = validateType.validateArray(key, ArrayUtil.cast(String.class, (Object[]) value), v);
 
             if (rs != null) {
                 for (ValidateMsg validateMsg : rs) {

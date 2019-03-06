@@ -80,7 +80,7 @@ public class SysRolesService extends BusinessService<SysRolesEntity> {
 
     @ApiOperation(value = "查询[系统管理]角色", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysRolesEntity")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "SysRolesEntity")
     })
     @Models({SysRolesEntity.class})
     @Mapping(path = "/sys-roles/query", method = RequestMethod.POST)
@@ -102,7 +102,7 @@ public class SysRolesService extends BusinessService<SysRolesEntity> {
     @Mapping(path = "/sys-roles/tree", method = RequestMethod.GET)
     public Object roles() throws NoSuchFieldException, IllegalAccessException {
         List<SysRolesEntity> list = dao.findAll(SysRolesEntity.builder().enable(true).parentId(null).build());
-        List<SysRolesEntity> tree = TreeUtil.createTree(list, "sysRolesId", "parentId", "children", "sort", "root");
+        List<SysRolesEntity> tree = TreeUtil.createTree(list, "sysRolesId", "parentId", "children", "root");
         setOutParam("roles", tree);
         return RETURN.SUCCESS;
     }

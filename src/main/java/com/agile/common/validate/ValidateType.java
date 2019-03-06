@@ -80,7 +80,7 @@ public enum ValidateType implements ValidateInterface {
     }
 
     @Override
-    public List<ValidateMsg> validateArray(String key, String[] value, Validate validate) {
+    public List<ValidateMsg> validateArray(String key, List<String> value, Validate validate) {
         List<ValidateMsg> list = new ArrayList<>();
         for (String o : value) {
             ValidateMsg v = validate(key, o, validate);

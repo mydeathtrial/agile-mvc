@@ -1,6 +1,5 @@
 package com.agile.common.mvc.service;
 
-import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.factory.LoggerFactory;
@@ -60,12 +59,7 @@ public class MainService implements ServiceInterface {
         initOutParam();
         try {
             Object returnData = method.invoke(object);
-            if (returnData instanceof AbstractResponseFormat) {
-                //如果是自定义报文bean，则格式化报文
-                AbstractResponseFormat formatData = ((AbstractResponseFormat) returnData);
-                setOutParam(Constant.ResponseAbout.RESULT, formatData.getResult());
-                return formatData.getReturn();
-            } else if (returnData instanceof RETURN) {
+            if (returnData instanceof RETURN) {
                 //如果是头信息，则交给控制层处理
                 return returnData;
             } else {
@@ -114,7 +108,7 @@ public class MainService implements ServiceInterface {
         if (jsonNode != null) {
             result = JSONUtil.toBean(clazz, jsonNode.toString());
         }
-        if (result == null) {
+        if (result == null || ObjectUtil.isAllNullValidity(result)) {
             result = ObjectUtil.getObjectFromMap(clazz, this.getInParam());
         }
         return result;

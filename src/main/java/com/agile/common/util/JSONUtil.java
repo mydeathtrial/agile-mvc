@@ -52,6 +52,10 @@ public class JSONUtil {
 
         // 忽略在json字符串中存在,但是在java对象中不存在对应属性的情况
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
     }
 
     /**

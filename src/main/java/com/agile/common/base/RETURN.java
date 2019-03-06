@@ -7,22 +7,25 @@ import com.agile.common.util.PropertiesUtil;
  */
 public final class RETURN {
 
-    public static final RETURN SUCCESS = getMessage("agile.response.success");
-    public static final RETURN LOGOUT_SUCCESS = getMessage("agile.response.logout_success");
-    public static final RETURN EXPRESSION = getMessage("agile.response.expression");
-    public static final RETURN UNKNOWN_STATE = getMessage("agile.response.unknown_state");
-    public static final RETURN PARAMETER_ERROR = getMessage("agile.response.param_error");
-    public static final RETURN XML_SERIALIZER_ERROR = getMessage("agile.response.xml_serializer_error");
+    public static final RETURN SUCCESS = getMessage("agile.success.success");
+    public static final RETURN LOGOUT_SUCCESS = getMessage("agile.success.logoutSuccess");
+    public static final RETURN EXPRESSION = getMessage("agile.exception.expression");
+    public static final RETURN PARAMETER_ERROR = getMessage("agile.error.paramError");
+    public static final RETURN XML_SERIALIZER_ERROR = getMessage("agile.error.xmlSerializerError");
 
-    //响应状态码
+    /**
+     * 响应状态码
+     */
     private String code;
 
-    //响应信息
+    /**
+     * 响应信息
+     */
     private String msg;
 
     public RETURN(String code, String msg) {
-        this.code = code;
-        this.msg = msg;
+        this.code = code.trim();
+        this.msg = msg.trim();
     }
 
     /**
@@ -40,7 +43,7 @@ public final class RETURN {
                 return new RETURN(message.substring(0, splitIndex), message.substring(splitIndex + 1));
             }
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
         return null;
     }

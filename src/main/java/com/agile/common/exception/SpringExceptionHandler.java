@@ -57,6 +57,11 @@ public class SpringExceptionHandler {
             modelAndView.addObject(Constant.ResponseAbout.RESULT, null);
         }
 
+        final String errorCode = "2";
+        if (r.getCode().startsWith(errorCode)) {
+            LoggerFactory.COMMON_LOG.error(e);
+        }
+
         return modelAndView;
     }
 

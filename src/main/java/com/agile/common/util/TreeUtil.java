@@ -12,6 +12,11 @@ import java.util.List;
  * @since 1.0
  */
 public class TreeUtil {
+
+    public static <T> List<T> createTree(List<T> list, String key, String parentKey, String childrenKey, String rootValue) throws NoSuchFieldException, IllegalAccessException {
+        return createTree(list, key, parentKey, childrenKey, null, rootValue);
+    }
+
     /**
      * 构建树形结构
      *
@@ -41,6 +46,9 @@ public class TreeUtil {
                 roots.add(entity);
             }
         }
+        if (StringUtil.isBlank(sortKey)) {
+            return roots;
+        }
         CollectionsUtil.sort(roots, sortKey);
         return roots;
     }
@@ -52,6 +60,9 @@ public class TreeUtil {
                 childrenKeyField.set(entity, createChildren(entity, list, keyField, parentKeyField, childrenKeyField, sortKey));
                 children.add(entity);
             }
+        }
+        if (StringUtil.isBlank(sortKey)) {
+            return children;
         }
         CollectionsUtil.sort(children, sortKey);
         return children;
