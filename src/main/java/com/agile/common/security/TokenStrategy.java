@@ -84,8 +84,7 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
     private String easyToken(Authentication authentication, HttpServletRequest httpServletRequest) {
         String token = TokenUtil.getToken(httpServletRequest, securityProperties.getTokenHeader());
         Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
-
-        if (StringUtil.isEmpty(token)) {
+        if (StringUtil.isEmpty(token) || !TokenUtil.isToken(token)) {
             SecurityUser userDetails = (SecurityUser) authentication.getDetails();
             token = TokenUtil.generateToken(userDetails.getSaltKey(), userDetails.getPassword());
         }

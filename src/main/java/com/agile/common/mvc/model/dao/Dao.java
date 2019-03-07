@@ -393,7 +393,11 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T> T findOne(T object) {
         Example<T> example = Example.of(object);
-        return (T) this.getRepository(object.getClass()).findOne(example).get();
+        try {
+            return (T) this.getRepository(object.getClass()).findOne(example).get();
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     /**

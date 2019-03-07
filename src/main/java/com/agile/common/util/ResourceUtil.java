@@ -275,6 +275,7 @@ public class ResourceUtil {
 
     public static String getClassPath(Resource resource) throws IOException {
         String classesPath = Class.class.getResource(Constant.RegularAbout.SLASH).getPath();
+        classesPath = URLDecoder.decode(classesPath, "utf-8");
         String path = resource.getURL().getPath();
         if (path.contains(classesPath)) {
             return path.replaceFirst(classesPath, Constant.RegularAbout.NULL);

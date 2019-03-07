@@ -5,6 +5,7 @@ import com.agile.common.cache.Cache;
 import com.agile.common.container.WebInitializer;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.properties.LoggerProperties;
+import com.agile.common.security.TokenFilter;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
@@ -68,11 +69,11 @@ public final class LoggerFactory {
         }
     }
 
-    public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.DEBUG, Level.ERROR);
-    public static final Log AUTHORITY_LOG = createLogger("authority", WebInitializer.class, Level.DEBUG, Level.ERROR);
+    public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.INFO, Level.DEBUG, Level.ERROR);
+    public static final Log AUTHORITY_LOG = createLogger("authority", TokenFilter.class, Level.INFO, Level.DEBUG, Level.ERROR);
     public static final Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
-    public static final Log CACHE_LOG = createLogger("cache", Cache.class, Level.DEBUG, Level.ERROR);
-    public static final Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.ERROR);
+    public static final Log CACHE_LOG = createLogger("cache", Cache.class, Level.INFO, Level.DEBUG, Level.ERROR);
+    public static final Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.DEBUG, Level.ERROR);
 
     private static Map<Class, Log> serviceCacheLogs = new HashMap<>();
 

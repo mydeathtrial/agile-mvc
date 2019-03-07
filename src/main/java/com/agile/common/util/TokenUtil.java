@@ -108,4 +108,9 @@ public class TokenUtil {
         }
         return claims.getExpiration().after(DateUtil.getCurrentDate());
     }
+
+    public static boolean isToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return !ObjectUtil.isEmpty(claims);
+    }
 }

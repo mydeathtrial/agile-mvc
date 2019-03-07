@@ -20,4 +20,4 @@ spring:
           hbm2ddl:
             auto: update
           region:
-            factory_class: com.agile.common.cache.ehcache.EhCacheRegionFactory
+            factory_class: com.agile.common.cache.redis.RedisRegionFactory

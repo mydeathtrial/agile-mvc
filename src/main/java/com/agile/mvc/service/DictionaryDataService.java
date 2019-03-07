@@ -1,5 +1,6 @@
 package com.agile.mvc.service;
 
+import com.agile.common.annotation.Init;
 import com.agile.common.annotation.Mapping;
 import com.agile.common.annotation.Models;
 import com.agile.common.annotation.Validate;
@@ -7,17 +8,21 @@ import com.agile.common.annotation.Validates;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
-import org.springframework.stereotype.Service;
+import com.agile.common.util.CacheUtil;
+import com.agile.common.util.TreeUtil;
+import com.agile.mvc.entity.DictionaryDataEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Update;
 import org.apache.ibatis.annotations.Insert;
-import com.agile.mvc.entity.DictionaryDataEntity;
+import org.apache.ibatis.annotations.Update;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
 
 /**
  * @author agile generator
@@ -77,7 +82,7 @@ public class DictionaryDataService extends BusinessService<DictionaryDataEntity>
 
     @ApiOperation(value = "查询[系统管理]字典数据表", httpMethod = "POST", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "DictionaryDataEntity")
+            @ApiImplicitParam(name = "entity", value = "实体", paramType = "body", dataType = "DictionaryDataEntity")
     })
     @Models({DictionaryDataEntity.class})
     @Mapping(path = "/dictionary-data/query", method = RequestMethod.POST)
@@ -93,5 +98,33 @@ public class DictionaryDataService extends BusinessService<DictionaryDataEntity>
     @Mapping(path = "/dictionary-data/{id}", method = RequestMethod.GET)
     public RETURN customQueryById() {
         return super.queryById();
+    }
+
+    @Init
+    public void synchronousCache() throws NoSuchFieldException, IllegalAccessException {
+        List<DictionaryDataEntity> list = dao.findAll(DictionaryDataEntity.class);
+        List<DictionaryDataEntity> tree = TreeUtil.createTree(list, "dictionaryDataId", "parentId", "children", "root");
+        for (DictionaryDataEntity entity : tree) {
+            coverCacheCode(entity);
+            if ("root".equals(entity.getParentId())) {
+                CacheUtil.getDicCache().put(entity.getCode(), entity);
+            }
+        }
+    }
+
+    /**
+     * 递归处理所有字典的CacheCode
+     *
+     * @param entity 字典实体
+     */
+    private void coverCacheCode(DictionaryDataEntity entity) {
+        List<DictionaryDataEntity> children = entity.getChildren();
+        if (children == null || children.size() == 0) {
+            return;
+        }
+        for (DictionaryDataEntity child : children) {
+            coverCacheCode(child);
+            entity.addCodeCache(child.getCode(), child);
+        }
     }
 }

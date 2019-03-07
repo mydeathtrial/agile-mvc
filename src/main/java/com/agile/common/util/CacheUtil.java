@@ -17,6 +17,10 @@ public class CacheUtil {
         return FactoryUtil.getBean(CustomCacheManager.class).getCustomCache(cacheName);
     }
 
+    public static Cache getDicCache() {
+        return getCache("DIC");
+    }
+
     public static Cache getCache() {
         if (ObjectUtil.isEmpty(cache)) {
             cache = getCache("agileCache");
