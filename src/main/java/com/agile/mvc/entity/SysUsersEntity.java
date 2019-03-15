@@ -76,6 +76,8 @@ public class SysUsersEntity implements Serializable, Cloneable {
     private Date createTime;
     @Remark("修改时间")
     private Date updateTime;
+    @Remark("用户工号")
+    private String userNumber;
 
     @Column(name = "sys_users_id", nullable = false, length = 18)
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
@@ -115,7 +117,6 @@ public class SysUsersEntity implements Serializable, Cloneable {
         return saltValue;
     }
 
-    @NotBlank(message = "用户姓名不能为空", groups = {Insert.class, Update.class})
     @Basic
     @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
     @Column(name = "name", nullable = false, length = 8)
@@ -200,6 +201,11 @@ public class SysUsersEntity implements Serializable, Cloneable {
         return updateTime;
     }
 
+    @Column(name = "user_number", nullable = false, length = 50)
+    @Basic
+    public String getUserNumber() {
+        return userNumber;
+    }
 
     @Override
     public SysUsersEntity clone() {

@@ -4,6 +4,7 @@ import com.agile.common.annotation.Mapping;
 import com.agile.common.annotation.Models;
 import com.agile.common.annotation.Validate;
 import com.agile.common.annotation.Validates;
+import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.mvc.service.BusinessService;
@@ -13,14 +14,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import java.util.List;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.util.List;
 
 /**
  * @author agile generator
@@ -85,7 +85,8 @@ public class SysRolesService extends BusinessService<SysRolesEntity> {
     @Models({SysRolesEntity.class})
     @Mapping(path = "/sys-roles/query", method = RequestMethod.POST)
     public RETURN customQuery() throws NoSuchIDException {
-        return super.query();
+        setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(SysRolesEntity.class));
+        return RETURN.SUCCESS;
     }
 
     @ApiOperation(value = "根据主键查询[系统管理]角色", httpMethod = "GET", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
