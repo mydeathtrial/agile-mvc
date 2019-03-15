@@ -8,7 +8,9 @@ import com.alibaba.druid.sql.ast.SQLReplaceable;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
+import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
@@ -22,6 +24,7 @@ import com.alibaba.druid.util.JdbcUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,7 +76,7 @@ public class SqlUtil {
      * @return 生成的sql结果
      */
     public static String parserSQL(String sql, Map<String, Object> parameters) {
-        if (!sql.contains("{")) {
+        if (!sql.contains(CURLY_BRACES_LEFT_3)) {
             return sql;
         }
         sql = sql.replaceAll(CURLY_BRACES_LEFT, CURLY_BRACES_LEFT_3)
@@ -192,6 +195,8 @@ public class SqlUtil {
         for (SQLObject part : sqlPartInfo) {
             if (part instanceof SQLInListExpr) {
                 parsingInList((SQLInListExpr) part, parameters);
+            } else if (part instanceof SQLInSubQueryExpr) {
+                parsingInSubQuery((SQLInSubQueryExpr) part, parameters);
             } else if (part instanceof SQLBinaryOpExpr) {
                 parsingBinaryOp((SQLBinaryOpExpr) part, parameters);
             }
@@ -223,7 +228,19 @@ public class SqlUtil {
     }
 
     /**
-     * 处理where info in （）类型条件
+     * 处理where info in （select）类型条件
+     *
+     * @param c          in的druid表达式
+     * @param parameters 参数集合
+     */
+    private static void parsingInSubQuery(SQLInSubQueryExpr c, Map<String, Object> parameters) {
+        SQLSelect sqlSelect = c.getSubQuery();
+        SQLStatementParser sqlStatementParser = SQLParserUtils.createSQLStatementParser(parserSQL(sqlSelect.toString(), parameters), JdbcUtils.MYSQL);
+        sqlSelect.setQuery(((SQLSelectStatement) sqlStatementParser.parseStatement()).getSelect().getQueryBlock());
+    }
+
+    /**
+     * 处理where info in （list）类型条件
      *
      * @param c          in的druid表达式
      * @param parameters 参数集合
@@ -282,25 +299,44 @@ public class SqlUtil {
     }
 
 
-//    public static void main(String[] args) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("ids", new String[]{"1", "123"});
-//        map.put("name", "222");
-//        map.put("id", "111");
+    public static void main(String[] args) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("ids", new String[]{"1", "123"});
+        map.put("name", "222");
+        map.put("id", "111");
 //        map.put("aaa", "sys_users_id");
 //        map.put("bbb", "name");
 //        map.put("ccc", "tutors");
 //        SqlUtil.parserSQL("select * from sys_users where sys_users_id in ({ids})", map);
-//        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name = {name}",map);
+//        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name = {name}", map);
 //        parserSQL("\tSELECT {aaa},{bbb1}\n" +
 //                "FROM sys_users\n" +
-//                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ",map);
-//        parserSQL("SELECT\n" +
-//                "\tt.{bbb} as q \n" +
-//                "FROM\n" +
-//                "\tsys_users,( SELECT * FROM sys_users WHERE sys_users_id IN ( {ids} ) AND NAME = {name} ),sys_users1,
-//                +( SELECT * FROM sys_users WHERE sys_users_id IN ( {ids} ) AND NAME = {name} ) t \n"
-//                "WHERE\n" +
-//                "\tt.NAME = {name}",map);
-//    }
+//                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ", map);
+        String sql = parserSQL("SELECT\n" +
+                "\t`user`.*,\n" +
+                "\tde.depart_name AS sys_depart,\n" +
+                "\tt.*\n" +
+                "FROM\n" +
+                "\tsys_users AS USER,\n" +
+                "\tsys_department AS de,\n" +
+                "\t(\n" +
+                "\t\tSELECT\n" +
+                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
+                "\t\tFROM\n" +
+                "\t\t\tsys_roles\n" +
+                "\t\tWHERE\n" +
+                "\t\t\tSYS_ROLES_ID IN (\n" +
+                "\t\t\t\tSELECT\n" +
+                "\t\t\t\t\tROLE_ID\n" +
+                "\t\t\t\tFROM\n" +
+                "\t\t\t\t\tsys_bt_users_roles\n" +
+                "\t\t\t\tWHERE\n" +
+                "\t\t\t\t\tUSER_ID = '{id}'\n" +
+                "\t\t\t)\n" +
+                "\t) AS t\n" +
+                "WHERE\n" +
+                "\t`user`.sys_users_id = '%{id}%'\n" +
+                "AND `user`.sys_depart_id = de.sys_depart_id", map);
+        System.out.println(sql);
+    }
 }

@@ -48,15 +48,19 @@ public class ArrayUtil extends ArrayUtils {
         return Arrays.asList(array);
     }
 
-    public static <T> List<T> cast(Class<T> clazz, Object[] objects) {
+    public static <T> List<T> cast(Class<T> clazz, Iterable objects) {
         List<T> result = new ArrayList<>();
-        for (int i = 0; i < objects.length; i++) {
-            T node = ObjectUtil.cast(clazz, objects[i]);
+        for (Object object : objects) {
+            T node = ObjectUtil.cast(clazz, object);
             if (node == null) {
                 continue;
             }
             result.add(node);
         }
         return result;
+    }
+
+    public static <T> List<T> cast(Class<T> clazz, Object[] objects) {
+        return cast(clazz, asList(objects));
     }
 }

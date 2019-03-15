@@ -161,7 +161,7 @@ public class ColumnModel {
             this.javaName = StringUtil.toLowerName(columnName.toLowerCase());
         }
 
-        javaName = javaName.replaceAll(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.NULL);
+        javaName = javaName.replaceAll(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.BLANK);
 
         if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
             setAnnotation("@Temporal(TemporalType.TIMESTAMP)");

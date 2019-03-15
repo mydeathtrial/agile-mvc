@@ -2,14 +2,14 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
+import com.agile.common.exception.NoSignInException;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
-import com.agile.common.security.SecurityUser;
+import com.agile.common.security.CustomerUserDetails;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.ViewUtil;
-import com.agile.mvc.entity.SysUsersEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -206,8 +206,10 @@ public class MainService implements ServiceInterface {
         if (o == null) {
             return null;
         }
-        if (o.getClass().isArray()) {
-            return ArrayUtil.cast(clazz, (Object[]) o);
+        if (Iterable.class.isAssignableFrom(o.getClass())) {
+            return ArrayUtil.cast(clazz, (Iterable) o);
+        } else if (o.getClass().isArray()) {
+            return ArrayUtil.cast(clazz, ArrayUtil.asList((Object[]) o));
         } else {
             return null;
         }
@@ -244,7 +246,7 @@ public class MainService implements ServiceInterface {
                         result.putAll(bodyParam);
                     }
                 } else if (JSONArray.class.isAssignableFrom(json.getClass())) {
-                    Object[] bodyParam = JSONUtil.jsonArrayCoverArray((JSONArray) json);
+                    List bodyParam = JSONUtil.jsonArrayCoverArray((JSONArray) json);
                     if (bodyParam != null) {
                         result.put(Constant.ResponseAbout.BODY, bodyParam);
                     }
@@ -313,13 +315,12 @@ public class MainService implements ServiceInterface {
     /**
      * 获取当前用户信息
      */
-    public SecurityUser getUser() {
+    public CustomerUserDetails getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            return new SecurityUser(SysUsersEntity.builder().name("土豆").saltKey("admin").saltValue("密码").sysUsersId("1").build(), null);
-//            throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
+            throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
         } else {
-            return (SecurityUser) authentication.getDetails();
+            return (CustomerUserDetails) authentication.getDetails();
         }
     }
 }

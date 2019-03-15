@@ -83,7 +83,7 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
                 if (re == null) {
                     return null;
                 }
-                entity = re.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.NULL));
+                entity = re.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
             } else {
                 entity = codeCache.get(parentCode);
             }

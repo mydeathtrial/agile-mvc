@@ -22,7 +22,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class TaskTrigger implements Trigger, Serializable {
     private String cron;
-    private boolean sync;
+    private boolean  sync;
 
     @Override
     public Date nextExecutionTime(TriggerContext triggerContext) {

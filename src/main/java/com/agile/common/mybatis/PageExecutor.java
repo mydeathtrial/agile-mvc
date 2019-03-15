@@ -56,7 +56,8 @@ public class PageExecutor implements Executor {
             }
         } else if (paramerObject instanceof PageRequest) {
             return (PageRequest) paramerObject;
-
+        } else if (paramerObject instanceof MybatisPage) {
+            return PageRequest.of(((MybatisPage) paramerObject).getPageNum(), ((MybatisPage) paramerObject).getPageSize());
         }
         return null;
     }

@@ -18,15 +18,15 @@ agile:
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: 'sys_authorities,sys_bt_%,sys_login,sys_resources,sys_roles,sys_users,log_%,dictionary_%'
+    table-name: 'sys_login'
   ehcache:
     max-entries-local-heap: 10000
     max-entries-local-disk: 10000000
-    time-to-idle: 120
-    time-to-live: 120
+    time-to-idle: 0
+    time-to-live: 0
     disk-spool-buffer-size: 30
     blocking: false
-    eternal: false
+    eternal: true
     memory-store-eviction-policy: LFU
     disk-expiry-thread-interval-seconds: 120
   kaptcha:

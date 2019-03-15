@@ -1,29 +1,30 @@
 package com.agile.mvc.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.Basic;
-import java.io.Serializable;
+import com.agile.common.annotation.Remark;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import javax.validation.constraints.NotBlank;
-import org.hibernate.annotations.CreationTimestamp;
-import java.util.Date;
-import org.hibernate.annotations.UpdateTimestamp;
-import javax.persistence.TemporalType;
 import org.apache.ibatis.annotations.Delete;
-import com.agile.common.annotation.Remark;
-import javax.validation.constraints.Past;
-import javax.persistence.Temporal;
-import org.apache.ibatis.annotations.Update;
-import javax.persistence.Id;
-import org.hibernate.validator.constraints.Length;
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Past;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 描述：[系统管理]定时任务

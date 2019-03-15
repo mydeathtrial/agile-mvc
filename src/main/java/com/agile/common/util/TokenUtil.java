@@ -1,6 +1,7 @@
 package com.agile.common.util;
 
 import com.agile.common.properties.SecurityProperties;
+import com.agile.common.security.LoginTokenInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,10 +18,22 @@ import java.util.Map;
  * @author 佟盟 on 2018/7/4
  */
 public class TokenUtil {
+    /**
+     * 存储账号信息的缓存key
+     */
     public static final String AUTHENTICATION_CACHE_KEY = "AUTHENTICATION_CACHE_KEY";
+    /**
+     * 存储当前会话口令
+     */
     public static final String AUTHENTICATION_CACHE_SALT_KEY = "AUTHENTICATION_CACHE_SALT_KEY";
+    /**
+     * 密码
+     */
     public static final String AUTHENTICATION_CREATE_SALT_VALUE = "AUTHENTICATION_CACHE_SALT_VALUE";
+
     public static final String AUTHENTICATION_CREATE_TIME = "created";
+
+    public static final String NO_KEY = "NO_KEY";
     private static SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
 
     private static final int SECOND = 1000;
@@ -42,7 +55,7 @@ public class TokenUtil {
      * 根据 TokenDetail 生成 Token
      */
     public static String generateToken(String salt, String saltValue) {
-        return generateToken("NO_KEY", salt, saltValue);
+        return generateToken(NO_KEY, salt, saltValue);
     }
 
     public static String getToken(HttpServletRequest request, String key) {
@@ -99,6 +112,10 @@ public class TokenUtil {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static LoginTokenInfo initLoginTokenInfo(String token) {
+        return new LoginTokenInfo(token);
     }
 
     public static boolean validateToken(String token) {

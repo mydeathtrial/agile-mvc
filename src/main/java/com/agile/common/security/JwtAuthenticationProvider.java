@@ -14,9 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  * @author 佟盟 on 2017/1/13
  */
 public class JwtAuthenticationProvider implements AuthenticationProvider {
-    private SecurityUserDetailsService userDetailsService;
+    private CustomerUserDetailsService userDetailsService;
 
-    public JwtAuthenticationProvider(SecurityUserDetailsService userDetailsService) {
+    public JwtAuthenticationProvider(CustomerUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
@@ -25,7 +25,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        if (authentication.getDetails() instanceof SecurityUser) {
+        if (authentication.getDetails() instanceof UserDetails) {
             return authentication;
         }
 
@@ -73,13 +73,14 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      * 登陆策略
      */
     private void loginStrategyHandler(UserDetails user) {
+
         Object salts = CacheUtil.get(user.getUsername() + "_SALT");
         if (salts != null && !salts.toString().isEmpty()) {
-            switch (((SecurityUser) user).getOnLineStrategy()) {
-                case "1000":
+            switch (((CustomerUserDetails) user).getLoginStrategy()) {
+                case SINGLETON_REPLACE:
                     CacheUtil.evict(user.getUsername() + "_SALT");
                     break;
-                case "2000":
+                case MORE:
                     break;
                 default:
                     throw new RepeatAccount(null);

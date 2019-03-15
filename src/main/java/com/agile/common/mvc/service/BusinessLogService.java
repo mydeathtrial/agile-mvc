@@ -102,7 +102,7 @@ public class BusinessLogService extends MainService {
 
         @Override
         public void run() {
-            LogInfo logInfo = LogInfo.createLogInfo(businessCode, targetType, targetCode, oldObject, newObject, getUser().getSysUsersId());
+            LogInfo logInfo = LogInfo.createLogInfo(businessCode, targetType, targetCode, oldObject, newObject, getUser().getUsername());
             if (logInfo.compliance) {
 
                 if (logInfo.order == 1) {

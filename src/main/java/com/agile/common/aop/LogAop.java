@@ -74,9 +74,7 @@ public class LogAop {
         HttpServletRequest request = (HttpServletRequest) joinPoint.getArgs()[REQUEST_INDEX];
         Method method = (Method) joinPoint.getArgs()[METHOD_INDEX];
         Map<String, Object> inParam = service.getInParam();
-        if (inParam.containsKey(Constant.ResponseAbout.BODY)) {
-            inParam.remove(Constant.ResponseAbout.BODY);
-        }
+        inParam.remove(Constant.ResponseAbout.BODY);
         try {
             result = joinPoint.proceed();
         } catch (Throwable throwable) {

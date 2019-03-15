@@ -201,9 +201,7 @@ public class ViewUtil {
         }
         if (result == null && map.containsKey(key)) {
             Object v = map.get(key);
-            if (ClassUtil.canCastClass(clazz)) {
-                result = ObjectUtil.cast(clazz, v);
-            }
+            result = ObjectUtil.cast(clazz, v);
         }
 
         return result;

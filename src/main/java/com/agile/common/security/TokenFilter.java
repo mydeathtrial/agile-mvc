@@ -6,13 +6,10 @@ import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
+import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.RandomStringUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
-import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -21,10 +18,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Objects;
 
 /**
  * 登陆验证码拦截器
@@ -33,13 +28,14 @@ import java.util.Objects;
  */
 public class TokenFilter extends OncePerRequestFilter {
     private final FailureHandler failureHandler;
-    private final SecurityUserDetailsService securityUserDetailsService;
+    private final CustomerUserDetailsService securityUserDetailsService;
     private RequestMatcher[] matches;
-    private AntPathRequestMatcher signOutUrl;
-    @Autowired
+
     private SecurityProperties securityProperties;
 
-    public TokenFilter(SecurityUserDetailsService securityUserDetailsService, SecurityProperties securityProperties, String[] immuneUrl) {
+    private Cache tokenCache;
+
+    public TokenFilter(CustomerUserDetailsService securityUserDetailsService, String[] immuneUrl, SecurityProperties securityProperties) {
         matches = new RequestMatcher[immuneUrl.length];
         int i = 0;
         while (i < immuneUrl.length) {
@@ -48,7 +44,8 @@ public class TokenFilter extends OncePerRequestFilter {
         }
         this.failureHandler = new FailureHandler();
         this.securityUserDetailsService = securityUserDetailsService;
-        this.signOutUrl = new AntPathRequestMatcher(securityProperties.getLoginOutUrl());
+        this.securityProperties = securityProperties;
+        tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
     }
 
     @Override
@@ -63,47 +60,34 @@ public class TokenFilter extends OncePerRequestFilter {
                 throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
             }
 
+            LoginTokenInfo loginTokenInfo = TokenUtil.initLoginTokenInfo(token);
+
+            if (!TokenUtil.validateToken(token)) {
+                throw new TokenIllegalException("身份令牌已过期");
+            }
+
+            if (ObjectUtil.isEmpty(loginTokenInfo.getAuthentication())) {
+                throw new TokenIllegalException("身份令牌验证失败");
+            }
+
             //判断策略
-            if (securityProperties.getTokenType() == SecurityProperties.TokenType.EASY) {
-                Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
-                Authentication cache = tokenCache.get(token, Authentication.class);
-                if (cache == null) {
+            if (securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
+
+                if (!loginTokenInfo.getSessionPasswordCacheValue().contains(loginTokenInfo.getSessionPassword())) {
                     throw new TokenIllegalException("身份令牌验证失败");
                 }
-                SecurityContextHolder.getContext().setAuthentication(cache);
-            } else {
-                if (!TokenUtil.validateToken(token)) {
-                    throw new TokenIllegalException("身份令牌验证失败");
-                }
-                Claims claims = TokenUtil.getClaimsFromToken(token);
-                assert claims != null;
-                String cacheKey = claims.get(TokenUtil.AUTHENTICATION_CACHE_KEY).toString();
-                String saltsKey = cacheKey + "_SALT";
-                String oldSalt = claims.get(TokenUtil.AUTHENTICATION_CACHE_SALT_KEY).toString();
-                String salts = Objects.requireNonNull(CacheUtil.get(saltsKey)).toString();
-                Authentication authentication = CacheUtil.get(cacheKey, Authentication.class);
-                if (ObjectUtil.isEmpty(authentication)) {
-                    throw new TokenIllegalException(null);
-                }
-                if (!salts.contains(oldSalt)) {
-                    throw new TokenIllegalException(null);
-                }
-                SecurityUser userDetails = (SecurityUser) authentication.getDetails();
+
+                CustomerUserDetails userDetails = (CustomerUserDetails) loginTokenInfo.getAuthentication().getDetails();
                 securityUserDetailsService.validate(userDetails);
 
-                String oldSaltValue = claims.get(TokenUtil.AUTHENTICATION_CREATE_SALT_VALUE).toString();
                 String currentSaltValue = userDetails.getPassword();
-                if (!oldSaltValue.equals(currentSaltValue)) {
-                    throw new TokenIllegalException(null);
+                if (!loginTokenInfo.getSaltValue().equals(currentSaltValue)) {
+                    throw new TokenIllegalException("身份令牌验证失败，密码已修改");
                 }
-                if (signOutUrl.matches(request)) {
-                    securityUserDetailsService.updateLoginInfo(oldSalt);
-                    CacheUtil.put(saltsKey, salts.replaceAll(oldSalt, ""));
-                } else {
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    refreshToken(authentication, response, oldSalt, userDetails.getSaltValue());
-                }
+                refreshToken(loginTokenInfo, response);
             }
+
+            SecurityContextHolder.getContext().setAuthentication(loginTokenInfo.getAuthentication());
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             if (e instanceof AuthenticationException) {
@@ -119,20 +103,15 @@ public class TokenFilter extends OncePerRequestFilter {
         failureHandler.onAuthenticationFailure(req, res, e);
     }
 
-    private void refreshToken(Authentication authentication, ServletResponse httpServletResponse, String oldSalt, String saltValue) {
-        String cacheKey = authentication.getName();
-        String saltKey = cacheKey + "_SALT";
-        final int digit = 8;
-        String newSalt = RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER);
-        CacheUtil.put(saltKey, Objects.requireNonNull(CacheUtil.get(saltKey)).toString().replaceAll(oldSalt, newSalt));
-        securityUserDetailsService.updateLoginInfo(oldSalt, newSalt);
+    private void refreshToken(LoginTokenInfo loginTokenInfo, ServletResponse httpServletResponse) {
+        CustomerUserDetails userDetails = (CustomerUserDetails) loginTokenInfo.getAuthentication().getDetails();
 
-        String agileToken = TokenUtil.generateToken(cacheKey, newSalt, saltValue);
-        Cookie cookie = new Cookie(securityProperties.getTokenHeader(), agileToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
+        String newSessionPassword = Long.toString(IdUtil.generatorId());
+        securityUserDetailsService.updateLoginInfo(userDetails.getUsername(), loginTokenInfo.getSessionPassword(), newSessionPassword);
+        tokenCache.put(loginTokenInfo.getSessionPasswordCacheKey(), loginTokenInfo.refreshSessionPassword(newSessionPassword));
+
+        String agileToken = TokenUtil.generateToken(loginTokenInfo.getUserInfoCacheKey(), newSessionPassword, userDetails.getPassword());
         HttpServletResponse response = (HttpServletResponse) httpServletResponse;
-        response.addCookie(cookie);
         response.setHeader(securityProperties.getTokenHeader(), agileToken);
     }
 

@@ -1,20 +1,16 @@
 package com.agile.common.security;
 
-import com.agile.common.base.Constant;
 import com.agile.common.cache.Cache;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
-import com.agile.common.util.DateUtil;
-import com.agile.common.util.RandomStringUtil;
+import com.agile.common.util.IdUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
-import com.agile.mvc.entity.SysLoginEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Objects;
@@ -23,12 +19,14 @@ import java.util.Objects;
  * @author 佟盟 on 2018/7/4
  */
 public class TokenStrategy implements SessionAuthenticationStrategy {
-    private final SecurityUserDetailsService securityUserDetailsService;
+    private final CustomerUserDetailsService securityUserDetailsService;
     private final SecurityProperties securityProperties;
+    private Cache cache;
 
-    public TokenStrategy(SecurityUserDetailsService securityUserDetailsService, SecurityProperties securityProperties) {
+    public TokenStrategy(CustomerUserDetailsService securityUserDetailsService, SecurityProperties securityProperties) {
         this.securityUserDetailsService = securityUserDetailsService;
         this.securityProperties = securityProperties;
+        this.cache = CacheUtil.getCache(securityProperties.getTokenHeader());
     }
 
     @Override
@@ -55,23 +53,16 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
      * @return 令牌
      */
     private String difficultToken(Authentication authentication, HttpServletRequest httpServletRequest) {
-        SecurityUser userDetails = (SecurityUser) authentication.getDetails();
-        final int digit = 8;
-        String salt = RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER);
-        String cacheKey = authentication.getName();
-        String saltsKey = cacheKey + "_SALT";
+        CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getDetails();
+        String sessionPassword = Long.toString(IdUtil.generatorId());
+        String userInfoCacheKey = authentication.getName();
+        String sessionPasswordCacheKey = userInfoCacheKey + "_SALT";
 
-        SysLoginEntity loginEntity = SysLoginEntity.builder().sysLoginId(RandomStringUtil.getRandom(digit, RandomStringUtil.Random.LETTER_UPPER))
-                .sysUserId(userDetails.getSysUsersId())
-                .loginTime(DateUtil.getCurrentDate())
-                .loginIp(ServletUtil.getCustomerIPAddr(httpServletRequest))
-                .token(salt).build();
+        securityUserDetailsService.loadLoginInfo(userDetails, ServletUtil.getCustomerIPAddr(httpServletRequest), sessionPassword);
 
-        securityUserDetailsService.addLoginInfo(loginEntity);
-
-        CacheUtil.put(saltsKey, CacheUtil.get(saltsKey) == null ? salt : String.format("%s%s", Objects.requireNonNull(CacheUtil.get(saltsKey)).toString(), salt));
-        CacheUtil.put(cacheKey, authentication);
-        return TokenUtil.generateToken(cacheKey, salt, userDetails.getPassword());
+        cache.put(sessionPasswordCacheKey, cache.get(sessionPasswordCacheKey) == null ? sessionPassword : String.format("%s,%s", Objects.requireNonNull(cache.get(sessionPasswordCacheKey)).toString(), sessionPassword));
+        cache.put(userInfoCacheKey, authentication);
+        return TokenUtil.generateToken(userInfoCacheKey, sessionPassword, userDetails.getPassword());
     }
 
     /**
@@ -82,13 +73,14 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
      * @return 令牌
      */
     private String easyToken(Authentication authentication, HttpServletRequest httpServletRequest) {
+        CustomerUserDetails userDetails = (CustomerUserDetails) authentication.getDetails();
         String token = TokenUtil.getToken(httpServletRequest, securityProperties.getTokenHeader());
-        Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
-        if (StringUtil.isEmpty(token) || !TokenUtil.isToken(token)) {
-            SecurityUser userDetails = (SecurityUser) authentication.getDetails();
-            token = TokenUtil.generateToken(userDetails.getSaltKey(), userDetails.getPassword());
+        if (StringUtil.isEmpty(token) || !TokenUtil.isToken(token) || !TokenUtil.validateToken(token)) {
+            token = TokenUtil.generateToken(userDetails.getUsername(), userDetails.getPassword());
         }
-        tokenCache.put(token, authentication, securityProperties.getTokenTimeout());
+        cache.put(token, authentication, securityProperties.getTokenTimeout());
+
+        securityUserDetailsService.loadLoginInfo(userDetails, ServletUtil.getCustomerIPAddr(httpServletRequest), token);
         return token;
     }
 
@@ -96,10 +88,10 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
      * 通知前端
      */
     private void notice(HttpServletResponse httpServletResponse, String agileToken) {
-        Cookie cookie = new Cookie(securityProperties.getTokenHeader(), agileToken);
-        cookie.setHttpOnly(true);
-        cookie.setPath(Constant.RegularAbout.SLASH);
-        httpServletResponse.addCookie(cookie);
+//        Cookie cookie = new Cookie(securityProperties.getTokenHeader(), agileToken);
+//        cookie.setHttpOnly(true);
+//        cookie.setPath(Constant.RegularAbout.SLASH);
+//        httpServletResponse.addCookie(cookie);
         httpServletResponse.setHeader(securityProperties.getTokenHeader(), agileToken);
     }
 }

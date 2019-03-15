@@ -1,26 +1,27 @@
 package com.agile.mvc.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.Basic;
-import java.io.Serializable;
+import com.agile.common.annotation.Remark;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import com.agile.common.annotation.Remark;
-import javax.validation.constraints.NotBlank;
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
+import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.ibatis.annotations.Update;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import org.apache.ibatis.annotations.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.persistence.Id;
+import java.io.Serializable;
 
 /**
  * 描述：[系统管理]定时任务目标任务表

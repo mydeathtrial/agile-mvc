@@ -128,7 +128,7 @@ public final class StringUtil extends StringUtils {
      * @return url参数
      */
     public static String fromMapToUrl(Map<String, Object> map) {
-        StringBuilder mapOfString = new StringBuilder(Constant.RegularAbout.NULL);
+        StringBuilder mapOfString = new StringBuilder(Constant.RegularAbout.BLANK);
         for (Map.Entry<String, Object> entity : map.entrySet()) {
             Object value = entity.getValue();
             if (value.getClass().isArray()) {

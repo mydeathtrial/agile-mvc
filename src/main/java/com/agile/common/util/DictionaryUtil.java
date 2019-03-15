@@ -28,21 +28,34 @@ public class DictionaryUtil {
      * @throws NoSuchFieldException   没有这个字段
      * @throws IllegalAccessException 非法访问
      */
-    public static <T> List<Map<String, Object>> coverMapDictionary(List<T> list, String dictionaryCode, String... columns) throws NoSuchFieldException, IllegalAccessException {
+    public static <T> List<Map<String, Object>> coverMapDictionary(List<T> list, String dictionaryCode, String sufix, String... columns) throws NoSuchFieldException, IllegalAccessException {
         List<Map<String, Object>> result = new ArrayList<>(list.size());
         Map<String, Field> cache = null;
+        Class clazz = null;
         for (T o : list) {
-            if (cache == null) {
-                cache = initField(o.getClass(), columns);
+            if (clazz == null) {
+                clazz = o.getClass();
             }
-            Map<String, Object> map = new HashMap<>(o.getClass().getDeclaredFields().length + columns.length);
-            MapUtil.coverMap(map, o);
-            for (String column : columns) {
-                Field field = cache.get(column);
-                Object value = field.get(o);
-                map.put(String.format("%s_text", field.getName()), coverDicName(String.format("%s.%s", dictionaryCode, value)));
+            if (Map.class.isAssignableFrom(clazz)) {
+                Map map = ((Map) o);
+                for (String column : columns) {
+                    map.put(String.format("%s%s", column, sufix), coverDicName(String.format("%s.%s", dictionaryCode, map.get(column))));
+                }
+                result.add(map);
+            } else {
+                if (cache == null) {
+                    cache = initField(clazz, columns);
+                }
+                Map<String, Object> map = new HashMap<>(clazz.getDeclaredFields().length + columns.length);
+                MapUtil.coverMap(map, o);
+                for (String column : columns) {
+                    Field field = cache.get(column);
+                    Object value = field.get(o);
+                    map.put(String.format("%s_text", field.getName()), coverDicName(String.format("%s.%s", dictionaryCode, value)));
+                }
+                result.add(map);
             }
-            result.add(map);
+
         }
         return result;
     }
@@ -64,20 +77,61 @@ public class DictionaryUtil {
             if (clazz == null) {
                 clazz = o.getClass();
             }
-            if (cache == null) {
-                cache = initField(clazz, columns);
-            }
+            if (Map.class.isAssignableFrom(clazz)) {
+                Map map = ((Map) o);
+                for (String column : columns) {
+                    map.put(column, coverDicName(String.format("%s.%s", dictionaryCode, map.get(column))));
+                }
+                result.add((T) map);
+            } else {
+                if (cache == null) {
+                    cache = initField(clazz, columns);
+                }
 
-            T n = (T) clazz.newInstance();
-            ObjectUtil.copyProperties(o, n);
-            for (String column : columns) {
-                Field field = cache.get(column);
-                Object value = field.get(o);
-                field.set(n, coverDicName(String.format("%s.%s", dictionaryCode, value)));
+                T n = (T) clazz.newInstance();
+                ObjectUtil.copyProperties(o, n);
+                for (String column : columns) {
+                    Field field = cache.get(column);
+                    Object value = field.get(o);
+                    field.set(n, coverDicName(String.format("%s.%s", dictionaryCode, value)));
+                }
+                result.add(n);
             }
-            result.add(n);
         }
         return result;
+    }
+
+    /**
+     * 根据父级树形字典码与name获取字典
+     *
+     * @param code 字典
+     * @return bean
+     */
+    public static DictionaryDataEntity coverDicBean(String code, String name) {
+        List<DictionaryDataEntity> list = coverDicList(code);
+        if (list == null) {
+            return null;
+        }
+        for (DictionaryDataEntity entity : list) {
+            if (name.equals(entity.getName())) {
+                return entity;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据父级树形字典码与name获取code
+     *
+     * @param code 字典码
+     * @return bean
+     */
+    public static String coverDicCode(String code, String name) {
+        DictionaryDataEntity dic = coverDicBean(code, name);
+        if (dic == null) {
+            return null;
+        }
+        return dic.getCode();
     }
 
     /**
@@ -105,7 +159,7 @@ public class DictionaryUtil {
             String[] codes = code.split("[.]");
             parentCode = codes[Constant.NumberAbout.ZERO].trim();
             rootEntity = coverRootDicBean(parentCode);
-            targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.NULL));
+            targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
         } else {
             targetEntity = coverRootDicBean(parentCode);
         }

@@ -44,6 +44,14 @@ public class ObjectUtil extends ObjectUtils {
         copyProperties(source, target, arguments.toArray(new String[]{}), ContainOrExclude.INCLUDE);
     }
 
+    public static void copyProperties(Object source, Object target, String[] arguments, ContainOrExclude containOrExclude) {
+        copyProperties(source, target, Constant.RegularAbout.BLANK, Constant.RegularAbout.BLANK, arguments, containOrExclude);
+    }
+
+    public static void copyProperties(Object source, Object target, String prfix, String sufix) {
+        copyProperties(source, target, prfix, sufix, new String[]{}, ContainOrExclude.INCLUDE);
+    }
+
     /**
      * 复制对象中哪些属性
      *
@@ -52,25 +60,32 @@ public class ObjectUtil extends ObjectUtils {
      * @param arguments        属性列表
      * @param containOrExclude 包含或排除
      */
-    public static void copyProperties(Object source, Object target, String[] arguments, ContainOrExclude containOrExclude) {
+    public static void copyProperties(Object source, Object target, String prefix, String sufix, String[] arguments, ContainOrExclude containOrExclude) {
         if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) {
             return;
         }
 
-        Set<Field> sourceFields = ObjectUtil.getAllField(source.getClass());
-        for (Field field : sourceFields) {
+        Set<Field> targetFields = ObjectUtil.getAllField(target.getClass());
+        for (Field field : targetFields) {
             field.setAccessible(true);
             String propertyName = field.getName();
 
+            propertyName = StringUtil.isBlank(prefix) ? propertyName : prefix + StringUtil.toUpperName(propertyName);
+            propertyName = StringUtil.isBlank(sufix) ? propertyName : propertyName + StringUtil.toUpperName(sufix);
+
+            Field sourceProperty = getField(source.getClass(), propertyName);
+            if (sourceProperty == null) {
+                continue;
+            }
             if (!ObjectUtil.isEmpty(arguments)) {
                 switch (containOrExclude) {
                     case EXCLUDE:
-                        if (ArrayUtil.contains(arguments, propertyName)) {
+                        if (ArrayUtil.contains(arguments, sourceProperty.getName())) {
                             continue;
                         }
                         break;
                     case INCLUDE:
-                        if (!ArrayUtil.contains(arguments, propertyName)) {
+                        if (!ArrayUtil.contains(arguments, sourceProperty.getName())) {
                             continue;
                         }
                         break;
@@ -79,19 +94,16 @@ public class ObjectUtil extends ObjectUtils {
             }
 
             try {
-                Object value = field.get(source);
-                Field targetProperty;
-                targetProperty = getField(target.getClass(), propertyName);
-                if (targetProperty == null) {
-                    continue;
-                }
-                Class<?> type = targetProperty.getType();
+                sourceProperty.setAccessible(true);
+                Object value = sourceProperty.get(source);
+
+                Class<?> type = field.getType();
                 if (!type.isAssignableFrom(value.getClass())) {
                     value = cast(type, value);
                 }
 
-                targetProperty.setAccessible(true);
-                targetProperty.set(target, value);
+                field.setAccessible(true);
+                field.set(target, value);
 
             } catch (Exception ignored) {
             }
@@ -105,7 +117,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param target 新对象
      */
     public static void copyProperties(Object source, Object target) {
-        copyProperties(source, target, null, null);
+        copyProperties(source, target, null, null, null, null);
     }
 
     /**
@@ -371,10 +383,17 @@ public class ObjectUtil extends ObjectUtils {
 
     public static Field getField(Class clazz, String fieldName) {
         Set<Field> fields = getAllField(clazz);
+        Map<String, Field> targetFields = new HashMap<>(Constant.NumberAbout.TWO);
+        String targetFieldName = StringUtil.camelToUrlRegex(fieldName);
         for (Field field : fields) {
-            if (field.getName().equals(fieldName)) {
-                return field;
+            if (StringUtil.containMatchedString(targetFieldName, field.getName())) {
+                targetFields.put(field.getName(), field);
             }
+        }
+        if (targetFields.size() > 1) {
+            return targetFields.get(fieldName);
+        } else if (targetFields.size() == 1) {
+            return targetFields.values().iterator().next();
         }
         return null;
     }

@@ -278,7 +278,7 @@ public class ResourceUtil {
         classesPath = URLDecoder.decode(classesPath, "utf-8");
         String path = resource.getURL().getPath();
         if (path.contains(classesPath)) {
-            return path.replaceFirst(classesPath, Constant.RegularAbout.NULL);
+            return path.replaceFirst(classesPath, Constant.RegularAbout.BLANK);
         }
         return null;
     }

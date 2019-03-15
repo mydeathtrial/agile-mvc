@@ -12,7 +12,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 import net.sf.json.util.JSONUtils;
 
 import java.io.IOException;
@@ -34,7 +36,7 @@ public class JSONUtil {
         objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
             @Override
             public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                jsonGenerator.writeString(Constant.RegularAbout.NULL);
+                jsonGenerator.writeString(Constant.RegularAbout.BLANK);
             }
         });
 
@@ -122,7 +124,9 @@ public class JSONUtil {
     public static JSON toJSON(Object object) {
         JSON json = null;
         try {
-            json = JSONObject.fromObject(object);
+            JsonConfig jsonConfig = new JsonConfig();
+            jsonConfig.setJsonPropertyFilter((obj, key, value) -> value == null || value instanceof JSONNull);
+            json = JSONObject.fromObject(object, jsonConfig);
         } catch (Exception ignored) {
         }
         try {
@@ -197,7 +201,7 @@ public class JSONUtil {
         return result;
     }
 
-    public static Object[] jsonArrayCoverArray(JSONArray jsonArray) {
+    public static List<Object> jsonArrayCoverArray(JSONArray jsonArray) {
         if (jsonArray == null) {
             return null;
         }
@@ -213,6 +217,6 @@ public class JSONUtil {
                 result.add(o);
             }
         }
-        return result.toArray();
+        return result;
     }
 }
