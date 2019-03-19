@@ -24,7 +24,6 @@ import com.alibaba.druid.util.JdbcUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -299,44 +298,44 @@ public class SqlUtil {
     }
 
 
-    public static void main(String[] args) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("ids", new String[]{"1", "123"});
-        map.put("name", "222");
-        map.put("id", "111");
-//        map.put("aaa", "sys_users_id");
-//        map.put("bbb", "name");
-//        map.put("ccc", "tutors");
-//        SqlUtil.parserSQL("select * from sys_users where sys_users_id in ({ids})", map);
-//        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name = {name}", map);
-//        parserSQL("\tSELECT {aaa},{bbb1}\n" +
-//                "FROM sys_users\n" +
-//                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ", map);
-        String sql = parserSQL("SELECT\n" +
-                "\t`user`.*,\n" +
-                "\tde.depart_name AS sys_depart,\n" +
-                "\tt.*\n" +
-                "FROM\n" +
-                "\tsys_users AS USER,\n" +
-                "\tsys_department AS de,\n" +
-                "\t(\n" +
-                "\t\tSELECT\n" +
-                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
-                "\t\tFROM\n" +
-                "\t\t\tsys_roles\n" +
-                "\t\tWHERE\n" +
-                "\t\t\tSYS_ROLES_ID IN (\n" +
-                "\t\t\t\tSELECT\n" +
-                "\t\t\t\t\tROLE_ID\n" +
-                "\t\t\t\tFROM\n" +
-                "\t\t\t\t\tsys_bt_users_roles\n" +
-                "\t\t\t\tWHERE\n" +
-                "\t\t\t\t\tUSER_ID = '{id}'\n" +
-                "\t\t\t)\n" +
-                "\t) AS t\n" +
-                "WHERE\n" +
-                "\t`user`.sys_users_id = '%{id}%'\n" +
-                "AND `user`.sys_depart_id = de.sys_depart_id", map);
-        System.out.println(sql);
-    }
+//    public static void main(String[] args) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("ids", new String[]{"1", "123"});
+//        map.put("name", "222");
+//        map.put("id", "111");
+////        map.put("aaa", "sys_users_id");
+////        map.put("bbb", "name");
+////        map.put("ccc", "tutors");
+////        SqlUtil.parserSQL("select * from sys_users where sys_users_id in ({ids})", map);
+////        parserSQL("select * from sys_users where sys_users_id in ({ids}) and name = {name}", map);
+////        parserSQL("\tSELECT {aaa},{bbb1}\n" +
+////                "FROM sys_users\n" +
+////                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ", map);
+//        String sql = parserSQL("SELECT\n" +
+//                "\t`user`.*,\n" +
+//                "\tde.depart_name AS sys_depart,\n" +
+//                "\tt.*\n" +
+//                "FROM\n" +
+//                "\tsys_users AS USER,\n" +
+//                "\tsys_department AS de,\n" +
+//                "\t(\n" +
+//                "\t\tSELECT\n" +
+//                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
+//                "\t\tFROM\n" +
+//                "\t\t\tsys_roles\n" +
+//                "\t\tWHERE\n" +
+//                "\t\t\tSYS_ROLES_ID IN (\n" +
+//                "\t\t\t\tSELECT\n" +
+//                "\t\t\t\t\tROLE_ID\n" +
+//                "\t\t\t\tFROM\n" +
+//                "\t\t\t\t\tsys_bt_users_roles\n" +
+//                "\t\t\t\tWHERE\n" +
+//                "\t\t\t\t\tUSER_ID = '{id}'\n" +
+//                "\t\t\t)\n" +
+//                "\t) AS t\n" +
+//                "WHERE\n" +
+//                "\t`user`.sys_users_id = '%{id}%'\n" +
+//                "AND `user`.sys_depart_id = de.sys_depart_id", map);
+//        System.out.println(sql);
+//    }
 }

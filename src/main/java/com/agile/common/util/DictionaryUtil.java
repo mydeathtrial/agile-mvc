@@ -17,18 +17,29 @@ import java.util.Map;
  * @since 1.0
  */
 public class DictionaryUtil {
+    private static final String NAME_FORMAT = "%s.%s";
+    private static final String CODE_FORMAT = "%s.%s";
+    private static final String NAME_DEFAULT_FORMAT = "%s_text";
+
     /**
      * 集合类型转换字典码工具，转换为List/Map类型
      *
      * @param list           要进行转换的集合
      * @param dictionaryCode 要使用的字典码
-     * @param columns        转换字段集
+     * @param column         转换字段集
      * @param <T>            泛型
      * @return 返回List/Map类型，增加_text字段
      * @throws NoSuchFieldException   没有这个字段
      * @throws IllegalAccessException 非法访问
      */
-    public static <T> List<Map<String, Object>> coverMapDictionary(List<T> list, String dictionaryCode, String sufix, String... columns) throws NoSuchFieldException, IllegalAccessException {
+    public static <T> List<Map<String, Object>> coverMapDictionary(List<T> list, String dictionaryCode, String suffix, String column) throws NoSuchFieldException, IllegalAccessException {
+        return coverMapDictionary(list, new String[]{dictionaryCode}, suffix, new String[]{column});
+    }
+
+    public static <T> List<Map<String, Object>> coverMapDictionary(List<T> list, String[] dictionaryCodes, String suffix, String[] columns) throws NoSuchFieldException, IllegalAccessException {
+        if (dictionaryCodes == null || columns == null || dictionaryCodes.length != columns.length) {
+            throw new IllegalArgumentException();
+        }
         List<Map<String, Object>> result = new ArrayList<>(list.size());
         Map<String, Field> cache = null;
         Class clazz = null;
@@ -38,8 +49,9 @@ public class DictionaryUtil {
             }
             if (Map.class.isAssignableFrom(clazz)) {
                 Map map = ((Map) o);
-                for (String column : columns) {
-                    map.put(String.format("%s%s", column, sufix), coverDicName(String.format("%s.%s", dictionaryCode, map.get(column))));
+                for (int i = 0; i < columns.length; i++) {
+                    String column = columns[i];
+                    map.put(String.format(NAME_FORMAT, column, suffix), coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
                 }
                 result.add(map);
             } else {
@@ -48,10 +60,11 @@ public class DictionaryUtil {
                 }
                 Map<String, Object> map = new HashMap<>(clazz.getDeclaredFields().length + columns.length);
                 MapUtil.coverMap(map, o);
-                for (String column : columns) {
+                for (int i = 0; i < columns.length; i++) {
+                    String column = columns[i];
                     Field field = cache.get(column);
                     Object value = field.get(o);
-                    map.put(String.format("%s_text", field.getName()), coverDicName(String.format("%s.%s", dictionaryCode, value)));
+                    map.put(String.format(NAME_DEFAULT_FORMAT, field.getName()), coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
                 }
                 result.add(map);
             }
@@ -60,16 +73,20 @@ public class DictionaryUtil {
         return result;
     }
 
+    public static <T> List<T> coverBeanDictionary(List<T> list, String dictionaryCode, String column) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+        return coverBeanDictionary(list, new String[]{dictionaryCode}, new String[]{column});
+    }
+
     /**
      * 集合类型转换字典码工具，转换为List/T类型
      *
-     * @param list           要进行转换的集合
-     * @param dictionaryCode 要使用的字典码
-     * @param columns        转换字段集
-     * @param <T>            泛型
+     * @param list            要进行转换的集合
+     * @param dictionaryCodes 要使用的字典码
+     * @param columns         转换字段集
+     * @param <T>             泛型
      * @return 返回List/Map类型，字典码字段自动被转换为字典值
      */
-    public static <T> List<T> coverBeanDictionary(List<T> list, String dictionaryCode, String... columns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+    public static <T> List<T> coverBeanDictionary(List<T> list, String[] dictionaryCodes, String[] columns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         List<T> result = new ArrayList<>(list.size());
         Map<String, Field> cache = null;
         Class clazz = null;
@@ -79,8 +96,9 @@ public class DictionaryUtil {
             }
             if (Map.class.isAssignableFrom(clazz)) {
                 Map map = ((Map) o);
-                for (String column : columns) {
-                    map.put(column, coverDicName(String.format("%s.%s", dictionaryCode, map.get(column))));
+                for (int i = 0; i < columns.length; i++) {
+                    String column = columns[i];
+                    map.put(column, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
                 }
                 result.add((T) map);
             } else {
@@ -90,10 +108,11 @@ public class DictionaryUtil {
 
                 T n = (T) clazz.newInstance();
                 ObjectUtil.copyProperties(o, n);
-                for (String column : columns) {
+                for (int i = 0; i < columns.length; i++) {
+                    String column = columns[i];
                     Field field = cache.get(column);
                     Object value = field.get(o);
-                    field.set(n, coverDicName(String.format("%s.%s", dictionaryCode, value)));
+                    field.set(n, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
                 }
                 result.add(n);
             }

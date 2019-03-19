@@ -343,18 +343,24 @@ public class ObjectUtil extends ObjectUtils {
                         } else {
                             targetValue = cast(type, value);
                         }
-                        if (targetValue != null) {
-                            if (notNull) {
-                                notNull = false;
-                            }
-                            String fieldName = field.getName();
-                            try {
-                                Method setMethod = clazz.getDeclaredMethod("set" + StringUtil.toUpperName(fieldName), type);
-                                setMethod.invoke(object, targetValue);
-                            } catch (Exception e) {
-                                field.set(object, targetValue);
-                            }
-
+                        if (targetValue == null) {
+                            targetValue = value;
+                        }
+                        if (notNull) {
+                            notNull = false;
+                        }
+                        String fieldName = field.getName();
+                        Method setMethod;
+                        String setMethodName = "set" + StringUtil.toUpperName(fieldName);
+                        try {
+                            setMethod = ClassUtil.getMethod(clazz, setMethodName, type);
+                        } catch (Exception e) {
+                            setMethod = clazz.getDeclaredMethod(setMethodName, String.class);
+                        }
+                        try {
+                            setMethod.invoke(object, targetValue);
+                        } catch (Exception e) {
+                            field.set(object, targetValue);
                         }
 
                     } catch (Exception ignored) {
