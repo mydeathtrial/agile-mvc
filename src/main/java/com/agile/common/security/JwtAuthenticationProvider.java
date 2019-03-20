@@ -1,7 +1,10 @@
 package com.agile.common.security;
 
+import com.agile.common.cache.Cache;
 import com.agile.common.exception.RepeatAccount;
+import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.PasswordUtil;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -73,17 +76,20 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      * 登陆策略
      */
     private void loginStrategyHandler(UserDetails user) {
+        SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
+        assert securityProperties != null;
+        Cache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
 
-        Object salts = CacheUtil.get(user.getUsername() + "_SALT");
-        if (salts != null && !salts.toString().isEmpty()) {
+        LoginCacheInfo loginCacheInfo = cache.get(user.getUsername(), LoginCacheInfo.class);
+        if (loginCacheInfo != null && loginCacheInfo.getSessionTokens().size() > 0) {
             switch (((CustomerUserDetails) user).getLoginStrategy()) {
                 case SINGLETON_REPLACE:
-                    CacheUtil.evict(user.getUsername() + "_SALT");
+                    cache.evict(user.getUsername());
                     break;
                 case MORE:
                     break;
                 default:
-                    throw new RepeatAccount(null);
+                    throw new RepeatAccount("重复账户登陆");
             }
         }
     }

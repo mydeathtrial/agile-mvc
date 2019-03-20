@@ -91,7 +91,7 @@ public class ${serviceName} extends BusinessService<${entityName}> {
     })
     @Models({${entityName}.class})
     @Mapping(path = "/${entityCenterLineName}/{id}", method = RequestMethod.GET)
-    public RETURN customQueryById() {
+    public RETURN customQueryById() throws NoSuchIDException {
         return super.queryById();
     }
 }

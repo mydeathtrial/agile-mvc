@@ -4,7 +4,7 @@ import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.RandomStringUtil;
-import com.agile.common.util.TokenUtil;
+import com.agile.common.util.ServletUtil;
 import com.google.code.kaptcha.Producer;
 
 import javax.imageio.ImageIO;
@@ -52,7 +52,7 @@ public class KaptchaServlet extends HttpServlet implements Servlet {
         final int length = 20;
         String capText = this.kaptchaProducer.createText();
 
-        String codeToken = TokenUtil.getToken(req, kaptchaConfigProperties.getTokenHeader());
+        String codeToken = ServletUtil.getInfo(req, kaptchaConfigProperties.getTokenHeader());
         if (codeToken == null) {
             codeToken = RandomStringUtil.getRandom(length, RandomStringUtil.Random.LETTER_UPPER);
         }

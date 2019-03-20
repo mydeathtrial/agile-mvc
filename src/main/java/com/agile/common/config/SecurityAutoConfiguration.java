@@ -82,7 +82,7 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     TokenFilter tokenFilter() {
-        return new TokenFilter(customerUserDetailsService, immuneUrl, securityProperties);
+        return new TokenFilter(immuneUrl, securityProperties);
     }
 
     @Bean

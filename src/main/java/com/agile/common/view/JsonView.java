@@ -6,6 +6,7 @@ import com.agile.common.util.ViewUtil;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
@@ -24,6 +25,7 @@ public class JsonView extends MappingJackson2JsonView {
     public JsonView() {
         MappingJackson2HttpMessageConverter jackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
         ObjectMapper objectMapper = jackson2HttpMessageConverter.getObjectMapper();
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         objectMapper.setDateFormat(new SimpleDateFormat(PropertiesUtil.getProperty("spring.mvc.date-format")));
         objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
             @Override

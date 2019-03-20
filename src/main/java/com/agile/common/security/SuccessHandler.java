@@ -26,6 +26,7 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
             SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
             assert securityProperties != null;
             String token = response.getHeader(securityProperties.getTokenHeader());
+
             ViewUtil.render(new Head(RETURN.SUCCESS), new HashMap<String, String>(1) {{
                 put("token", token);
             }}, request, response);

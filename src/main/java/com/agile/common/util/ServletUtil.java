@@ -4,12 +4,14 @@ import com.agile.common.base.Constant;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.Contract;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -172,5 +174,25 @@ public class ServletUtil {
             return request.getRequestURL().toString();
         }
         return null;
+    }
+
+    /**
+     * 请求中获取header或cookies中的信息
+     *
+     * @param request 请求 请求
+     * @param key     索引
+     * @return 信息
+     */
+    public static String getInfo(HttpServletRequest request, String key) {
+        String token = request.getHeader(key);
+        if (StringUtil.isBlank(token)) {
+            try {
+                Cookie cook = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals(key)).findFirst().get();
+                token = cook.getValue();
+            } catch (Exception e) {
+                token = null;
+            }
+        }
+        return token;
     }
 }

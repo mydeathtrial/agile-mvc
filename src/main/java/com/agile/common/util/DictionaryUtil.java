@@ -17,9 +17,8 @@ import java.util.Map;
  * @since 1.0
  */
 public class DictionaryUtil {
-    private static final String NAME_FORMAT = "%s.%s";
+    private static final String NAME_FORMAT = "%s%s";
     private static final String CODE_FORMAT = "%s.%s";
-    private static final String NAME_DEFAULT_FORMAT = "%s_text";
 
     /**
      * 集合类型转换字典码工具，转换为List/Map类型
@@ -41,40 +40,64 @@ public class DictionaryUtil {
             throw new IllegalArgumentException();
         }
         List<Map<String, Object>> result = new ArrayList<>(list.size());
-        Map<String, Field> cache = null;
-        Class clazz = null;
         for (T o : list) {
-            if (clazz == null) {
-                clazz = o.getClass();
-            }
-            if (Map.class.isAssignableFrom(clazz)) {
-                Map map = ((Map) o);
-                for (int i = 0; i < columns.length; i++) {
-                    String column = columns[i];
-                    map.put(String.format(NAME_FORMAT, column, suffix), coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
-                }
-                result.add(map);
-            } else {
-                if (cache == null) {
-                    cache = initField(clazz, columns);
-                }
-                Map<String, Object> map = new HashMap<>(clazz.getDeclaredFields().length + columns.length);
-                MapUtil.coverMap(map, o);
-                for (int i = 0; i < columns.length; i++) {
-                    String column = columns[i];
-                    Field field = cache.get(column);
-                    Object value = field.get(o);
-                    map.put(String.format(NAME_DEFAULT_FORMAT, field.getName()), coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
-                }
-                result.add(map);
-            }
-
+            result.add(coverMapDictionary(o, dictionaryCodes, suffix, columns));
         }
         return result;
     }
 
+    public static <T> Map<String, Object> coverMapDictionary(T o, String[] dictionaryCodes, String suffix, String[] columns) throws NoSuchFieldException, IllegalAccessException {
+        Map<String, Field> cache;
+        Class clazz = o.getClass();
+        if (Map.class.isAssignableFrom(clazz)) {
+            Map map = ((Map) o);
+            for (int i = 0; i < columns.length; i++) {
+                String column = columns[i];
+                map.put(String.format(NAME_FORMAT, column, suffix), coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
+            }
+            return map;
+        } else {
+            cache = initField(clazz, columns);
+            Map<String, Object> map = new HashMap<>(clazz.getDeclaredFields().length + columns.length);
+            MapUtil.coverMap(map, o);
+            for (int i = 0; i < columns.length; i++) {
+                String column = columns[i];
+                Field field = cache.get(column);
+                Object value = field.get(o);
+                map.put(String.format(NAME_FORMAT, column, suffix), coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
+            }
+            return map;
+        }
+
+    }
+
     public static <T> List<T> coverBeanDictionary(List<T> list, String dictionaryCode, String column) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         return coverBeanDictionary(list, new String[]{dictionaryCode}, new String[]{column});
+    }
+
+    public static <T> T coverBeanDictionary(T o, String[] dictionaryCodes, String[] columns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+        Map<String, Field> cache;
+        Class clazz = o.getClass();
+        if (Map.class.isAssignableFrom(clazz)) {
+            Map map = ((Map) o);
+            for (int i = 0; i < columns.length; i++) {
+                String column = columns[i];
+                map.put(column, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
+            }
+            return (T) map;
+        } else {
+            cache = initField(clazz, columns);
+
+            T n = (T) clazz.newInstance();
+            ObjectUtil.copyProperties(o, n);
+            for (int i = 0; i < columns.length; i++) {
+                String column = columns[i];
+                Field field = cache.get(column);
+                Object value = field.get(o);
+                field.set(n, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
+            }
+            return n;
+        }
     }
 
     /**
@@ -88,34 +111,8 @@ public class DictionaryUtil {
      */
     public static <T> List<T> coverBeanDictionary(List<T> list, String[] dictionaryCodes, String[] columns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         List<T> result = new ArrayList<>(list.size());
-        Map<String, Field> cache = null;
-        Class clazz = null;
         for (T o : list) {
-            if (clazz == null) {
-                clazz = o.getClass();
-            }
-            if (Map.class.isAssignableFrom(clazz)) {
-                Map map = ((Map) o);
-                for (int i = 0; i < columns.length; i++) {
-                    String column = columns[i];
-                    map.put(column, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
-                }
-                result.add((T) map);
-            } else {
-                if (cache == null) {
-                    cache = initField(clazz, columns);
-                }
-
-                T n = (T) clazz.newInstance();
-                ObjectUtil.copyProperties(o, n);
-                for (int i = 0; i < columns.length; i++) {
-                    String column = columns[i];
-                    Field field = cache.get(column);
-                    Object value = field.get(o);
-                    field.set(n, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
-                }
-                result.add(n);
-            }
+            result.add(coverBeanDictionary(o, dictionaryCodes, columns));
         }
         return result;
     }
@@ -200,6 +197,17 @@ public class DictionaryUtil {
             return null;
         }
         return targetEntity.getName();
+    }
+
+    /**
+     * 编码转字典名
+     *
+     * @param code 字典码
+     * @return 字典名
+     */
+    public static String coverDicName(String code, String defaultName) {
+        String name = coverDicName(code);
+        return name == null ? defaultName : name;
     }
 
     /**

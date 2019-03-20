@@ -243,20 +243,22 @@ public class BusinessService<T> extends MainService {
         return sort;
     }
 
-    public RETURN queryById() {
+    public RETURN queryById() throws NoSuchIDException {
         return queryById(getInParam(entityClass));
     }
 
     /**
      * 查询
      */
-    public RETURN queryById(T entity) {
+    public RETURN queryById(T entity) throws NoSuchIDException {
         boolean require = this.containsKey(ID);
         if (!require) {
             return RETURN.PARAMETER_ERROR;
         }
 
-        T target = dao.findOne(entityClass, getInParam(ID, String.class));
+        Field idField = dao.getIdField(entityClass);
+
+        T target = dao.findOne(entityClass, getInParam(ID, idField.getType()));
         if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity, target)) {
             target = null;
         }

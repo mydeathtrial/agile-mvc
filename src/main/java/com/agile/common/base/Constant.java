@@ -121,7 +121,8 @@ public class Constant {
         public static final String IP = "((?:(?:25[0-5]|2[0-4]\\\\d|[01]?\\\\d?\\\\d)\\\\.){3}(?:25[0-5]|2[0-4]\\\\d|[01]?\\\\d?\\\\d))";
         public static final String NUMBER = "^[0-9]*$";
         public static final String FLOAT = "^-?([1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*|0?\\.0+|0)$";
-        public static final String ENGLISH_NUMBER = "^[A-Za-z0-9]+$ 或 ^[A-Za-z0-9]{4,40}$";
+        public static final String ENGLISH_NUMBER = "^[A-Za-z0-9]+$";
+        public static final String MAC = "(([A-Fa-f0-9]{2}:)|([A-Fa-f0-9]{2}-)){5}[A-Fa-f0-9]{2}";
 
         public static final String ORACLE = "jdbc:oracle:thin:@(?<ip>[0-9.]+):(?<port>[0-9]+):(?<name>[\\w]+)";
         public static final String MYSQL = "jdbc:mysql://(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)(?<param>[\\w\\W]*)";

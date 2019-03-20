@@ -25,7 +25,6 @@ public class SpringExceptionHandler {
         return createModelAndView(e);
     }
 
-
     public ModelAndView createModelAndView(Throwable e) {
         ModelAndView modelAndView;
 

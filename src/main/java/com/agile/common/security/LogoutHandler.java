@@ -3,12 +3,9 @@ package com.agile.common.security;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
-import com.agile.common.cache.Cache;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.StringUtil;
-import com.agile.common.util.TokenUtil;
+import com.agile.common.util.ServletUtil;
 import com.agile.common.util.ViewUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -29,56 +26,31 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        clearToken(request, response);
+        //获取令牌
+        String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
 
+        //获取当前登陆信息
+        CurrentLoginInfo currentLoginInfo = LoginCacheInfo.getCurrentLoginInfo(token);
+        String username = currentLoginInfo.getLoginCacheInfo().getUsername();
+        String sessionToken = Long.toString(currentLoginInfo.getSessionToken());
+
+        //更新数据库
+        securityUserDetailsService.stopLoginInfo(username, sessionToken);
+
+        //更新缓存
+        LoginCacheInfo.remove(currentLoginInfo);
+
+        //清空header信息
+        clearHeader(response);
+
+        //返回
         try {
             assert RETURN.LOGOUT_SUCCESS != null;
             ViewUtil.render(new Head(RETURN.LOGOUT_SUCCESS), null, request, response);
         } catch (Exception e) {
             LoggerFactory.AUTHORITY_LOG.debug(e);
         }
-    }
-
-    private void clearToken(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-        String token = TokenUtil.getToken(httpServletRequest, securityProperties.getTokenHeader());
-        Cache tokenCache = CacheUtil.getCache(securityProperties.getTokenHeader());
-
-        //判断策略
-        if (securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
-            difficultTokenClear(tokenCache, token);
-        } else {
-            easyTokenClear(tokenCache, token);
-        }
-        clearHeader(httpServletResponse);
-
-        LoggerFactory.AUTHORITY_LOG.info(String.format("账号退出[token：%s]", token));
-    }
-
-    /**
-     * 简单模式token清理
-     */
-    private void easyTokenClear(Cache tokenCache, String token) {
-        LoginTokenInfo loginTokenInfo = TokenUtil.initLoginTokenInfo(token);
-        CustomerUserDetails userDetails = (CustomerUserDetails) loginTokenInfo.getAuthentication().getDetails();
-        securityUserDetailsService.stopLoginInfo(userDetails.getUsername(), token);
-        tokenCache.evict(token);
-    }
-
-    /**
-     * 复杂模式token清理
-     */
-    private void difficultTokenClear(Cache tokenCache, String token) {
-
-        LoginTokenInfo loginTokenInfo = TokenUtil.initLoginTokenInfo(token);
-        CustomerUserDetails userDetails = (CustomerUserDetails) loginTokenInfo.getAuthentication().getDetails();
-
-        securityUserDetailsService.stopLoginInfo(userDetails.getUsername(), loginTokenInfo.getSessionPassword());
-        String set = loginTokenInfo.refreshSessionPassword(null);
-        if (StringUtil.isBlank(set)) {
-            tokenCache.evict(loginTokenInfo.getSessionPasswordCacheKey());
-        } else {
-            tokenCache.put(loginTokenInfo.getSessionPasswordCacheKey(), set);
-        }
+        LoggerFactory.AUTHORITY_LOG.info(String.format("账号退出[username:%s][token：%s]", username, sessionToken));
     }
 
     /**

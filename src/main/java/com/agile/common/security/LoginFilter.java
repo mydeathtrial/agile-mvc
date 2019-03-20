@@ -7,8 +7,8 @@ import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.AesUtil;
 import com.agile.common.util.CacheUtil;
+import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
-import com.agile.common.util.TokenUtil;
 import com.agile.common.util.ViewUtil;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
@@ -102,7 +102,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         if (inCode == null) {
             throw new VerificationCodeNon(null);
         }
-        String codeToken = TokenUtil.getToken(request, kaptchaConfigProperties.getTokenHeader());
+        String codeToken = ServletUtil.getInfo(request, kaptchaConfigProperties.getTokenHeader());
         if (codeToken == null) {
             throw new VerificationCodeException(null);
         }

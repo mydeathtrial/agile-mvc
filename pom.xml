@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3.36</version>
+    <version>1.0.3.43</version>
     <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
@@ -25,13 +25,13 @@
     <dependencies>
         <dependency>
             <groupId>com.idss.agile</groupId>
-            <artifactId>argus-common</artifactId>
-            <version>2.5.0.49</version>
+            <artifactId>argus-service-system</artifactId>
+            <version>2.5.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-system</artifactId>
-            <version>2.5.0.3</version>
+            <artifactId>argus-common</artifactId>
+            <version>2.5.0.53</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

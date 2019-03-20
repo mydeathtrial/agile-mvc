@@ -58,7 +58,8 @@ public enum ValidateType implements ValidateInterface {
     IP(Constant.RegularAbout.IP, "IP地址"),
     NUMBER(Constant.RegularAbout.NUMBER, "数字"),
     FLOAT(Constant.RegularAbout.FLOAT, "浮点数"),
-    ENGLISH_NUMBER(Constant.RegularAbout.ENGLISH_NUMBER, "英文数字");
+    ENGLISH_NUMBER(Constant.RegularAbout.ENGLISH_NUMBER, "英文数字"),
+    MAC(Constant.RegularAbout.MAC, "MAC地址");
 
     private String regex;
     private String info;
@@ -129,12 +130,14 @@ public enum ValidateType implements ValidateInterface {
                         v.setState(false);
                         v.setMessage("值超出阈值");
                     }
+                    break;
                 case FLOAT:
                     float n1 = Float.parseFloat(String.valueOf(value));
                     if (!(validate.min() <= n1 && n1 <= validate.max())) {
                         v.setState(false);
                         v.setMessage("值超出阈值");
                     }
+                    break;
                 default:
                     int size = String.valueOf(value).length();
                     if (!(validate.min_size() <= size && size <= validate.max_size())) {

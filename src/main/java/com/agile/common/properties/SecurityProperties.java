@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.Duration;
+
 /**
  * @author by 佟盟 on 2018/2/1
  */
@@ -32,13 +34,13 @@ public class SecurityProperties {
      */
     private String verificationCode = "verification";
     /**
-     * token加密盐值
+     * token密钥
      */
-    private String tokenKey = "23617641641";
+    private String tokenSecret = "23617641641";
     /**
      * token超时时间
      */
-    private int tokenTimeout;
+    private Duration tokenTimeout;
     /**
      * token传递header名
      */

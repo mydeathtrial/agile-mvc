@@ -4,6 +4,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -334,7 +335,7 @@ public class DateUtil extends DateUtils {
     /**
      * 比较两个Date类型时间是否相同
      *
-     * @param date1 Date类型时间1
+     * @param date1   Date类型时间1
      * @param dateTWO Date类型时间TWO
      * @return 判断结果(true ： 相同 ， flase ： 不同)
      */
@@ -478,6 +479,19 @@ public class DateUtil extends DateUtils {
         Calendar cal = GregorianCalendar.getInstance();
         cal.setTime(targetDate);
         cal.add(Calendar.MINUTE, addMin);
+        return cal.getTime();
+    }
+
+    /**
+     * 获取指定日期后时间（指定加算分钟信息）
+     *
+     * @param duration 增加时间
+     * @return 加算后日期
+     */
+    public static Date add(Duration duration) {
+        Calendar cal = GregorianCalendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.MILLISECOND, (int) duration.toMillis());
         return cal.getTime();
     }
 
