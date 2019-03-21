@@ -355,6 +355,9 @@ public class ObjectUtil extends ObjectUtils {
                         try {
                             setMethod = ClassUtil.getMethod(clazz, setMethodName, type);
                         } catch (Exception e) {
+                            if (targetValue == null || StringUtil.isBlank(targetValue.toString())) {
+                                continue;
+                            }
                             setMethod = clazz.getDeclaredMethod(setMethodName, String.class);
                         }
                         try {

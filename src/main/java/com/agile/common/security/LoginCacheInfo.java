@@ -125,24 +125,44 @@ class LoginCacheInfo implements Serializable {
 
         //判断策略,复杂策略时，更新会话令牌
         if (securityProperties != null && securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
+            //创建新会话令牌
+            long newSessionToken = IdUtil.generatorId();
+
+            //更新数据库登陆信息
+            CustomerUserDetailsService securityUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
+            assert securityUserDetailsService != null;
+            securityUserDetailsService.updateLoginInfo(username, Long.toString(sessionToken), Long.toString(newSessionToken));
+
+            //删除旧的缓存会话令牌
             loginCacheInfo.getSessionTokens().remove(sessionToken);
 
+            //生成新的会话令牌缓存
             TokenInfo tokenInfo = new TokenInfo();
             tokenInfo.setToken(token);
             tokenInfo.setStart(new Date());
             tokenInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
-            sessionToken = IdUtil.generatorId();
-            loginCacheInfo.getSessionTokens().put(sessionToken, tokenInfo);
+
+            loginCacheInfo.getSessionTokens().put(newSessionToken, tokenInfo);
             cache.put(username, loginCacheInfo);
         }
 
         return new CurrentLoginInfo(sessionToken, loginCacheInfo);
     }
 
+    /**
+     * 退出操作，根据token删除指定会话令牌
+     *
+     * @param token 令牌
+     */
     public static void remove(String token) {
         remove(getCurrentLoginInfo(token));
     }
 
+    /**
+     * 退出操作，根据currentLoginInfo删除指定会话令牌
+     *
+     * @param currentLoginInfo 当前登陆信息
+     */
     public static void remove(CurrentLoginInfo currentLoginInfo) {
         currentLoginInfo.getLoginCacheInfo().getSessionTokens().remove(currentLoginInfo.getSessionToken());
         if (currentLoginInfo.getLoginCacheInfo().getSessionTokens().size() > 0) {

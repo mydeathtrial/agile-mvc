@@ -424,6 +424,7 @@ public class Dao {
             if (query.getResultList().size() == 0) {
                 return null;
             }
+            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
             Map<String, Object> o = (Map<String, Object>) query.getSingleResult();
             if (ClassUtil.canCastClass(clazz)) {
                 return ObjectUtil.cast(clazz, o);
