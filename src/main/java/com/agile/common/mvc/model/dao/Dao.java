@@ -34,6 +34,7 @@ import javax.persistence.Query;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -303,6 +304,10 @@ public class Dao {
         return list;
     }
 
+    private Object getId(Object o) throws NoSuchIDException, IllegalAccessException {
+        return getIdField(o.getClass()).get(o);
+    }
+
     /**
      * 获取ORM中的主键字段
      *
@@ -318,7 +323,11 @@ public class Dao {
             Id id = method.getAnnotation(Id.class);
             if (!ObjectUtil.isEmpty(id)) {
                 try {
-                    return clazz.getDeclaredField(StringUtil.toLowerName(method.getName().replaceFirst("get", "")));
+                    Field field = clazz.getDeclaredField(StringUtil.toLowerName(method.getName().replaceFirst("get", "")));
+                    if (field != null) {
+                        field.setAccessible(true);
+                    }
+                    return field;
                 } catch (Exception e) {
                     throw new NoSuchIDException();
                 }
@@ -330,6 +339,7 @@ public class Dao {
             field.setAccessible(true);
             Id id = field.getAnnotation(Id.class);
             if (!ObjectUtil.isEmpty(id)) {
+                field.setAccessible(true);
                 return field;
             }
         }
@@ -364,10 +374,12 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> void deleteInBatch(Iterable<T> list) {
-        Iterator<T> iterator = list.iterator();
-        if (iterator.hasNext()) {
-            T obj = iterator.next();
-            getRepository(obj.getClass()).deleteInBatch(list);
+        for (T obj : list) {
+            try {
+                getRepository(obj.getClass()).deleteById(getId(obj));
+            } catch (NoSuchIDException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -411,27 +423,26 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> T findOne(String sql, Class<T> clazz, Object... parameters) {
-        try {
-            getIdField(clazz);
-            Query query = creatClassQuery(sql, clazz, parameters);
-            if (query.getResultList().size() == 0) {
-                return null;
-            }
-            Object o = query.getSingleResult();
-            return (T) o;
-        } catch (NoSuchIDException e) {
-            Query query = creatQuery(sql, parameters);
-            if (query.getResultList().size() == 0) {
-                return null;
-            }
+        Query query = creatQuery(sql, parameters);
+
+        if (query instanceof NativeQueryImpl) {
             ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-            Map<String, Object> o = (Map<String, Object>) query.getSingleResult();
-            if (ClassUtil.canCastClass(clazz)) {
-                return ObjectUtil.cast(clazz, o);
-            } else {
-                return ObjectUtil.getObjectFromMap(clazz, o);
+        } else if (Proxy.isProxyClass(query.getClass())) {
+            try {
+                String setResultTransformer = "setResultTransformer";
+                Method method = NativeQueryImpl.class.getDeclaredMethod(setResultTransformer, Transformers.class);
+                Proxy.getInvocationHandler(query).invoke(query, method, new Object[]{Transformers.ALIAS_TO_ENTITY_MAP});
+            } catch (Throwable e) {
+                e.printStackTrace();
             }
         }
+        Object result = query.getSingleResult();
+
+        if (result != null && Map.class.isAssignableFrom(result.getClass())) {
+            Map<String, Object> o = (Map<String, Object>) result;
+            return ObjectUtil.cast(clazz, o);
+        }
+        return null;
     }
 
     /**

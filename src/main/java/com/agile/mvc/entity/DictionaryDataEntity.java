@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Update;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Basic;
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -41,6 +42,7 @@ import java.util.Map;
 @Entity
 @Table(name = "dictionary_data")
 @Remark("[系统管理]字典数据表")
+@Cacheable()
 public class DictionaryDataEntity implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
