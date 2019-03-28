@@ -10,6 +10,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAut
 
 /**
  * 入口工程
+ *
+ * @author tudou
  */
 @EnableAgile
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class, SecurityFilterAutoConfiguration.class, ManagementWebSecurityAutoConfiguration.class, FreeMarkerAutoConfiguration.class})

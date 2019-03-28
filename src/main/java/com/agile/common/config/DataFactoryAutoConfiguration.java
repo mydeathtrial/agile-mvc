@@ -3,7 +3,6 @@ package com.agile.common.config;
 import com.agile.common.annotation.Init;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.EsProperties;
-import com.agile.common.util.ObjectUtil;
 import com.idss.common.datafactory.utils.ESConfig;
 import org.elasticsearch.client.ElasticsearchClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class DataFactoryAutoConfiguration {
     @Init
     public void initEnv() {
         try {
-            ObjectUtil.copyProperties(esProperties, new com.idss.common.datafactory.utils.ESConfig());
+            ESConfig.init(esProperties.getConfig());
         } catch (Exception e) {
             assert LoggerFactory.ES_LOG != null;
             LoggerFactory.ES_LOG.error("ES环境初始化配置失败", e);

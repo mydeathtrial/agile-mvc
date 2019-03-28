@@ -1,8 +1,12 @@
 package com.agile.common.properties;
 
+import com.idss.common.datafactory.utils.ESConfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author by 佟盟 on 2018/2/1
@@ -15,14 +19,9 @@ public class EsProperties {
      * 开关
      */
     private boolean enable;
-    private String clusterName;
-    private String clusterNodes;
-    private String clusterHosts;
-    private int poolSize;
-    private String indexDateFormat;
-    private String timeField;
-    private String idField;
-    private String rawMsgFiled;
-    private int scrollTimeValue;
-    private int scrollSetSize;
+
+    /**
+     * ES配置
+     */
+    private Map<String, ESConfig> config = new HashMap<>();
 }

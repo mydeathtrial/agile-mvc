@@ -16,10 +16,14 @@ import org.springframework.boot.SpringApplication;
  */
 public class AgileApp {
     public static void run(Class<?> primarySource, String[] args) {
-        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
-        SpringApplication app = new SpringApplication(primarySource);
-        app.setBanner(new AgileBanner());
-        app.setDefaultProperties(PropertiesUtil.getProperties());
-        app.run(args);
+        try {
+            ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
+            SpringApplication app = new SpringApplication(primarySource);
+            app.setBanner(new AgileBanner());
+            app.setDefaultProperties(PropertiesUtil.getProperties());
+            app.run(args);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

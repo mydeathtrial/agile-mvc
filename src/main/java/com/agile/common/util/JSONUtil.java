@@ -141,9 +141,6 @@ public class JSONUtil {
      */
     public static <T> T toBean(Class<T> clazz, JSONObject json) {
         T o = toBeanByNetSf(clazz, json);
-        if (o == null) {
-            o = toBeanByAli(clazz, json);
-        }
         return o;
     }
 
@@ -166,14 +163,6 @@ public class JSONUtil {
     public static <T> T toBeanByNetSf(Class<T> clazz, JSONObject json) {
         try {
             return (T) JSONObject.toBean(json, clazz, PropertiesUtil.getClassMap(clazz));
-        } catch (Exception ignored) {
-        }
-        return null;
-    }
-
-    public static <T> T toBeanByAli(Class<T> clazz, JSONObject json) {
-        try {
-            return com.alibaba.fastjson.JSONObject.toJavaObject(com.alibaba.fastjson.JSONObject.parseObject(json.toString()), clazz);
         } catch (Exception ignored) {
         }
         return null;

@@ -387,8 +387,8 @@ public class SqlUtil {
         if (params == null) {
             return null;
         }
-        Map<String, Object> map = new HashMap<>(params);
-        for (Map.Entry<String, Object> entity : map.entrySet()) {
+        Map<String, Object> map = new HashMap<>(params.size());
+        for (Map.Entry<String, Object> entity : params.entrySet()) {
             Object value = entity.getValue();
             String sqlValue;
             if (value == null) {
@@ -400,12 +400,16 @@ public class SqlUtil {
                 List<String> s = Arrays.stream((Object[]) value).map(x -> String.format("'%s'", x)).collect(toList());
                 sqlValue = StringUtil.join(s, ",");
             } else if (value instanceof Collection) {
-                Object collection = ((Collection<Object>) value).stream().map(x -> String.format("'%s'", x)).collect(toList());
+                Collection<Object> objects = (Collection<Object>) value;
+                if (objects.size() == 0) {
+                    continue;
+                }
+                Object collection = objects.stream().map(x -> String.format("'%s'", x)).collect(toList());
                 sqlValue = StringUtil.join((Collection) collection, ",");
             } else {
                 sqlValue = String.format("'%s'", String.valueOf(value));
             }
-            entity.setValue(sqlValue);
+            map.put(entity.getKey(), sqlValue);
         }
         return map;
     }
@@ -413,10 +417,8 @@ public class SqlUtil {
 //    public static void main(String[] args) {
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("taskType", new String[]{"1", "123"});
-//        map.put("ids2", new ArrayList<String>() {{
-//            add("asd");
-//            add("31");
-//        }});
+//        map.put("ids2", new ArrayList<String>() {
+//        });
 //        map.put("ids3", new HashSet() {{
 //            add("asd");
 //            add("31");
@@ -465,7 +467,7 @@ public class SqlUtil {
 ////        String sql = "select * from datasource_individual where field like '%{condition}%' or name like '%{condition}%' order by field ";
 //
 ////        String sql = "delete sys_users where id like ' %{name}{id}% ' and da like ' %{name}{id}% ' ";
-//        System.out.println(parserSQL(sql, map) + "\r\r");
+//        System.out.println(parserSQL("select d.* from datasource_field d where (d.field like '%{field}%' or d.name like '%{field}%' ) and d.is_common in ({ids2}) order by d.field", map) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

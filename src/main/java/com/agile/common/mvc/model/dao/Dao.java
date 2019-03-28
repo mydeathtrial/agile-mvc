@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.query.internal.NativeQueryImpl;
+import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -353,16 +354,25 @@ public class Dao {
      * @param <T>        查询的目标表对应实体类型
      * @param ids        主键数组
      * @param <ID>       主键类型
-     * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
     @SuppressWarnings("unchecked")
-    public <T, ID> void deleteInBatch(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
+    public <T, ID> void deleteInBatch(Class<T> tableClass, ID[] ids) {
         if (ArrayUtil.isEmpty(ids) || ids.length < 1) {
             return;
         }
-        List list = createObjectList(tableClass, ids);
-        if (!ObjectUtil.isEmpty(list) && list.size() > 0) {
-            getRepository(tableClass).deleteInBatch(list);
+        SimpleJpaRepository repository = getRepository(tableClass);
+        for (ID id : ids) {
+            repository.deleteById(id);
+        }
+    }
+
+    public <T, ID> void deleteInBatch(Class<T> tableClass, Iterable<ID> ids) {
+        if (ids == null) {
+            return;
+        }
+        SimpleJpaRepository repository = getRepository(tableClass);
+        for (ID id : ids) {
+            repository.deleteById(id);
         }
     }
 
@@ -424,18 +434,7 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T> T findOne(String sql, Class<T> clazz, Object... parameters) {
         Query query = creatQuery(sql, parameters);
-
-        if (query instanceof NativeQueryImpl) {
-            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-        } else if (Proxy.isProxyClass(query.getClass())) {
-            try {
-                String setResultTransformer = "setResultTransformer";
-                Method method = NativeQueryImpl.class.getDeclaredMethod(setResultTransformer, Transformers.class);
-                Proxy.getInvocationHandler(query).invoke(query, method, new Object[]{Transformers.ALIAS_TO_ENTITY_MAP});
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        }
+        queryCoverMap(query);
         Object result = query.getSingleResult();
 
         if (result != null && Map.class.isAssignableFrom(result.getClass())) {
@@ -537,6 +536,20 @@ public class Dao {
         return findAll(sql, clazz, null, null, parameters);
     }
 
+    private void queryCoverMap(Query query) {
+        if (query instanceof NativeQueryImpl) {
+            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        } else if (Proxy.isProxyClass(query.getClass())) {
+            try {
+                String setResultTransformer = "setResultTransformer";
+                Method method = NativeQueryImpl.class.getDeclaredMethod(setResultTransformer, ResultTransformer.class);
+                Proxy.getInvocationHandler(query).invoke(query, method, new Object[]{Transformers.ALIAS_TO_ENTITY_MAP});
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * 根据sql语句查询指定类型clazz列表
      *
@@ -550,50 +563,34 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String sql, Class<T> clazz, Integer firstResult, Integer maxResults, Object... parameters) {
-        try {
-            getIdField(clazz);
-            Query query = creatClassQuery(sql, clazz, parameters);
-            if (firstResult != null) {
-                query.setFirstResult(firstResult);
-            }
-            if (maxResults != null) {
-                query.setMaxResults(maxResults);
-            }
-            List result = query.getResultList();
-            if (result != null) {
-                return result;
-            }
-        } catch (Exception e) {
+        Query query = creatQuery(sql, parameters);
+        queryCoverMap(query);
+        if (firstResult != null) {
+            query.setFirstResult(firstResult);
+        }
+        if (maxResults != null) {
+            query.setMaxResults(maxResults);
+        }
+        List<Map<String, Object>> list = query.getResultList();
 
-            Query query = creatQuery(sql, parameters);
-            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
-            if (firstResult != null) {
-                query.setFirstResult(firstResult);
-            }
-            if (maxResults != null) {
-                query.setMaxResults(maxResults);
-            }
-            List<Map<String, Object>> list = query.getResultList();
-
-            if (list != null && list.size() > 0) {
-                List<T> result = new LinkedList<>();
-                if (ClassUtil.canCastClass(clazz)) {
-                    for (Map<String, Object> entity : list) {
-                        T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));
-                        if (node != null) {
-                            result.add(node);
-                        }
-                    }
-                } else {
-                    for (Map<String, Object> entity : list) {
-                        T node = ObjectUtil.getObjectFromMap(clazz, entity);
-                        if (node != null) {
-                            result.add(node);
-                        }
+        if (list != null && list.size() > 0) {
+            List<T> result = new LinkedList<>();
+            if (ClassUtil.canCastClass(clazz)) {
+                for (Map<String, Object> entity : list) {
+                    T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));
+                    if (node != null) {
+                        result.add(node);
                     }
                 }
-                return result;
+            } else {
+                for (Map<String, Object> entity : list) {
+                    T node = ObjectUtil.getObjectFromMap(clazz, entity);
+                    if (node != null) {
+                        result.add(node);
+                    }
+                }
             }
+            return result;
         }
         return new ArrayList<>(0);
     }
