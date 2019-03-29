@@ -1,24 +1,19 @@
 agile:
   elasticsearch:
     enable: true
+    indexDateFormat: yyyy.MM.dd
+    timeField: create_time
+    idField: id
+    rawMsgFiled: raw_msg
+    scrollTimeValue: 60000
+    scrollSetSize: 30000
     config:
-      a1:
-        indexDateFormat: yyyyMMdd
-        timeField: create_time
-        idField: id
-        rawMsgFiled: raw_msg
+      guo-sen:
         clusterName: idss-guosen2
-        clusterNodes: 192.168.200.104:9300,192.168.200.105:9300,192.168.200.106:9300,192.168.200.107:9300
-        clusterHosts: 9200
-        scrollTimeValue: 60000
-        scrollSetSize: 30000
-      a2:
-        indexDateFormat: yyyyMMdd
-        timeField: create_time
-        idField: id
-        rawMsgFiled: raw_msg
-        clusterName: idss-guosen2
-        clusterNodes: 192.168.200.104:9300,192.168.200.105:9300,192.168.200.106:9300,192.168.200.107:9300
-        clusterHosts: 9200
-        scrollTimeValue: 60000
-        scrollSetSize: 30000
+        clusterNodes: 192.168.200.104:9300
+        clusterHosts: 192.168.200.104:9200
+      guo-sen2:
+        clusterName: argus
+        clusterNodes: 192.168.200.95:39390
+        clusterHosts: 192.168.200.95:39290
+        scrollSetSize: 50000

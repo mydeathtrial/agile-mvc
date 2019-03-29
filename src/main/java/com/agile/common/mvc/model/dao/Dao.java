@@ -231,7 +231,7 @@ public class Dao {
         Field idField = getIdField(clazz);
         idField.setAccessible(true);
         T old = (T) findOne(clazz, idField.get(o));
-        ObjectUtil.copyPropertiesOfNotNull(o, old);
+        ObjectUtil.copyProperties(o, old, ObjectUtil.Compare.DIFF_SOURCE_NOT_NULL);
         return getEntityManager().merge(old);
     }
 

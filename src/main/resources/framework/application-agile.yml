@@ -48,7 +48,8 @@ agile:
     trigger-type: size
     trigger-value: 1M
     package-name:
-      org.springframework: info,error
+      org.springframework: info,error,debug
+      com.idss.common.datafactory: info,error,debug
   redis:
     host: 127.0.0.1
     max-idle: 300
@@ -60,16 +61,16 @@ agile:
     test-on-return: false
     duration: 30
   security:
-    enable: true
+    enable: false
     exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login-out-url: /api/logout
     login-url: /api/login
     login-username: userName
     login-password: password
     verification-code: authCode
-    token-key: 23617641641
     token-timeout: 1800
     token-header: authToken
+    token-secret: 23617641641
   cors:
     allow-credentials: true
     allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID
@@ -77,21 +78,22 @@ agile:
     allow-origin: '*'
   task:
     enable: false
-  elasticsearch:
-    enable: false
-    cluster-name: argus
-    cluster-nodes: 192.168.200.94:39390,192.168.200.95:39390
-    cluster-hosts: 192.168.200.94:39390
-    pool-size: 5
-    index-date-format: yyyyMMdd
-    time-field: create_time
-    id-field: id
-    raw-msg-filed: raw_msg
-    scroll-time-value: 60000
-    scroll-set-size: 30000
   swagger:
     enable: true
     title: Agile 平台API文档
     description: 这是个不错的文档
     terms-of-service-url: http://www.baidu.com
     version: ${project.version}
+eureka:
+  instance:
+    appname: ${spring.application.name}
+    prefer-ip-address: true
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance-id:${server.port}}
+    metadata-map:
+      management:
+        port: ${management.port}
+  client:
+    service-url:
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:9090/eureka/
+    healthcheck:
+      enabled: true

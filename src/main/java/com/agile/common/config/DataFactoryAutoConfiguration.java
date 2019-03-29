@@ -29,7 +29,7 @@ public class DataFactoryAutoConfiguration {
     @Init
     public void initEnv() {
         try {
-            ESConfig.init(esProperties.getConfig());
+            ESConfig.init(esProperties.initDefault().getConfig());
         } catch (Exception e) {
             assert LoggerFactory.ES_LOG != null;
             LoggerFactory.ES_LOG.error("ES环境初始化配置失败", e);

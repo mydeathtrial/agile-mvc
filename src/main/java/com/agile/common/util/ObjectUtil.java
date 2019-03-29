@@ -25,31 +25,188 @@ import java.util.Set;
  * @author 佟盟 on 2017/1/9
  */
 public class ObjectUtil extends ObjectUtils {
-    public static void copyPropertiesOfNotNull(Object source, Object target) {
+
+    /**
+     * 值比对方式
+     */
+    public enum Compare {
+        /**
+         * 相同
+         */
+        SAME,
+        /**
+         * 不同
+         */
+        DIFF,
+        /**
+         * source和target比对的字段都不空,并且值不相同的
+         */
+        DIFF_ALL_NOT_NULL,
+        /**
+         * source是空,并且值不相同的
+         */
+        DIFF_SOURCE_NULL,
+        /**
+         * target是空,并且值不相同的
+         */
+        DIFF_TARGET_NULL,
+        /**
+         * target属性值是默认值的,并且值不相同的
+         */
+        DIFF_TARGET_DEFAULT,
+        /**
+         * target属性值是默认值的,source属性不为空的,并且值不相同的
+         */
+        DIFF_SOURCE_NOT_NULL_AND_TARGET_DEFAULT,
+        /**
+         * source属性值不空的,并且值不相同的
+         */
+        DIFF_SOURCE_NOT_NULL,
+        /**
+         * target属性值不空的,并且值不相同的
+         */
+        DIFF_TARGET_NOT_NULL
+
+    }
+
+    /**
+     * 对象属性拷贝
+     *
+     * @param source  从哪个对象
+     * @param target  拷贝到哪个对象
+     * @param compare 拷贝方式
+     */
+    public static void copyProperties(Object source, Object target, Compare compare) {
+        Set<String> fields = getSameField(source, target, compare);
+        copyProperties(source, target, fields.toArray(new String[]{}), ContainOrExclude.INCLUDE);
+    }
+
+    /**
+     * 通过不同的比较方式，获取同名属性集合
+     *
+     * @param source  比较对象
+     * @param target  比较对象
+     * @param compare 比对方式
+     * @return 属性名集合
+     */
+    private static Set<String> getSameField(Object source, Object target, Compare compare) {
+        Set<String> result = new HashSet<>();
         if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) {
-            return;
+            return result;
         }
-        Set<Field> sourceFields = getAllField(source.getClass());
-        List<String> arguments = new ArrayList<>();
-        for (Field field : sourceFields) {
-            field.setAccessible(true);
-            try {
-                if (field.get(source) != null) {
-                    arguments.add(field.getName());
-                }
-            } catch (Exception ignored) {
-            }
+        Set<String> sameField = getSameField(source, target);
+        if (sameField == null || sameField.size() == 0) {
+            return result;
         }
 
-        copyProperties(source, target, arguments.toArray(new String[]{}), ContainOrExclude.INCLUDE);
+        Object targetNew = null;
+        try {
+            targetNew = target.getClass().newInstance();
+        } catch (Exception ignored) {
+
+        }
+        for (String fieldName : sameField) {
+            Object sourceValue = getFieldValue(source, fieldName);
+            Object targetValue = getFieldValue(target, fieldName);
+            switch (compare) {
+                case DIFF_ALL_NOT_NULL:
+                    if (sourceValue != null && targetValue != null && (!sourceValue.equals(targetValue))) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF_TARGET_NULL:
+                    if (sourceValue != null && targetValue == null) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF_SOURCE_NULL:
+                    if (sourceValue == null && targetValue != null) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF_SOURCE_NOT_NULL:
+                    if (sourceValue != null && !sourceValue.equals(targetValue)) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF_TARGET_NOT_NULL:
+                    if (targetValue != null && !targetValue.equals(sourceValue)) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF_SOURCE_NOT_NULL_AND_TARGET_DEFAULT:
+                    if (targetNew == null) {
+                        throw new RuntimeException(String.format("目标对象创建失败，请检查类“%s”是否包含空参构造函数", target.getClass()));
+                    } else if (sourceValue != null && targetValue == null) {
+                        result.add(fieldName);
+                    } else if (sourceValue != null && !sourceValue.equals(targetValue) && targetValue.equals(getFieldValue(targetNew, fieldName))) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF_TARGET_DEFAULT:
+                    if (targetNew == null) {
+                        throw new RuntimeException(String.format("目标对象创建失败，请检查类“%s”是否包含空参构造函数", target.getClass()));
+                    } else if (targetValue != null && targetValue.equals(getFieldValue(targetNew, fieldName)) && targetValue.equals(sourceValue)) {
+                        result.add(fieldName);
+                    } else if (targetValue == null && getFieldValue(targetNew, fieldName) == null && sourceValue != null) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case DIFF:
+                    if (sourceValue == null && targetValue != null) {
+                        result.add(fieldName);
+                    } else if (sourceValue != null && targetValue == null) {
+                        result.add(fieldName);
+                    } else if (sourceValue != null && !source.equals(targetValue)) {
+                        result.add(fieldName);
+                    }
+                    break;
+                case SAME:
+                    if (sourceValue != null && (sourceValue.equals(targetValue))) {
+                        result.add(fieldName);
+                    }
+                    break;
+                default:
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取同名属性
+     *
+     * @param source 比较对象
+     * @param target 比较对象
+     * @return 同名属性集合
+     */
+    private static Set<String> getSameField(Object source, Object target) {
+        Class<?> sourceClass = source.getClass();
+        Class<?> targetClass = target.getClass();
+        Set<String> result = new HashSet<>();
+        if (sourceClass == targetClass) {
+            Set<Field> sourceFields = getAllField(sourceClass);
+            for (Field field : sourceFields) {
+                result.add(field.getName());
+            }
+        } else {
+            Set<Field> sourceFields = getAllField(sourceClass);
+            for (Field field : sourceFields) {
+                String name = field.getName();
+                Field targetField = getField(targetClass, name);
+                if (targetField != null) {
+                    result.add(name);
+                }
+            }
+        }
+        return result;
     }
 
     public static void copyProperties(Object source, Object target, String[] arguments, ContainOrExclude containOrExclude) {
         copyProperties(source, target, Constant.RegularAbout.BLANK, Constant.RegularAbout.BLANK, arguments, containOrExclude);
     }
 
-    public static void copyProperties(Object source, Object target, String prfix, String sufix) {
-        copyProperties(source, target, prfix, sufix, new String[]{}, ContainOrExclude.INCLUDE);
+    public static void copyProperties(Object source, Object target, String prefix, String suffix) {
+        copyProperties(source, target, prefix, suffix, new String[]{}, ContainOrExclude.INCLUDE);
     }
 
     /**
@@ -60,7 +217,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param arguments        属性列表
      * @param containOrExclude 包含或排除
      */
-    public static void copyProperties(Object source, Object target, String prefix, String sufix, String[] arguments, ContainOrExclude containOrExclude) {
+    public static void copyProperties(Object source, Object target, String prefix, String suffix, String[] arguments, ContainOrExclude containOrExclude) {
         if (ObjectUtil.isEmpty(source) || ObjectUtil.isEmpty(target)) {
             return;
         }
@@ -71,7 +228,7 @@ public class ObjectUtil extends ObjectUtils {
             String propertyName = field.getName();
 
             propertyName = StringUtil.isBlank(prefix) ? propertyName : prefix + StringUtil.toUpperName(propertyName);
-            propertyName = StringUtil.isBlank(sufix) ? propertyName : propertyName + StringUtil.toUpperName(sufix);
+            propertyName = StringUtil.isBlank(suffix) ? propertyName : propertyName + StringUtil.toUpperName(suffix);
 
             Field sourceProperty = getField(source.getClass(), propertyName);
             if (sourceProperty == null) {
@@ -390,21 +547,50 @@ public class ObjectUtil extends ObjectUtils {
         return null;
     }
 
+    /**
+     * 根据属性名字模糊匹配获取对应属性
+     *
+     * @param clazz     类型
+     * @param fieldName 属性名
+     * @return 属性
+     */
     public static Field getField(Class clazz, String fieldName) {
         Set<Field> fields = getAllField(clazz);
-        Map<String, Field> targetFields = new HashMap<>(Constant.NumberAbout.TWO);
+        Map<String, Field> targetFields = new HashMap<>(Constant.NumberAbout.ONE);
         String targetFieldName = StringUtil.camelToUrlRegex(fieldName);
         for (Field field : fields) {
             if (StringUtil.containMatchedString(targetFieldName, field.getName())) {
+                field.setAccessible(true);
                 targetFields.put(field.getName(), field);
             }
         }
-        if (targetFields.size() > 1) {
+        if (targetFields.size() == 0) {
+            return null;
+        }
+        if (targetFields.containsKey(fieldName)) {
             return targetFields.get(fieldName);
-        } else if (targetFields.size() == 1) {
+        } else {
             return targetFields.values().iterator().next();
         }
-        return null;
+    }
+
+    /**
+     * 取属性值
+     *
+     * @param o         对象
+     * @param fieldName 属性名
+     * @return 值
+     */
+    public static Object getFieldValue(Object o, String fieldName) {
+        Field field = getField(o.getClass(), fieldName);
+        if (field == null) {
+            return null;
+        }
+        try {
+            return field.get(o);
+        } catch (IllegalAccessException e) {
+            return null;
+        }
     }
 
     /**
