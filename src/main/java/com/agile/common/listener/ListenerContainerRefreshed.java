@@ -2,6 +2,7 @@ package com.agile.common.listener;
 
 import com.agile.common.annotation.AnnotationProcessor;
 import com.agile.common.annotation.ParsingBeanAfter;
+import com.agile.common.annotation.ParsingInit;
 import com.agile.common.annotation.ParsingMethodAfter;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.PrintUtil;
@@ -25,6 +26,7 @@ public class ListenerContainerRefreshed implements ApplicationListener<ContextRe
     @Override
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         annotationHandler();
+        applicationContext.getBean(ParsingInit.class).parse();
 
         long current = contextRefreshedEvent.getTimestamp();
         String currentTime = DateUtil.convertToString(new Date(current), "yyyy年MM月dd日 HH:mm:ss");

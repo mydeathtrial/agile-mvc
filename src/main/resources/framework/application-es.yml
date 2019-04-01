@@ -7,13 +7,9 @@ agile:
     rawMsgFiled: raw_msg
     scrollTimeValue: 60000
     scrollSetSize: 30000
+    default-es-key: guo-sen
     config:
       guo-sen:
         clusterName: idss-guosen2
         clusterNodes: 192.168.200.104:9300
         clusterHosts: 192.168.200.104:9200
-      guo-sen2:
-        clusterName: argus
-        clusterNodes: 192.168.200.95:39390
-        clusterHosts: 192.168.200.95:39290
-        scrollSetSize: 50000

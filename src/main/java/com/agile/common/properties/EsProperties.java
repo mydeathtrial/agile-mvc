@@ -35,6 +35,7 @@ public class EsProperties {
     private String rawMsgFiled;
     private int scrollTimeValue;
     private int scrollSetSize;
+    private String defaultEsKey;
 
     /**
      * ES配置
