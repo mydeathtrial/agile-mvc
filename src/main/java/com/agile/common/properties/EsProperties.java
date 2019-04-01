@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -39,7 +39,7 @@ public class EsProperties {
     /**
      * ES配置
      */
-    private Map<String, ESConfig> config = new HashMap<>();
+    private Map<String, ESConfig> config = new LinkedHashMap<>();
 
     public EsProperties initDefault() {
         for (ESConfig con : config.values()) {

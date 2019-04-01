@@ -35,7 +35,7 @@ public class ObjectUtil extends ObjectUtils {
          */
         SAME,
         /**
-         * 不同
+         * 值不同的
          */
         DIFF,
         /**

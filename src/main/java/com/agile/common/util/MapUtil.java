@@ -42,6 +42,19 @@ public class MapUtil extends MapUtils {
     }
 
     /**
+     * 索引转驼峰
+     * @param map 需要转换的Map
+     * @return
+     */
+    public static Map<String, Object> coverKey2Camel(Map<String, Object> map) {
+        Map<String, Object> result = new HashMap<>(map.size());
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            result.put(StringUtil.toLowerName(entry.getKey()), entry.getValue());
+        }
+        return result;
+    }
+
+    /**
      * 判断是否是Map类型
      *
      * @param o 需要判断的对象
