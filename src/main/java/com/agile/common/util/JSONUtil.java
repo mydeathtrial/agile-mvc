@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONNull;
@@ -140,13 +142,21 @@ public class JSONUtil {
      * JSONObject转java对象
      */
     public static <T> T toBean(Class<T> clazz, JSONObject json) {
-        T o = toBeanByNetSf(clazz, json);
+        T o = (T) JSONObject.toBean(json, clazz, PropertiesUtil.getClassMap(clazz));
         return o;
     }
 
     public static <T> T toBean(Class<T> clazz, String str) {
         try {
             return objectMapper.readValue(str, clazz);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public static <T> T toBean(Class<T> clazz, JsonNode json) {
+        try {
+            return objectMapper.readValue(json.toString(), clazz);
         } catch (IOException e) {
             return null;
         }
@@ -160,14 +170,99 @@ public class JSONUtil {
         }
     }
 
-    public static <T> T toBeanByNetSf(Class<T> clazz, JSONObject json) {
-        try {
-            return (T) JSONObject.toBean(json, clazz, PropertiesUtil.getClassMap(clazz));
-        } catch (Exception ignored) {
+    /**
+     * jackson2转List Map结构
+     *
+     * @param json json数据
+     * @return List Map结构
+     */
+    public static Object jsonNodeCover(JsonNode json) {
+        if (json == null) {
+            return null;
         }
-        return null;
+        if (ObjectNode.class.isAssignableFrom(json.getClass())) {
+            return jsonNodeCoverMap((ObjectNode) json);
+        } else if (ArrayNode.class.isAssignableFrom(json.getClass())) {
+            return jsonNodeCoverArray((ArrayNode) json);
+        } else {
+            return json.asText();
+        }
     }
 
+    /**
+     * jackson2转List Map结构
+     *
+     * @param json ObjectNode数据
+     * @return List Map结构
+     */
+    public static Map<String, Object> jsonNodeCoverMap(ObjectNode json) {
+        if (json == null) {
+            return null;
+        }
+        Map<String, Object> result = new HashMap<>(json.size());
+        Iterator it = json.fieldNames();
+        while (it.hasNext()) {
+            String selfKey = it.next().toString();
+            JsonNode o = json.get(selfKey);
+            if (ObjectNode.class.isAssignableFrom(o.getClass())) {
+                result.put(selfKey, jsonNodeCoverMap((ObjectNode) o));
+            } else if (ArrayNode.class.isAssignableFrom(o.getClass())) {
+                result.put(selfKey, jsonNodeCoverArray((ArrayNode) o));
+            } else {
+                result.put(selfKey, o.asText());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * jackson2转List Map结构
+     *
+     * @param json ArrayNode数据
+     * @return List Map结构
+     */
+    public static List<Object> jsonNodeCoverArray(ArrayNode json) {
+        if (json == null) {
+            return null;
+        }
+        List<Object> result = new ArrayList<>();
+        for (JsonNode node : json) {
+            if (ObjectNode.class.isAssignableFrom(node.getClass())) {
+                result.add(jsonNodeCoverMap((ObjectNode) node));
+            } else if (ArrayNode.class.isAssignableFrom(node.getClass())) {
+                result.add(jsonNodeCoverArray((ArrayNode) node));
+            } else {
+                result.add(node.asText());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * json-lib转List Map结构
+     *
+     * @param json json数据
+     * @return List Map结构
+     */
+    public static Object jsonCover(JSON json) {
+        if (json == null) {
+            return null;
+        }
+        if (JSONObject.class.isAssignableFrom(json.getClass())) {
+            return jsonObjectCoverMap((JSONObject) json);
+        } else if (JSONArray.class.isAssignableFrom(json.getClass())) {
+            return jsonArrayCoverArray((JSONArray) json);
+        } else {
+            return json.toString();
+        }
+    }
+
+    /**
+     * json-lib转List Map结构
+     *
+     * @param json JSONObject数据
+     * @return List Map结构
+     */
     public static Map<String, Object> jsonObjectCoverMap(JSONObject json) {
 
         if (json == null) {
@@ -190,6 +285,12 @@ public class JSONUtil {
         return result;
     }
 
+    /**
+     * json-lib转List Map结构
+     *
+     * @param jsonArray JSONArray数据
+     * @return List Map结构
+     */
     public static List<Object> jsonArrayCoverArray(JSONArray jsonArray) {
         if (jsonArray == null) {
             return null;
@@ -208,4 +309,19 @@ public class JSONUtil {
         }
         return result;
     }
+
+//    public static void main(String[] args) {
+//        String s = "{\"name\":\"BeJson\",\"url\":\"http://www.bejson.com\",\"page\":88,\"isNonProfit\":true,\"address\":" +
+//                "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\"" +
+//                ":\"http://www.google.com\"},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\"},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"}]}";
+//        String s2 = "[{\"name\":\"Google\",\"url\":\"http://www.google.com\",\"a\":[{\"name1\":\"1\",\"url1\":\"2\"}," +
+//                "{\"name1\":\"1\",\"url1\":\"2\"}]},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\",\"a\":[{\"name1\":" +
+//                "\"1\",\"url1\":\"2\"},{\"name1\":\"1\",\"url1\":\"2\"}]},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"" +
+//                ",\"a\":[{\"name1\":\"1\",\"url1\":\"2\"},{\"name1\":\"1\",\"url1\":\"2\"}]}]";
+//        JsonNode jsonNode = toJsonNode(s2);
+//
+//        HashMap<Object, Object> map = new HashMap<>();
+//        map.put("body",jsonNodeCover(jsonNode));
+//        MapUtil.pathGet("body.all.a.all.url1",map);
+//    }
 }

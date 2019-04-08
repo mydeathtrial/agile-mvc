@@ -89,8 +89,14 @@ public enum ValidateType implements ValidateInterface {
                 list.add(v);
             }
         }
-        if (list.size() == 0) {
-            return null;
+        if (!validate.nullable()) {
+            ValidateMsg v = new ValidateMsg("不允许为空值", false, key, null);
+            list.add(v);
+        }
+        int size = value.size();
+        if (!(validate.min_size() <= size && size <= validate.max_size())) {
+            ValidateMsg v = new ValidateMsg("长度超出阈值", false, key, size);
+            list.add(v);
         }
         return list;
     }

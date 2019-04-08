@@ -8,12 +8,10 @@ import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.CustomerUserDetails;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.JSONUtil;
+import com.agile.common.util.MapUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.ViewUtil;
 import com.fasterxml.jackson.databind.JsonNode;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -91,9 +89,11 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    protected Object getInParam(String key) {
-        return getInParam().get(key);
+    @Override
+    public Object getInParam(String key) {
+        return MapUtil.pathGet(key, getInParam());
     }
+
 
     /**
      * 服务中调用该方法获取映射对象
@@ -239,17 +239,12 @@ public class MainService implements ServiceInterface {
 
             String bodyString = body.toString();
             if (bodyString != null) {
-                JSON json = JSONUtil.toJSON(bodyString);
-                if (JSONObject.class.isAssignableFrom(json.getClass())) {
-                    Map<String, Object> bodyParam = JSONUtil.jsonObjectCoverMap((JSONObject) json);
-                    if (bodyParam != null) {
-                        result.putAll(bodyParam);
-                    }
-                } else if (JSONArray.class.isAssignableFrom(json.getClass())) {
-                    List bodyParam = JSONUtil.jsonArrayCoverArray((JSONArray) json);
-                    if (bodyParam != null) {
-                        result.put(Constant.ResponseAbout.BODY, bodyParam);
-                    }
+                Object json = JSONUtil.jsonNodeCover(JSONUtil.toJsonNode(bodyString));
+
+                if (Map.class.isAssignableFrom(json.getClass())) {
+                    result.putAll((Map<? extends String, ?>) json);
+                } else if (List.class.isAssignableFrom(json.getClass())) {
+                    result.put(Constant.ResponseAbout.BODY, json);
                 }
             }
             return result;

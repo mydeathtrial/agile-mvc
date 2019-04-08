@@ -104,9 +104,9 @@ public class ViewUtil {
                 inParam.put(key, formData.get(key));
             }
         } else {
-            Map<String, Object> bodyParam = ServletUtil.getBody(currentRequest);
+            String bodyParam = ServletUtil.getBody(currentRequest);
             if (bodyParam != null) {
-                inParam.putAll(bodyParam);
+                inParam.put(Constant.ResponseAbout.BODY, bodyParam);
             }
         }
 
@@ -161,7 +161,7 @@ public class ViewUtil {
         if (map.containsKey(Constant.ResponseAbout.BODY)) {
             Object jsonNode = map.get(Constant.ResponseAbout.BODY);
             if (jsonNode != null) {
-                JsonNode json = ((JsonNode) jsonNode);
+                JsonNode json = JSONUtil.toJsonNode(String.valueOf(jsonNode));
                 JsonNode value = json.get(key);
                 if (value != null && !value.isNull()) {
                     if (clazz == String.class && value.isTextual()) {

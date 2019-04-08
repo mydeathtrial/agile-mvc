@@ -72,18 +72,22 @@ public class DictionaryUtil {
     }
 
     public static <T> List<T> coverBeanDictionary(List<T> list, String dictionaryCode, String column, String textColumn) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
-        return coverBeanDictionary(list, new String[]{dictionaryCode}, new String[]{column}, new String[]{textColumn});
+        return coverBeanDictionary(list, new String[]{dictionaryCode}, new String[]{column}, new String[]{textColumn}, null);
     }
 
     public static <T> List<T> coverBeanDictionary(List<T> list, String dictionaryCode, String column) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
-        return coverBeanDictionary(list, new String[]{dictionaryCode}, new String[]{column}, new String[]{column});
+        return coverBeanDictionary(list, new String[]{dictionaryCode}, new String[]{column}, new String[]{column}, null);
     }
 
     public static <T> T coverBeanDictionary(T o, String[] dictionaryCodes, String[] columns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
-        return coverBeanDictionary(o, dictionaryCodes, columns, columns);
+        return coverBeanDictionary(o, dictionaryCodes, columns, columns, null);
     }
 
     public static <T> T coverBeanDictionary(T o, String[] dictionaryCodes, String[] columns, String[] textColumns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+        return coverBeanDictionary(o, dictionaryCodes, columns, textColumns, null);
+    }
+
+    public static <T> T coverBeanDictionary(T o, String[] dictionaryCodes, String[] columns, String[] textColumns, String[] defaultValues) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         Map<String, Field> cache;
         Class clazz = o.getClass();
         if (Map.class.isAssignableFrom(clazz)) {
@@ -91,24 +95,34 @@ public class DictionaryUtil {
             for (int i = 0; i < columns.length; i++) {
                 String column = columns[i];
                 String textColumn = textColumns[i];
-                map.put(textColumn, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
+                if (defaultValues == null || defaultValues.length <= i) {
+                    map.put(textColumn, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
+                } else {
+                    String defaultValue = defaultValues[i];
+                    map.put(textColumn, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column)), defaultValue));
+                }
+
             }
             return (T) map;
         } else {
             cache = initField(clazz, columns);
             cache.putAll(initField(clazz, textColumns));
 
-            T n = (T) clazz.newInstance();
-            ObjectUtil.copyProperties(o, n);
             for (int i = 0; i < columns.length; i++) {
                 String column = columns[i];
                 String textColumn = textColumns[i];
                 Field field = cache.get(column);
                 Field textField = cache.get(textColumn);
                 Object value = field.get(o);
-                textField.set(n, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
+                if (defaultValues == null || defaultValues.length <= i) {
+                    textField.set(o, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
+                } else {
+                    String defaultValue = defaultValues[i];
+                    textField.set(o, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value), defaultValue));
+                }
+
             }
-            return n;
+            return o;
         }
     }
 
@@ -121,10 +135,10 @@ public class DictionaryUtil {
      * @param <T>             泛型
      * @return 返回List/Map类型，字典码字段自动被转换为字典值
      */
-    public static <T> List<T> coverBeanDictionary(List<T> list, String[] dictionaryCodes, String[] columns, String[] textColumns) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+    public static <T> List<T> coverBeanDictionary(List<T> list, String[] dictionaryCodes, String[] columns, String[] textColumns, String[] defaultValues) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         List<T> result = new ArrayList<>(list.size());
         for (T o : list) {
-            result.add(coverBeanDictionary(o, dictionaryCodes, columns, textColumns));
+            result.add(coverBeanDictionary(o, dictionaryCodes, columns, textColumns, defaultValues));
         }
         return result;
     }
@@ -157,7 +171,7 @@ public class DictionaryUtil {
     public static String coverDicCode(String code, String name) {
         DictionaryDataEntity dic = coverDicBean(code, name);
         if (dic == null) {
-            return null;
+            return StringUtil.getSplitLastAtomic(code, "[.]");
         }
         return dic.getCode();
     }
@@ -180,14 +194,15 @@ public class DictionaryUtil {
      */
     public static DictionaryDataEntity coverDicBean(String code) {
         DictionaryDataEntity rootEntity;
-        DictionaryDataEntity targetEntity;
+        DictionaryDataEntity targetEntity = null;
         String parentCode = code;
 
         if (code.contains(Constant.RegularAbout.SPOT)) {
-            String[] codes = code.split("[.]");
-            parentCode = codes[Constant.NumberAbout.ZERO].trim();
-            rootEntity = coverRootDicBean(parentCode);
-            targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
+            parentCode = StringUtil.getSplitAtomic(code, "[.]", Constant.NumberAbout.ZERO);
+            if (parentCode != null) {
+                rootEntity = coverRootDicBean(parentCode.trim());
+                targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
+            }
         } else {
             targetEntity = coverRootDicBean(parentCode);
         }
@@ -206,7 +221,7 @@ public class DictionaryUtil {
     public static String coverDicName(String code) {
         DictionaryDataEntity targetEntity = coverDicBean(code);
         if (targetEntity == null) {
-            return null;
+            return StringUtil.getSplitLastAtomic(code, "[.]");
         }
         return targetEntity.getName();
     }

@@ -37,6 +37,13 @@ public interface ServiceInterface {
     Map<String, Object> getInParam();
 
     /**
+     * 提取请求参数
+     * @param key 参数索引
+     * @return 入参
+     */
+    Object getInParam(String key);
+
+    /**
      * 设置请求参数
      * @param inParam 入参集合
      */

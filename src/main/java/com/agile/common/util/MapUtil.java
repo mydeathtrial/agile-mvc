@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.base.Constant;
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
 import org.apache.commons.collections.MapUtils;
@@ -43,6 +44,7 @@ public class MapUtil extends MapUtils {
 
     /**
      * 索引转驼峰
+     *
      * @param map 需要转换的Map
      * @return
      */
@@ -276,5 +278,71 @@ public class MapUtil extends MapUtils {
             }
         }
         return source;
+    }
+
+    /**
+     * 若干层次Map套Map路径查找
+     *
+     * @param key a.b.c...
+     * @param o   list/map结构
+     * @return 值
+     */
+    public static Object pathGet(String key, Object o) {
+        if (o == null) {
+            return null;
+        }
+        Object result;
+        if (key.contains(Constant.RegularAbout.SPOT)) {
+            String parentKey = StringUtil.getSplitAtomic(key, "[.]", Constant.NumberAbout.ZERO);
+            Object parentValue = getValue(parentKey, o);
+            result = pathGet(key.replaceFirst(parentKey + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK), parentValue);
+        } else if (Map.class.isAssignableFrom(o.getClass())) {
+            result = ((Map) o).get(key);
+        } else {
+            result = getValue(key, o);
+        }
+        return result;
+    }
+
+    private static Object getValue(String key, Object o) {
+        final String all = "all";
+        Object result = null;
+        if (Map.class.isAssignableFrom(o.getClass())) {
+            result = ((Map) o).get(key);
+        } else if (List.class.isAssignableFrom(o.getClass())) {
+            if (NumberUtil.isNumber(key)) {
+                result = ((List) o).get(Integer.parseInt(key));
+            } else if (all.equals(key)) {
+                List<Object> cache = new ArrayList<>();
+                for (Object node : (List) o) {
+                    if (List.class.isAssignableFrom(node.getClass())) {
+                        cache.addAll(((List) node));
+                    } else {
+                        cache.add(node);
+                    }
+                }
+                result = cache;
+            } else if (key.contains(Constant.RegularAbout.COMMA)) {
+                List<Object> cache = new ArrayList<>();
+                String[] indexes = key.split(Constant.RegularAbout.COMMA);
+
+                for (String index : indexes) {
+                    if (NumberUtil.isNumber(index)) {
+                        int number = Integer.parseInt(index);
+                        if (((List) o).size() > number) {
+                            cache.add(((List) o).get(number));
+                        }
+                    }
+                }
+                result = cache;
+            } else {
+                List<Object> cache = new ArrayList<>();
+                for (Object node : (List) o) {
+                    cache.add(pathGet(key, node));
+                }
+                result = cache;
+            }
+        }
+        return result;
     }
 }

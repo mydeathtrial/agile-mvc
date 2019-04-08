@@ -1,7 +1,5 @@
 package com.agile.common.util;
 
-import com.agile.common.base.Constant;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.Contract;
 
 import javax.servlet.http.Cookie;
@@ -13,8 +11,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author 佟盟 on 2017/2/23
@@ -140,7 +136,7 @@ public class ServletUtil {
      *
      * @param request 请求request
      */
-    public static Map<String, Object> getBody(HttpServletRequest request) {
+    public static String getBody(HttpServletRequest request) {
 
         try {
             BufferedReader br = request.getReader();
@@ -150,13 +146,8 @@ public class ServletUtil {
             while ((temp = br.readLine()) != null) {
                 jsonStr.append(temp);
             }
-            Map<String, Object> map;
-            JsonNode jsonNode;
             if (jsonStr.length() > 0) {
-                jsonNode = JSONUtil.toJsonNode(jsonStr.toString());
-                map = new HashMap<>(1);
-                map.put(Constant.ResponseAbout.BODY, jsonNode);
-                return map;
+                return jsonStr.toString();
             }
         } catch (Exception ignored) {
             return null;

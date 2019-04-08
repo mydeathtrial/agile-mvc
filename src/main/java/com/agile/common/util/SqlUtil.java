@@ -16,10 +16,12 @@ import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
@@ -115,17 +117,15 @@ public class SqlUtil {
         MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
         statement.accept(visitor);
 
-        SQLObject sqlObject = null;
         if (statement instanceof SQLSelectStatement) {
-            sqlObject = parserSelect((SQLSelectStatement) statement);
+            parserSelect((SQLSelectStatement) statement);
         } else if (statement instanceof SQLUpdateStatement) {
-            sqlObject = parserUpdate((SQLUpdateStatement) statement);
+            parserUpdate((SQLUpdateStatement) statement);
         } else if (statement instanceof SQLDeleteStatement) {
-            sqlObject = parserDelete((SQLDeleteStatement) statement);
+            parserDelete((SQLDeleteStatement) statement);
         }
 
-        assert sqlObject != null;
-        return sqlObject.toString();
+        return statement.toString();
     }
 
     private static SQLObject parserDelete(SQLDeleteStatement statement) {
@@ -162,31 +162,37 @@ public class SqlUtil {
      * @param statement 查询statement
      * @return 处理后的sql对象
      */
-    private static SQLObject parserSelect(SQLSelectStatement statement) {
-        SQLSelectQueryBlock sqlSelectQueryBlock = statement.getSelect().getQueryBlock();
+    private static void parserSelect(SQLSelectStatement statement) {
+        SQLSelectQuery query = statement.getSelect().getQuery();
+        parserQuery(query);
+    }
 
-        List<SQLSelectItem> select = sqlSelectQueryBlock.getSelectList();
-        parsingSelectItem(select);
+    private static void parserQuery(SQLSelectQuery query) {
+        if (query instanceof SQLSelectQueryBlock) {
+            SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectQueryBlock) query);
+            List<SQLSelectItem> select = sqlSelectQueryBlock.getSelectList();
+            parsingSelectItem(select);
 
-        SQLTableSource from = sqlSelectQueryBlock.getFrom();
-        parsingTableSource(from);
+            SQLTableSource from = sqlSelectQueryBlock.getFrom();
+            parsingTableSource(from);
 
-        SQLExpr where = sqlSelectQueryBlock.getWhere();
-        parserSQLObject(where);
+            SQLExpr where = sqlSelectQueryBlock.getWhere();
+            parserSQLObject(where);
 
 
-        SQLSelectGroupByClause groupBy = sqlSelectQueryBlock.getGroupBy();
-        if (groupBy != null) {
-            parserSQLObject(groupBy);
+            SQLSelectGroupByClause groupBy = sqlSelectQueryBlock.getGroupBy();
+            if (groupBy != null) {
+                parserSQLObject(groupBy);
+            }
+
+            SQLOrderBy order = sqlSelectQueryBlock.getOrderBy();
+            if (order != null) {
+                parsingOrderItem(order.getItems());
+            }
+        } else if (query instanceof SQLUnionQuery) {
+            parserQuery(((SQLUnionQuery) query).getLeft());
+            parserQuery(((SQLUnionQuery) query).getRight());
         }
-
-        SQLOrderBy order = sqlSelectQueryBlock.getOrderBy();
-        if (order != null) {
-            parsingOrderItem(order.getItems());
-        }
-
-
-        return sqlSelectQueryBlock;
     }
 
     /**
@@ -394,20 +400,28 @@ public class SqlUtil {
             if (value == null) {
                 continue;
             }
-            if (StringUtil.isString(value)) {
-                sqlValue = String.format("'%s'", value);
-            } else if (value.getClass().isArray()) {
-                List<String> s = Arrays.stream((Object[]) value).map(x -> String.format("'%s'", x)).collect(toList());
-                sqlValue = StringUtil.join(s, ",");
+            if (value.getClass().isArray()) {
+                if (((Object[]) value).length == 0) {
+                    sqlValue = null;
+                } else {
+                    List<String> s = Arrays.stream((Object[]) value).map(x -> String.format("'%s'", x)).collect(toList());
+                    sqlValue = StringUtil.join(s, ",");
+                }
             } else if (value instanceof Collection) {
                 Collection<Object> objects = (Collection<Object>) value;
                 if (objects.size() == 0) {
-                    continue;
+                    sqlValue = null;
+                } else {
+                    Object collection = objects.stream().map(x -> String.format("'%s'", x)).collect(toList());
+                    sqlValue = StringUtil.join((Collection) collection, ",");
                 }
-                Object collection = objects.stream().map(x -> String.format("'%s'", x)).collect(toList());
-                sqlValue = StringUtil.join((Collection) collection, ",");
             } else {
-                sqlValue = String.format("'%s'", String.valueOf(value));
+                if (String.valueOf(value).trim().length() == 0) {
+                    sqlValue = null;
+                } else {
+                    sqlValue = String.format("'%s'", String.valueOf(value));
+                }
+
             }
             map.put(entity.getKey(), sqlValue);
         }
@@ -438,36 +452,49 @@ public class SqlUtil {
 ////        parserSQL("\tSELECT {aaa},{bbb1}\n" +
 ////                "FROM sys_users\n" +
 ////                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ", map);
-//        String sql = parserSQL("SELECT\n" +
-//                "\t`user`.*,\n" +
-//                "\tde.depart_name AS sys_depart,\n" +
-//                "\tt.*\n" +
-//                "FROM\n" +
-//                "\tsys_users AS USER,\n" +
-//                "\tsys_department AS de,\n" +
-//                "\t(\n" +
-//                "\t\tSELECT\n" +
-//                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
-//                "\t\tFROM\n" +
-//                "\t\t\tsys_roles\n" +
-//                "\t\tWHERE\n" +
-//                "\t\t\tSYS_ROLES_ID IN (\n" +
-//                "\t\t\t\tSELECT\n" +
-//                "\t\t\t\t\tROLE_ID\n" +
-//                "\t\t\t\tFROM\n" +
-//                "\t\t\t\t\tsys_bt_users_roles\n" +
-//                "\t\t\t\tWHERE\n" +
-//                "\t\t\t\t\tUSER_ID = {id}\n" +
-//                "\t\t\t)\n" +
-//                "\t) AS t\n" +
-//                "WHERE\n" +
-//                "\t`user`.sys_users_id = '%{id}%'\n" +
-//                "AND `user`.sys_depart_id = de.sys_depart_id", map);
+////        String sql = parserSQL("SELECT\n" +
+////                "\t`user`.*,\n" +
+////                "\tde.depart_name AS sys_depart,\n" +
+////                "\tt.*\n" +
+////                "FROM\n" +
+////                "\tsys_users AS USER,\n" +
+////                "\tsys_department AS de,\n" +
+////                "\t(\n" +
+////                "\t\tSELECT\n" +
+////                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
+////                "\t\tFROM\n" +
+////                "\t\t\tsys_roles\n" +
+////                "\t\tWHERE\n" +
+////                "\t\t\tSYS_ROLES_ID IN (\n" +
+////                "\t\t\t\tSELECT\n" +
+////                "\t\t\t\t\tROLE_ID\n" +
+////                "\t\t\t\tFROM\n" +
+////                "\t\t\t\t\tsys_bt_users_roles\n" +
+////                "\t\t\t\tWHERE\n" +
+////                "\t\t\t\t\tUSER_ID = {id}\n" +
+////                "\t\t\t)\n" +
+////                "\t) AS t\n" +
+////                "WHERE\n" +
+////                "\t`user`.sys_users_id = '%{id32}%'\n" +
+////                "AND `user`.sys_depart_id = de.sys_depart_id", map);
 //
 ////        String sql = "select * from datasource_individual where field like '%{condition}%' or name like '%{condition}%' order by field ";
 //
 ////        String sql = "delete sys_users where id like ' %{name}{id}% ' and da like ' %{name}{id}% ' ";
-//        System.out.println(parserSQL("select d.* from datasource_field d where (d.field like '%{field}%' or d.name like '%{field}%' ) and d.is_common in ({ids2}) order by d.field", map) + "\r\r");
+//
+//        Map<String, Object> paramsMap = new HashMap<>();
+//        paramsMap.put("isCommonOrIsIndividual", new String[]{});
+//        paramsMap.put("datasourceName", "时间");
+//        paramsMap.put("field", "");
+//        System.out.println(parserSQL(" select d.* from datasource_field d, datasource_name s   \n" +
+//                "      where d.individual_datasource_id = s.id and d.is_common = '0' and s.datasource_name like '%{datasourceName}%'  \n" +
+//                "      and d.del_flag = '0' and s.del_flag = '0' and " +
+//                "     (d.field like '%{field}%' or d.name like '%{field}%' ) and d.is_common in ({isCommonOrIsIndividual}) \n" +
+//                "      union ALL " +
+//                "      select d.* from datasource_field d, datasource_name s , datasource_common_field_ref r\n" +
+//                "      where d.is_common ='1' and s.common_group_id = r.group_id and r.field_id = d.id and " +
+//                "      (d.field like '%{field}%' or d.name like '%{field}%' ) and d.is_common in ({isCommonOrIsIndividual}) and" +
+//                "      s.datasource_name like '%{datasourceName}%' and d.del_flag = '0' ", paramsMap) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

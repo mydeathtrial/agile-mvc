@@ -488,7 +488,7 @@ public final class StringUtil extends StringUtils {
                     }
 
                     if (o == null) {
-                        if (key.indexOf(":-") != -1) {
+                        if (key.contains(":-")) {
                             //获取不到使用默认值   by nhApis 2018.12.24
                             value = keyObj[1].trim();
                         } else {
@@ -540,5 +540,36 @@ public final class StringUtil extends StringUtils {
         }
         return str;
     }
+
+    /**
+     * 切割字符串成原子数组并取出指定下标下的原子
+     *
+     * @return 原子
+     */
+    public static String getSplitAtomic(String source, String regex, int index) {
+        if (source != null) {
+            String[] atomics = source.split(regex);
+            if (atomics.length > index) {
+                return atomics[index];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 切割字符串成原子数组并取出最后下标下的原子
+     *
+     * @return 原子
+     */
+    public static String getSplitLastAtomic(String source, String regex) {
+        if (source != null) {
+            String[] atomics = source.split(regex);
+            if (atomics.length > 0) {
+                return atomics[atomics.length - 1];
+            }
+        }
+        return null;
+    }
+
 
 }

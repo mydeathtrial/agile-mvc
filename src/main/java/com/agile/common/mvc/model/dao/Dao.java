@@ -498,7 +498,7 @@ public class Dao {
      * @param size   每页条数
      * @return 分页对象
      */
-    public <T> Page findAll(T object, int page, int size) {
+    public <T> Page<T> findAll(T object, int page, int size) {
         return findAll(object, page, size, Sort.unsorted());
     }
 
@@ -512,7 +512,7 @@ public class Dao {
      * @param sort   排序对象
      * @return 分页信息
      */
-    public <T> Page findAll(T object, int page, int size, Sort sort) {
+    public <T> Page<T> findAll(T object, int page, int size, Sort sort) {
         validatePageInfo(page, size);
 
         if (object.getClass() == Class.class) {
@@ -690,7 +690,7 @@ public class Dao {
                 Query query = creatQuery(sql, parameters);
                 query.setFirstResult((page - Constant.NumberAbout.ONE) * size);
                 query.setMaxResults(size);
-                ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+                queryCoverMap(query);
                 content = query.getResultList();
             }
 
@@ -710,7 +710,7 @@ public class Dao {
      * @param parameters Map类型参数集合
      * @return 分页Page类型结果
      */
-    public Page findPageBySQL(String sql, String countSql, int page, int size, Map<String, Object> parameters) {
+    public Page<Map<String, Object>> findPageBySQL(String sql, String countSql, int page, int size, Map<String, Object> parameters) {
         return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserSQL(countSql, parameters), page, size, null, null);
     }
 
@@ -723,7 +723,7 @@ public class Dao {
      * @param parameters Map类型参数集合
      * @return 分页Page类型结果
      */
-    public Page findPageBySQL(String sql, int page, int size, Map<String, Object> parameters) {
+    public Page<Map<String, Object>> findPageBySQL(String sql, int page, int size, Map<String, Object> parameters) {
         return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, null);
     }
 
@@ -736,7 +736,7 @@ public class Dao {
      * @param parameters 对象数组类型参数集合
      * @return 分页Page类型结果
      */
-    public <T> Page<T> findPageBySQL(String sql, int page, int size, Object... parameters) {
+    public Page<Map<String, Object>> findPageBySQL(String sql, int page, int size, Object... parameters) {
         return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, null, parameters);
     }
 
@@ -818,7 +818,7 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public List<Map<String, Object>> findAllBySQL(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
-        ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+        queryCoverMap(query);
         List result = query.getResultList();
         if (result != null) {
             return result;
@@ -852,6 +852,17 @@ public class Dao {
     public Object findParameter(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         return query.getSingleResult();
+    }
+
+    public Map<String, Object> findOneToMap(String sql, Map<String, Object> parameters) {
+        return findOneToMap(SqlUtil.parserSQL(sql, parameters));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> findOneToMap(String sql, Object... parameters) {
+        Query query = creatQuery(sql, parameters);
+        queryCoverMap(query);
+        return (Map<String, Object>) query.getSingleResult();
     }
 
     /**
