@@ -7,14 +7,6 @@ import com.agile.common.util.ClassUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.SqlUtil;
 import com.agile.common.util.StringUtil;
-import com.alibaba.druid.sql.ast.SQLOrderBy;
-import com.alibaba.druid.sql.ast.SQLStatement;
-import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
-import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
-import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
-import com.alibaba.druid.sql.parser.SQLParserUtils;
-import com.alibaba.druid.sql.parser.SQLStatementParser;
-import com.alibaba.druid.util.JdbcUtils;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -637,43 +629,10 @@ public class Dao {
         PageImpl pageDate = null;
         PageRequest pageable;
 
-        //sql格式化
-        sql = sql.trim().replaceAll("[\t\r\n\\s]", " ");
+        List<Sort.Order> sorts = SqlUtil.getSort(sql);
 
-        // 新建 MySQL Parser
-        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
-        // 使用Parser解析生成AST，这里SQLStatement就是AST
-        SQLStatement statement = parser.parseStatement();
-        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
-
-        List<Sort.Order> orderList = null;
-        SQLOrderBy orderBy = sqlSelectQueryBlock.getOrderBy();
-        if (orderBy != null) {
-            List<SQLSelectOrderByItem> items = orderBy.getItems();
-            if (items != null) {
-                orderList = new ArrayList<>();
-                for (SQLSelectOrderByItem item : items) {
-                    String column = item.getExpr().toString();
-                    if (item.getType() == null) {
-                        orderList.add(Sort.Order.by(column));
-                    } else {
-                        Sort.Direction des = Sort.Direction.fromString(item.getType().name_lcase);
-                        switch (des) {
-                            case ASC:
-                                orderList.add(Sort.Order.asc(column));
-                                break;
-                            case DESC:
-                                orderList.add(Sort.Order.desc(column));
-                                break;
-                            default:
-                        }
-                    }
-                }
-            }
-        }
-
-        if (orderList != null && orderList.size() > 0) {
-            pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.by(orderList));
+        if (sorts != null && sorts.size() > 0) {
+            pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.by(sorts));
         } else {
             pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.unsorted());
         }

@@ -95,6 +95,15 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         return entity;
     }
 
+    /**
+     * 判断是否包含子字典实例
+     * @param code 子字典码
+     * @return 是否
+     */
+    public boolean containsKey(String code) {
+        return codeCache.containsKey(code);
+    }
+
     public void addCodeCache(String key, DictionaryDataEntity value) {
         codeCache.put(key, value);
     }

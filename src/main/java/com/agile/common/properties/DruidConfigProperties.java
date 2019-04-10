@@ -48,7 +48,7 @@ public class DruidConfigProperties extends DruidDataSource {
      */
     @Setter
     @Getter
-    private String dataBaseUrlParam = "serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL";
+    private String dataBaseUrlParam = "serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&tinyInt1isBit=false";
 
     /**
      * druid监控排除静态资源请求

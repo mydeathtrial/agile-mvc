@@ -484,6 +484,15 @@ public class ObjectUtil extends ObjectUtils {
                     key = camelToUnderlineKeyUpper;
                 } else if (map.containsKey(camelToUnderlineKeyLower)) {
                     key = camelToUnderlineKeyLower;
+                } else {
+                    try {
+                        Column column = getAllEntityPropertyAnnotation(clazz, field, Column.class);
+                        if (column != null) {
+                            key = column.name();
+                        }
+                    } catch (Exception ignored) {
+
+                    }
                 }
                 if (key != null) {
                     try {

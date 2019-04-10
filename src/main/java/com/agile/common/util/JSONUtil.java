@@ -20,6 +20,9 @@ import net.sf.json.JsonConfig;
 import net.sf.json.util.JSONUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -142,7 +145,7 @@ public class JSONUtil {
      * JSONObject转java对象
      */
     public static <T> T toBean(Class<T> clazz, JSONObject json) {
-        T o = (T) JSONObject.toBean(json, clazz, PropertiesUtil.getClassMap(clazz));
+        T o = (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
         return o;
     }
 
@@ -310,6 +313,35 @@ public class JSONUtil {
         return result;
     }
 
+    /**
+     * 取出类中包含的集合类型属性信息，用于jsonObject转javaBean使用
+     *
+     * @param clazz 指定对象类型
+     * @return Map 属性名，属性类型
+     */
+    public static Map<String, Class<?>> getClassMap(Class clazz) {
+        final int length = 16;
+        Map<String, Class<?>> map = new HashMap<>(length);
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            if (Iterable.class.isAssignableFrom(field.getType())) {
+                Type genericType = field.getGenericType();
+                ParameterizedType parameterizedType = (ParameterizedType) genericType;
+                Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                if (ArrayUtil.isEmpty(typeArguments) || typeArguments.length > 1) {
+                    continue;
+                }
+                map.put(field.getName(), (Class) typeArguments[0]);
+                if (!ClassUtil.canCastClass((Class) typeArguments[0])) {
+                    map.putAll(getClassMap((Class) typeArguments[0]));
+                }
+            } else if (!ClassUtil.canCastClass(field.getType())) {
+                map.putAll(getClassMap(field.getType()));
+            }
+        }
+        return map;
+    }
+
 //    public static void main(String[] args) {
 //        String s = "{\"name\":\"BeJson\",\"url\":\"http://www.bejson.com\",\"page\":88,\"isNonProfit\":true,\"address\":" +
 //                "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\"" +
@@ -321,7 +353,7 @@ public class JSONUtil {
 //        JsonNode jsonNode = toJsonNode(s2);
 //
 //        HashMap<Object, Object> map = new HashMap<>();
-//        map.put("body",jsonNodeCover(jsonNode));
-//        MapUtil.pathGet("body.all.a.all.url1",map);
+//        map.put("body", jsonNodeCover(jsonNode));
+//        MapUtil.pathGet("body.name.a.all.url1", map);
 //    }
 }

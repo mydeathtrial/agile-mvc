@@ -27,8 +27,10 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
             assert securityProperties != null;
             String token = response.getHeader(securityProperties.getTokenHeader());
 
-            ViewUtil.render(new Head(RETURN.SUCCESS), new HashMap<String, String>(1) {{
+            ViewUtil.render(new Head(RETURN.SUCCESS), new HashMap<String, Object>(1) {{
                 put("token", token);
+                put("realName", ((CustomerUserDetails) authentication.getDetails()).getName());
+                put("detail", authentication);
             }}, request, response);
             LoggerFactory.AUTHORITY_LOG.info(String.format("成功登陆[令牌：%s]", token));
         } catch (Exception e) {

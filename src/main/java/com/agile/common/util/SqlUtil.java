@@ -22,12 +22,14 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
+import com.alibaba.druid.sql.ast.statement.SQLUnionQueryTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcUtils;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -240,6 +242,8 @@ public class SqlUtil {
 
             SQLTableSource right = ((SQLJoinTableSource) from).getRight();
             parsingTableSource(right);
+        } else if (from instanceof SQLUnionQueryTableSource) {
+            parserQuery(((SQLUnionQueryTableSource) from).getUnion());
         }
     }
 
@@ -428,6 +432,49 @@ public class SqlUtil {
         return map;
     }
 
+    /**
+     * 查询语句获取排序字段集合
+     *
+     * @return 排序集合
+     */
+    public static List<Sort.Order> getSort(String sql) {
+        List<Sort.Order> sorts = new ArrayList<>();
+        // 新建 MySQL Parser
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
+        // 使用Parser解析生成AST，这里SQLStatement就是AST
+        SQLStatement statement = parser.parseStatement();
+        SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectStatement) statement).getSelect().getQueryBlock();
+
+        if (sqlSelectQueryBlock == null) {
+            return sorts;
+        }
+
+        SQLOrderBy orderBy = sqlSelectQueryBlock.getOrderBy();
+        if (orderBy != null) {
+            List<SQLSelectOrderByItem> items = orderBy.getItems();
+            if (items != null) {
+                for (SQLSelectOrderByItem item : items) {
+                    String column = item.getExpr().toString();
+                    if (item.getType() == null) {
+                        sorts.add(Sort.Order.by(column));
+                    } else {
+                        Sort.Direction des = Sort.Direction.fromString(item.getType().name_lcase);
+                        switch (des) {
+                            case ASC:
+                                sorts.add(Sort.Order.asc(column));
+                                break;
+                            case DESC:
+                                sorts.add(Sort.Order.desc(column));
+                                break;
+                            default:
+                        }
+                    }
+                }
+            }
+        }
+        return sorts;
+    }
+
 //    public static void main(String[] args) {
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("taskType", new String[]{"1", "123"});
@@ -486,15 +533,31 @@ public class SqlUtil {
 //        paramsMap.put("isCommonOrIsIndividual", new String[]{});
 //        paramsMap.put("datasourceName", "时间");
 //        paramsMap.put("field", "");
-//        System.out.println(parserSQL(" select d.* from datasource_field d, datasource_name s   \n" +
-//                "      where d.individual_datasource_id = s.id and d.is_common = '0' and s.datasource_name like '%{datasourceName}%'  \n" +
-//                "      and d.del_flag = '0' and s.del_flag = '0' and " +
-//                "     (d.field like '%{field}%' or d.name like '%{field}%' ) and d.is_common in ({isCommonOrIsIndividual}) \n" +
-//                "      union ALL " +
-//                "      select d.* from datasource_field d, datasource_name s , datasource_common_field_ref r\n" +
-//                "      where d.is_common ='1' and s.common_group_id = r.group_id and r.field_id = d.id and " +
-//                "      (d.field like '%{field}%' or d.name like '%{field}%' ) and d.is_common in ({isCommonOrIsIndividual}) and" +
-//                "      s.datasource_name like '%{datasourceName}%' and d.del_flag = '0' ", paramsMap) + "\r\r");
+//        System.out.println(parserSQL("SELECT a.*\n" +
+//                "FROM (\n" +
+//                "\tSELECT d.*\n" +
+//                "\tFROM datasource_field d, datasource_name s\n" +
+//                "\tWHERE d.individual_datasource_id = s.id\n" +
+//                "\t\tAND d.is_common = '0'\n" +
+//                "\t\tAND s.datasource_name LIKE '%事件%'\n" +
+//                "\t\tAND d.del_flag = '0'\n" +
+//                "\t\tAND s.del_flag = '0'\n" +
+//                "\t\tAND (d.field LIKE '{field}'\n" +
+//                "\t\t\tOR d.name LIKE '{field}')\n" +
+//                "\t\tAND d.is_common IN ('{isCommonOrIsIndividual}')\n" +
+//                "\tUNION ALL\n" +
+//                "\tSELECT d.*\n" +
+//                "\tFROM datasource_field d, datasource_name s, datasource_common_field_ref r\n" +
+//                "\tWHERE d.is_common = '1'\n" +
+//                "\t\tAND s.common_group_id = r.group_id\n" +
+//                "\t\tAND r.field_id = d.id\n" +
+//                "\t\tAND (d.field LIKE '{field}'\n" +
+//                "\t\t\tOR d.name LIKE '{field}')\n" +
+//                "\t\tAND d.is_common IN ('{isCommonOrIsIndividual}')\n" +
+//                "\t\tAND s.datasource_name LIKE '%事件%'\n" +
+//                "\t\tAND d.del_flag = '0'\n" +
+//                ") a\n" +
+//                "ORDER BY a.dsp_order", paramsMap) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

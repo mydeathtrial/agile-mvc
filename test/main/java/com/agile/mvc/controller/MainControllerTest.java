@@ -19,6 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.springframework.beans.BeansException;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
@@ -41,7 +42,8 @@ import java.nio.charset.StandardCharsets;
  * @author 佟盟 on 2017/5/5
  */
 @WebAppConfiguration
-@ContextConfiguration(classes = {AgileAutoConfiguration.class, RedisAutoConfiguration.class})
+@SpringBootTest
+@ContextConfiguration(classes = {App.class,RedisAutoConfiguration.class})
 public class MainControllerTest implements ApplicationContextAware {
     private static RequestMappingHandlerMapping handlerMapping;
     private static RequestMappingHandlerAdapter handlerAdapter;

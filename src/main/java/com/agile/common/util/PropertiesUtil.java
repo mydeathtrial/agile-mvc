@@ -17,13 +17,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -278,7 +274,6 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
     }
 
 
-
     /**
      * 根据文件名取classpath目录下的json数据
      *
@@ -351,7 +346,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      */
     public static <T> T getObjectFromJson(Class<T> clazz, JSONObject json) {
         try {
-            return (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
+            return (T) JSONObject.toBean(json, clazz, JSONUtil.getClassMap(clazz));
         } catch (Exception ignored) {
         }
         return null;
@@ -375,7 +370,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
                 JSON json = getJson(key.substring(0, key.length() - length));
                 try {
                     if (json instanceof JSONObject) {
-                        T node = (T) JSONObject.toBean((JSONObject) json, clazz, getClassMap(clazz));
+                        T node = (T) JSONObject.toBean((JSONObject) json, clazz, JSONUtil.getClassMap(clazz));
                         if (node != null) {
                             list.add(node);
                         }
@@ -402,42 +397,13 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         List<T> list = new LinkedList<>();
         for (Object o : jsonArray) {
             if (o instanceof JSONObject) {
-                T node = (T) JSONObject.toBean((JSONObject) o, clazz, getClassMap(clazz));
+                T node = (T) JSONObject.toBean((JSONObject) o, clazz, JSONUtil.getClassMap(clazz));
                 list.add(node);
             } else if (o instanceof JSONArray) {
                 list.addAll(jsonArrayToObjectList((JSONArray) o, clazz));
             }
         }
         return list;
-    }
-
-    /**
-     * 取出类中包含的集合类型属性信息，用于jsonObject转javaBean使用
-     *
-     * @param clazz 指定对象类型
-     * @return Map 属性名，属性类型
-     */
-    public static Map getClassMap(Class clazz) {
-        final int length = 16;
-        Map<String, Class<?>> map = new HashMap<>(length);
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            if (Iterable.class.isAssignableFrom(field.getType())) {
-                Type genericType = field.getGenericType();
-                ParameterizedType parameterizedType = (ParameterizedType) genericType;
-                Type[] typeArguments = parameterizedType.getActualTypeArguments();
-                if (ArrayUtil.isEmpty(typeArguments) || typeArguments.length > 1) {
-                    continue;
-                }
-                map.put(field.getName(), (Class) typeArguments[0]);
-                if (!ClassUtil.canCastClass((Class) typeArguments[0])) {
-                    map.putAll(getClassMap((Class) typeArguments[0]));
-                }
-            } else if (!ClassUtil.canCastClass(field.getType())) {
-                map.putAll(getClassMap(field.getType()));
-            }
-        }
-        return map;
     }
 
     /**

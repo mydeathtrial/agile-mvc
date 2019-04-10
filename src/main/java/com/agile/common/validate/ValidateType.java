@@ -89,26 +89,30 @@ public enum ValidateType implements ValidateInterface {
                 list.add(v);
             }
         }
-        if (!validate.nullable()) {
-            ValidateMsg v = new ValidateMsg("不允许为空值", false, key, null);
-            list.add(v);
-        }
         int size = value.size();
         if (!(validate.min_size() <= size && size <= validate.max_size())) {
-            ValidateMsg v = new ValidateMsg("长度超出阈值", false, key, size);
+            ValidateMsg v = new ValidateMsg(createMessage(validate, "长度超出阈值"), false, key, size);
             list.add(v);
         }
         return list;
     }
 
-    private String createMessage(Validate validate) {
+    private String createMessage(Validate validate, String defaultMessage) {
+        String result;
         if (StringUtil.isEmpty(validate.validateMsg()) && StringUtil.isEmpty(validate.validateMsgKey())) {
-            return String.format("不符合%s格式", info);
+            result = String.format("不符合%s格式", info);
         } else if (!StringUtil.isEmpty(validate.validateMsgKey())) {
-            return PropertiesUtil.getMessage(validate.validateMsgKey(), (Object[]) validate.validateMsgParams());
+            result = PropertiesUtil.getMessage(validate.validateMsgKey(), (Object[]) validate.validateMsgParams());
+        } else if (defaultMessage != null) {
+            result = defaultMessage;
         } else {
-            return validate.validateMsg();
+            result = validate.validateMsg();
         }
+        return result;
+    }
+
+    private String createMessage(Validate validate) {
+        return createMessage(validate, null);
     }
 
     private ValidateMsg validate(String key, Object value, Validate validate) {
@@ -134,21 +138,21 @@ public enum ValidateType implements ValidateInterface {
                     int n = Integer.parseInt(String.valueOf(value));
                     if (!(validate.min() <= n && n <= validate.max())) {
                         v.setState(false);
-                        v.setMessage("值超出阈值");
+                        v.setMessage(createMessage(validate, "值超出阈值"));
                     }
                     break;
                 case FLOAT:
                     float n1 = Float.parseFloat(String.valueOf(value));
                     if (!(validate.min() <= n1 && n1 <= validate.max())) {
                         v.setState(false);
-                        v.setMessage("值超出阈值");
+                        v.setMessage(createMessage(validate, "值超出阈值"));
                     }
                     break;
                 default:
                     int size = String.valueOf(value).length();
                     if (!(validate.min_size() <= size && size <= validate.max_size())) {
                         v.setState(false);
-                        v.setMessage("长度超出阈值");
+                        v.setMessage(createMessage(validate, "长度超出阈值"));
                     }
             }
             return v;
@@ -157,7 +161,7 @@ public enum ValidateType implements ValidateInterface {
                 return null;
             }
             v.setState(false);
-            v.setMessage("不允许为空值");
+            v.setMessage(createMessage(validate, "不允许为空值"));
             return v;
         }
     }

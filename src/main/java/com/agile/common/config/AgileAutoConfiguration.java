@@ -25,4 +25,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @ComponentScan(basePackages = {"com.agile.**"}, excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = ExcludeComponentScan.class)})
 public class AgileAutoConfiguration {
+    public AgileAutoConfiguration() {
+    }
 }

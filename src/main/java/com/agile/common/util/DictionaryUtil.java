@@ -163,6 +163,40 @@ public class DictionaryUtil {
     }
 
     /**
+     * 递归获取字典码对应实体下n层中，code = targetCode的首个实例
+     * @param rootCode 上级字典码
+     * @param targetCode 目标字典码
+     * @return 字典实例
+     */
+    public static DictionaryDataEntity coverDicBeanByRecursive(String rootCode, String targetCode) {
+        DictionaryDataEntity dic = coverDicBean(rootCode);
+        return coverDicBeanByRecursive(dic, targetCode);
+    }
+
+    /**
+     * 递归获取实体下n层中，code = targetCode的首个实例
+     * @param entity 实体
+     * @param targetCode 目标字典码
+     * @return 字典实例
+     */
+    public static DictionaryDataEntity coverDicBeanByRecursive(DictionaryDataEntity entity, String targetCode) {
+        DictionaryDataEntity result = null;
+        if (entity != null) {
+            if (entity.containsKey(targetCode)) {
+                result = entity.getCodeCache(targetCode);
+            } else if (entity.getChildren().size() > 0) {
+                for (DictionaryDataEntity dic : entity.getChildren()) {
+                    DictionaryDataEntity c = coverDicBeanByRecursive(dic, targetCode);
+                    if (c != null) {
+                        return c;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * 根据父级树形字典码与name获取code
      *
      * @param code 字典码

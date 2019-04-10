@@ -16,4 +16,11 @@ public interface CustomerUserDetails extends UserDetails {
      * @return 用户登陆策略
      */
     LoginStrategy getLoginStrategy();
+
+    /**
+     * 明文用户名
+     *
+     * @return 用户名
+     */
+    String getName();
 }
