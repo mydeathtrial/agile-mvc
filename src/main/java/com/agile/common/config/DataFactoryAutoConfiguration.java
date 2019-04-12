@@ -1,14 +1,15 @@
 package com.agile.common.config;
 
-import com.agile.common.annotation.Init;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.EsProperties;
+import com.idss.common.datafactory.DataSearch;
+import com.idss.common.datafactory.DataSearchFactory;
 import com.idss.common.datafactory.utils.ESConfig;
 import org.elasticsearch.client.ElasticsearchClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -26,13 +27,9 @@ public class DataFactoryAutoConfiguration {
         this.esProperties = esProperties;
     }
 
-    @Init
-    public void initEnv() {
-        try {
-            ESConfig.init(esProperties.initDefault().getConfig(), esProperties.getDefaultEsKey());
-        } catch (Exception e) {
-            assert LoggerFactory.ES_LOG != null;
-            LoggerFactory.ES_LOG.error("ES环境初始化配置失败", e);
-        }
+    @Bean
+    public DataSearch loadDataSearchBean() {
+        ESConfig.init(this.esProperties.getConfig(), this.esProperties.getDefaultEsKey());
+        return DataSearchFactory.buildDataSearch();
     }
 }

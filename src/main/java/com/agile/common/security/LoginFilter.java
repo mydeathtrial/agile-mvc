@@ -7,9 +7,9 @@ import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.AesUtil;
 import com.agile.common.util.CacheUtil;
+import com.agile.common.util.ParamUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
-import com.agile.common.util.ViewUtil;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -68,10 +68,10 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
-        Map<String, Object> params = ViewUtil.handleInParam(request);
-        String sourceUsername = ViewUtil.getInParam(params, this.username, String.class);
-        String sourcePassword = ViewUtil.getInParam(params, this.password, String.class);
-        String validateCode = ViewUtil.getInParam(params, this.code, String.class);
+        Map<String, Object> params = ParamUtil.handleInParam(request);
+        String sourceUsername = ParamUtil.getInParam(params, this.username, String.class);
+        String sourcePassword = ParamUtil.getInParam(params, this.password, String.class);
+        String validateCode = ParamUtil.getInParam(params, this.code, String.class);
 
         //解密
         sourcePassword = AesUtil.aesDecrypt(sourcePassword);

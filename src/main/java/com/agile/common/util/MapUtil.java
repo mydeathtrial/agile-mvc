@@ -310,7 +310,7 @@ public class MapUtil extends MapUtils {
         if (Map.class.isAssignableFrom(o.getClass())) {
             result = ((Map) o).get(key);
         } else if (List.class.isAssignableFrom(o.getClass())) {
-            if (NumberUtil.isNumber(key)) {
+            if (NumberUtil.isNumber(key) && ((List) o).size() > Integer.parseInt(key)) {
                 result = ((List) o).get(Integer.parseInt(key));
             } else if (all.equals(key)) {
                 List<Object> cache = new ArrayList<>();
@@ -321,7 +321,9 @@ public class MapUtil extends MapUtils {
                         cache.add(node);
                     }
                 }
-                result = cache;
+                if (cache.size() > 0) {
+                    result = cache;
+                }
             } else if (key.contains(Constant.RegularAbout.COMMA)) {
                 List<Object> cache = new ArrayList<>();
                 String[] indexes = key.split(Constant.RegularAbout.COMMA);
@@ -334,13 +336,20 @@ public class MapUtil extends MapUtils {
                         }
                     }
                 }
-                result = cache;
+                if (cache.size() > 0) {
+                    result = cache;
+                }
             } else {
                 List<Object> cache = new ArrayList<>();
                 for (Object node : (List) o) {
-                    cache.add(pathGet(key, node));
+                    Object cacheNode = pathGet(key, node);
+                    if (cacheNode != null) {
+                        cache.add(cacheNode);
+                    }
                 }
-                result = cache;
+                if (cache.size() > 0) {
+                    result = cache;
+                }
             }
         }
         return result;

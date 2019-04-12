@@ -6,12 +6,9 @@ import com.agile.common.exception.NoSignInException;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.security.CustomerUserDetails;
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.JSONUtil;
-import com.agile.common.util.MapUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.common.util.ViewUtil;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.agile.common.util.ParamUtil;
+import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +29,10 @@ import java.util.Map;
 public class MainService implements ServiceInterface {
 
     /**
-     *
+     * 入参
      */
     private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
+
     /**
      * 输出
      */
@@ -91,7 +88,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Object getInParam(String key) {
-        return MapUtil.pathGet(key, getInParam());
+        return ParamUtil.getInParam(getInParam(), key);
     }
 
 
@@ -103,15 +100,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(Class<T> clazz) {
-        T result = null;
-        Object jsonNode = getInParam(Constant.ResponseAbout.BODY);
-        if (jsonNode != null) {
-            result = JSONUtil.toBean(clazz, jsonNode.toString());
-        }
-        if (result == null || ObjectUtil.isAllNullValidity(result)) {
-            result = ObjectUtil.getObjectFromMap(clazz, this.getInParam());
-        }
-        return result;
+        return ParamUtil.getInParam(getInParam(), clazz);
     }
 
     /**
@@ -144,18 +133,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected String getInParam(String key, String defaultValue) {
-        Object value = inParam.get().get(key);
-        if (ObjectUtil.isEmpty(value)) {
-            Object body = inParam.get().get(Constant.ResponseAbout.BODY);
-            if (body != null) {
-                JsonNode v = ((JsonNode) body).get(key);
-                if (v != null) {
-                    return v.asText();
-                }
-            }
-            return defaultValue;
-        }
-        return String.valueOf(value);
+        return ParamUtil.getInParam(getInParam(), key, defaultValue);
     }
 
     /**
@@ -166,7 +144,19 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(String key, Class<T> clazz) {
-        return ViewUtil.getInParam(getInParam(), key, clazz);
+        return ParamUtil.getInParam(getInParam(), key, clazz);
+    }
+
+    /**
+     * 取path下入参，转换为指定泛型
+     *
+     * @param key       参数path
+     * @param reference 泛型
+     * @param <T>       泛型
+     * @return 转换后的入参
+     */
+    public <T> T getInParam(String key, TypeReference<T> reference) {
+        return ParamUtil.getInParamOfBody(getInParam(), key, reference);
     }
 
     /**
@@ -176,13 +166,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
-        T result = getInParam(key, clazz);
-
-        if (result == null) {
-            return defaultValue;
-        }
-
-        return result;
+        return ParamUtil.getInParam(getInParam(), key, clazz, defaultValue);
     }
 
     /**
@@ -202,17 +186,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
-        Object o = getInParam().get(key);
-        if (o == null) {
-            return null;
-        }
-        if (Iterable.class.isAssignableFrom(o.getClass())) {
-            return ArrayUtil.cast(clazz, (Iterable) o);
-        } else if (o.getClass().isArray()) {
-            return ArrayUtil.cast(clazz, ArrayUtil.asList((Object[]) o));
-        } else {
-            return null;
-        }
+        return ParamUtil.getInParamOfArray(getInParam(), key, clazz);
     }
 
     /**
@@ -222,7 +196,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected boolean containsKey(String key) {
-        return inParam.get().containsKey(key);
+        return ParamUtil.containsKey(getInParam(), key);
     }
 
     /**
@@ -233,23 +207,7 @@ public class MainService implements ServiceInterface {
     @Override
     public Map<String, Object> getInParam() {
         Map<String, Object> map = inParam.get();
-        Object body = map.get(Constant.ResponseAbout.BODY);
-        if (body != null) {
-            Map<String, Object> result = new HashMap<>(map);
-
-            String bodyString = body.toString();
-            if (bodyString != null) {
-                Object json = JSONUtil.jsonNodeCover(JSONUtil.toJsonNode(bodyString));
-
-                if (Map.class.isAssignableFrom(json.getClass())) {
-                    result.putAll((Map<? extends String, ?>) json);
-                } else if (List.class.isAssignableFrom(json.getClass())) {
-                    result.put(Constant.ResponseAbout.BODY, json);
-                }
-            }
-            return result;
-        }
-        return map;
+        return ParamUtil.coverToMap(map);
     }
 
 

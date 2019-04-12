@@ -23,4 +23,8 @@ public class ValidateMsg {
         this.item = paramKey;
         this.itemValue = paramValue;
     }
+
+    public void addMessage(String msg) {
+        message = String.format("%s;%s", message, msg);
+    }
 }

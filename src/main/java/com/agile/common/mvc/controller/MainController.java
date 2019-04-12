@@ -2,8 +2,6 @@ package com.agile.common.mvc.controller;
 
 import com.agile.common.annotation.ApiMethod;
 import com.agile.common.annotation.Mapping;
-import com.agile.common.annotation.Validate;
-import com.agile.common.annotation.Validates;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
@@ -17,10 +15,9 @@ import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.ParamUtil;
 import com.agile.common.util.StringUtil;
-import com.agile.common.util.ViewUtil;
 import com.agile.common.validate.ValidateMsg;
-import com.agile.common.validate.ValidateType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,15 +26,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 主控制层
@@ -194,10 +185,11 @@ public class MainController {
         handleInParam();
 
         //入参验证
-        List<ValidateMsg> validateMessages = handleInParamValidate();
+        List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getService(), getMethod());
         if (validateMessages != null && validateMessages.size() > 0) {
+            ParamUtil.aggregation(validateMessages);
             assert RETURN.PARAMETER_ERROR != null;
-            return ViewUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
+            return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
         }
 
         //调用目标方法
@@ -220,133 +212,12 @@ public class MainController {
             modelAndView.addAllObjects((AbstractResponseFormat) returnData);
             return modelAndView;
         }
-        ModelAndView modelAndView = ViewUtil.getResponseFormatData(returnData instanceof RETURN ? new Head((RETURN) returnData) : null, getService().getOutParam());
+        ModelAndView modelAndView = ParamUtil.getResponseFormatData(returnData instanceof RETURN ? new Head((RETURN) returnData) : null, getService().getOutParam());
 
         //清理缓存
         clear();
 
         return modelAndView;
-    }
-
-    /**
-     * 入参验证
-     *
-     * @return 验证信息集
-     * @throws InstantiationException 异常
-     * @throws IllegalAccessException 异常
-     */
-    private List<ValidateMsg> handleInParamValidate() throws InstantiationException, IllegalAccessException {
-        List<ValidateMsg> list = null;
-        Validates vs = getMethod().getAnnotation(Validates.class);
-        if (vs != null) {
-            list = handleValidateAnnotation(vs);
-        }
-        Validate v = getMethod().getAnnotation(Validate.class);
-        if (v != null) {
-            List<ValidateMsg> rs = handleValidateAnnotation(v);
-            if (rs != null) {
-                if (list != null) {
-                    list.addAll(rs);
-                }
-                list = rs;
-            }
-        }
-        return list;
-    }
-
-    /**
-     * 根据参数验证注解取验证信息集
-     *
-     * @param v Validate注解
-     * @return 验证信息集
-     * @throws IllegalAccessException 异常
-     * @throws InstantiationException 异常
-     */
-    private List<ValidateMsg> handleValidateAnnotation(Validate v) throws IllegalAccessException, InstantiationException {
-        if (v == null) {
-            return null;
-        }
-        if (StringUtil.isBlank(v.value()) && v.beanClass() == Class.class) {
-            return null;
-        }
-        String key = v.value().trim();
-        Object value;
-        if (StringUtil.isBlank(key)) {
-            value = getService().getInParam();
-        } else {
-            value = getService().getInParam(key);
-        }
-
-        List<ValidateMsg> list = new ArrayList<>();
-
-        Class<?> beanClass = v.beanClass();
-        if (beanClass != Class.class) {
-            Object bean = StringUtil.isBlank(key) ? getService().getInParam(beanClass) : getService().getInParam(key, beanClass);
-            if (bean == null) {
-                bean = v.beanClass().newInstance();
-            } else {
-                getService().setInParam(StringUtil.toLowerName(beanClass.getSimpleName()), bean);
-            }
-            ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-            Validator validator = validatorFactory.getValidator();
-            Set<ConstraintViolation<Object>> set = validator.validate(bean, v.validateGroups());
-            if (set != null && set.size() > 0) {
-                list = new ArrayList<>();
-            } else {
-                return null;
-            }
-            for (ConstraintViolation<Object> m : set) {
-                ValidateMsg r = new ValidateMsg(m.getMessage(), false, StringUtil.isBlank(key) ? m.getPropertyPath().toString() : String.format("%s.%s", key, m.getPropertyPath()), m.getInvalidValue());
-                if (r.isState()) {
-                    continue;
-                }
-                list.add(r);
-            }
-            return list;
-        }
-
-        ValidateType validateType = v.validateType();
-        if (value != null && value.getClass().isArray()) {
-            List<ValidateMsg> rs = validateType.validateArray(key, ArrayUtil.cast(String.class, (Object[]) value), v);
-
-            if (rs != null) {
-                for (ValidateMsg validateMsg : rs) {
-                    if (validateMsg.isState()) {
-                        continue;
-                    }
-                    list.add(validateMsg);
-                }
-            }
-        } else {
-            ValidateMsg r = validateType.validateParam(key, value, v);
-            if (r != null && !r.isState()) {
-                list = new ArrayList<>();
-                list.add(r);
-            }
-        }
-        return list;
-    }
-
-    /**
-     * 根据参数验证集注解取验证信息集
-     *
-     * @param vs Validates注解
-     * @return 验证信息集
-     * @throws InstantiationException 异常
-     * @throws IllegalAccessException 异常
-     */
-    private List<ValidateMsg> handleValidateAnnotation(Validates vs) throws InstantiationException, IllegalAccessException {
-        List<ValidateMsg> list = null;
-        for (Validate v : vs.value()) {
-            List<ValidateMsg> r = handleValidateAnnotation(v);
-            if (r != null) {
-                if (list == null) {
-                    list = new ArrayList<>();
-                }
-                list.addAll(r);
-            }
-        }
-        return list;
     }
 
     /**
@@ -504,7 +375,7 @@ public class MainController {
         HttpServletRequest currentRequest = request.get();
 
         //将处理过的所有请求参数传入调用服务对象
-        getService().setInParam(ViewUtil.handleInParam(currentRequest));
+        getService().setInParam(ParamUtil.handleInParam(currentRequest));
     }
 
     /**

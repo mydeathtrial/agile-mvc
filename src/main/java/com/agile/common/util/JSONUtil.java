@@ -1,69 +1,54 @@
 package com.agile.common.util;
 
 
-import com.agile.common.base.Constant;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONNull;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.JSONUtils;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author mydeathtrial on 2017/5/9
  */
-public class JSONUtil {
+public class JSONUtil extends JSON {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-    static {
-        objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
-            @Override
-            public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                jsonGenerator.writeString(Constant.RegularAbout.BLANK);
-            }
-        });
-
-        // 对象字段全部列入
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-
-        // 取消默认转换timestamps形式
-        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-        // 忽略空bean转json的错误
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
-        // 统一日期格式yyyy-MM-dd HH:mm:ss
-        objectMapper.setDateFormat(new SimpleDateFormat(DateUtil.YYMMDDHHMMSS_SLASH));
-
-        // 忽略在json字符串中存在,但是在java对象中不存在对应属性的情况
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-
-        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
-    }
+//    static {
+//        objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
+//            @Override
+//            public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+//                jsonGenerator.writeString(Constant.RegularAbout.BLANK);
+//            }
+//        });
+//
+//        // 对象字段全部列入
+//        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+//
+//        // 取消默认转换timestamps形式
+//        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+//
+//        // 忽略空bean转json的错误
+//        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+//
+//        // 统一日期格式yyyy-MM-dd HH:mm:ss
+//        objectMapper.setDateFormat(new SimpleDateFormat(DateUtil.YYMMDDHHMMSS_SLASH));
+//
+//        // 忽略在json字符串中存在,但是在java对象中不存在对应属性的情况
+//        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+//
+//        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+//
+//        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
+//    }
 
     /**
      * Object转json字符串并格式化美化
@@ -84,7 +69,7 @@ public class JSONUtil {
                 s = s.append(" ");
                 i++;
             }
-            String result = obj instanceof String ? (String) obj : objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj).replaceAll(r, r + s.toString());
+            String result = obj instanceof String ? (String) obj : toJSONString(obj, true).replaceAll(r, r + s.toString());
             if (blank > 0) {
                 result = s + result;
             }
@@ -95,150 +80,22 @@ public class JSONUtil {
         }
     }
 
-    public static <T> String toStringPretty(T obj) {
-        return toStringPretty(obj, 0);
-    }
-
-    /**
-     * 转换json字符串
-     *
-     * @param object 转换源
-     * @return json串
-     */
-    public static String toJSONString(Object object) {
-        if (StringUtil.isString(object)) {
-            return object.toString();
-        }
-        if (JSONUtils.isArray(object)) {
-            return JSONArray.fromObject(object).toString();
-        } else {
-            try {
-                return JSONObject.fromObject(object).toString();
-            } catch (Exception e) {
-                return null;
-            }
-        }
-    }
-
-    /**
-     * 转换json对象
-     *
-     * @param object 转换源
-     * @return json对象
-     */
-    public static JSON toJSON(Object object) {
-        JSON json = null;
-        try {
-            JsonConfig jsonConfig = new JsonConfig();
-            jsonConfig.setJsonPropertyFilter((obj, key, value) -> value == null || value instanceof JSONNull);
-            json = JSONObject.fromObject(object, jsonConfig);
-        } catch (Exception ignored) {
-        }
-        try {
-            json = JSONArray.fromObject(object);
-        } catch (Exception ignored) {
-        }
-        return json;
-    }
-
     /**
      * JSONObject转java对象
      */
     public static <T> T toBean(Class<T> clazz, JSONObject json) {
-        T o = (T) JSONObject.toBean(json, clazz, getClassMap(clazz));
-        return o;
+        return toJavaObject(json, clazz);
     }
 
     public static <T> T toBean(Class<T> clazz, String str) {
-        try {
-            return objectMapper.readValue(str, clazz);
-        } catch (IOException e) {
-            return null;
-        }
+        return parseObject(str, clazz);
     }
 
-    public static <T> T toBean(Class<T> clazz, JsonNode json) {
-        try {
-            return objectMapper.readValue(json.toString(), clazz);
-        } catch (IOException e) {
+    public static JSON toJSON(Object javaObject) {
+        if (javaObject == null) {
             return null;
         }
-    }
-
-    public static JsonNode toJsonNode(String jsonStr) {
-        try {
-            return objectMapper.readTree(jsonStr);
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    /**
-     * jackson2转List Map结构
-     *
-     * @param json json数据
-     * @return List Map结构
-     */
-    public static Object jsonNodeCover(JsonNode json) {
-        if (json == null) {
-            return null;
-        }
-        if (ObjectNode.class.isAssignableFrom(json.getClass())) {
-            return jsonNodeCoverMap((ObjectNode) json);
-        } else if (ArrayNode.class.isAssignableFrom(json.getClass())) {
-            return jsonNodeCoverArray((ArrayNode) json);
-        } else {
-            return json.asText();
-        }
-    }
-
-    /**
-     * jackson2转List Map结构
-     *
-     * @param json ObjectNode数据
-     * @return List Map结构
-     */
-    public static Map<String, Object> jsonNodeCoverMap(ObjectNode json) {
-        if (json == null) {
-            return null;
-        }
-        Map<String, Object> result = new HashMap<>(json.size());
-        Iterator it = json.fieldNames();
-        while (it.hasNext()) {
-            String selfKey = it.next().toString();
-            JsonNode o = json.get(selfKey);
-            if (ObjectNode.class.isAssignableFrom(o.getClass())) {
-                result.put(selfKey, jsonNodeCoverMap((ObjectNode) o));
-            } else if (ArrayNode.class.isAssignableFrom(o.getClass())) {
-                result.put(selfKey, jsonNodeCoverArray((ArrayNode) o));
-            } else {
-                result.put(selfKey, o.asText());
-            }
-        }
-        return result;
-    }
-
-    /**
-     * jackson2转List Map结构
-     *
-     * @param json ArrayNode数据
-     * @return List Map结构
-     */
-    public static List<Object> jsonNodeCoverArray(ArrayNode json) {
-        if (json == null) {
-            return null;
-        }
-        List<Object> result = new ArrayList<>();
-        for (JsonNode node : json) {
-            if (ObjectNode.class.isAssignableFrom(node.getClass())) {
-                result.add(jsonNodeCoverMap((ObjectNode) node));
-            } else if (ArrayNode.class.isAssignableFrom(node.getClass())) {
-                result.add(jsonNodeCoverArray((ArrayNode) node));
-            } else {
-                result.add(node.asText());
-            }
-        }
-        return result;
+        return (JSON) parse(javaObject.toString());
     }
 
     /**
@@ -273,18 +130,18 @@ public class JSONUtil {
         }
         Map<String, Object> result = new HashMap<>(json.size());
 
-        Iterator it = json.keys();
-        while (it.hasNext()) {
-            String selfKey = it.next().toString();
-            Object o = json.get(selfKey);
-            if (JSONObject.class.isAssignableFrom(o.getClass())) {
-                result.put(selfKey, jsonObjectCoverMap((JSONObject) o));
-            } else if (JSONArray.class.isAssignableFrom(o.getClass())) {
-                result.put(selfKey, jsonArrayCoverArray((JSONArray) o));
+        Set<String> keySet = json.keySet();
+        for (String key : keySet) {
+            Object o = json.get(key);
+            if (o != null && JSONObject.class.isAssignableFrom(o.getClass())) {
+                result.put(key, jsonObjectCoverMap((JSONObject) o));
+            } else if (o != null && JSONArray.class.isAssignableFrom(o.getClass())) {
+                result.put(key, jsonArrayCoverArray((JSONArray) o));
             } else {
-                result.put(selfKey, o);
+                result.put(key, o);
             }
         }
+
         return result;
     }
 
@@ -300,7 +157,7 @@ public class JSONUtil {
         }
         List<Object> result = new ArrayList<>();
         for (Object o : jsonArray) {
-            if (JSON.class.isAssignableFrom(o.getClass())) {
+            if (o != null && JSON.class.isAssignableFrom(o.getClass())) {
                 if (JSONObject.class.isAssignableFrom(o.getClass())) {
                     result.add(jsonObjectCoverMap((JSONObject) o));
                 } else if (JSONArray.class.isAssignableFrom(o.getClass())) {
@@ -342,6 +199,19 @@ public class JSONUtil {
         return map;
     }
 
+//    /**
+//     * asdasd
+//     */
+//    @Data
+//    public static class Demo {
+//        private String a;
+//        private int b;
+//        private double c;
+//        private int[] d;
+//        private List<SysModulesEntity> list;
+//        private Map<String, SysModulesEntity> map;
+//    }
+
 //    public static void main(String[] args) {
 //        String s = "{\"name\":\"BeJson\",\"url\":\"http://www.bejson.com\",\"page\":88,\"isNonProfit\":true,\"address\":" +
 //                "{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\"" +
@@ -350,10 +220,29 @@ public class JSONUtil {
 //                "{\"name1\":\"1\",\"url1\":\"2\"}]},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\",\"a\":[{\"name1\":" +
 //                "\"1\",\"url1\":\"2\"},{\"name1\":\"1\",\"url1\":\"2\"}]},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"" +
 //                ",\"a\":[{\"name1\":\"1\",\"url1\":\"2\"},{\"name1\":\"1\",\"url1\":\"2\"}]}]";
-//        JsonNode jsonNode = toJsonNode(s2);
 //
+//        SysModulesEntity entity = new SysModulesEntity();
+//        entity.setDesc(s);
+//        entity.setEnable(true);
+//        entity.setOrder(100);
+//        entity.setChildren(new ArrayList<SysModulesEntity>() {{
+//            add(SysModulesEntity.builder().name("tu").build());
+//        }});
+//
+//        Demo demo = new Demo();
+//        demo.setA(s);
+//        demo.setB(2);
+//        demo.setC(3.01);
+//        demo.setD(new int[]{1, 2, 3});
+//        demo.setList(new ArrayList<SysModulesEntity>() {{
+//            add(entity);
+//        }});
+//        demo.setMap(new HashMap<String, SysModulesEntity>() {{
+//            put("tudou", entity);
+//        }});
+//        Object s3 = com.alibaba.fastjson.JSON.toJSON(demo);
 //        HashMap<Object, Object> map = new HashMap<>();
-//        map.put("body", jsonNodeCover(jsonNode));
+//        map.put("body", jsonCover(toJSON(s2)));
 //        MapUtil.pathGet("body.name.a.all.url1", map);
 //    }
 }

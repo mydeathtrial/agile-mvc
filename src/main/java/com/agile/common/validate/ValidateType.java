@@ -2,12 +2,17 @@ package com.agile.common.validate;
 
 import com.agile.common.annotation.Validate;
 import com.agile.common.base.Constant;
+import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
-import net.sf.json.JSONNull;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author 佟盟 on 2018/11/16
@@ -73,25 +78,22 @@ public enum ValidateType implements ValidateInterface {
     }
 
     @Override
-    public ValidateMsg validateParam(String key, Object value, Validate validate) {
-        if (value instanceof JSONNull) {
-            value = null;
-        }
+    public List<ValidateMsg> validateParam(String key, Object value, Validate validate) {
         return validate(key, value, validate);
     }
 
     @Override
-    public List<ValidateMsg> validateArray(String key, List<String> value, Validate validate) {
+    public List<ValidateMsg> validateArray(String key, List value, Validate validate) {
         List<ValidateMsg> list = new ArrayList<>();
-        for (String o : value) {
-            ValidateMsg v = validate(key, o, validate);
+        for (Object o : value) {
+            List<ValidateMsg> v = validate(key, o, validate);
             if (v != null) {
-                list.add(v);
+                list.addAll(v);
             }
         }
         int size = value.size();
         if (!(validate.min_size() <= size && size <= validate.max_size())) {
-            ValidateMsg v = new ValidateMsg(createMessage(validate, "长度超出阈值"), false, key, size);
+            ValidateMsg v = new ValidateMsg(createMessage(validate, "长度超出阈值"), false, key, value);
             list.add(v);
         }
         return list;
@@ -101,12 +103,12 @@ public enum ValidateType implements ValidateInterface {
         String result;
         if (StringUtil.isEmpty(validate.validateMsg()) && StringUtil.isEmpty(validate.validateMsgKey())) {
             result = String.format("不符合%s格式", info);
+        } else if (!Validate.MSG.equals(validate.validateMsg())) {
+            result = validate.validateMsg();
         } else if (!StringUtil.isEmpty(validate.validateMsgKey())) {
             result = PropertiesUtil.getMessage(validate.validateMsgKey(), (Object[]) validate.validateMsgParams());
-        } else if (defaultMessage != null) {
-            result = defaultMessage;
         } else {
-            result = validate.validateMsg();
+            result = defaultMessage;
         }
         return result;
     }
@@ -115,8 +117,32 @@ public enum ValidateType implements ValidateInterface {
         return createMessage(validate, null);
     }
 
-    private ValidateMsg validate(String key, Object value, Validate validate) {
+    private List<ValidateMsg> validate(String key, Object value, Validate validate) {
+        List<ValidateMsg> list = new ArrayList<>();
+
+        Class<?> beanClass = validate.beanClass();
+        if (beanClass != Class.class) {
+            Object bean = ObjectUtil.cast(beanClass, value);
+            if (bean == null) {
+                list.add(new ValidateMsg(value == null ? "参数不允许为空" : "非法参数", false, key, value));
+            } else {
+                ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+                Validator validator = validatorFactory.getValidator();
+                Set<ConstraintViolation<Object>> set = validator.validate(bean, validate.validateGroups());
+                for (ConstraintViolation<Object> m : set) {
+                    ValidateMsg r = new ValidateMsg(m.getMessage(), false, StringUtil.isBlank(key) ? m.getPropertyPath().toString() : String.format("%s.%s", key, m.getPropertyPath()), m.getInvalidValue());
+                    if (r.isState()) {
+                        continue;
+                    }
+                    list.add(r);
+                }
+            }
+
+            return list;
+        }
+
         ValidateMsg v = new ValidateMsg(key, value);
+        list.add(v);
         if (value != null && !StringUtil.isBlank(value.toString())) {
             boolean state;
             if (validate.validateType() != NO) {
@@ -155,14 +181,13 @@ public enum ValidateType implements ValidateInterface {
                         v.setMessage(createMessage(validate, "长度超出阈值"));
                     }
             }
-            return v;
         } else {
             if (validate.nullable()) {
                 return null;
             }
             v.setState(false);
             v.setMessage(createMessage(validate, "不允许为空值"));
-            return v;
         }
+        return list;
     }
 }

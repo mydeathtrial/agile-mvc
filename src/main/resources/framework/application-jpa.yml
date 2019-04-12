@@ -16,7 +16,6 @@ spring:
           use_second_level_cache: false
           use_query_cache: true
           use_structured_entries: false
-          current_session_context_class: thread
           hbm2ddl:
             auto: update
           region:

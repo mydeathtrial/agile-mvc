@@ -1,8 +1,8 @@
 package com.agile.common.util;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -346,7 +346,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      */
     public static <T> T getObjectFromJson(Class<T> clazz, JSONObject json) {
         try {
-            return (T) JSONObject.toBean(json, clazz, JSONUtil.getClassMap(clazz));
+            return JSONUtil.toBean(clazz, json);
         } catch (Exception ignored) {
         }
         return null;
@@ -370,7 +370,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
                 JSON json = getJson(key.substring(0, key.length() - length));
                 try {
                     if (json instanceof JSONObject) {
-                        T node = (T) JSONObject.toBean((JSONObject) json, clazz, JSONUtil.getClassMap(clazz));
+                        T node = JSONUtil.toBean(clazz, (JSONObject) json);
                         if (node != null) {
                             list.add(node);
                         }
@@ -397,7 +397,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         List<T> list = new LinkedList<>();
         for (Object o : jsonArray) {
             if (o instanceof JSONObject) {
-                T node = (T) JSONObject.toBean((JSONObject) o, clazz, JSONUtil.getClassMap(clazz));
+                T node = JSONUtil.toBean(clazz, (JSONObject) o);
                 list.add(node);
             } else if (o instanceof JSONArray) {
                 list.addAll(jsonArrayToObjectList((JSONArray) o, clazz));

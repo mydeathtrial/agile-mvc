@@ -6,7 +6,6 @@ import com.agile.common.util.ApiUtil;
 import com.agile.common.viewResolver.JsonViewResolver;
 import com.agile.common.viewResolver.JumpViewResolver;
 import com.agile.common.viewResolver.PlainViewResolver;
-import com.agile.common.viewResolver.XmlViewResolver;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -40,7 +39,6 @@ public class BeanPostProcessor implements org.springframework.beans.factory.conf
             ContentNegotiatingViewResolver contentNegotiatingViewResolver = ((ContentNegotiatingViewResolver) bean);
             List<ViewResolver> list = new ArrayList<>();
             list.add(new JsonViewResolver());
-            list.add(new XmlViewResolver());
             list.add(new PlainViewResolver());
             list.add(new JumpViewResolver());
 
