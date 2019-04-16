@@ -1,7 +1,5 @@
 package com.agile.common.util;
 
-import org.jetbrains.annotations.Contract;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -22,7 +20,6 @@ public class ServletUtil {
      * @param request 请求对象
      * @return 返回IP地址
      */
-    @Contract("null -> null")
     public static String getCustomerIPAddr(HttpServletRequest request) {
         if (request == null) {
             return null;

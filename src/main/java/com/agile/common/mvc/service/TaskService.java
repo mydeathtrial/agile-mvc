@@ -6,7 +6,9 @@ import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.task.TaskInfo;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskTrigger;
+import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.mvc.entity.SysBtTaskTargetEntity;
 import com.agile.mvc.entity.SysTaskEntity;
 import com.agile.mvc.entity.SysTaskTargetEntity;
 import org.springframework.context.ApplicationContext;
@@ -88,6 +90,38 @@ public class TaskService extends BusinessService<SysTaskEntity> {
                 }
             }
         }
+    }
+
+    public void addTask(SysTaskEntity sysTaskEntity, Method method) {
+        if (method == null || method.getParameterCount() > 0) {
+            throw new IllegalArgumentException("必须为空参方法");
+        }
+        method.setAccessible(true);
+        Class clazz = method.getDeclaringClass();
+        String methodName = method.getName();
+
+        String id = clazz.getName() + "." + methodName;
+        SysTaskTargetEntity newData = SysTaskTargetEntity.builder().sysTaskTargetId(id)
+                .targetPackage(clazz.getPackage().getName())
+                .targetClass(clazz.getSimpleName())
+                .targetMethod(methodName)
+                .name(id).build();
+        addTask(sysTaskEntity, newData);
+    }
+
+    public void addTask(SysTaskEntity sysTaskEntity, SysTaskTargetEntity sysTaskTargetEntity) {
+        //创建待调度方法信息
+        String taskTargetId = String.format("%s.%s.%s", sysTaskTargetEntity.getTargetPackage(), sysTaskTargetEntity.getTargetClass(), sysTaskTargetEntity.getTargetMethod());
+        sysTaskTargetEntity.setSysTaskTargetId(taskTargetId);
+
+        //创建调度任务信息
+        String sysTaskId = sysTaskEntity.getSysTaskId();
+        if (sysTaskId == null) {
+            sysTaskId = String.valueOf(IdUtil.generatorId());
+        }
+
+        dao.save(sysTaskTargetEntity);
+        dao.save(SysBtTaskTargetEntity.builder().sysBtTaskTargetId(String.valueOf(IdUtil.generatorId())).sysTaskTargetId(taskTargetId).sysTaskId(sysTaskId).build());
     }
 
     /**

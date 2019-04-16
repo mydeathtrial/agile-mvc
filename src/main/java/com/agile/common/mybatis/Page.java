@@ -1,6 +1,5 @@
 package com.agile.common.mybatis;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -20,7 +19,7 @@ public class Page<T> extends LinkedList<T> {
     private PageRequest pageRequest;
     private long total;
 
-    public Page(@NotNull Collection<? extends T> c, PageRequest pageRequest, long total) {
+    public Page(Collection<? extends T> c, PageRequest pageRequest, long total) {
         super(c);
         this.pageRequest = pageRequest;
         this.total = total;

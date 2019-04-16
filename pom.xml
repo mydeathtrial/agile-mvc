@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.3.84</version>
+    <version>1.0.3.85</version>
     <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
@@ -23,60 +23,6 @@
     </parent>
 
     <dependencies>
-        <!-- 全文检索 -->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-full-retrieval</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <!-- 事件相关 -->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-eventretrieval</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <!-- 情报相关 -->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-ti</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <!-- 健康监控相关 -->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-monitor</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <!-- 自定义仪表盘 -->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-dashboard</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <!-- pipeline -->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-pipeline</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <!--系统管理-->
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-service-system</artifactId>
-            <version>[2.5.0,)</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.idss.agile</groupId>
-            <artifactId>argus-common</artifactId>
-            <version>[2.5.0.88,)</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
