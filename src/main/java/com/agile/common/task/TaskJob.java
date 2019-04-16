@@ -98,10 +98,10 @@ public class TaskJob implements Serializable, Runnable {
             }
             String className = sysTaskTargetEntity.getTargetPackage() + "." + sysTaskTargetEntity.getTargetClass();
             Class<?> clazz = Class.forName(className);
-            Object targetBaen = FactoryUtil.getBean(clazz);
-            Method taretMethod = clazz.getDeclaredMethod(sysTaskTargetEntity.getTargetMethod());
-            taretMethod.setAccessible(true);
-            taretMethod.invoke(targetBaen);
+            Object targetBean = FactoryUtil.getBean(clazz);
+            Method targetMethod = clazz.getDeclaredMethod(sysTaskTargetEntity.getTargetMethod());
+            targetMethod.setAccessible(true);
+            targetMethod.invoke(targetBean);
         }
     }
 }

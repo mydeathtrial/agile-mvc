@@ -46,7 +46,7 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
     @Remark("目标方法主键")
     private String sysTaskTargetId;
     @Remark("优先级")
-    private Integer order;
+    private Integer order = 1;
 
     @Column(name = "sys_bt_task_target_id", nullable = false, length = 18)
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
@@ -72,7 +72,7 @@ public class SysBtTaskTargetEntity implements Serializable, Cloneable {
         return sysTaskTargetId;
     }
 
-    @Column(name = "order", nullable = false, length = 3)
+    @Column(name = "`order`", nullable = false, length = 3)
     @Min(value = 0, groups = {Insert.class, Update.class})
     @Basic
     @NotNull(message = "优先级不能为空", groups = {Insert.class, Update.class})

@@ -121,7 +121,8 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         }
 
         dao.save(sysTaskTargetEntity);
-        dao.save(SysBtTaskTargetEntity.builder().sysBtTaskTargetId(String.valueOf(IdUtil.generatorId())).sysTaskTargetId(taskTargetId).sysTaskId(sysTaskId).build());
+        dao.save(SysBtTaskTargetEntity.builder().sysBtTaskTargetId(String.valueOf(IdUtil.generatorId())).sysTaskTargetId(taskTargetId).sysTaskId(sysTaskId).order(1).build());
+        addTask(sysTaskEntity);
     }
 
     /**
