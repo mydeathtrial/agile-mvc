@@ -2,6 +2,7 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.annotation.Init;
 import com.agile.common.base.RETURN;
+import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.task.TaskInfo;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskTrigger;
@@ -94,7 +95,8 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否添加成功
      */
-    private void addTask(SysTaskEntity sysTaskEntity) {
+    public void addTask(SysTaskEntity sysTaskEntity) {
+        dao.save(sysTaskEntity);
         //获取定时任务详情列表
         List<SysTaskTargetEntity> sysTaskTargetEntityList = dao.findAll(
                 "select a.* from sys_task_target a left join sys_bt_task_target b on b.sys_task_target_id = a.sys_task_target_id where b.sys_task_id = ? order by b.order",
@@ -130,7 +132,6 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         if (!ObjectUtil.isValidity(entity)) {
             return RETURN.PARAMETER_ERROR;
         }
-        dao.save(entity);
         addTask(entity);
         return RETURN.SUCCESS;
     }
@@ -140,18 +141,18 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN removeTask() {
+    public RETURN removeTask() throws NotFoundTaskException {
         String id = this.getInParam("id", String.class);
         removeTask(id);
-        this.dao.deleteById(SysTaskEntity.class, id);
         return RETURN.SUCCESS;
     }
 
-    private void removeTask(String id) {
+    public void removeTask(String id) throws NotFoundTaskException {
         if (taskInfoMap.containsKey(id)) {
             stopTask(id);
             taskInfoMap.remove(id);
         }
+        this.dao.deleteById(SysTaskEntity.class, id);
     }
 
     /**
@@ -159,25 +160,26 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN stopTask() {
+    public RETURN stopTask() throws NotFoundTaskException {
         String id = this.getInParam("id", String.class);
         stopTask(id);
-        SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-        entity.setState(false);
-        dao.update(entity);
         return RETURN.SUCCESS;
     }
 
-    private void stopTask(String id) {
+    public void stopTask(String id) throws NotFoundTaskException {
         TaskInfo taskInfo = taskInfoMap.get(id);
         if (ObjectUtil.isEmpty(taskInfo)) {
-            return;
+            throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
         ScheduledFuture future = taskInfo.getScheduledFuture();
         if (ObjectUtil.isEmpty(future)) {
             return;
         }
         future.cancel(Boolean.TRUE);
+
+        SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
+        entity.setState(false);
+        dao.update(entity);
     }
 
     /**
@@ -185,19 +187,26 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN startTask() {
+    public RETURN startTask() throws NotFoundTaskException {
         String id = this.getInParam("id", String.class);
+        startTask(id);
+        return RETURN.SUCCESS;
+    }
+
+    public void startTask(String id) throws NotFoundTaskException {
         TaskInfo taskInfo = taskInfoMap.get(id);
         if (ObjectUtil.isEmpty(taskInfo)) {
-            return RETURN.EXPRESSION;
+            throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
         ScheduledFuture future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
+        if (ObjectUtil.isEmpty(future)) {
+            return;
+        }
         taskInfo.setScheduledFuture(future);
 
         SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
         entity.setState(true);
         dao.update(entity);
-        return RETURN.SUCCESS;
     }
 
     /**
@@ -205,7 +214,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN updateTask() {
+    public RETURN updateTask() throws NotFoundTaskException {
         SysTaskEntity entity = ObjectUtil.getObjectFromMap(SysTaskEntity.class, this.getInParam());
         if (ObjectUtil.isEmpty(entity.getSysTaskId())) {
             return RETURN.PARAMETER_ERROR;
@@ -215,7 +224,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         return RETURN.SUCCESS;
     }
 
-    private void updateTask(SysTaskEntity sysTaskEntity) {
+    public void updateTask(SysTaskEntity sysTaskEntity) throws NotFoundTaskException {
         removeTask(sysTaskEntity.getSysTaskId());
         addTask(sysTaskEntity);
     }
