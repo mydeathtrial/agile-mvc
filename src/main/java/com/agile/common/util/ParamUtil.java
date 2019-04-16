@@ -262,10 +262,12 @@ public class ParamUtil {
     }
 
     public static <T> T getInParamOfBody(Map<String, Object> map, String key, Class<T> clazz) {
-        T result = null;
+        T result;
         Object value = getInParamOfBody(map, key);
         if (value != null && JSON.class.isAssignableFrom(value.getClass())) {
             result = JSONUtil.toJavaObject((JSON) value, clazz);
+        } else {
+            result = ObjectUtil.cast(clazz, value);
         }
         return result;
     }
@@ -422,6 +424,9 @@ public class ParamUtil {
         }
         Map<String, ValidateMsg> cache = new HashMap<>(list.size());
         for (ValidateMsg msg : list) {
+            if (msg.isState()) {
+                continue;
+            }
             String key = msg.getItem();
             if (cache.containsKey(key)) {
                 cache.get(key).addMessage(msg.getMessage());
@@ -430,6 +435,7 @@ public class ParamUtil {
             }
 
         }
+        result.addAll(cache.values());
         return result;
     }
 }

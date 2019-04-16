@@ -1,6 +1,7 @@
 package com.agile.common.util;
 
-import org.apache.commons.lang.SystemUtils;
+
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  * @author 佟盟 on 2017/7/13

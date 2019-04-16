@@ -1,7 +1,7 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BeanPropertyBindingResult;
 
@@ -143,17 +143,6 @@ public final class StringUtil extends StringUtils {
         }
         String urlParam = mapOfString.toString();
         return urlParam.startsWith(Constant.RegularAbout.AND) ? urlParam.substring(1) : urlParam;
-    }
-
-    /**
-     * 字符串比较
-     *
-     * @param resource 比较方
-     * @param target   参照方
-     * @return 是否相同
-     */
-    public static boolean compare(String resource, String target) {
-        return ObjectUtil.isEmpty(resource) ? ObjectUtil.isEmpty(target) : resource.equals(target);
     }
 
     /**

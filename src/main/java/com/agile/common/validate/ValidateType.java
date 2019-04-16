@@ -131,9 +131,6 @@ public enum ValidateType implements ValidateInterface {
                 Set<ConstraintViolation<Object>> set = validator.validate(bean, validate.validateGroups());
                 for (ConstraintViolation<Object> m : set) {
                     ValidateMsg r = new ValidateMsg(m.getMessage(), false, StringUtil.isBlank(key) ? m.getPropertyPath().toString() : String.format("%s.%s", key, m.getPropertyPath()), m.getInvalidValue());
-                    if (r.isState()) {
-                        continue;
-                    }
                     list.add(r);
                 }
             }

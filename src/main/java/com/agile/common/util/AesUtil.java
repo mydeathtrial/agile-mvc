@@ -2,7 +2,6 @@ package com.agile.common.util;
 
 import com.agile.common.properties.SecurityProperties;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -103,7 +102,7 @@ public class AesUtil {
      * @return 解码后的byte[]
      */
     public static byte[] base64Decode(String base64Code) {
-        return StringUtils.isEmpty(base64Code) ? null : Base64.decodeBase64(base64Code);
+        return StringUtil.isEmpty(base64Code) ? null : Base64.decodeBase64(base64Code);
     }
 
 
@@ -134,7 +133,7 @@ public class AesUtil {
      * @throws Exception
      */
     public static String aesEncrypt(String content, String encryptKey, String encryptIV) throws Exception {
-        return StringUtils.isEmpty(content) ? null : base64Encode(aesEncryptToBytes(content, encryptKey, encryptIV));
+        return StringUtil.isEmpty(content) ? null : base64Encode(aesEncryptToBytes(content, encryptKey, encryptIV));
     }
 
     /**
@@ -167,6 +166,6 @@ public class AesUtil {
      * @throws Exception
      */
     public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIV) throws Exception {
-        return StringUtils.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIV);
+        return StringUtil.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIV);
     }
 }

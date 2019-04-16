@@ -186,8 +186,8 @@ public class MainController {
 
         //入参验证
         List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getService(), getMethod());
+        validateMessages = ParamUtil.aggregation(validateMessages);
         if (validateMessages != null && validateMessages.size() > 0) {
-            ParamUtil.aggregation(validateMessages);
             assert RETURN.PARAMETER_ERROR != null;
             return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
         }
