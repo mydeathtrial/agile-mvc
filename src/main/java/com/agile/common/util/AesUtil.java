@@ -115,10 +115,10 @@ public class AesUtil {
      * @throws Exception
      */
     public static byte[] aesEncryptToBytes(String content, String encryptKey, String encryptIV) throws Exception {
-        byte[] raw = encryptKey.getBytes();
+        byte[] raw = encryptKey.getBytes(StandardCharsets.UTF_8);
         SecretKeySpec secretKeySpec = new SecretKeySpec(raw, ALGORITHM);
         Cipher cipher = Cipher.getInstance(algorithmstr);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIV.getBytes());
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIV.getBytes(StandardCharsets.UTF_8));
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
         return cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
     }
@@ -149,11 +149,11 @@ public class AesUtil {
         SecretKeySpec skeySpec = new SecretKeySpec(raw, ALGORITHM);
 
         Cipher cipher = Cipher.getInstance(algorithmstr);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIV.getBytes());
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIV.getBytes(StandardCharsets.UTF_8));
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivParameterSpec);
         byte[] decryptBytes = cipher.doFinal(encryptBytes);
 
-        return new String(decryptBytes);
+        return new String(decryptBytes, StandardCharsets.UTF_8);
     }
 
 

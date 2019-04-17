@@ -60,9 +60,6 @@ class LoginCacheInfo implements Serializable {
         tokenInfo.setStart(start);
         tokenInfo.setEnd(end);
 
-        Map<Long, TokenInfo> map = new HashMap<>(Constant.NumberAbout.ONE);
-        map.put(sessionToken, tokenInfo);
-
         if (loginCacheInfo == null) {
             loginCacheInfo = new LoginCacheInfo();
             loginCacheInfo.setUsername(username);

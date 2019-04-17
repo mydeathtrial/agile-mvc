@@ -7,6 +7,7 @@ import com.agile.common.viewResolver.JsonViewResolver;
 import com.agile.common.viewResolver.JumpViewResolver;
 import com.agile.common.viewResolver.PlainViewResolver;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.util.ProxyUtils;
@@ -22,7 +23,7 @@ import java.util.List;
  * bean初始化对象过程
  */
 @Component
-public class BeanPostProcessor implements org.springframework.beans.factory.config.BeanPostProcessor, ApplicationContextAware {
+public class CustomBeanPostProcessor implements BeanPostProcessor, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 

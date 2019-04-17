@@ -53,7 +53,7 @@ public class SheetData {
     }
 
     public void setCells(List<Cell> cells) {
-        cells = cells;
+        this.cells = cells;
     }
 
     public SheetData addCell(Cell cell) {

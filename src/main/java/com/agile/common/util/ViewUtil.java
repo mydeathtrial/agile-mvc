@@ -110,7 +110,7 @@ public class ViewUtil {
 
     private static void initLocaleResolver(ApplicationContext context, HttpServletRequest request) throws IOException {
         List<LocaleResolver> localeResolvers = getDefaultStrategies(context, LocaleResolver.class);
-        viewUtil.locale = localeResolvers == null ? request.getLocale() : (localeResolvers.get(0)).resolveLocale(request);
+        viewUtil.locale = localeResolvers.size() > 0 ? (localeResolvers.get(0)).resolveLocale(request) : request.getLocale();
     }
 
     private static void initViewResolvers(ApplicationContext context) throws IOException {
@@ -196,8 +196,8 @@ public class ViewUtil {
     }
 
     @PostConstruct
-    void init() {
-        viewUtil = this;
+    public static void init() {
+        viewUtil = new ViewUtil();
     }
 
     /**

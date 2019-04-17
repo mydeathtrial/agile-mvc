@@ -37,8 +37,8 @@ public class LogAop {
     /**
      * 日志模板
      */
-    private static final String LOG_TEMPLATE = "\n状    态: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n出    参:\n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
-    private static final String ERROR_LOG_TEMPLATE = "\n状    态: %s\n异常类型: %s\n异常信息: %s\nIP  地址: %s\nURL 地址: %s\n服    务: %s\n方    法: %s\n入    参: \n%s\n耗    时: %sms\n---------------------------------------------------------------------------";
+    private static final String LOG_TEMPLATE = "%n状    态: %s%nIP  地址: %s%nURL 地址: %s%n服    务: %s%n方    法: %s%n入    参: %n%s%n出    参:%n%s%n耗    时: %sms%n---------------------------------------------------------------------------";
+    private static final String ERROR_LOG_TEMPLATE = "%n状    态: %s%n异常类型: %s%n异常信息: %s%nIP  地址: %s%nURL 地址: %s%n服    务: %s%n方    法: %s%n入    参: %n%s%n耗    时: %sms%n---------------------------------------------------------------------------";
     private static final String SUCCESS = "SUCCESS";
     private static final String ERROR = "ERROR";
     private static final String DETAIL_ERROR_INFO = "详细错误信息：\n";
@@ -132,7 +132,7 @@ public class LogAop {
     /**
      * 日志线程
      */
-    private class LogThread implements Runnable {
+    private static class LogThread implements Runnable {
         Throwable e;
         long time;
         Object service;

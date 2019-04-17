@@ -1,6 +1,7 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.StringUtils;
@@ -133,12 +134,10 @@ public class ResourceUtil {
         URLConnection con = rootDirURL.openConnection();
         JarFile jarFile;
         String jarFileUrl;
-        boolean closeJarFile;
 
         if (con instanceof JarURLConnection) {
             JarURLConnection jarCon = (JarURLConnection) con;
             jarFile = jarCon.getJarFile();
-            closeJarFile = !jarCon.getUseCaches();
         } else {
             String urlFile = rootDirURL.getFile();
             int separatorIndex = urlFile.indexOf(WAR_URL_SEPARATOR);
@@ -151,7 +150,6 @@ public class ResourceUtil {
             } else {
                 jarFile = new JarFile(urlFile);
             }
-            closeJarFile = true;
         }
 
         try {
@@ -164,9 +162,7 @@ public class ResourceUtil {
                 }
             }
         } finally {
-            if (closeJarFile) {
-                jarFile.close();
-            }
+            IOUtils.closeQuietly(jarFile);
         }
     }
 

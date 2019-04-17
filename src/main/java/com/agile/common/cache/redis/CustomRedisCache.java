@@ -3,6 +3,7 @@ package com.agile.common.cache.redis;
 import com.agile.common.cache.Cache;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
+import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheWriter;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -19,12 +20,12 @@ import java.util.Set;
 /**
  * @author 佟盟 on 2018/9/6
  */
-public class RedisCache extends org.springframework.data.redis.cache.RedisCache implements Cache {
+public class CustomRedisCache extends RedisCache implements Cache {
     private static RedisTemplate redisTemplate;
     private static Jedis jedis;
     private String name;
 
-    protected RedisCache(String name, RedisCacheWriter cacheWriter, RedisCacheConfiguration cacheConfig) {
+    protected CustomRedisCache(String name, RedisCacheWriter cacheWriter, RedisCacheConfiguration cacheConfig) {
         super(name, cacheWriter, cacheConfig);
         this.name = name;
     }

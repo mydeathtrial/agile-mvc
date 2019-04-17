@@ -321,6 +321,8 @@ public class Dao {
                         field.setAccessible(true);
                     }
                     return field;
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
                 } catch (Exception e) {
                     throw new NoSuchIDException();
                 }
@@ -457,11 +459,7 @@ public class Dao {
      * @return 查询结果数据集合
      */
     public <T> List<T> findAll(T object) {
-        List<T> result = findAll(object, Sort.unsorted());
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList(0);
+        return findAll(object, Sort.unsorted());
     }
 
     /**
@@ -597,11 +595,7 @@ public class Dao {
      * @return 类型的结果集
      */
     public <T> List<T> findAll(String sql, Class<T> clazz, Map<String, Object> parameters) {
-        List result = findAll(SqlUtil.parserSQL(sql, parameters), clazz);
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>(0);
+        return findAll(SqlUtil.parserSQL(sql, parameters), clazz);
     }
 
     public static void validatePageInfo(int page, int size) throws IllegalArgumentException {
@@ -793,11 +787,7 @@ public class Dao {
      * @return 结果类型为List套Map的查询结果
      */
     public List<Map<String, Object>> findAllBySQL(String sql, Map<String, Object> parameters) {
-        List result = findAllBySQL(SqlUtil.parserSQL(sql, parameters));
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>(0);
+        return findAllBySQL(SqlUtil.parserSQL(sql, parameters));
     }
 
     /**

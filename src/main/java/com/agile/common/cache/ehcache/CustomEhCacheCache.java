@@ -3,14 +3,15 @@ package com.agile.common.cache.ehcache;
 import com.agile.common.cache.Cache;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import org.springframework.cache.ehcache.EhCacheCache;
 
 /**
  * @author 佟盟 on 2018/9/6
  */
-public class EhCacheCache extends org.springframework.cache.ehcache.EhCacheCache implements Cache {
+public class CustomEhCacheCache extends EhCacheCache implements Cache {
     private Ehcache cache;
 
-    public EhCacheCache(Ehcache ehcache) {
+    public CustomEhCacheCache(Ehcache ehcache) {
         super(ehcache);
         this.cache = ehcache;
     }

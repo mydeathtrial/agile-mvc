@@ -10,6 +10,7 @@ import springfox.documentation.schema.ModelProvider;
 import springfox.documentation.spi.schema.contexts.ModelContext;
 import springfox.documentation.spi.service.contexts.DocumentationContext;
 import springfox.documentation.spring.web.plugins.DocumentationPluginsManager;
+import springfox.documentation.spring.web.scanners.ApiModelReader;
 
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -20,11 +21,11 @@ import static com.google.common.collect.Sets.newHashSet;
 /**
  * Model类读取
  */
-public class ApiModelReader extends springfox.documentation.spring.web.scanners.ApiModelReader {
+public class CustomApiModelReader extends ApiModelReader {
     private final ModelProvider modelProvider;
     private final TypeResolver typeResolver;
 
-    public ApiModelReader(ModelProvider modelProvider, TypeResolver typeResolver, DocumentationPluginsManager pluginsManager) {
+    public CustomApiModelReader(ModelProvider modelProvider, TypeResolver typeResolver, DocumentationPluginsManager pluginsManager) {
         super(modelProvider, typeResolver, pluginsManager);
         this.modelProvider = modelProvider;
         this.typeResolver = typeResolver;

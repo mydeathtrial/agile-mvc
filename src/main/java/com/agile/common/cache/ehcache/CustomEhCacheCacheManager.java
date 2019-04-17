@@ -4,6 +4,7 @@ import com.agile.common.cache.CustomCacheManager;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Status;
 import org.springframework.cache.Cache;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
@@ -13,8 +14,8 @@ import java.util.Objects;
 /**
  * @author 佟盟 on 2018/9/6
  */
-public class EhCacheCacheManager extends org.springframework.cache.ehcache.EhCacheCacheManager implements CustomCacheManager {
-    public EhCacheCacheManager(CacheManager object) {
+public class CustomEhCacheCacheManager extends EhCacheCacheManager implements CustomCacheManager {
+    public CustomEhCacheCacheManager(CacheManager object) {
         super(object);
     }
 
@@ -31,7 +32,7 @@ public class EhCacheCacheManager extends org.springframework.cache.ehcache.EhCac
 
             for (int i = 0; i < names.length; ++i) {
                 String name = names[i];
-                caches.add(new EhCacheCache(this.getCacheManager().getEhcache(name)));
+                caches.add(new CustomEhCacheCache(this.getCacheManager().getEhcache(name)));
             }
 
             return caches;
@@ -49,6 +50,6 @@ public class EhCacheCacheManager extends org.springframework.cache.ehcache.EhCac
 
     @Override
     protected Cache getMissingCache(String name) {
-        return new EhCacheCache(Objects.requireNonNull(this.getCacheManager()).addCacheIfAbsent(name));
+        return new CustomEhCacheCache(Objects.requireNonNull(this.getCacheManager()).addCacheIfAbsent(name));
     }
 }

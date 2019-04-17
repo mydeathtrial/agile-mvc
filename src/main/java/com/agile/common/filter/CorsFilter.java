@@ -37,23 +37,23 @@ public class CorsFilter extends OncePerRequestFilter implements Filter {
             List<String> allowOriginList = Arrays.asList(allowOrigin.split(Constant.RegularAbout.COMMA));
             String currentOrigin = httpServletRequest.getHeader("Origin");
             if (allowOriginList.contains(currentOrigin)) {
-                httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, currentOrigin);
+                httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, currentOrigin.replaceAll("\\s", Constant.RegularAbout.BLANK));
             }
         }
         if (StringUtil.isNotEmpty(allowOrigin)) {
-            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_ORIGIN, allowOrigin.replaceAll("\\s", Constant.RegularAbout.BLANK));
         }
         if (StringUtil.isNotEmpty(allowMethods)) {
-            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_METHODS, allowMethods);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_METHODS, allowMethods.replaceAll("\\s", Constant.RegularAbout.BLANK));
         }
         if (StringUtil.isNotEmpty(allowCredentials)) {
-            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS, allowCredentials);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_CREDENTIALS, allowCredentials.replaceAll("\\s", Constant.RegularAbout.BLANK));
         }
         if (StringUtil.isNotEmpty(allowHeaders)) {
-            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
+            httpServletResponse.setHeader(ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders.replaceAll("\\s", Constant.RegularAbout.BLANK));
         }
         if (StringUtil.isNotEmpty(exposeHeaders)) {
-            httpServletResponse.setHeader(ACCESS_CONTROL_EXPOSE_HEADERS, exposeHeaders);
+            httpServletResponse.setHeader(ACCESS_CONTROL_EXPOSE_HEADERS, exposeHeaders.replaceAll("\\s", Constant.RegularAbout.BLANK));
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }

@@ -30,6 +30,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.spring.web.plugins.DocumentationPluginsManager;
 import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver;
 import springfox.documentation.spring.web.scanners.ApiDescriptionReader;
+import springfox.documentation.spring.web.scanners.ApiListingScanner;
 import springfox.documentation.spring.web.scanners.ApiListingScanningContext;
 
 import java.util.ArrayList;
@@ -52,18 +53,18 @@ import static springfox.documentation.spi.service.contexts.Orderings.resourceGro
 /**
  * @author 佟盟 on 2018/11/23
  */
-public class ApiListingScanner extends springfox.documentation.spring.web.scanners.ApiListingScanner {
+public class CustomApiListingScanner extends ApiListingScanner {
     private static final int LENGTH = 16;
     private final ApiDescriptionReader apiDescriptionReader;
-    private final ApiModelReader apiModelReader;
+    private final CustomApiModelReader apiModelReader;
     private final DocumentationPluginsManager pluginsManager;
     private final TypeResolver typeResolver;
 
     @Autowired
-    public ApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
-        super(apiDescriptionReader, apiModelReader, pluginsManager);
+    public CustomApiListingScanner(ApiDescriptionReader apiDescriptionReader, CustomApiModelReader customApiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
+        super(apiDescriptionReader, customApiModelReader, pluginsManager);
         this.apiDescriptionReader = apiDescriptionReader;
-        this.apiModelReader = apiModelReader;
+        this.apiModelReader = customApiModelReader;
         this.pluginsManager = pluginsManager;
         this.typeResolver = typeResolver;
     }

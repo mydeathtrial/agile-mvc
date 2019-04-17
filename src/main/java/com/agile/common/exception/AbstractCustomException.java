@@ -11,6 +11,6 @@ public abstract class AbstractCustomException extends Exception {
     }
 
     public Object[] getParams() {
-        return params;
+        return params.clone();
     }
 }

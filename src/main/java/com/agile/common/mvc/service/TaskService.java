@@ -6,6 +6,7 @@ import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.task.TaskInfo;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskTrigger;
+import com.agile.common.util.CacheUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.mvc.entity.SysBtTaskTargetEntity;
@@ -146,7 +147,7 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         TaskTrigger trigger = new TaskTrigger(sysTaskEntity.getCron(), sysTaskEntity.getSync());
 
         //新建任务
-        TaskJob job = new TaskJob(sysTaskEntity.getName(), trigger, sysTaskTargetEntityList);
+        TaskJob job = new TaskJob(sysTaskEntity.getSysTaskId(), trigger, sysTaskTargetEntityList);
 
         ScheduledFuture scheduledFuture = null;
         if (sysTaskEntity.getState()) {
@@ -211,6 +212,8 @@ public class TaskService extends BusinessService<SysTaskEntity> {
             return;
         }
         future.cancel(Boolean.TRUE);
+
+        CacheUtil.expire(id, 0);
 
         SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
         entity.setState(false);

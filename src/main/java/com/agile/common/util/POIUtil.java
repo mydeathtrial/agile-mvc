@@ -149,7 +149,7 @@ public class POIUtil {
                         Field field = rowData.getClass().getDeclaredField(cell.getKey());
                         field.setAccessible(true);
                         currentCellData = ObjectUtil.cast(String.class, field.get(rowData));
-                    } catch (Exception e) {
+                    } catch (IllegalAccessException | NoSuchFieldException e) {
                         currentCellData = null;
                     }
                 }
@@ -291,7 +291,7 @@ public class POIUtil {
                         value = rows.next().getCell(currentCellIndex++).getNumericCellValue();
                     }
                     field.set(rowData, value);
-                } catch (Exception ignored) {
+                } catch (IllegalAccessException | NoSuchFieldException ignored) {
                 }
             }
             list.add(rowData);

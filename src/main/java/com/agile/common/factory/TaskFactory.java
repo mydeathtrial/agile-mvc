@@ -13,9 +13,13 @@ public class TaskFactory {
     private ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private static final int POOL_SIZE = 10;
 
-    public TaskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
-        taskFactory = this;
-        this.threadPoolTaskScheduler = threadPoolTaskScheduler;
+    public TaskFactory() {
+    }
+
+    public static TaskFactory after(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
+        taskFactory = new TaskFactory();
+        taskFactory.threadPoolTaskScheduler = threadPoolTaskScheduler;
+        return taskFactory;
     }
 
     public static void insert(Runnable task, String cron) {

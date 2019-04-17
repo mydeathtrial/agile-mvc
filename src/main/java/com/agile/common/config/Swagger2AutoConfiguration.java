@@ -1,8 +1,8 @@
 package com.agile.common.config;
 
 import com.agile.common.properties.SwaggerConfigProperties;
-import com.agile.common.swagger.ApiListingScanner;
-import com.agile.common.swagger.ApiModelReader;
+import com.agile.common.swagger.CustomApiListingScanner;
+import com.agile.common.swagger.CustomApiModelReader;
 import com.fasterxml.classmate.TypeResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -28,7 +28,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableConfigurationProperties(value = {SwaggerConfigProperties.class})
 @ConditionalOnProperty(name = "enable", prefix = "agile.swagger", havingValue = "true")
-@ConditionalOnClass({Docket.class, ApiInfo.class, ApiListingScanner.class, ApiModelReader.class})
+@ConditionalOnClass({Docket.class, ApiInfo.class, CustomApiListingScanner.class, CustomApiModelReader.class})
 @EnableSwagger2
 public class Swagger2AutoConfiguration {
 
@@ -60,12 +60,12 @@ public class Swagger2AutoConfiguration {
 
     @Bean
     @Primary
-    public ApiListingScanner customApiListingScanner(ApiDescriptionReader apiDescriptionReader, ApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
-        return new ApiListingScanner(apiDescriptionReader, apiModelReader, pluginsManager, typeResolver);
+    public CustomApiListingScanner customApiListingScanner(ApiDescriptionReader apiDescriptionReader, CustomApiModelReader apiModelReader, DocumentationPluginsManager pluginsManager, TypeResolver typeResolver) {
+        return new CustomApiListingScanner(apiDescriptionReader, apiModelReader, pluginsManager, typeResolver);
     }
 
     @Bean
-    public ApiModelReader customApiModelReader(CachingModelProvider modelProvider, TypeResolver typeResolver, DocumentationPluginsManager pluginsManager) {
-        return new ApiModelReader(modelProvider, typeResolver, pluginsManager);
+    public CustomApiModelReader customApiModelReader(CachingModelProvider modelProvider, TypeResolver typeResolver, DocumentationPluginsManager pluginsManager) {
+        return new CustomApiModelReader(modelProvider, typeResolver, pluginsManager);
     }
 }

@@ -276,4 +276,8 @@ public class MainService implements ServiceInterface {
             return (CustomerUserDetails) authentication.getDetails();
         }
     }
+
+    public Log getLogger() {
+        return logger;
+    }
 }

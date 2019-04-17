@@ -7,6 +7,7 @@ import com.agile.common.util.PropertiesUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -25,7 +26,7 @@ import static org.springframework.context.support.PropertySourcesPlaceholderConf
  * bean定义过程
  */
 @Component
-public class BeanDefinitionRegistryPostProcessor implements EnvironmentAware, PriorityOrdered, org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
+public class CustomBeanDefinitionRegistryPostProcessor implements EnvironmentAware, PriorityOrdered, BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
     private ApplicationContext applicationContext;
     private Environment environment;
 

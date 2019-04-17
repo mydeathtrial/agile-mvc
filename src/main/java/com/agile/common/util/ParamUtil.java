@@ -67,11 +67,12 @@ public class ParamUtil {
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(currentRequest.getSession().getServletContext());
         if (multipartResolver.isMultipart(currentRequest)) {
             Map<String, Object> formData = FileUtil.getFileFormRequest(currentRequest);
-            for (String key : formData.keySet()) {
-                if (inParam.containsKey(key)) {
+
+            for (Map.Entry<String, Object> entry : formData.entrySet()) {
+                if (inParam.containsKey(entry.getKey())) {
                     continue;
                 }
-                inParam.put(key, formData.get(key));
+                inParam.put(entry.getKey(), entry.getValue());
             }
         } else {
             String bodyParam = ServletUtil.getBody(currentRequest);

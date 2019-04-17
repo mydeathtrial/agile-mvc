@@ -84,33 +84,48 @@ public class PageExecutor implements Executor {
     }
 
     private int getCount(MappedStatement ms, Object parameter) {
+        int result = 0;
         BoundSql bsql = ms.getBoundSql(parameter);
         String sql = bsql.getSql();
         String countSql = getCountSql(sql);
         Connection connection = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+
         try {
-            connection = ms.getConfiguration().getEnvironment().getDataSource()
-                    .getConnection();
+            connection = ms.getConfiguration().getEnvironment().getDataSource().getConnection();
             stmt = connection.prepareStatement(countSql);
             setParameters(stmt, ms, bsql, parameter);
             rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getInt(1);
+                result = rs.getInt(1);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (connection != null && !connection.isClosed()) {
-                    connection.close();
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return 0;
+        return result;
     }
 
     private void setParameters(PreparedStatement ps, MappedStatement mappedStatement, BoundSql boundSql, Object parameterObject) throws SQLException {

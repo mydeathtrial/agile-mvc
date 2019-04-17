@@ -15,7 +15,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -56,32 +55,14 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         coverEL();
     }
 
-    private PropertiesUtil(File file) {
-        try {
-            properties = new Properties();
-            InputStream in = new BufferedInputStream(new FileInputStream(file));
-            properties.load(in);
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private PropertiesUtil(InputStream in) {
-        try {
-            properties = new Properties();
-            properties.load(in);
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void readDir(String classPathResource) {
         try {
             File dir = new File(PropertiesUtil.class.getResource(classPathResource).toURI().getPath());
             if (dir.exists() && dir.isDirectory()) {
                 File[] files = dir.listFiles();
+                if (files == null) {
+                    return;
+                }
                 for (File file : files) {
                     if (file.isFile()) {
                         String fileName = file.getName();
@@ -104,6 +85,9 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
     }
 
     private static void coverEL() {
+        if (properties == null) {
+            return;
+        }
         for (Map.Entry<Object, Object> v : properties.entrySet()) {
             if (StringUtil.isString(v.getValue())) {
                 properties.setProperty(String.valueOf(v.getKey()), StringUtil.parse("${env.", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));

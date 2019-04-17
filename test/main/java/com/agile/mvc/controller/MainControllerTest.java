@@ -1,15 +1,7 @@
 package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
-import com.agile.common.config.AgileAutoConfiguration;
-import com.agile.common.config.DataFactoryAutoConfiguration;
-import com.agile.common.config.DruidAutoConfiguration;
-import com.agile.common.config.EhCacheAutoConfiguration;
-import com.agile.common.config.GeneratorConfig;
-import com.agile.common.config.KaptchaAutoConfiguration;
 import com.agile.common.config.RedisAutoConfiguration;
-import com.agile.common.config.SpringMvcAutoConfiguration;
-import com.agile.common.container.BeanDefinitionRegistryPostProcessor;
 import com.agile.common.container.MappingHandlerMapping;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
@@ -22,12 +14,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;

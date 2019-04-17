@@ -32,6 +32,6 @@ public class TaskAutoConfiguration {
 
     @Bean
     public TaskFactory taskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
-        return new TaskFactory(threadPoolTaskScheduler);
+        return TaskFactory.after(threadPoolTaskScheduler);
     }
 }

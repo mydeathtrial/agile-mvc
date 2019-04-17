@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -262,7 +263,8 @@ public class ObjectUtil extends ObjectUtils {
                 field.setAccessible(true);
                 field.set(target, value);
 
-            } catch (Exception ignored) {
+            } catch (IllegalAccessException ignored) {
+
             }
         }
     }
@@ -495,44 +497,40 @@ public class ObjectUtil extends ObjectUtils {
                     }
                 }
                 if (key != null) {
-                    try {
-                        field.setAccessible(true);
-                        Class<?> type = field.getType();
-                        Object value = map.get(key);
-                        Object targetValue;
-                        if (!type.isArray() && value.getClass().isArray()) {
-                            targetValue = cast(field.getType(), ((String[]) value)[0]);
-                        } else if (type.isArray() && value.getClass().isArray()) {
-                            targetValue = value;
-                        } else if (List.class.isAssignableFrom(type) && List.class.isAssignableFrom(value.getClass())) {
-                            targetValue = value;
-                        } else {
-                            targetValue = cast(type, value);
-                        }
-                        if (targetValue == null) {
-                            targetValue = value;
-                        }
-                        if (notNull) {
-                            notNull = false;
-                        }
-                        String fieldName = field.getName();
-                        Method setMethod;
-                        String setMethodName = "set" + StringUtil.toUpperName(fieldName);
-                        try {
-                            setMethod = ClassUtil.getMethod(clazz, setMethodName, type);
-                        } catch (Exception e) {
-                            if (targetValue == null || StringUtil.isBlank(targetValue.toString())) {
-                                continue;
-                            }
-                            setMethod = clazz.getDeclaredMethod(setMethodName, String.class);
-                        }
-                        try {
-                            setMethod.invoke(object, targetValue);
-                        } catch (Exception e) {
-                            field.set(object, targetValue);
-                        }
+                    field.setAccessible(true);
+                    Class<?> type = field.getType();
+                    Object value = map.get(key);
+                    Object targetValue = null;
+                    if (value == null) {
+                        continue;
+                    }
+                    if (!type.isArray() && value.getClass().isArray()) {
+                        targetValue = cast(field.getType(), ((String[]) value)[0]);
+                    } else if (type.isArray() && value.getClass().isArray()) {
+                        targetValue = value;
+                    } else if (List.class.isAssignableFrom(type) && List.class.isAssignableFrom(value.getClass())) {
+                        targetValue = value;
+                    } else {
+                        targetValue = cast(type, value);
+                    }
 
-                    } catch (Exception ignored) {
+                    if (targetValue == null) {
+                        targetValue = value;
+                    }
+
+                    if (notNull) {
+                        notNull = false;
+                    }
+
+                    String fieldName = field.getName();
+                    Method setMethod;
+                    String setMethodName = "set" + StringUtil.toUpperName(fieldName);
+                    setMethod = ClassUtil.getMethod(clazz, setMethodName, type);
+
+                    try {
+                        setMethod.invoke(object, targetValue);
+                    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                        field.set(object, targetValue);
                     }
                 }
             }
@@ -753,7 +751,7 @@ public class ObjectUtil extends ObjectUtils {
                         result = false;
                     }
                 }
-            } catch (Exception ignored) {
+            } catch (IllegalAccessException | InvocationTargetException ignored) {
             }
         }
         return result;

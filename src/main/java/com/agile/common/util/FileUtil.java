@@ -256,7 +256,7 @@ public class FileUtil extends FileUtils {
     private static void setContentDisposition(String fileName, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         String contentDisposition;
         if (request.getHeader("User-Agent").toLowerCase().indexOf("firefox") > 0) {
-            contentDisposition = String.format("attachment; filename=\"%s\"", new String(fileName.getBytes(), Charset.forName("ISO8859-1")));
+            contentDisposition = String.format("attachment; filename=\"%s\"", new String(fileName.getBytes(StandardCharsets.UTF_8), Charset.forName("ISO8859-1")));
         } else {
             contentDisposition = String.format("attachment; filename=\"%s\"", URLEncoder.encode(fileName, "UTF-8"));
         }
@@ -314,7 +314,10 @@ public class FileUtil extends FileUtils {
             FileInputStream in = new FileInputStream(zip);
             inWriteOut(in, out);
             downloadFile("download.zip", MediaType.APPLICATION_OCTET_STREAM.toString(), new ByteArrayInputStream(out.toByteArray()), request, response);
-            zip.delete();
+            boolean isDelete = zip.delete();
+            if (!isDelete) {
+                throw new RuntimeException("zip cache delete fail");
+            }
         }
     }
 

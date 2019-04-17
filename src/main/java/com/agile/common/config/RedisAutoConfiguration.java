@@ -1,7 +1,7 @@
 package com.agile.common.config;
 
 import com.agile.common.base.Constant;
-import com.agile.common.cache.redis.RedisCacheManager;
+import com.agile.common.cache.redis.CustomRedisCacheManager;
 import com.agile.common.properties.CacheConfigProperties;
 import com.agile.common.properties.RedisConfigProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,13 +97,13 @@ public class RedisAutoConfiguration {
     }
 
     @Bean
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory jedisConnectionFactory) {
+    public CustomRedisCacheManager redisCacheManager(RedisConnectionFactory jedisConnectionFactory) {
         //初始化一个RedisCacheWriter
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(jedisConnectionFactory);
         RedisCacheConfiguration defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig();
         //设置默认超过期时间是30秒
         defaultCacheConfig.entryTtl(Duration.ofSeconds(redisConfigProperties.getDuration()));
         //初始化RedisCacheManager
-        return new RedisCacheManager(redisCacheWriter, defaultCacheConfig);
+        return new CustomRedisCacheManager(redisCacheWriter, defaultCacheConfig);
     }
 }

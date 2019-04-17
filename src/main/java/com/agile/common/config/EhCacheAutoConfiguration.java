@@ -1,6 +1,6 @@
 package com.agile.common.config;
 
-import com.agile.common.cache.ehcache.EhCacheCacheManager;
+import com.agile.common.cache.ehcache.CustomEhCacheCacheManager;
 import com.agile.common.cache.ehcache.EhCacheManagerFactoryBean;
 import com.agile.common.properties.EhCacheProperties;
 import net.sf.ehcache.config.CacheConfiguration;
@@ -85,8 +85,8 @@ public class EhCacheAutoConfiguration {
     }
 
     @Bean
-    public EhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean ehCacheManagerFactoryBean) {
-        return new EhCacheCacheManager(ehCacheManagerFactoryBean.getObject());
+    public CustomEhCacheCacheManager ehCacheCacheManager(EhCacheManagerFactoryBean ehCacheManagerFactoryBean) {
+        return new CustomEhCacheCacheManager(ehCacheManagerFactoryBean.getObject());
     }
 
     @Bean

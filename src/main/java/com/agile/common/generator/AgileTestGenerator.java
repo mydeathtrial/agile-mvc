@@ -195,18 +195,15 @@ public class AgileTestGenerator {
     private static void createParamsFromModel(Class model, Set<ShowDocModel.Param> paramSet) throws NoSuchMethodException {
         Field[] fields = model.getDeclaredFields();
         for (Field field : fields) {
-            try {
-                field.setAccessible(true);
-                ShowDocModel.Param param = new ShowDocModel.Param();
-                Remark remark = field.getDeclaredAnnotation(Remark.class);
-                Column column = ObjectUtil.getAllEntityPropertyAnnotation(model, field, Column.class);
-                param.setDesc(remark == null ? field.getName() : remark.value());
-                param.setName(field.getName());
-                param.setNullable(column != null && column.nullable());
-                param.setType(ClassUtil.toSwaggerTypeFromName(field.getType()));
-                paramSet.add(param);
-            } catch (Exception ignored) {
-            }
+            field.setAccessible(true);
+            ShowDocModel.Param param = new ShowDocModel.Param();
+            Remark remark = field.getDeclaredAnnotation(Remark.class);
+            Column column = ObjectUtil.getAllEntityPropertyAnnotation(model, field, Column.class);
+            param.setDesc(remark == null ? field.getName() : remark.value());
+            param.setName(field.getName());
+            param.setNullable(column != null && column.nullable());
+            param.setType(ClassUtil.toSwaggerTypeFromName(field.getType()));
+            paramSet.add(param);
         }
     }
 
