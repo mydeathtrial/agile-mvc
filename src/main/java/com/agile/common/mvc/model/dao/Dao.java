@@ -32,7 +32,6 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -564,7 +563,7 @@ public class Dao {
         List<Map<String, Object>> list = query.getResultList();
 
         if (list != null && list.size() > 0) {
-            List<T> result = new LinkedList<>();
+            List<T> result = new ArrayList<>();
             if (ClassUtil.canCastClass(clazz)) {
                 for (Map<String, Object> entity : list) {
                     T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));

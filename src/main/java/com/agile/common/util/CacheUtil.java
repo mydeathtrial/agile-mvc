@@ -1,75 +1,112 @@
 package com.agile.common.util;
 
-import com.agile.common.cache.Cache;
-import com.agile.common.cache.CustomCacheManager;
-import com.agile.common.factory.LoggerFactory;
+import net.sf.ehcache.Element;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStringCommands;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.types.Expiration;
+import org.springframework.data.redis.serializer.RedisSerializer;
 
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
 
 /**
- * @author 佟盟 on 2017/5/19
+ * @author 佟盟
+ * 日期 2019/4/19 17:35
+ * 描述 TODO
+ * @version 1.0
+ * @since 1.0
  */
 public class CacheUtil {
+    private static final String DEFAULT_CACHE_NAME = "common-cache";
 
-    private static Cache cache;
-
-    public static Cache getCache(String cacheName) {
-        return FactoryUtil.getBean(CustomCacheManager.class).getCustomCache(cacheName);
-    }
-
-    public static Cache getDicCache() {
-        return getCache("DIC");
+    public static Cache getCache(String name) {
+        return getCacheManager().getCache(name);
     }
 
     public static Cache getCache() {
-        if (ObjectUtil.isEmpty(cache)) {
-            cache = getCache("agileCache");
+        return getCacheManager().getCache(DEFAULT_CACHE_NAME);
+    }
+
+    public static RedisConnectionFactory getRedisConnectionFactory() {
+        return FactoryUtil.getBean(RedisConnectionFactory.class);
+    }
+
+    public static CacheManager getCacheManager() {
+        CacheManager cacheManager = FactoryUtil.getBean(CacheManager.class);
+        if (cacheManager == null) {
+            throw new RuntimeException("not fount CacheManager Instance can be use");
         }
-        return cache;
+        return cacheManager;
     }
 
-    public static void put(Object o1, Object o2) {
-        LoggerFactory.COMMON_LOG.info(String.format("缓存存放:[key:%s][value:%s]", o1, o2));
-        getCache().put(o1, o2);
-    }
-
-    public static Object get(Object o) {
-
-        if (!containKey(o)) {
-            return null;
+    public static RedisTemplate<Object, Object> getRedisTemplate() {
+        RedisTemplate redisTemplate = (RedisTemplate) FactoryUtil.getBean("redisTemplate");
+        if (redisTemplate == null) {
+            throw new RuntimeException("not fount RedisTemplate Instance can be use");
         }
-        Object o2 = Objects.requireNonNull(getCache().get(o)).get();
-        LoggerFactory.COMMON_LOG.info(String.format("缓存获取:[key:%s][value:%s]", o, o2));
-        return o2;
+        return redisTemplate;
     }
 
-    public static <T> T get(Object o1, Class<T> o2) {
-        T o3 = getCache().get(o1, o2);
-        LoggerFactory.COMMON_LOG.info(String.format("缓存获取:[key:%s][value:%s][type:%s]", o1, o3, o2));
-        return o3;
+    public static Cache.ValueWrapper get(Object key) {
+        return getCache().get(key);
     }
 
-    public static void evict(Object o) {
-        LoggerFactory.COMMON_LOG.info(String.format("缓存删除:[key:%s]", o));
-        getCache().evict(o);
+    public static <T> T get(Object key, Class<T> type) {
+        return getCache().get(key, type);
     }
 
-    public static boolean containKey(Object o) {
-        return !ObjectUtil.isEmpty(getCache().get(o));
+    public static void put(Object key, Object value) {
+        getCache().put(key, value);
     }
 
-    public static Long setNx(String key, String value) {
-        LoggerFactory.COMMON_LOG.info(String.format("缓存同步锁:[key:%s][value:%s]", key, value));
-        return getCache().setNx(key, value);
+    public static void put(Object key, Object value, int timeout) {
+        CacheManager cacheManager = getCacheManager();
+        if (cacheManager instanceof EhCacheCacheManager) {
+            Cache springCache = cacheManager.getCache(DEFAULT_CACHE_NAME);
+            if (springCache == null) {
+                throw new RuntimeException("not found Cache Instance");
+            }
+            net.sf.ehcache.Cache currentCache = (net.sf.ehcache.Cache) springCache.getNativeCache();
+            if (currentCache == null) {
+                throw new RuntimeException("not found net.sf.ehcache.Cache Instance");
+            }
+            Element element = new Element(key, value);
+            element.setTimeToLive(timeout);
+            element.setTimeToIdle(timeout);
+            element.setEternal(true);
+            currentCache.put(element);
+        } else {
+            byte[] byteKey = serializeKey(key);
+            byte[] byteValue = serializeValue(getRedisTemplate().getValueSerializer(), value);
+            getRedisConnectionFactory().getConnection().set(byteKey, byteValue, Expiration.seconds(timeout), RedisStringCommands.SetOption.UPSERT);
+        }
     }
 
-    public static void expire(String lockName, int timeout) {
-        LoggerFactory.COMMON_LOG.info(String.format("缓存过期设置:[key:%s][timeout:%s]", lockName, timeout));
-        getCache().expire(lockName, timeout);
+    private static byte[] serializeValue(RedisSerializer redisSerializer, Object value) {
+        return redisSerializer.serialize(value);
     }
 
-    public static void put(Object o1, Object o2, int timeout) {
-        LoggerFactory.COMMON_LOG.info(String.format("缓存过期设置:[key:%s][value:%s][timeout:%s]", o1, o2, timeout));
-        getCache().put(o1, o2, timeout);
+    private static byte[] serializeKey(Object key) {
+        return (DEFAULT_CACHE_NAME + "::" + key).getBytes(StandardCharsets.UTF_8);
     }
+
+    public static Cache.ValueWrapper putIfAbsent(Object key, Object value) {
+        return getCache().putIfAbsent(key, value);
+    }
+
+    public static void evict(Object key) {
+        getCache().evict(key);
+    }
+
+    public static void clear() {
+        getCache().clear();
+    }
+
+    public static boolean containKey(Object key) {
+        return !ObjectUtil.isEmpty(getCache().get(key));
+    }
+
 }

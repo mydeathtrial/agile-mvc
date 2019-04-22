@@ -2,7 +2,7 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.annotation.Init;
 import com.agile.common.annotation.NotAPI;
-import com.agile.common.util.CacheUtil;
+import com.agile.common.util.DictionaryUtil;
 import com.agile.common.util.TreeUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class DictionaryService extends MainService {
         for (DictionaryDataEntity entity : tree) {
             coverCacheCode(entity);
             if ("root".equals(entity.getParentId())) {
-                CacheUtil.getDicCache().put(entity.getCode(), entity);
+                DictionaryUtil.getCache().put(entity.getCode(), entity);
             }
         }
     }

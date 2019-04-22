@@ -2,8 +2,8 @@ package com.agile.common.task;
 
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.mvc.entity.SysTaskTargetEntity;
 import lombok.AllArgsConstructor;
@@ -11,15 +11,17 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * @author 佟盟
@@ -68,16 +70,33 @@ public class TaskJob implements Serializable, Runnable {
      * @return 如果获取到锁，则返回lockKey值，否则为null
      */
     private boolean setNxLock(String lockName, int second) {
+        RedisConnectionFactory redisConnectionFactory = FactoryUtil.getBean(RedisConnectionFactory.class);
+        if (redisConnectionFactory == null) {
+            return true;
+        }
         synchronized (this) {
-            //生成随机的Value值
-            String lockKey = UUID.randomUUID().toString();
-            //抢占锁
-            Long lock = CacheUtil.setNx(lockName, lockKey);
-            if (lock == 1) {
-                //拿到Lock，设置超时时间
-                CacheUtil.expire(lockName, second - 1);
+
+            RedisConnection connection = redisConnectionFactory.getConnection();
+
+            if (connection == null) {
+                return true;
             }
-            return lock == 1;
+            //生成随机的Value值
+            String lockKey = String.valueOf(IdUtil.generatorId());
+
+            if (lockName == null) {
+                return true;
+            }
+            byte[] lockNameBytes = lockName.getBytes(StandardCharsets.UTF_8);
+            byte[] lockKeyBytes = lockKey.getBytes(StandardCharsets.UTF_8);
+
+            //抢占锁
+            boolean isLock = connection.setNX(lockNameBytes, lockKeyBytes);
+            if (isLock) {
+                //拿到Lock，设置超时时间
+                connection.expire(lockNameBytes, second - 1);
+            }
+            return isLock;
         }
     }
 

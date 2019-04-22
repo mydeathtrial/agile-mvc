@@ -255,9 +255,11 @@ public class ObjectUtil extends ObjectUtils {
                 sourceProperty.setAccessible(true);
                 Object value = sourceProperty.get(source);
 
-                Class<?> type = field.getType();
-                if (!type.isAssignableFrom(value.getClass())) {
-                    value = cast(type, value);
+                if (value != null) {
+                    Class<?> type = field.getType();
+                    if (!type.isAssignableFrom(value.getClass())) {
+                        value = cast(type, value);
+                    }
                 }
 
                 field.setAccessible(true);

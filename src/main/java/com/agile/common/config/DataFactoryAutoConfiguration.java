@@ -29,7 +29,7 @@ public class DataFactoryAutoConfiguration {
 
     @Bean
     public DataSearch loadDataSearchBean() {
-        ESConfig.init(this.esProperties.getConfig(), this.esProperties.getDefaultEsKey());
+        ESConfig.init(this.esProperties.initDefault().getConfig(), this.esProperties.getDefaultEsKey());
         return DataSearchFactory.buildDataSearch();
     }
 }

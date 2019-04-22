@@ -1,7 +1,6 @@
 package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
-import com.agile.common.config.RedisAutoConfiguration;
 import com.agile.common.container.MappingHandlerMapping;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
@@ -33,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  */
 @WebAppConfiguration
 @SpringBootTest
-@ContextConfiguration(classes = {App.class,RedisAutoConfiguration.class})
+@ContextConfiguration(classes = {App.class})
 public class MainControllerTest implements ApplicationContextAware {
     private static RequestMappingHandlerMapping handlerMapping;
     private static RequestMappingHandlerAdapter handlerAdapter;

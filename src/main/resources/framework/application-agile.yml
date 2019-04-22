@@ -6,8 +6,6 @@ agile:
     server-host: 123
     server-port: 8249
     server-default-from: mydeathtrial@163.com
-  cache:
-    proxy: redis
   generator:
     entity-prefix: ''
     entity-suffix: Entity
@@ -19,16 +17,6 @@ agile:
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
     table-name: 'sys_login'
-  ehcache:
-    max-entries-local-heap: 10000
-    max-entries-local-disk: 10000000
-    time-to-idle: 0
-    time-to-live: 0
-    disk-spool-buffer-size: 30
-    blocking: false
-    eternal: true
-    memory-store-eviction-policy: LFU
-    disk-expiry-thread-interval-seconds: 120
   kaptcha:
     enable: true
     token-header: authCode
@@ -50,18 +38,8 @@ agile:
     package-name:
       org.springframework: info,error,debug
       com.idss.common.datafactory: info,error,debug
-  redis:
-    host: 127.0.0.1
-    max-idle: 300
-    max-wait-millis: 1000
-    min-idle: 0
-    pass: ''
-    port: 6379
-    test-on-borrow: true
-    test-on-return: false
-    duration: 30
   security:
-    enable: true
+    enable: false
     exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login-out-url: /api/logout
     login-url: /api/login
@@ -84,16 +62,3 @@ agile:
     description: 这是个不错的文档
     terms-of-service-url: http://www.baidu.com
     version: ${project.version}
-eureka:
-  instance:
-    appname: ${spring.application.name}
-    prefer-ip-address: true
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.cloud.client.ip-address}:${spring.application.instance-id:${server.port}}
-    metadata-map:
-      management:
-        port: ${management.port}
-  client:
-    service-url:
-      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@127.0.0.1:9090/eureka/
-    healthcheck:
-      enabled: true

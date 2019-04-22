@@ -1,13 +1,13 @@
 package com.agile.common.security;
 
 import com.agile.common.base.Constant;
-import com.agile.common.cache.Cache;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.TokenUtil;
+import org.springframework.cache.Cache;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;

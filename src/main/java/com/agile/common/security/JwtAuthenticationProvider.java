@@ -1,11 +1,11 @@
 package com.agile.common.security;
 
-import com.agile.common.cache.Cache;
 import com.agile.common.exception.RepeatAccount;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.PasswordUtil;
+import org.springframework.cache.Cache;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

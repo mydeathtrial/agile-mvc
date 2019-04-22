@@ -6,6 +6,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.ehcache.internal.SingletonEhcacheRegionFactory;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class EhCacheRegionFactory extends SingletonEhcacheRegionFactory {
                 LoggerFactory.CACHE_LOG.info("完成初始化EhCache二级缓存区域");
             }
             REFERENCE_COUNT.incrementAndGet();
-            return Objects.requireNonNull(FactoryUtil.getBean(CustomEhCacheCacheManager.class)).getCacheManager();
+            return Objects.requireNonNull(FactoryUtil.getBean(EhCacheCacheManager.class)).getCacheManager();
         } catch (Exception e) {
             if (LoggerFactory.CACHE_LOG.isInfoEnabled()) {
                 LoggerFactory.CACHE_LOG.error("初始化EhCache二级缓存区域失败");
@@ -36,7 +37,7 @@ public class EhCacheRegionFactory extends SingletonEhcacheRegionFactory {
 
     @Override
     protected Cache createCache(String regionName) {
-        CacheManager cacheManager = Objects.requireNonNull(FactoryUtil.getBean(CustomEhCacheCacheManager.class)).getCacheManager();
+        CacheManager cacheManager = Objects.requireNonNull(FactoryUtil.getBean(EhCacheCacheManager.class)).getCacheManager();
         assert cacheManager != null;
         return (Cache) cacheManager.addCacheIfAbsent(regionName);
     }

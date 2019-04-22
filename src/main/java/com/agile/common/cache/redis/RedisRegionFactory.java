@@ -103,6 +103,6 @@ public class RedisRegionFactory extends RegionFactoryTemplate {
     }
 
     private void initConnectionFactory() {
-        this.redisCacheManager = FactoryUtil.getBean(CustomRedisCacheManager.class);
+        this.redisCacheManager = FactoryUtil.getBean(RedisCacheManager.class);
     }
 }

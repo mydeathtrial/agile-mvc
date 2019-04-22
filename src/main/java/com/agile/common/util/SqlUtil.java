@@ -401,7 +401,7 @@ public class SqlUtil {
         for (Map.Entry<String, Object> entity : params.entrySet()) {
             Object value = entity.getValue();
             String sqlValue;
-            if (value == null) {
+            if (value == null || "".equals(value)) {
                 continue;
             }
             if (value.getClass().isArray()) {

@@ -2,6 +2,7 @@ package com.agile.common.util;
 
 import com.agile.common.base.Constant;
 import com.agile.mvc.entity.DictionaryDataEntity;
+import org.springframework.cache.Cache;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Map;
  * @since 1.0
  */
 public class DictionaryUtil {
+    private static final String DEFAULT_CACHE_NAME = "dictionary-cache";
     private static final String NAME_FORMAT = "%s%s";
     private static final String CODE_FORMAT = "%s.%s";
 
@@ -164,7 +166,8 @@ public class DictionaryUtil {
 
     /**
      * 递归获取字典码对应实体下n层中，code = targetCode的首个实例
-     * @param rootCode 上级字典码
+     *
+     * @param rootCode   上级字典码
      * @param targetCode 目标字典码
      * @return 字典实例
      */
@@ -175,7 +178,8 @@ public class DictionaryUtil {
 
     /**
      * 递归获取实体下n层中，code = targetCode的首个实例
-     * @param entity 实体
+     *
+     * @param entity     实体
      * @param targetCode 目标字典码
      * @return 字典实例
      */
@@ -217,7 +221,7 @@ public class DictionaryUtil {
      * @return bean
      */
     public static DictionaryDataEntity coverRootDicBean(String code) {
-        return CacheUtil.getDicCache().get(code, DictionaryDataEntity.class);
+        return getCache().get(code, DictionaryDataEntity.class);
     }
 
     /**
@@ -315,5 +319,9 @@ public class DictionaryUtil {
             }
         }
         return cache;
+    }
+
+    public static Cache getCache() {
+        return CacheUtil.getCache(DEFAULT_CACHE_NAME);
     }
 }

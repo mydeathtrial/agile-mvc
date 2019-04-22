@@ -1,7 +1,6 @@
 package com.agile.common.security;
 
 import com.agile.common.base.Constant;
-import com.agile.common.cache.Cache;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
@@ -14,6 +13,7 @@ import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.cache.Cache;
 import org.springframework.security.core.Authentication;
 
 import java.io.Serializable;

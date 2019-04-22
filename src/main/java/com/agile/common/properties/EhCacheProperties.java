@@ -2,53 +2,30 @@ package com.agile.common.properties;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.sf.ehcache.config.CacheConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author by 佟盟 on 2018/2/1
  */
-@ConfigurationProperties(prefix = "agile.ehcache")
+@ConfigurationProperties(prefix = "spring.ehcache")
 @Setter
 @Getter
 public class EhCacheProperties {
     /**
-     * 开关
+     * 默认配置
      */
-    private boolean enable;
+    private String defaultConfigName;
     /**
-     * 最大本地实体堆
+     * 存储地址
      */
-    private long maxEntriesLocalHeap;
+    private String path;
+
     /**
-     * 最大本地硬盘存储
+     * 缓存区域配置
      */
-    private long maxEntriesLocalDisk;
-    /**
-     * 元素最大闲置时间
-     */
-    private int timeToIdle;
-    /**
-     * 元素最大生存时间
-     */
-    private int timeToLive;
-    /**
-     * 磁盘线轴
-     */
-    private int diskSpoolBufferSize;
-    /**
-     * 阻塞
-     */
-    private boolean blocking;
-    /**
-     * //清理机制：LRU最近最少使用 FIFO先进先出 LFU较少使用
-     */
-    private String memoryStoreEvictionPolicy;
-    /**
-     * 元素是否永久缓存
-     */
-    private boolean eternal;
-    /**
-     * 缓存清理时间(默认120秒)
-     */
-    private long diskExpiryThreadIntervalSeconds;
+    private Map<String, CacheConfiguration> regions = new HashMap<>();
 }

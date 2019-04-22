@@ -13,7 +13,7 @@ spring:
         format_sql: true
         cache:
           region_prefix: hibernate
-          use_second_level_cache: false
+          use_second_level_cache: true
           use_query_cache: true
           use_structured_entries: false
           hbm2ddl:

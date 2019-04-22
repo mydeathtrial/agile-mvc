@@ -1,0 +1,14 @@
+spring:
+  ehcache:
+    default-config-name: common-cache
+    path: /temp
+    regions:
+      common-cache:
+        max-entries-local-heap: 10000
+        max-entries-local-disk: 10000000
+        time-to-idle-seconds: 0
+        time-to-live-seconds: 0
+        disk-spool-buffer-size-m-b: 30
+        eternal: false
+        memory-store-eviction-policy: LRU
+        disk-expiry-thread-interval-seconds: 120

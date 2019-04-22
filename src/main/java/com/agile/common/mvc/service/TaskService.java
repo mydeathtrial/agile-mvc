@@ -6,19 +6,22 @@ import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.task.TaskInfo;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskTrigger;
-import com.agile.common.util.CacheUtil;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.mvc.entity.SysBtTaskTargetEntity;
 import com.agile.mvc.entity.SysTaskEntity;
 import com.agile.mvc.entity.SysTaskTargetEntity;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -213,7 +216,15 @@ public class TaskService extends BusinessService<SysTaskEntity> {
         }
         future.cancel(Boolean.TRUE);
 
-        CacheUtil.expire(id, 0);
+        //清锁
+        RedisConnectionFactory redisConnectionFactory = FactoryUtil.getBean(RedisConnectionFactory.class);
+        if (redisConnectionFactory != null) {
+            RedisConnection connection = redisConnectionFactory.getConnection();
+            if (connection != null) {
+                connection.expire(id.getBytes(StandardCharsets.UTF_8), 0);
+            }
+        }
+
 
         SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
         entity.setState(false);
