@@ -22,6 +22,7 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.io.Serializable;
@@ -428,13 +429,16 @@ public class Dao {
     public <T> T findOne(String sql, Class<T> clazz, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         queryCoverMap(query);
-        Object result = query.getSingleResult();
+        List result = query.getResultList();
 
-        if (result != null && Map.class.isAssignableFrom(result.getClass())) {
-            Map<String, Object> o = (Map<String, Object>) result;
-            return ObjectUtil.cast(clazz, o);
+        if (result == null) {
+            return null;
         }
-        return null;
+        if (result.size() != 1) {
+            throw new NonUniqueResultException(String.format("Call to stored procedure [%s] returned multiple results", sql));
+        }
+        Map<String, Object> o = (Map<String, Object>) result.get(0);
+        return ObjectUtil.cast(clazz, o);
     }
 
     /**

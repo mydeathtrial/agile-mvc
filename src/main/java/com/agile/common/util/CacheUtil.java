@@ -50,8 +50,12 @@ public class CacheUtil {
         return redisTemplate;
     }
 
-    public static Cache.ValueWrapper get(Object key) {
-        return getCache().get(key);
+    public static Object get(Object key) {
+        Cache.ValueWrapper valueWrapper = getCache().get(key);
+        if (valueWrapper != null) {
+            return valueWrapper.get();
+        }
+        return null;
     }
 
     public static <T> T get(Object key, Class<T> type) {

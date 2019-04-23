@@ -235,20 +235,22 @@ public class ObjectUtil extends ObjectUtils {
             if (sourceProperty == null) {
                 continue;
             }
-            if (!ObjectUtil.isEmpty(arguments)) {
-                switch (containOrExclude) {
-                    case EXCLUDE:
-                        if (ArrayUtil.contains(arguments, sourceProperty.getName())) {
-                            continue;
-                        }
-                        break;
-                    case INCLUDE:
-                        if (!ArrayUtil.contains(arguments, sourceProperty.getName())) {
-                            continue;
-                        }
-                        break;
-                    default:
-                }
+            if (arguments == null) {
+                continue;
+            }
+
+            switch (containOrExclude) {
+                case EXCLUDE:
+                    if (ArrayUtil.contains(arguments, sourceProperty.getName())) {
+                        continue;
+                    }
+                    break;
+                case INCLUDE:
+                    if (!ArrayUtil.contains(arguments, sourceProperty.getName())) {
+                        continue;
+                    }
+                    break;
+                default:
             }
 
             try {
@@ -270,6 +272,12 @@ public class ObjectUtil extends ObjectUtils {
             }
         }
     }
+//
+//    public static void main(String[] args) {
+//        SysUsersEntity a = SysUsersEntity.builder().build();
+//        SysUsersEntity b = SysUsersEntity.builder().email("email").build();
+//        copyProperties(a, b, Compare.DIFF_SOURCE_NOT_NULL);
+//    }
 
     /**
      * 复制对象属性
@@ -278,7 +286,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param target 新对象
      */
     public static void copyProperties(Object source, Object target) {
-        copyProperties(source, target, null, null, null, null);
+        copyProperties(source, target, Compare.DIFF);
     }
 
     /**
@@ -466,84 +474,143 @@ public class ObjectUtil extends ObjectUtils {
      * @return 返回指定对象类型对象
      */
     public static <T> T getObjectFromMap(Class<T> clazz, Map<String, Object> map, String prefix, String suffix) {
+        T object = null;
+        boolean notNull = true;
 
-        try {
-            if (ObjectUtil.isEmpty(map)) {
+        if (!ObjectUtil.isEmpty(map)) {
+            try {
+                object = clazz.newInstance();
+            } catch (InstantiationException | IllegalAccessException ignored) {
+            }
+            if (object == null) {
                 return null;
             }
-            T object = clazz.newInstance();
-            boolean notNull = true;
+
             Set<Field> fields = getAllField(clazz);
             for (Field field : fields) {
-                String propertyName = prefix + field.getName() + suffix;
+                String key = coverFieldNameToMapKey(clazz, field, prefix, suffix, map);
+                if (key != null) {
+                    try {
+                        Object value = map.get(key);
+
+                        Method setMethod = setMethod(clazz, field);
+
+                        if (setMethod == null) {
+                            field.set(object, value);
+                        } else {
+                            Class<?>[] parameterTypes = setMethod.getParameterTypes();
+                            Class<?> type = parameterTypes[0];
+                            setMethod.invoke(object, cast(type, value));
+                        }
+
+                        if (field.get(object) != null) {
+                            notNull = false;
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException ignored) {
+                    }
+                }
+            }
+        }
+
+        if (notNull) {
+            return null;
+        }
+        return object;
+    }
+
+//    public static void main(String[] args) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("sysUsersId", "sysUsersId");
+//        map.put("sys_depart_id", "sysDepartId");
+//        map.put("salt-key", "saltKey");
+//        getObjectFromMap(SysUsersEntity.class, map);
+//    }
+
+    /**
+     * 取指定属性的set方法
+     *
+     * @param clazz 类
+     * @param field 属性
+     * @return set方法
+     */
+    public static Method setMethod(Class clazz, Field field) {
+        field.setAccessible(true);
+        Class<?> type = field.getType();
+        String fieldName = field.getName();
+        String setMethodName = "set" + StringUtil.toUpperName(fieldName);
+
+        try {
+            return ClassUtil.getMethod(clazz, setMethodName, type);
+        } catch (IllegalStateException ignored) {
+        }
+
+        try {
+            Method setMethodCache = ClassUtil.getMethod(clazz, setMethodName);
+            if (setMethodCache != null) {
+                Class<?>[] parameterTypes = setMethodCache.getParameterTypes();
+                if (parameterTypes.length == 1) {
+                    return setMethodCache;
+                }
+            }
+        } catch (IllegalStateException ignored) {
+        }
+
+        return null;
+    }
+
+    /**
+     * 在map集中根据类属性名字推断对应key值
+     *
+     * @param clazz  类
+     * @param field  字段
+     * @param prefix 前缀
+     * @param suffix 后缀
+     * @param map    集合
+     * @return key值
+     */
+    public static String coverFieldNameToMapKey(Class clazz, Field field, String prefix, String suffix, Map<String, Object> map) {
+        String propertyName = prefix + field.getName() + suffix;
+
+        String propertyRegex = StringUtil.camelToUrlRegex(propertyName);
+        Set<String> keys = new HashSet<>();
+        for(String key:map.keySet()){
+            if(StringUtil.containMatchedString(propertyRegex,key)){
+                keys.add(key);
+            }
+        }
+
+        String key = null;
+
+        if(keys.size()>1){
+            if (keys.contains(propertyName)) {
+                key = propertyName;
+            }else{
                 String camelToUnderlineKey = StringUtil.camelToUnderline(propertyName);
                 String camelToUnderlineKeyUpper = camelToUnderlineKey.toUpperCase();
                 String camelToUnderlineKeyLower = camelToUnderlineKey.toLowerCase();
-                String key = null;
-                if (map.containsKey(propertyName)) {
-                    key = propertyName;
-                } else if (map.containsKey(camelToUnderlineKey)) {
+
+                if (keys.contains(camelToUnderlineKey)) {
                     key = camelToUnderlineKey;
-                } else if (map.containsKey(camelToUnderlineKeyUpper)) {
+                } else if (keys.contains(camelToUnderlineKeyUpper)) {
                     key = camelToUnderlineKeyUpper;
-                } else if (map.containsKey(camelToUnderlineKeyLower)) {
+                } else if (keys.contains(camelToUnderlineKeyLower)) {
                     key = camelToUnderlineKeyLower;
-                } else {
-                    try {
-                        Column column = getAllEntityPropertyAnnotation(clazz, field, Column.class);
-                        if (column != null) {
-                            key = column.name();
-                        }
-                    } catch (Exception ignored) {
-
-                    }
-                }
-                if (key != null) {
-                    field.setAccessible(true);
-                    Class<?> type = field.getType();
-                    Object value = map.get(key);
-                    Object targetValue = null;
-                    if (value == null) {
-                        continue;
-                    }
-                    if (!type.isArray() && value.getClass().isArray()) {
-                        targetValue = cast(field.getType(), ((String[]) value)[0]);
-                    } else if (type.isArray() && value.getClass().isArray()) {
-                        targetValue = value;
-                    } else if (List.class.isAssignableFrom(type) && List.class.isAssignableFrom(value.getClass())) {
-                        targetValue = value;
-                    } else {
-                        targetValue = cast(type, value);
-                    }
-
-                    if (targetValue == null) {
-                        targetValue = value;
-                    }
-
-                    if (notNull) {
-                        notNull = false;
-                    }
-
-                    String fieldName = field.getName();
-                    Method setMethod;
-                    String setMethodName = "set" + StringUtil.toUpperName(fieldName);
-                    setMethod = ClassUtil.getMethod(clazz, setMethodName, type);
-
-                    try {
-                        setMethod.invoke(object, targetValue);
-                    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                        field.set(object, targetValue);
-                    }
                 }
             }
-            if (notNull) {
-                return null;
-            }
-            return object;
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
+        }else if(keys.size()==1){
+            key = keys.iterator().next();
         }
+
+        if(key==null){
+            try {
+                Column column = getAllEntityPropertyAnnotation(clazz, field, Column.class);
+                if (column != null && map.containsKey(column.name())) {
+                    key = column.name();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return key;
     }
 
     public static Method getMethod(Class clazz, String fieldName) {

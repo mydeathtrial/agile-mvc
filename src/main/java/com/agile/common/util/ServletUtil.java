@@ -7,8 +7,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Map;
 
 /**
  * @author 佟盟 on 2017/2/23
@@ -173,11 +173,18 @@ public class ServletUtil {
      */
     public static String getInfo(HttpServletRequest request, String key) {
         String token = request.getHeader(key);
+
         if (StringUtil.isBlank(token)) {
-            try {
-                Cookie cook = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals(key)).findFirst().get();
-                token = cook.getValue();
-            } catch (Exception e) {
+            Map<String, Object> map = ParamUtil.handleInParam(request);
+            Object tokenValue = map.get(key);
+            if (tokenValue == null) {
+                for (Cookie cookie : request.getCookies()) {
+                    if (key.equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            } else {
                 token = null;
             }
         }
