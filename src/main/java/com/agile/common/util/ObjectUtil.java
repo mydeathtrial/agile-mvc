@@ -493,7 +493,7 @@ public class ObjectUtil extends ObjectUtils {
                     try {
                         Object value = map.get(key);
 
-                        Method setMethod = setMethod(clazz, field);
+                        Method setMethod = setMethod(clazz, field, value);
 
                         if (setMethod == null) {
                             field.set(object, value);
@@ -520,10 +520,9 @@ public class ObjectUtil extends ObjectUtils {
 
 //    public static void main(String[] args) {
 //        Map<String, Object> map = new HashMap<>();
-//        map.put("sysUsersId", "sysUsersId");
-//        map.put("sys_depart_id", "sysDepartId");
-//        map.put("salt-key", "saltKey");
-//        getObjectFromMap(SysUsersEntity.class, map);
+//        map.put("list", "sysUsersId,s,d,f");
+//        map.put("s", "12");
+//        getObjectFromMap(Demo.class, map);
 //    }
 
     /**
@@ -533,7 +532,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param field 属性
      * @return set方法
      */
-    public static Method setMethod(Class clazz, Field field) {
+    public static Method setMethod(Class clazz, Field field, Object value) {
         field.setAccessible(true);
         Class<?> type = field.getType();
         String fieldName = field.getName();
@@ -542,6 +541,13 @@ public class ObjectUtil extends ObjectUtils {
         try {
             return ClassUtil.getMethod(clazz, setMethodName, type);
         } catch (IllegalStateException ignored) {
+        }
+
+        if (value != null) {
+            try {
+                return ClassUtil.getMethod(clazz, setMethodName, value.getClass());
+            } catch (IllegalStateException ignored) {
+            }
         }
 
         try {
@@ -573,18 +579,18 @@ public class ObjectUtil extends ObjectUtils {
 
         String propertyRegex = StringUtil.camelToUrlRegex(propertyName);
         Set<String> keys = new HashSet<>();
-        for(String key:map.keySet()){
-            if(StringUtil.containMatchedString(propertyRegex,key)){
+        for (String key : map.keySet()) {
+            if (StringUtil.containMatchedString(propertyRegex, key)) {
                 keys.add(key);
             }
         }
 
         String key = null;
 
-        if(keys.size()>1){
+        if (keys.size() > 1) {
             if (keys.contains(propertyName)) {
                 key = propertyName;
-            }else{
+            } else {
                 String camelToUnderlineKey = StringUtil.camelToUnderline(propertyName);
                 String camelToUnderlineKeyUpper = camelToUnderlineKey.toUpperCase();
                 String camelToUnderlineKeyLower = camelToUnderlineKey.toLowerCase();
@@ -597,11 +603,11 @@ public class ObjectUtil extends ObjectUtils {
                     key = camelToUnderlineKeyLower;
                 }
             }
-        }else if(keys.size()==1){
+        } else if (keys.size() == 1) {
             key = keys.iterator().next();
         }
 
-        if(key==null){
+        if (key == null) {
             try {
                 Column column = getAllEntityPropertyAnnotation(clazz, field, Column.class);
                 if (column != null && map.containsKey(column.name())) {
@@ -1029,4 +1035,87 @@ public class ObjectUtil extends ObjectUtils {
         }
         return target.toString();
     }
+
+    /**
+     * 若干层次路径查找取参
+     *
+     * @param key a.b.c...
+     * @param o   list/map结构
+     * @return 值
+     */
+    public static Object pathGet(String key, Object o) {
+        if (o == null) {
+            return null;
+        }
+        Object result;
+        if (key.contains(Constant.RegularAbout.SPOT)) {
+            String parentKey = StringUtil.getSplitAtomic(key, "[.]", Constant.NumberAbout.ZERO);
+            Object parentValue = getValue(parentKey, o);
+            result = pathGet(key.replaceFirst(parentKey + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK), parentValue);
+        } else {
+            result = getValue(key, o);
+        }
+        return result;
+    }
+
+    private static Object getValue(String key, Object o) {
+        final String all = "all";
+        Object result = null;
+        if (Map.class.isAssignableFrom(o.getClass())) {
+            result = ((Map) o).get(key);
+        } else if (List.class.isAssignableFrom(o.getClass())) {
+            if (NumberUtil.isCreatable(key) && ((List) o).size() > Integer.parseInt(key)) {
+                result = ((List) o).get(Integer.parseInt(key));
+            } else if (all.equals(key)) {
+                List<Object> cache = new ArrayList<>();
+                for (Object node : (List) o) {
+                    if (List.class.isAssignableFrom(node.getClass())) {
+                        cache.addAll(((List) node));
+                    } else {
+                        cache.add(node);
+                    }
+                }
+                if (cache.size() > 0) {
+                    result = cache;
+                }
+            } else if (key.contains(Constant.RegularAbout.COMMA)) {
+                List<Object> cache = new ArrayList<>();
+                String[] indexes = key.split(Constant.RegularAbout.COMMA);
+
+                for (String index : indexes) {
+                    if (NumberUtil.isCreatable(index)) {
+                        int number = Integer.parseInt(index);
+                        if (((List) o).size() > number) {
+                            cache.add(((List) o).get(number));
+                        }
+                    }
+                }
+                if (cache.size() > 0) {
+                    result = cache;
+                }
+            } else {
+                List<Object> cache = new ArrayList<>();
+                for (Object node : (List) o) {
+                    Object cacheNode = pathGet(key, node);
+                    if (cacheNode != null) {
+                        cache.add(cacheNode);
+                    }
+                }
+                if (cache.size() > 0) {
+                    result = cache;
+                }
+            }
+        } else {
+            try {
+                Field field = ObjectUtil.getField(o.getClass(), key);
+                if (field != null) {
+                    result = field.get(o);
+                }
+            } catch (IllegalAccessException ignored) {
+
+            }
+        }
+        return result;
+    }
+
 }

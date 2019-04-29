@@ -7,6 +7,7 @@ import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.validate.ValidateMsg;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import javax.persistence.Column;
@@ -35,6 +36,8 @@ public class BusinessService<T> extends MainService {
     private static final String PAGE_SIZE = "pageSize";
     private static final String SORT_COLUMN = "sorts";
     private static final int DEF_LENGTH = 8;
+    private static final int DEF_PAGE = 0;
+    private static final int DEF_SIZE = 10;
 
     public BusinessService() {
         Type genType = getClass().getGenericSuperclass();
@@ -155,7 +158,7 @@ public class BusinessService<T> extends MainService {
         return RETURN.SUCCESS;
     }
 
-    public RETURN pageQuery() throws IllegalAccessException, InstantiationException {
+    public RETURN pageQuery() {
         return pageQuery(getInParam(entityClass));
     }
 
@@ -163,13 +166,11 @@ public class BusinessService<T> extends MainService {
      * 分页查询
      */
     public RETURN pageQuery(T entity) {
-        final int defPage = 0;
-        final int defSize = 10;
 
         if (entity == null) {
-            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entityClass, getInParam(PAGE_NUM, Integer.class, defPage), getInParam(PAGE_SIZE, Integer.class, defSize), getSort()));
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entityClass, getPageRequest()));
         } else {
-            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getInParam(PAGE_NUM, Integer.class, defPage), getInParam(PAGE_SIZE, Integer.class, defSize), getSort()));
+            setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getPageRequest()));
         }
         return RETURN.SUCCESS;
     }
@@ -225,7 +226,7 @@ public class BusinessService<T> extends MainService {
         return list;
     }
 
-    private Sort getSort() {
+    public Sort getSort() {
         Sort sort = Sort.unsorted();
         if (this.containsKey(SORT_COLUMN)) {
             List<String> columns = getInParamOfArray(SORT_COLUMN);
@@ -241,6 +242,10 @@ public class BusinessService<T> extends MainService {
             sort = Sort.by(orders);
         }
         return sort;
+    }
+
+    public PageRequest getPageRequest() {
+        return PageRequest.of(getInParam(PAGE_NUM, Integer.class, DEF_PAGE), getInParam(PAGE_SIZE, Integer.class, DEF_SIZE), getSort());
     }
 
     public RETURN queryById() throws NoSuchIDException {

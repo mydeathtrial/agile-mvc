@@ -185,7 +185,7 @@ public class ServletUtil {
                     }
                 }
             } else {
-                token = null;
+                token = tokenValue.toString();
             }
         }
         return token;

@@ -243,6 +243,6 @@ public class JSONUtil extends JSON {
 //        Object s3 = com.alibaba.fastjson.JSON.toJSON(demo);
 //        HashMap<Object, Object> map = new HashMap<>();
 //        map.put("body", jsonCover(toJSON(s2)));
-//        MapUtil.pathGet("body.name.a.all.url1", map);
+//        ObjectUtil.pathGet("body.name.a.all.url1", map);
 //    }
 }

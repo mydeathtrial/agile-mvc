@@ -150,10 +150,7 @@ public class Dao {
         Iterator<T> iterator = list.iterator();
         if (iterator.hasNext()) {
             T obj = iterator.next();
-            List result = getRepository(obj.getClass()).saveAll(list);
-            if (result != null) {
-                return result;
-            }
+            return getRepository(obj.getClass()).saveAll(list);
         }
         return new ArrayList<>(0);
     }
@@ -232,8 +229,8 @@ public class Dao {
      *
      * @param o 表实体对象
      */
-    public void delete(Object o) {
-        List list = this.findAll(o);
+    public <T> void delete(T o) {
+        List<T> list = findAll(o);
         deleteInBatch(list);
     }
 
@@ -431,7 +428,7 @@ public class Dao {
         queryCoverMap(query);
         List result = query.getResultList();
 
-        if (result == null) {
+        if (result.size() == 0) {
             return null;
         }
         if (result.size() != 1) {
@@ -476,10 +473,7 @@ public class Dao {
     public <T> List<T> findAll(T object, Sort sort) {
         Example<T> example = Example.of(object);
         List<T> result = this.getRepository(object.getClass()).findAll(example, sort);
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList(0);
+        return result;
     }
 
     /**
@@ -506,13 +500,17 @@ public class Dao {
      * @return 分页信息
      */
     public <T> Page<T> findAll(T object, int page, int size, Sort sort) {
-        validatePageInfo(page, size);
+        return findAll(object, PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
+    }
 
+    public <T> Page<T> findAll(T object, PageRequest pageRequest) {
+        validatePageInfo(pageRequest);
         if (object.getClass() == Class.class) {
-            return this.getRepository((Class) object).findAll(PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
+            return this.getRepository((Class) object).findAll(pageRequest);
         }
         Example<T> example = Example.of(object);
-        return this.getRepository(object.getClass()).findAll(example, PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
+        return this.getRepository(object.getClass()).findAll(example, pageRequest);
+
     }
 
     /**
@@ -608,6 +606,10 @@ public class Dao {
         if (page < 1) {
             throw new IllegalArgumentException("最小页为数字 1");
         }
+    }
+
+    public static void validatePageInfo(PageRequest pageRequest) {
+        validatePageInfo(pageRequest.getPageNumber(), pageRequest.getPageSize());
     }
 
     /**

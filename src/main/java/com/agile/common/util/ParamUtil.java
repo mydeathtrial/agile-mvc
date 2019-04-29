@@ -134,7 +134,7 @@ public class ParamUtil {
      * @return 参数
      */
     public static Object getInParam(Map<String, Object> map, String key) {
-        return MapUtil.pathGet(key, map);
+        return ObjectUtil.pathGet(key, map);
     }
 
     /**
@@ -236,7 +236,7 @@ public class ParamUtil {
     public static <T> T getInParam(Map<String, Object> map, String key, Class<T> clazz) {
         Object result = getInParamOfBody(map, key, clazz);
         if (result == null) {
-            result = ObjectUtil.cast(clazz, MapUtil.pathGet(key, map));
+            result = ObjectUtil.cast(clazz, ObjectUtil.pathGet(key, map));
         }
 
         return (T) result;
@@ -244,7 +244,7 @@ public class ParamUtil {
 
     public static <T> List<T> getInParamOfArray(Map<String, Object> map, String key, Class<T> clazz) {
         List<T> result = null;
-        Object value = MapUtil.pathGet(key, map);
+        Object value = ObjectUtil.pathGet(key, map);
         if (value != null && Iterable.class.isAssignableFrom(value.getClass())) {
             result = ArrayUtil.cast(clazz, (Iterable) value);
         } else if (value != null && value.getClass().isArray()) {

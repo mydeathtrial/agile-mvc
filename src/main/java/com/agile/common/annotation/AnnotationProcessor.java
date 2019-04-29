@@ -1,7 +1,7 @@
 package com.agile.common.annotation;
 
+import com.agile.common.util.FactoryUtil;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.util.ProxyUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -21,10 +21,9 @@ public class AnnotationProcessor {
      *
      * @param applicationContext spring容器对象
      * @param beanName           beanName
-     * @param bean               bean
      * @param annotationClass    注解类型
      */
-    public static void methodAnnotationProcessor(ApplicationContext applicationContext, String beanName, Object bean, Class annotationClass) {
+    public static void methodAnnotationProcessor(ApplicationContext applicationContext, String beanName, Class annotationClass) {
         String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
         for (String parsingName : annotationParsings) {
             Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
@@ -32,7 +31,10 @@ public class AnnotationProcessor {
             if (annotation == null) {
                 continue;
             }
-            methodAnnotationProcessor(beanName, bean, ProxyUtils.getUserClass(bean), parsing);
+            Class beanClass = FactoryUtil.getBeanClass(beanName);
+            if (beanClass != null) {
+                methodAnnotationProcessor(beanName, beanClass, parsing);
+            }
         }
 
     }
@@ -69,11 +71,10 @@ public class AnnotationProcessor {
      * 方法注解解析器触发器.
      *
      * @param beanName  beanName
-     * @param bean      bean
      * @param realClass 被spring代理的真实类
      * @param parsing   目标注解解析器
      */
-    private static void methodAnnotationProcessor(String beanName, Object bean, Class realClass, Parsing parsing) {
+    private static void methodAnnotationProcessor(String beanName, Class realClass, Parsing parsing) {
         Method[] methods = realClass.getDeclaredMethods();
         for (Method method : methods) {
             method.setAccessible(true);
@@ -82,9 +83,9 @@ public class AnnotationProcessor {
                 continue;
             }
             if (parsing instanceof ParsingMethodAfter) {
-                ((ParsingMethodAfter) parsing).parsing(beanName, bean, method);
+                ((ParsingMethodAfter) parsing).parsing(beanName, method);
             } else if (parsing instanceof ParsingMethodBefore) {
-                ((ParsingMethodBefore) parsing).parsing(beanName, bean, method);
+                ((ParsingMethodBefore) parsing).parsing(beanName, method);
             }
         }
     }

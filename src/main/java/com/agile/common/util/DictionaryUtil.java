@@ -98,10 +98,10 @@ public class DictionaryUtil {
                 String column = columns[i];
                 String textColumn = textColumns[i];
                 if (defaultValues == null || defaultValues.length <= i) {
-                    map.put(textColumn, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column))));
+                    map.put(textColumn, coverDicName(dictionaryCodes[i], String.valueOf(map.get(column))));
                 } else {
                     String defaultValue = defaultValues[i];
-                    map.put(textColumn, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], map.get(column)), defaultValue));
+                    map.put(textColumn, coverDicName(dictionaryCodes[i], String.valueOf(map.get(column)), defaultValue));
                 }
 
             }
@@ -117,15 +117,29 @@ public class DictionaryUtil {
                 Field textField = cache.get(textColumn);
                 Object value = field.get(o);
                 if (defaultValues == null || defaultValues.length <= i) {
-                    textField.set(o, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value)));
+                    textField.set(o, coverDicName(dictionaryCodes[i], String.valueOf(value)));
                 } else {
                     String defaultValue = defaultValues[i];
-                    textField.set(o, coverDicName(String.format(CODE_FORMAT, dictionaryCodes[i], value), defaultValue));
+                    textField.set(o, coverDicName(dictionaryCodes[i], String.valueOf(value), defaultValue));
                 }
 
             }
             return o;
         }
+    }
+
+    private static String coverDicName(String parentCode, String codes, String defaultValue) {
+        if (StringUtil.isBlank(parentCode) || StringUtil.isBlank(codes)) {
+            return defaultValue;
+        }
+        StringBuilder nameCache = new StringBuilder();
+        for (String code : codes.split(Constant.RegularAbout.COMMA)) {
+            nameCache.append(coverDicName(String.format(CODE_FORMAT, parentCode, code)));
+        }
+        if (nameCache.length() > 0) {
+            return nameCache.substring(0, nameCache.length() - 1);
+        }
+        return defaultValue;
     }
 
     /**
@@ -267,12 +281,10 @@ public class DictionaryUtil {
     /**
      * 编码转字典名
      *
-     * @param code 字典码
      * @return 字典名
      */
-    public static String coverDicName(String code, String defaultName) {
-        String name = coverDicName(code);
-        return name == null ? defaultName : name;
+    public static String coverDicName(String parentCode, String codes) {
+        return coverDicName(parentCode, codes, null);
     }
 
     /**

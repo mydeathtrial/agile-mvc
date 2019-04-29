@@ -15,8 +15,7 @@ public interface ParsingMethodAfter extends Parsing {
      * 解析过程
      *
      * @param beanName beanName
-     * @param object   bean
      * @param method   method
      */
-    void parsing(String beanName, Object object, Method method);
+    void parsing(String beanName, Method method);
 }

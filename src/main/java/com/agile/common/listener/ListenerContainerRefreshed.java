@@ -44,7 +44,7 @@ public class ListenerContainerRefreshed implements ApplicationListener<ContextRe
         AnnotationProcessor.beanAnnotationProcessor(applicationContext, ParsingBeanAfter.class);
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         for (String beanName : beanNames) {
-            AnnotationProcessor.methodAnnotationProcessor(applicationContext, beanName, applicationContext.getBean(beanName), ParsingMethodAfter.class);
+            AnnotationProcessor.methodAnnotationProcessor(applicationContext, beanName, ParsingMethodAfter.class);
         }
     }
 

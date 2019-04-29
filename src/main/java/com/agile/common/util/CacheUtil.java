@@ -74,9 +74,6 @@ public class CacheUtil {
                 throw new RuntimeException("not found Cache Instance");
             }
             net.sf.ehcache.Cache currentCache = (net.sf.ehcache.Cache) springCache.getNativeCache();
-            if (currentCache == null) {
-                throw new RuntimeException("not found net.sf.ehcache.Cache Instance");
-            }
             Element element = new Element(key, value);
             element.setTimeToLive(timeout);
             element.setTimeToIdle(timeout);

@@ -1,6 +1,7 @@
 package com.agile.common.annotation;
 
 import com.agile.common.util.CollectionsUtil;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import lombok.Builder;
 import lombok.Data;
@@ -26,10 +27,10 @@ public class ParsingInit implements ParsingMethodAfter {
     private List<InitApiInfo> inits = new ArrayList<>();
 
     @Override
-    public void parsing(String beanName, Object bean, Method method) {
+    public void parsing(String beanName, Method method) {
         Init init = (Init) method.getAnnotation(getAnnotation());
         if (!ObjectUtil.isEmpty(init)) {
-            inits.add(InitApiInfo.builder().order(init.order()).bean(bean).method(method).build());
+            inits.add(InitApiInfo.builder().order(init.order()).bean(FactoryUtil.getBean(beanName)).method(method).build());
         }
     }
 
