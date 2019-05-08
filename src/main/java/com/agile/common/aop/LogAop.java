@@ -4,11 +4,11 @@ import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
 import com.agile.common.mvc.service.MainService;
+import com.agile.common.util.AopUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.MapUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -70,7 +70,7 @@ public class LogAop {
         Object result;
         long startTime = System.currentTimeMillis();
         long endTime;
-        MainService service = getService(joinPoint);
+        MainService service = AopUtil.getTarget(joinPoint, MainService.class);
         HttpServletRequest request = (HttpServletRequest) joinPoint.getArgs()[REQUEST_INDEX];
         Method method = (Method) joinPoint.getArgs()[METHOD_INDEX];
         Map<String, Object> inParam = service.getInParam();
@@ -79,11 +79,11 @@ public class LogAop {
             result = joinPoint.proceed();
         } catch (Throwable throwable) {
             endTime = System.currentTimeMillis();
-            printLog(throwable, endTime - startTime, service, method.getName(), ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request), inParam);
+            printLog(throwable, endTime - startTime, service, method.getName(), ServletUtil.getRequestIP(request), ServletUtil.getCurrentUrl(request), inParam);
             throw throwable;
         }
         endTime = System.currentTimeMillis();
-        printLog(endTime - startTime, service, method.getName(), ServletUtil.getCustomerIPAddr(request), ServletUtil.getCurrentUrl(request), inParam, service.getOutParam());
+        printLog(endTime - startTime, service, method.getName(), ServletUtil.getRequestIP(request), ServletUtil.getCurrentUrl(request), inParam, service.getOutParam());
         return result;
     }
 
@@ -119,15 +119,6 @@ public class LogAop {
         pool.execute(thread);
     }
 
-    /**
-     * 从切面中获取触发切面的service
-     *
-     * @param joinPoint 触发切面的切入点
-     * @return 返回住service
-     */
-    private MainService getService(JoinPoint joinPoint) {
-        return (MainService) joinPoint.getTarget();
-    }
 
     /**
      * 日志线程

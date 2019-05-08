@@ -50,7 +50,7 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         cache.put(username, loginCacheInfo);
 
         //存储登陆信息
-        securityUserDetailsService.loadLoginInfo(userDetails, ServletUtil.getCustomerIPAddr(httpServletRequest), Long.toString(sessionToken));
+        securityUserDetailsService.loadLoginInfo(userDetails, ServletUtil.getRequestIP(httpServletRequest), Long.toString(sessionToken));
 
         //通知前端
         TokenUtil.notice(httpServletResponse, token);

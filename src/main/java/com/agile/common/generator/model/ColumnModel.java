@@ -97,7 +97,7 @@ public class ColumnModel {
                         setImport(Update.class, NotBlank.class, Delete.class);
                     }
                 } else {
-                    setAnnotation(String.format("@NotBlank(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
+                    setAnnotation(String.format("@NotBlank(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks == null ? "" : remarks));
                     setImport(Insert.class, NotBlank.class, Update.class);
                 }
             } else {
@@ -107,7 +107,7 @@ public class ColumnModel {
                         setImport(Delete.class, NotNull.class, Update.class);
                     }
                 } else {
-                    setAnnotation(String.format("@NotNull(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks));
+                    setAnnotation(String.format("@NotNull(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks == null ? "" : remarks));
                     setImport(Insert.class, Update.class, NotNull.class);
                 }
             }

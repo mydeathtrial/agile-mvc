@@ -1,15 +1,15 @@
 spring:
   kafka:
     consumer:
-      group-id: monitor
-      auto-offset-reset: latest
-      bootstrap-servers: ip1:9092,ip2:9092,ip3:9092
+      group-id: monitor123
+      auto-offset-reset: earliest
+      bootstrap-servers: 192.168.200.104:9092,192.168.200.105:9092,192.168.200.106:9092,192.168.200.107:9092
       enable-auto-commit: true
       auto-commit-interval: 1000
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
     producer:
-      bootstrap-servers: ip1:9092,ip2:9092,ip3:9092p
+      bootstrap-servers: 192.168.200.104:9092,192.168.200.105:9092,192.168.200.106:9092,192.168.200.107:9092
       acks: all
       retries: 3
       buffer-memory: 40960
@@ -17,4 +17,4 @@ spring:
     template:
       default-topic: nwbs-eval-task
     listener:
-      poll-timeout: 30000
+      poll-timeout: 1000

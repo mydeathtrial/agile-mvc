@@ -2,6 +2,7 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.annotation.NotAPI;
 import com.agile.common.factory.PoolFactory;
+import com.agile.common.log.ServiceExecutionInfo;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.RandomStringUtil;
 import com.agile.mvc.entity.LogMainEntity;
@@ -208,5 +209,20 @@ public class BusinessLogService extends MainService {
         static LogInfo createLogInfo(String businessCode, String targetType, String targetCode, Object oldObject, Object newObject, String userId) {
             return new LogInfo(businessCode, targetType, targetCode, oldObject, newObject, userId);
         }
+    }
+
+    public void saveLog(ServiceExecutionInfo serviceExecutionInfo) {
+        LogMainEntity.builder()
+                .bean(serviceExecutionInfo.getBeanName())
+                .method(serviceExecutionInfo.getMethodName())
+                .businessCode(serviceExecutionInfo.getBusinessLog().code())
+                .inParam(serviceExecutionInfo.getInParamToJson())
+                .outParam(serviceExecutionInfo.getOutParamToJson())
+                .userId(serviceExecutionInfo.getUserDetails().getUsername())
+                .createTime(serviceExecutionInfo.getExecutionDate())
+                .timeConsuming(serviceExecutionInfo.getTimeConsuming())
+                .targetType(serviceExecutionInfo.getBusinessLog().targetTpye())
+                .targetCode(serviceExecutionInfo.getBusinessLog().targetId())
+                .build();
     }
 }

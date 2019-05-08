@@ -87,7 +87,14 @@ public final class FactoryUtil {
                 Class<?> proxyClass = ((AbstractBeanDefinition) beanDefinition).getBeanClass();
                 return AopUtils.getTargetClass(proxyClass);
             } catch (IllegalStateException e) {
-                return null;
+                String className = beanDefinition.getBeanClassName();
+                if (!StringUtil.isBlank(className)) {
+                    try {
+                        return Class.forName(className);
+                    } catch (ClassNotFoundException ex) {
+                        return null;
+                    }
+                }
             }
         }
         return null;

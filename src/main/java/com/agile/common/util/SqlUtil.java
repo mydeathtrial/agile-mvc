@@ -89,7 +89,7 @@ public class SqlUtil {
                 sql = sql.replace(x, t);
             }
         }
-        return parserSQL(sql);
+        return parserSQL(sql).replace("\\", "");
     }
 
     /**
@@ -101,7 +101,7 @@ public class SqlUtil {
     private static String parserSQL(String sql) {
 
 
-        if (!sql.contains(CURLY_BRACES_LEFT_3)) {
+        if (unprocessed(sql)) {
             return sql;
         }
         sql = sql.replaceAll(CURLY_BRACES_LEFT, CURLY_BRACES_LEFT_3)
@@ -315,7 +315,18 @@ public class SqlUtil {
     private static boolean parser(List<SQLExpr> items) {
         for (SQLExpr item : items) {
             String sql = SQLUtils.toMySqlString(item);
-            if (sql.contains("{")) {
+            if (!unprocessed(sql)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean unprocessed(String sqlItem) {
+        if (sqlItem.contains("{") && sqlItem.contains("}")) {
+            String coverMesStart = sqlItem.substring(sqlItem.indexOf("{") - 1, sqlItem.indexOf("{"));
+            String coverMesEnd = sqlItem.substring(sqlItem.indexOf("}") - 1, sqlItem.indexOf("}"));
+            if (!"\\".equals(coverMesStart) || !"\\".equals(coverMesEnd)) {
                 return false;
             }
         }
@@ -346,7 +357,7 @@ public class SqlUtil {
         List<SQLExpr> list = new ArrayList<>();
         for (SQLExpr item : items) {
             String sql = SQLUtils.toMySqlString(item);
-            if (!sql.contains("{")) {
+            if (unprocessed(sql)) {
                 list.add(item);
             }
         }
@@ -486,11 +497,10 @@ public class SqlUtil {
 //        }});
 //        map.put("name", new Long(111111123));
 //        map.put("taskName1", "qwe");
-//        map.put("id", "111");
-//        map.put("id", "111");
-//        map.put("id", "111");
-//        map.put("id", "111");
-//        map.put("id", "111");
+//        map.put("nameListStatic", "\\{名单2#2\\}");
+//        map.put("nameListDong", "#名单2\\}");
+//        String sql = "select name from handle_static where receive_user like '%{nameListStatic}%' " +
+//                " or send_content like '%{nameListStatic}%' or receive_user like '%{nameListDong}%' or send_content like '%{nameListDong}%'";
 ////        map.put("aaa", "sys_users_id");
 ////        map.put("bbb", "name");
 ////        map.put("ccc", "tutors");
@@ -533,31 +543,7 @@ public class SqlUtil {
 //        paramsMap.put("isCommonOrIsIndividual", new String[]{});
 //        paramsMap.put("datasourceName", "时间");
 //        paramsMap.put("field", "");
-//        System.out.println(parserSQL("SELECT a.*\n" +
-//                "FROM (\n" +
-//                "\tSELECT d.*\n" +
-//                "\tFROM datasource_field d, datasource_name s\n" +
-//                "\tWHERE d.individual_datasource_id = s.id\n" +
-//                "\t\tAND d.is_common = '0'\n" +
-//                "\t\tAND s.datasource_name LIKE '%事件%'\n" +
-//                "\t\tAND d.del_flag = '0'\n" +
-//                "\t\tAND s.del_flag = '0'\n" +
-//                "\t\tAND (d.field LIKE '{field}'\n" +
-//                "\t\t\tOR d.name LIKE '{field}')\n" +
-//                "\t\tAND d.is_common IN ('{isCommonOrIsIndividual}')\n" +
-//                "\tUNION ALL\n" +
-//                "\tSELECT d.*\n" +
-//                "\tFROM datasource_field d, datasource_name s, datasource_common_field_ref r\n" +
-//                "\tWHERE d.is_common = '1'\n" +
-//                "\t\tAND s.common_group_id = r.group_id\n" +
-//                "\t\tAND r.field_id = d.id\n" +
-//                "\t\tAND (d.field LIKE '{field}'\n" +
-//                "\t\t\tOR d.name LIKE '{field}')\n" +
-//                "\t\tAND d.is_common IN ('{isCommonOrIsIndividual}')\n" +
-//                "\t\tAND s.datasource_name LIKE '%事件%'\n" +
-//                "\t\tAND d.del_flag = '0'\n" +
-//                ") a\n" +
-//                "ORDER BY a.dsp_order", paramsMap) + "\r\r");
+//        System.out.println(parserSQL(sql, map) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

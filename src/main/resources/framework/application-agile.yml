@@ -16,7 +16,7 @@ agile:
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: 'sys_login'
+    table-name: 'log_main'
   kaptcha:
     enable: true
     token-header: authCode
@@ -39,7 +39,7 @@ agile:
       org.springframework: info,error,debug
       com.idss.common.datafactory: info,error,debug
   security:
-    enable: false
+    enable: true
     exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
     login-out-url: /api/logout
     login-url: /api/login

@@ -1,7 +1,12 @@
 package com.agile.common.util;
 
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -14,13 +19,26 @@ import java.util.Map;
  * @author 佟盟 on 2017/2/23
  */
 public class ServletUtil {
+    public static String getCurrentRequestIP() {
+        HttpServletRequest request = getCurrentRequest();
+        return getRequestIP(request);
+    }
+
+    public static String getCurrentRequestUrl() {
+        HttpServletRequest request = getCurrentRequest();
+        if (request != null) {
+            return request.getRequestURI();
+        }
+        return null;
+    }
+
     /**
      * 获取http请求的真实IP地址
      *
      * @param request 请求对象
      * @return 返回IP地址
      */
-    public static String getCustomerIPAddr(HttpServletRequest request) {
+    public static String getRequestIP(HttpServletRequest request) {
         if (request == null) {
             return null;
         }
@@ -175,19 +193,75 @@ public class ServletUtil {
         String token = request.getHeader(key);
 
         if (StringUtil.isBlank(token)) {
-            Map<String, Object> map = ParamUtil.handleInParam(request);
-            Object tokenValue = map.get(key);
-            if (tokenValue == null) {
-                for (Cookie cookie : request.getCookies()) {
-                    if (key.equals(cookie.getName())) {
-                        token = cookie.getValue();
-                        break;
-                    }
+            token = getCookie(request, key);
+
+            if (token == null) {
+                Map<String, Object> map = ParamUtil.handleInParam(request);
+                Object tokenValue = map.get(key);
+                if (tokenValue != null) {
+                    return tokenValue.toString();
                 }
-            } else {
-                token = tokenValue.toString();
             }
         }
         return token;
+    }
+
+    /**
+     * 获取cookies信息
+     *
+     * @param request 请求
+     * @param key     索引
+     * @return 值
+     */
+    public static String getCookie(HttpServletRequest request, String key) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (key.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前请求
+     *
+     * @return HttpServletRequest
+     */
+    public static HttpServletRequest getCurrentRequest() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            return ((ServletRequestAttributes) requestAttributes).getRequest();
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前请求
+     *
+     * @return HttpServletResponse
+     */
+    public static HttpServletResponse getCurrentResponse() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            return ((ServletRequestAttributes) requestAttributes).getResponse();
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前请求
+     *
+     * @return SessionId
+     */
+    public static String getCurrentSessionId() {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            return requestAttributes.getSessionId();
+        }
+        return null;
     }
 }

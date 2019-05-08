@@ -589,6 +589,16 @@ public class DateUtil extends DateUtils {
     }
 
     /**
+     * 计算时间间隔
+     * @param startDate 开始时间
+     * @param endDate 结束时间
+     * @return 间隔毫秒
+     */
+    public static long getInterval(Date startDate, Date endDate) {
+        return endDate.getTime() - startDate.getTime();
+    }
+
+    /**
      * 时间刻度判断
      *
      * @param startTime 开始时间

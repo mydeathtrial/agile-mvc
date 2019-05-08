@@ -506,7 +506,7 @@ public class ObjectUtil extends ObjectUtils {
                         if (field.get(object) != null) {
                             notNull = false;
                         }
-                    } catch (IllegalAccessException | InvocationTargetException ignored) {
+                    } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
                     }
                 }
             }
