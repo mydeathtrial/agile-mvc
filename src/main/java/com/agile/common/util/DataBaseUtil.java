@@ -193,7 +193,7 @@ public class DataBaseUtil {
         param.put("port", dbInfo.port);
         param.put("name", dbInfo.dbName);
 
-        String url = StringUtil.parse("{", "}", template, param);
+        String url = StringUtil.parsingPlaceholder("{", "}", template, param);
         if (dbInfo.type == DB.MYSQL) {
             url = url + "?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true";
         } else if (dbInfo.type == DB.SQL_SERVER) {

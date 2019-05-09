@@ -406,16 +406,21 @@ public final class StringUtil extends StringUtils {
         return result.toString().toUpperCase();
     }
 
+    public static String parsingPlaceholder(String openToken, String closeToken, String text, Map args) {
+        return parsingPlaceholder(openToken, closeToken, text, args, null);
+    }
+
     /**
      * 将字符串text中由openToken和closeToken组成的占位符依次替换为args数组中的值
      *
-     * @param openToken  开始符号
-     * @param closeToken 结束符号
-     * @param text       转换原文
-     * @param args       替换内容集合
+     * @param openToken   开始符号
+     * @param closeToken  结束符号
+     * @param text        转换原文
+     * @param args        替换内容集合
+     * @param replaceNull 代替空参占位
      * @return
      */
-    public static String parse(String openToken, String closeToken, String text, Map args) {
+    public static String parsingPlaceholder(String openToken, String closeToken, String text, Map args, String replaceNull) {
         if (args == null || args.size() <= 0) {
             return text;
         }
@@ -480,8 +485,10 @@ public final class StringUtil extends StringUtils {
                         if (key.contains(":-")) {
                             //获取不到使用默认值   by nhApis 2018.12.24
                             value = keyObj[1].trim();
-                        } else {
+                        } else if (replaceNull != null) {
                             //获取不到环境变量时,返回原表达式 by nhApis 2018.12.24
+                            value = replaceNull;
+                        } else {
                             value = openToken + key + closeToken;
                         }
                     } else {

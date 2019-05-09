@@ -90,8 +90,8 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         }
         for (Map.Entry<Object, Object> v : properties.entrySet()) {
             if (StringUtil.isString(v.getValue())) {
-                properties.setProperty(String.valueOf(v.getKey()), StringUtil.parse("${env.", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));
-                properties.setProperty(String.valueOf(v.getKey()), StringUtil.parse("${", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));
+                properties.setProperty(String.valueOf(v.getKey()), StringUtil.parsingPlaceholder("${env.", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));
+                properties.setProperty(String.valueOf(v.getKey()), StringUtil.parsingPlaceholder("${", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));
             }
         }
     }

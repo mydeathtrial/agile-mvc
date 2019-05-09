@@ -10,6 +10,7 @@ import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
@@ -61,6 +62,8 @@ public class SqlUtil {
     private static final String STRING_PARAM_FORMAT = "'%s'";
     private static final String REPLACE_NULL_CONDITION = " 1=1 ";
     private static final String REPLACE_NULL = "null";
+    private static final String NOT_FOUND_PARAM = "@NOT_FOUND_PARAM_";
+    private static final String NOT_FOUND_PARAM_LIKE_REGEX = "%[ ]*'#NOT FOUND PARAM#'[ ]*%";
 
     /**
      * 根据给定参数动态生成完成参数占位的查询条数sql语句
@@ -82,13 +85,13 @@ public class SqlUtil {
     public static String parserSQL(String sql, Map<String, Object> parameters) {
         sql = parsingSqlString(sql, parsingParam(parameters));
 
-        String[] s = StringUtil.getMatchedString("%[\\S]*%", sql);
-        if (s != null) {
-            for (String x : s) {
-                String t = x.replace(Constant.RegularAbout.UP_COMMA, Constant.RegularAbout.BLANK);
-                sql = sql.replace(x, t);
-            }
-        }
+//        String[] s = StringUtil.getMatchedString("%[\\S]*%", sql);
+//        if (s != null) {
+//            for (String x : s) {
+//                String t = x.replace(Constant.RegularAbout.UP_COMMA, Constant.RegularAbout.BLANK);
+//                sql = sql.replace(x, t);
+//            }
+//        }
         return parserSQL(sql).replace("\\", "");
     }
 
@@ -99,15 +102,6 @@ public class SqlUtil {
      * @return 生成的sql结果
      */
     private static String parserSQL(String sql) {
-
-
-        if (unprocessed(sql)) {
-            return sql;
-        }
-        sql = sql.replaceAll(CURLY_BRACES_LEFT, CURLY_BRACES_LEFT_3)
-                .replaceAll(CURLY_BRACES_RIGHT, CURLY_BRACES_RIGHT_3)
-                .replace(CURLY_BRACES_LEFT_3, CURLY_BRACES_LEFT_2)
-                .replace(CURLY_BRACES_RIGHT_3, CURLY_BRACES_RIGHT_2);
 
         // 新建 MySQL Parser
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
@@ -223,6 +217,14 @@ public class SqlUtil {
      */
     private static void parsingOrderItem(List<SQLSelectOrderByItem> orderByItems) {
         orderByItems.removeIf(orderByItem -> !parser(Collections.singletonList(orderByItem.getExpr())));
+        orderByItems.forEach(SqlUtil::parsingOrderItem);
+    }
+
+    private static void parsingOrderItem(SQLSelectOrderByItem orderByItem) {
+        String sql = SQLUtils.toMySqlString(orderByItem);
+        if (sql.startsWith(Constant.RegularAbout.UP_COMMA) && sql.endsWith(Constant.RegularAbout.UP_COMMA)) {
+            orderByItem.setExpr(SQLUtils.toSQLExpr(sql.substring(Constant.NumberAbout.ONE, sql.length() - Constant.NumberAbout.TWO)));
+        }
     }
 
     /**
@@ -232,10 +234,10 @@ public class SqlUtil {
      */
     private static void parsingTableSource(SQLTableSource from) {
         if (from instanceof SQLSubqueryTableSource) {
-            String s = ((SQLSubqueryTableSource) from).getSelect().toString();
-            String l = parserSQL(s.replace(CURLY_BRACES_LEFT_2, CURLY_BRACES_LEFT_3).replace(CURLY_BRACES_RIGHT_2, CURLY_BRACES_RIGHT_3));
-            SQLStatement se = SQLParserUtils.createSQLStatementParser(l, JdbcUtils.MYSQL).parseStatement();
-            ((SQLSubqueryTableSource) from).setSelect(((SQLSelectStatement) se).getSelect());
+            String childSelect = ((SQLSubqueryTableSource) from).getSelect().toString();
+            childSelect = parserSQL(childSelect);
+            SQLStatement childSelectSQLStatement = SQLParserUtils.createSQLStatementParser(childSelect, JdbcUtils.MYSQL).parseStatement();
+            ((SQLSubqueryTableSource) from).setSelect(((SQLSelectStatement) childSelectSQLStatement).getSelect());
         } else if (from instanceof SQLJoinTableSource) {
             SQLTableSource left = ((SQLJoinTableSource) from).getLeft();
             parsingTableSource(left);
@@ -322,15 +324,14 @@ public class SqlUtil {
         return true;
     }
 
-    private static boolean unprocessed(String sqlItem) {
-        if (sqlItem.contains("{") && sqlItem.contains("}")) {
-            String coverMesStart = sqlItem.substring(sqlItem.indexOf("{") - 1, sqlItem.indexOf("{"));
-            String coverMesEnd = sqlItem.substring(sqlItem.indexOf("}") - 1, sqlItem.indexOf("}"));
-            if (!"\\".equals(coverMesStart) || !"\\".equals(coverMesEnd)) {
-                return false;
-            }
-        }
-        return true;
+    /**
+     * 检查sql语句是否存在参数占位
+     *
+     * @param sql sql语句
+     * @return 是否
+     */
+    private static boolean unprocessed(String sql) {
+        return !sql.contains(NOT_FOUND_PARAM);
     }
 
     /**
@@ -380,10 +381,21 @@ public class SqlUtil {
      * @param c where表达式段
      */
     private static void parsingBinaryOp(SQLBinaryOpExpr c) {
+        parsingBinaryToString(c.getRight());
         boolean isParsing = parser(SQLBinaryOpExpr.split(c));
         if (!isParsing) {
             if (!SQLUtils.replaceInParent(c, null)) {
                 SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
+            }
+        }
+    }
+
+    private static void parsingBinaryToString(SQLExpr sqlExpr) {
+        if (!(sqlExpr instanceof SQLIntegerExpr)) {
+            String cache = SQLUtils.toMySqlString(sqlExpr);
+            if (!cache.startsWith(Constant.RegularAbout.UP_COMMA) || !cache.endsWith(Constant.RegularAbout.UP_COMMA)) {
+                SQLExpr newSQLExpr = SQLUtils.toSQLExpr(String.format("'%s'", cache));
+                SQLUtils.replaceInParent(sqlExpr, newSQLExpr);
             }
         }
     }
@@ -396,7 +408,7 @@ public class SqlUtil {
      * @return 处理过的sql
      */
     private static String parsingSqlString(String sql, Map<String, Object> params) {
-        return StringUtil.parse("{", "}", sql, params);
+        return StringUtil.parsingPlaceholder("{", "}", sql, params, NOT_FOUND_PARAM);
     }
 
     /**
@@ -434,7 +446,7 @@ public class SqlUtil {
                 if (String.valueOf(value).trim().length() == 0) {
                     sqlValue = null;
                 } else {
-                    sqlValue = String.format("'%s'", String.valueOf(value));
+                    sqlValue = String.format("%s", String.valueOf(value));
                 }
 
             }
@@ -487,6 +499,7 @@ public class SqlUtil {
     }
 
 //    public static void main(String[] args) {
+//
 //        Map<String, Object> map = new HashMap<>();
 //        map.put("taskType", new String[]{"1", "123"});
 //        map.put("ids2", new ArrayList<String>() {
@@ -498,9 +511,10 @@ public class SqlUtil {
 //        map.put("name", new Long(111111123));
 //        map.put("taskName1", "qwe");
 //        map.put("nameListStatic", "\\{名单2#2\\}");
-//        map.put("nameListDong", "#名单2\\}");
-//        String sql = "select name from handle_static where receive_user like '%{nameListStatic}%' " +
-//                " or send_content like '%{nameListStatic}%' or receive_user like '%{nameListDong}%' or send_content like '%{nameListDong}%'";
+////        map.put("nameListDong", "#名单2\\}");
+//        map.put("order", "column1");
+////        String sql = "select name from handle_static where receive_user like '%{nameListStatic}%' and id in ({ids3}) or id = {name} or id = {taskName1} " +
+////                " or send_content like '% a {nameListStatic}%' or receive_user like '% a {nameListDong}' or send_content like '%{nameListDong}%' order by {order}";
 ////        map.put("aaa", "sys_users_id");
 ////        map.put("bbb", "name");
 ////        map.put("ccc", "tutors");
@@ -509,31 +523,31 @@ public class SqlUtil {
 ////        parserSQL("\tSELECT {aaa},{bbb1}\n" +
 ////                "FROM sys_users\n" +
 ////                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ", map);
-////        String sql = parserSQL("SELECT\n" +
-////                "\t`user`.*,\n" +
-////                "\tde.depart_name AS sys_depart,\n" +
-////                "\tt.*\n" +
-////                "FROM\n" +
-////                "\tsys_users AS USER,\n" +
-////                "\tsys_department AS de,\n" +
-////                "\t(\n" +
-////                "\t\tSELECT\n" +
-////                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
-////                "\t\tFROM\n" +
-////                "\t\t\tsys_roles\n" +
-////                "\t\tWHERE\n" +
-////                "\t\t\tSYS_ROLES_ID IN (\n" +
-////                "\t\t\t\tSELECT\n" +
-////                "\t\t\t\t\tROLE_ID\n" +
-////                "\t\t\t\tFROM\n" +
-////                "\t\t\t\t\tsys_bt_users_roles\n" +
-////                "\t\t\t\tWHERE\n" +
-////                "\t\t\t\t\tUSER_ID = {id}\n" +
-////                "\t\t\t)\n" +
-////                "\t) AS t\n" +
-////                "WHERE\n" +
-////                "\t`user`.sys_users_id = '%{id32}%'\n" +
-////                "AND `user`.sys_depart_id = de.sys_depart_id", map);
+//        String sql = parserSQL("SELECT\n" +
+//                "\t`user`.*,\n" +
+//                "\tde.depart_name AS sys_depart,\n" +
+//                "\tt.*\n" +
+//                "FROM\n" +
+//                "\tsys_users AS USER,\n" +
+//                "\tsys_department AS de,\n" +
+//                "\t(\n" +
+//                "\t\tSELECT\n" +
+//                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
+//                "\t\tFROM\n" +
+//                "\t\t\tsys_roles\n" +
+//                "\t\tWHERE\n" +
+//                "\t\t\tSYS_ROLES_ID IN (\n" +
+//                "\t\t\t\tSELECT\n" +
+//                "\t\t\t\t\tROLE_ID\n" +
+//                "\t\t\t\tFROM\n" +
+//                "\t\t\t\t\tsys_bt_users_roles\n" +
+//                "\t\t\t\tWHERE\n" +
+//                "\t\t\t\t\tUSER_ID = {id}\n" +
+//                "\t\t\t)\n" +
+//                "\t) AS t\n" +
+//                "WHERE\n" +
+//                "\t`user`.sys_users_id = '%{id32}%'\n" +
+//                "AND `user`.sys_depart_id = de.sys_depart_id", map);
 //
 ////        String sql = "select * from datasource_individual where field like '%{condition}%' or name like '%{condition}%' order by field ";
 //
