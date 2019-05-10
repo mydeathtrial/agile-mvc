@@ -1,6 +1,7 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
+import com.agile.common.task.Target;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,11 +18,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
  * 描述：[系统管理]目标任务表
+ *
  * @author agile gennerator
  */
 @Setter
@@ -33,21 +36,23 @@ import java.io.Serializable;
 @Entity
 @Table(name = "sys_task_target")
 @Remark("[系统管理]目标任务表")
-public class SysTaskTargetEntity implements Serializable, Cloneable {
+public class SysTaskTargetEntity implements Serializable, Cloneable, Target {
 
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
     private String sysTaskTargetId;
-    @Remark("方法含义名")
-    private String name;
-    @Remark("包名")
-    private String targetPackage;
-    @Remark("类名")
-    private String targetClass;
-    @Remark("方法名")
-    private String targetMethod;
+    @Remark("功能")
+    private String businessName;
+    @Remark("业务编码")
+    private String businessCode;
     @Remark("备注")
     private String remarks;
+
+    @Transient
+    @Override
+    public String getCode() {
+        return sysTaskTargetId;
+    }
 
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
@@ -57,44 +62,26 @@ public class SysTaskTargetEntity implements Serializable, Cloneable {
         return sysTaskTargetId;
     }
 
-    @Column(name = "name", length = 255)
     @Basic
-    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
-    public String getName() {
-        return name;
-    }
-
-    @Length(max = 100, message = "最长为100个字符", groups = {Insert.class, Update.class})
-    @Basic
-    @Column(name = "target_package", nullable = false, length = 100)
-    @NotBlank(message = "包名不能为空", groups = {Insert.class, Update.class})
-    public String getTargetPackage() {
-        return targetPackage;
-    }
-
-    @Column(name = "target_class", nullable = false, length = 40)
-    @Basic
-    @NotBlank(message = "类名不能为空", groups = {Insert.class, Update.class})
     @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
-    public String getTargetClass() {
-        return targetClass;
-    }
-
-    @NotBlank(message = "方法名不能为空", groups = {Insert.class, Update.class})
-    @Basic
-    @Column(name = "target_method", nullable = false, length = 40)
-    @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
-    public String getTargetMethod() {
-        return targetMethod;
+    @Column(name = "business_name", columnDefinition = "VARCHAR default NULL", length = 40)
+    public String getBusinessName() {
+        return businessName;
     }
 
     @Basic
-    @Column(name = "remarks", length = 255)
+    @Length(max = 20, message = "最长为20个字符", groups = {Insert.class, Update.class})
+    @Column(name = "business_code", columnDefinition = "VARCHAR default NULL", length = 20)
+    public String getBusinessCode() {
+        return businessCode;
+    }
+
+    @Column(name = "remarks", columnDefinition = "VARCHAR default NULL", length = 255)
+    @Basic
     @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getRemarks() {
         return remarks;
     }
-
 
     @Override
     public SysTaskTargetEntity clone() {

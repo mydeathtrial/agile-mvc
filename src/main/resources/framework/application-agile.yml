@@ -8,7 +8,7 @@ agile:
     server-default-from: mydeathtrial@163.com
   generator:
     entity-prefix: ''
-    entity-suffix: Entity
+    entity-suffix: Entity2
     entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity
     service-prefix: ''
     service-suffix: Service
@@ -16,7 +16,7 @@ agile:
     test-prefix: ''
     test-suffix: ServiceTest
     test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: 'log_main'
+    table-name: 'sys_task%'
   kaptcha:
     enable: true
     token-header: authCode
@@ -55,7 +55,7 @@ agile:
     allow-methods: GET,POST,PUT,DELETE,OPTIONS,JSONP
     allow-origin: '*'
   task:
-    enable: false
+    enable: true
   swagger:
     enable: true
     title: Agile 平台API文档

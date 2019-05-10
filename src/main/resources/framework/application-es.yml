@@ -1,6 +1,6 @@
 agile:
   elasticsearch:
-    enable: false
+    enable: true
     indexDateFormat: yyyy.MM.dd
     timeField: create_time
     idField: id

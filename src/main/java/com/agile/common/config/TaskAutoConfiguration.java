@@ -3,6 +3,7 @@ package com.agile.common.config;
 import com.agile.common.factory.TaskFactory;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.common.properties.TaskProperties;
+import com.agile.common.task.TaskManager;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration;
@@ -26,8 +27,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @AutoConfigureAfter(TaskSchedulingAutoConfiguration.class)
 public class TaskAutoConfiguration {
     @Bean
-    public TaskService customTaskServer(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext) {
-        return new TaskService(threadPoolTaskScheduler, applicationContext);
+    public TaskService customTaskServer(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskTargetService) {
+        return new TaskService(threadPoolTaskScheduler, applicationContext, taskTargetService);
     }
 
     @Bean

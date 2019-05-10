@@ -13,7 +13,7 @@ import com.agile.common.properties.ApplicationProperties;
 public class IdUtil {
     private static SnowflakeIdWorker snowflakeIdWorker;
 
-    public static long generatorId() {
+    public static Long generatorId() {
         return getSnowflakeIdWorker().nextId();
     }
 

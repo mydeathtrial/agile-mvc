@@ -422,7 +422,11 @@ public final class StringUtil extends StringUtils {
      */
     public static String parsingPlaceholder(String openToken, String closeToken, String text, Map args, String replaceNull) {
         if (args == null || args.size() <= 0) {
-            return text;
+            if (replaceNull != null) {
+                args = new HashMap(0);
+            } else {
+                return text;
+            }
         }
 
         if (text == null || text.isEmpty()) {

@@ -1,7 +1,6 @@
 package com.agile.common.task;
 
 import com.agile.common.util.ObjectUtil;
-import com.agile.mvc.entity.SysTaskEntity;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,8 +26,8 @@ public class TaskInfo {
     private TaskJob job;
     private ScheduledFuture scheduledFuture;
 
-    public TaskInfo(SysTaskEntity sysTaskEntity, TaskTrigger trigger, TaskJob job, ScheduledFuture scheduledFuture) {
-        ObjectUtil.copyProperties(sysTaskEntity, this);
+    public TaskInfo(Task task, TaskTrigger trigger, TaskJob job, ScheduledFuture scheduledFuture) {
+        ObjectUtil.copyProperties(task, this);
         this.trigger = trigger;
         this.job = job;
         this.scheduledFuture = scheduledFuture;

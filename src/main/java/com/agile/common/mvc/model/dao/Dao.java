@@ -108,6 +108,14 @@ public class Dao {
         return getEntityManager().unwrap(SessionImplementor.class).connection();
     }
 
+    public <T> T saveOrUpdate(T o) {
+        if (getEntityManager().contains(o)) {
+            return saveAndReturn(o);
+        } else {
+            return update(o);
+        }
+    }
+
     /**
      * 保存并刷新
      *

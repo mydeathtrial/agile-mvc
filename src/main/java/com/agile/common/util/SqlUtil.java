@@ -523,31 +523,31 @@ public class SqlUtil {
 ////        parserSQL("\tSELECT {aaa},{bbb1}\n" +
 ////                "FROM sys_users\n" +
 ////                " GROUP BY sys_users_id,name HAVING sys_users_id in ({ids12}) ", map);
-//        String sql = parserSQL("SELECT\n" +
-//                "\t`user`.*,\n" +
-//                "\tde.depart_name AS sys_depart,\n" +
-//                "\tt.*\n" +
-//                "FROM\n" +
-//                "\tsys_users AS USER,\n" +
-//                "\tsys_department AS de,\n" +
-//                "\t(\n" +
-//                "\t\tSELECT\n" +
-//                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
-//                "\t\tFROM\n" +
-//                "\t\t\tsys_roles\n" +
-//                "\t\tWHERE\n" +
-//                "\t\t\tSYS_ROLES_ID IN (\n" +
-//                "\t\t\t\tSELECT\n" +
-//                "\t\t\t\t\tROLE_ID\n" +
-//                "\t\t\t\tFROM\n" +
-//                "\t\t\t\t\tsys_bt_users_roles\n" +
-//                "\t\t\t\tWHERE\n" +
-//                "\t\t\t\t\tUSER_ID = {id}\n" +
-//                "\t\t\t)\n" +
-//                "\t) AS t\n" +
-//                "WHERE\n" +
-//                "\t`user`.sys_users_id = '%{id32}%'\n" +
-//                "AND `user`.sys_depart_id = de.sys_depart_id", map);
+////        String sql = parserSQL("SELECT\n" +
+////                "\t`user`.*,\n" +
+////                "\tde.depart_name AS sys_depart,\n" +
+////                "\tt.*\n" +
+////                "FROM\n" +
+////                "\tsys_users AS USER,\n" +
+////                "\tsys_department AS de,\n" +
+////                "\t(\n" +
+////                "\t\tSELECT\n" +
+////                "\t\t\tGROUP_CONCAT(ROLE_NAME) AS sys_role\n" +
+////                "\t\tFROM\n" +
+////                "\t\t\tsys_roles\n" +
+////                "\t\tWHERE\n" +
+////                "\t\t\tSYS_ROLES_ID IN (\n" +
+////                "\t\t\t\tSELECT\n" +
+////                "\t\t\t\t\tROLE_ID\n" +
+////                "\t\t\t\tFROM\n" +
+////                "\t\t\t\t\tsys_bt_users_roles\n" +
+////                "\t\t\t\tWHERE\n" +
+////                "\t\t\t\t\tUSER_ID = {id}\n" +
+////                "\t\t\t)\n" +
+////                "\t) AS t\n" +
+////                "WHERE\n" +
+////                "\t`user`.sys_users_id = '%{id32}%'\n" +
+////                "AND `user`.sys_depart_id = de.sys_depart_id", map);
 //
 ////        String sql = "select * from datasource_individual where field like '%{condition}%' or name like '%{condition}%' order by field ";
 //
@@ -557,7 +557,7 @@ public class SqlUtil {
 //        paramsMap.put("isCommonOrIsIndividual", new String[]{});
 //        paramsMap.put("datasourceName", "时间");
 //        paramsMap.put("field", "");
-//        System.out.println(parserSQL(sql, map) + "\r\r");
+//        System.out.println(parserSQL("select sys_users_id as id , name  from sys_users where dele_flag = '0' and enabled = '1' and sys_users_id in ({approverIds})", new HashMap<>()) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

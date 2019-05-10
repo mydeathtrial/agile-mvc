@@ -2,10 +2,10 @@ package com.agile.common.task;
 
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
+import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.mvc.entity.SysTaskTargetEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +37,7 @@ public class TaskJob implements Serializable, Runnable {
 
     private String taskName;
     private TaskTrigger trigger;
-    private List<SysTaskTargetEntity> sysTaskTargetEntityList;
+    private List<Target> taskTargetList;
 
     @Override
     public void run() {
@@ -51,10 +50,10 @@ public class TaskJob implements Serializable, Runnable {
 
                     //如果抢到同步锁，设置锁定时间并直接运行
                     if (setNxLock(this.taskName, (int) nextTime)) {
-                        invoke(sysTaskTargetEntityList);
+                        invoke(taskTargetList);
                     }
                 } else {
-                    invoke(sysTaskTargetEntityList);
+                    invoke(taskTargetList);
                 }
             } catch (Exception e) {
                 logger.error(e);
@@ -103,24 +102,28 @@ public class TaskJob implements Serializable, Runnable {
     /**
      * 逐个执行定时任务目标方法
      *
-     * @param sysTaskTargetEntityList 定时任务详情数据集
+     * @param targets 定时任务详情数据集
      */
     @Transactional(rollbackFor = Exception.class)
-    public void invoke(List<SysTaskTargetEntity> sysTaskTargetEntityList) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void invoke(List<Target> targets) throws InvocationTargetException, IllegalAccessException {
         //逐个执行定时任务目标方法
-        for (SysTaskTargetEntity sysTaskTargetEntity : sysTaskTargetEntityList) {
+        for (Target target : targets) {
             if (logger.isInfoEnabled()) {
-                logger.info("开始定时任务:" + sysTaskTargetEntity.getName());
+                logger.info("开始定时任务:" + target.getCode());
             }
-            if (ObjectUtil.isEmpty(sysTaskTargetEntity)) {
+            if (ObjectUtil.isEmpty(target)) {
                 return;
             }
-            String className = sysTaskTargetEntity.getTargetPackage() + "." + sysTaskTargetEntity.getTargetClass();
-            Class<?> clazz = Class.forName(className);
-            Object targetBean = FactoryUtil.getBean(clazz);
-            Method targetMethod = clazz.getDeclaredMethod(sysTaskTargetEntity.getTargetMethod());
-            targetMethod.setAccessible(true);
-            targetMethod.invoke(targetBean);
+            ApiBase apiInfo = TaskService.getApi(target.getCode());
+            if (apiInfo == null || apiInfo.getMethod().getParameterCount() > 0) {
+                logger.error("定时任务异常:" + target.getCode());
+                return;
+            }
+            apiInfo.getMethod().invoke(apiInfo.getBean());
         }
     }
+
+//    public static void main(String[] args) throws NoSuchMethodException {
+//        System.out.println(SyncThreatBookThread.class.getMethod("sync").toGenericString());
+//    }
 }

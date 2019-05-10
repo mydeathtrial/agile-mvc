@@ -1,6 +1,7 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
+import com.agile.common.task.Task;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,6 +22,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
 import java.io.Serializable;
@@ -28,6 +30,7 @@ import java.util.Date;
 
 /**
  * 描述：[系统管理]定时任务
+ *
  * @author agile gennerator
  */
 @Setter
@@ -39,7 +42,7 @@ import java.util.Date;
 @Entity
 @Table(name = "sys_task")
 @Remark("[系统管理]定时任务")
-public class SysTaskEntity implements Serializable, Cloneable {
+public class SysTaskEntity implements Serializable, Cloneable, Task {
 
     private static final long serialVersionUID = 1L;
     @Remark("主键")
@@ -57,6 +60,7 @@ public class SysTaskEntity implements Serializable, Cloneable {
     @Remark("创建时间")
     private Date createTime;
 
+
     @Column(name = "sys_task_id", nullable = false, length = 18)
     @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
@@ -65,7 +69,7 @@ public class SysTaskEntity implements Serializable, Cloneable {
         return sysTaskId;
     }
 
-    @Column(name = "name", length = 255)
+    @Column(name = "name", columnDefinition = "VARCHAR default NULL", length = 255)
     @Basic
     @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getName() {
@@ -73,28 +77,42 @@ public class SysTaskEntity implements Serializable, Cloneable {
     }
 
     @Basic
-    @Column(name = "state", length = 1)
+    @Column(name = "state", columnDefinition = "BIT default NULL", length = 1)
     public Boolean getState() {
         return state;
     }
 
-    @Column(name = "cron", length = 36)
+    @Transient
+    @Override
+    public String getCode() {
+        return sysTaskId;
+    }
+
+    @Override
     @Length(max = 36, message = "最长为36个字符", groups = {Insert.class, Update.class})
     @Basic
+    @Column(name = "cron", columnDefinition = "VARCHAR default NULL", length = 36)
     public String getCron() {
         return cron;
     }
 
+    @Override
     @Basic
-    @Column(name = "sync", length = 1)
-    public Boolean getSync() {
+    @Column(name = "sync", columnDefinition = "BIT default NULL", length = 1)
+    public boolean getSync() {
         return sync;
     }
 
+    @Transient
+    @Override
+    public boolean enable() {
+        return state == null ? true : state;
+    }
+
+    @Column(name = "update_time", columnDefinition = "DATETIME default NULL", length = 26)
     @UpdateTimestamp
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "update_time", length = 26)
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -103,11 +121,10 @@ public class SysTaskEntity implements Serializable, Cloneable {
     @Temporal(TemporalType.TIMESTAMP)
     @Past
     @CreationTimestamp
-    @Column(name = "create_time", length = 26, updatable = false)
+    @Column(name = "create_time", columnDefinition = "DATETIME default NULL", length = 26, updatable = false)
     public Date getCreateTime() {
         return createTime;
     }
-
 
     @Override
     public SysTaskEntity clone() {

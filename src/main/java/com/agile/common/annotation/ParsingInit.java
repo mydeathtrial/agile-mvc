@@ -30,7 +30,7 @@ public class ParsingInit implements ParsingMethodAfter {
     public void parsing(String beanName, Method method) {
         Init init = (Init) method.getAnnotation(getAnnotation());
         if (!ObjectUtil.isEmpty(init)) {
-            inits.add(InitApiInfo.builder().order(init.order()).bean(FactoryUtil.getBean(beanName)).method(method).build());
+            inits.add(InitApiInfo.builder().order(init.order()).beanName(beanName).method(method).build());
         }
     }
 
@@ -63,7 +63,7 @@ public class ParsingInit implements ParsingMethodAfter {
     public void parse() {
         CollectionsUtil.sort(inits, "order");
         for (InitApiInfo initApiInfo : inits) {
-            parse(initApiInfo.bean, initApiInfo.method);
+            parse(FactoryUtil.getBean(initApiInfo.beanName), initApiInfo.method);
         }
     }
 
@@ -74,7 +74,7 @@ public class ParsingInit implements ParsingMethodAfter {
     @Builder
     private static class InitApiInfo {
         private int order;
-        private Object bean;
+        private String beanName;
         private Method method;
     }
 }

@@ -13,7 +13,7 @@ public interface ServiceInterface {
     /**
      * 设置请求参数
      * @param key key值
-     * @param o value值
+     * @param value value值
      */
     void setInParam(String key, Object value);
 

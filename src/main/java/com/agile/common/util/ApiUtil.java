@@ -124,7 +124,7 @@ public class ApiUtil {
      * @param requestMappingInfo 映射信息
      */
     private static void addApiInfoCache(Object bean, Method method, String beanName, RequestMappingInfo requestMappingInfo) {
-        String key = String.format("%s.%s", bean, method);
+        String key = method.toGenericString();
 
         ApiInfo apiInfo;
         if (apiInfoCache.containsKey(key)) {
@@ -145,6 +145,14 @@ public class ApiUtil {
 
     public static Collection<ApiInfo> getApiInfoCache() {
         return apiInfoCache.values();
+    }
+
+    public static ApiInfo getApiInfo(String key) {
+        return apiInfoCache.get(key);
+    }
+
+    public static boolean containsApiInfo(String key) {
+        return apiInfoCache.containsKey(key);
     }
 
     private static MappingHandlerMapping getMappingHandlerMapping() {

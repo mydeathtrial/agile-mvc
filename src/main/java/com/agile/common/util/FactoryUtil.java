@@ -1,11 +1,8 @@
 package com.agile.common.util;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.util.ProxyUtils;
 
 import java.lang.annotation.Annotation;
 
@@ -81,22 +78,10 @@ public final class FactoryUtil {
     }
 
     public static Class getBeanClass(String beanName) {
-        if (applicationContext instanceof AnnotationConfigServletWebServerApplicationContext) {
-            BeanDefinition beanDefinition = ((AnnotationConfigServletWebServerApplicationContext) applicationContext).getBeanDefinition(beanName);
-            try {
-                Class<?> proxyClass = ((AbstractBeanDefinition) beanDefinition).getBeanClass();
-                return AopUtils.getTargetClass(proxyClass);
-            } catch (IllegalStateException e) {
-                String className = beanDefinition.getBeanClassName();
-                if (!StringUtil.isBlank(className)) {
-                    try {
-                        return Class.forName(className);
-                    } catch (ClassNotFoundException ex) {
-                        return null;
-                    }
-                }
-            }
+        Class<?> clazz = applicationContext.getType(beanName);
+        if (clazz == null) {
+            return null;
         }
-        return null;
+        return ProxyUtils.getUserClass(clazz);
     }
 }

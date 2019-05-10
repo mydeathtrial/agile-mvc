@@ -80,9 +80,21 @@ public class BusinessService<T> extends MainService {
      * 新增
      */
     public RETURN save(T entity) throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
-
-        if (validateInParam(entity) || !ObjectUtil.isValidity(entity)) {
+        entity = saveAndReturn(entity);
+        if (entity == null) {
             return RETURN.PARAMETER_ERROR;
+        }
+        return RETURN.SUCCESS;
+    }
+
+    public T saveAndReturn() throws NoSuchIDException, IllegalAccessException, NoSuchMethodException {
+        T entity = getInParam(entityClass);
+        return saveAndReturn(entity);
+    }
+
+    public T saveAndReturn(T entity) throws NoSuchIDException, NoSuchMethodException, IllegalAccessException {
+        if (validateInParam(entity) || !ObjectUtil.isValidity(entity)) {
+            return null;
         }
         Field idField = dao.getIdField(entityClass);
         idField.setAccessible(true);
@@ -102,8 +114,7 @@ public class BusinessService<T> extends MainService {
             idValueTemp = idValueTemp.substring(idValueTemp.length() - idLength);
             idField.set(entity, ObjectUtil.cast(idField.getType(), idValueTemp));
         }
-        dao.save(entity);
-        return RETURN.SUCCESS;
+        return dao.saveAndReturn(entity);
     }
 
     public RETURN delete() throws NoSuchIDException {
@@ -143,19 +154,30 @@ public class BusinessService<T> extends MainService {
      * 修改
      */
     public RETURN update(T entity) throws NoSuchIDException, IllegalAccessException {
-        if (validateInParam(entity) || ObjectUtil.isEmpty(entity)) {
+        entity = updateAndReturn(entity);
+        if (entity == null) {
             return RETURN.PARAMETER_ERROR;
+        }
+        return RETURN.SUCCESS;
+    }
+
+    public T updateAndReturn() throws NoSuchIDException, IllegalAccessException {
+        return updateAndReturn(getInParam(entityClass));
+    }
+
+    public T updateAndReturn(T entity) throws NoSuchIDException, IllegalAccessException {
+        if (validateInParam(entity) || ObjectUtil.isEmpty(entity)) {
+            return null;
         }
 
         Field field = dao.getIdField(entityClass);
         if (containsKey(ID)) {
             field.set(entity, getInParam(ID, String.class));
         } else if (field.get(entity) == null) {
-            return RETURN.PARAMETER_ERROR;
+            return null;
         }
 
-        dao.updateOfNotNull(entity);
-        return RETURN.SUCCESS;
+        return dao.updateOfNotNull(entity);
     }
 
     public RETURN pageQuery() {
