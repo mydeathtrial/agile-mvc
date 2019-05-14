@@ -233,4 +233,13 @@ public class TaskService {
         addTask(sysTaskEntity);
     }
 
+    public void removeTask(Method method) throws NotFoundTaskException {
+        List<Task> tasks = taskManager.getTasksByApiCode(method.toGenericString());
+        if (tasks == null) {
+            return;
+        }
+        for (Task task : tasks) {
+            removeTask(task.getCode());
+        }
+    }
 }

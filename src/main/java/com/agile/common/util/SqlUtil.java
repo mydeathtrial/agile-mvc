@@ -447,7 +447,7 @@ public class SqlUtil {
                 if (String.valueOf(value).trim().length() == 0) {
                     sqlValue = null;
                 } else {
-                    sqlValue = String.format("%s", String.valueOf(value));
+                    sqlValue = String.format("'%s'", String.valueOf(value));
                 }
 
             }
@@ -535,6 +535,7 @@ public class SqlUtil {
     private static String extractInsert(SQLInsertStatement statement) {
         return statement.getTableName().getSimpleName();
     }
+
 //    public static void main(String[] args) {
 //
 //        Map<String, Object> map = new HashMap<>();
@@ -590,11 +591,10 @@ public class SqlUtil {
 //
 ////        String sql = "delete sys_users where id like ' %{name}{id}% ' and da like ' %{name}{id}% ' ";
 //
-//        Map<String, Object> paramsMap = new HashMap<>();
-//        paramsMap.put("isCommonOrIsIndividual", new String[]{});
-//        paramsMap.put("datasourceName", "时间");
-//        paramsMap.put("field", "");
-//        System.out.println(parserSQL("select sys_users_id as id , name  from sys_users where dele_flag = '0' and enabled = '1' and sys_users_id in ({approverIds})", new HashMap<>()) + "\r\r");
+//        map.put("assetIp", "192.168.200.106");
+//        map.put("datasourceName", "时间");
+//        map.put("field", "");
+//        System.out.println(parserSQL("select * from vb_analysis where asset_ip ={assetIp} AND flag = 2 AND attack_time >= {startDtm} AND attack_time <= {endDtm} and id in ({ids3})", map) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

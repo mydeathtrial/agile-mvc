@@ -30,7 +30,7 @@ public class ServiceExecutionInfo {
     private String ip;
     private String url;
     private long timeConsuming;
-    private boolean status;
+    private boolean status = true;
     private UserDetails userDetails;
     private Date executionDate;
     private Object bean;
@@ -38,6 +38,10 @@ public class ServiceExecutionInfo {
     private Map<String, Object> inParam;
     private Map<String, Object> outParam;
     private Throwable e;
+
+    public void setTimeConsuming(long startTime) {
+        this.timeConsuming = System.currentTimeMillis() - startTime;
+    }
 
     public void setBean(Object bean) {
         if (bean == null) {

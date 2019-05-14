@@ -1,6 +1,5 @@
 package com.agile.common.mybatis;
 
-import com.agile.common.util.SqlUtil;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
@@ -162,7 +161,7 @@ public class PageExecutor implements Executor {
     }
 
     private String getCountSql(String sql) {
-        return SqlUtil.parserCountSQL(sql);
+        return String.format("select count(1) from (%s) _select_table", sql);
     }
 
     @Override

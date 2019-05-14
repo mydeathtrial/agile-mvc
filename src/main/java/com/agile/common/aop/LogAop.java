@@ -9,14 +9,16 @@ import com.agile.common.log.ServiceExecutionInfo;
 import com.agile.common.mvc.service.MainService;
 import com.agile.common.util.ApiUtil;
 import com.agile.common.util.DateUtil;
-import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.ProxyUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Aspect
 public class LogAop {
+    @Autowired
+    private BusinessLogService logService;
 
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAX_IMUM_POOL_SIZE = 30;
@@ -69,51 +73,88 @@ public class LogAop {
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
 
-        ApiInfo apiInfo = extract(joinPoint);
+        ApiInfo apiInfo = extractApiInfo(joinPoint);
 
         if (apiInfo == null || !(apiInfo.getBean() instanceof MainService)) {
             return joinPoint.proceed();
         }
+
+        ServiceExecutionInfo executionInfo = initServiceExecutionInfoBuilder(apiInfo, extractCurrentUser());
+
+        boolean status = true;
+        try {
+            initCurrentBusinessLog();
+            return joinPoint.proceed();
+        } catch (Throwable throwable) {
+            status = false;
+            executionInfo.setE(throwable);
+            throw throwable;
+        } finally {
+            executionInfo.setStatus(status);
+            executionInfo.setTimeConsuming(startTime);
+            executionInfo.setOutParam(((MainService) apiInfo.getBean()).getOutParam());
+            logging(executionInfo);
+            printLog(executionInfo);
+            clearCurrentBusinessLog();
+        }
+    }
+
+    private void initCurrentBusinessLog() {
+        logService.clear();
+        logService.initCurrentBusinessLogCode();
+    }
+
+    private void clearCurrentBusinessLog() {
+        logService.clear();
+    }
+
+    /**
+     * 初始化执行信息
+     *
+     * @param apiInfo     当前api信息
+     * @param userDetails 当前用户信息
+     * @return 构建者
+     */
+    private ServiceExecutionInfo initServiceExecutionInfoBuilder(ApiInfo apiInfo, UserDetails userDetails) {
         MainService service = (MainService) apiInfo.getBean();
 
-        ServiceExecutionInfo.ServiceExecutionInfoBuilder builder = ServiceExecutionInfo.builder();
-
-        builder.bean(service)
+        return ServiceExecutionInfo.builder()
+                .bean(service)
                 .method(apiInfo.getMethod())
                 .inParam(service.getInParam())
                 .ip(ServletUtil.getCurrentRequestIP())
                 .url(ServletUtil.getCurrentRequestUrl())
                 .executionDate(DateUtil.getCurrentDate())
-                .userDetails((UserDetails) SecurityContextHolder.getContext().getAuthentication().getDetails())
+                .userDetails(userDetails)
                 .status(true)
                 .build();
-        BusinessLogService logService = FactoryUtil.getBean(BusinessLogService.class);
-        if (logService != null) {
-            logService.clear();
-            logService.initCurrentBusinessLogCode();
-        }
-
-        ServiceExecutionInfo serviceExecutionInfo;
-        try {
-            Object result = joinPoint.proceed();
-            builder.timeConsuming(System.currentTimeMillis() - startTime)
-                    .outParam(service.getOutParam());
-            serviceExecutionInfo = builder.build();
-            logging(serviceExecutionInfo);
-            printLog(serviceExecutionInfo);
-            return result;
-        } catch (Throwable throwable) {
-            builder.status(false);
-            builder.timeConsuming(System.currentTimeMillis() - startTime)
-                    .e(throwable);
-            serviceExecutionInfo = builder.build();
-            logging(serviceExecutionInfo);
-            printLog(serviceExecutionInfo);
-            throw throwable;
-        }
     }
 
-    private ApiInfo extract(ProceedingJoinPoint joinPoint) throws NoSuchMethodException {
+    /**
+     * 提取当前用户
+     *
+     * @return 用户信息
+     */
+    private UserDetails extractCurrentUser() {
+        UserDetails userDetails = null;
+        SecurityContext context = SecurityContextHolder.getContext();
+        if (context != null) {
+            Authentication authentication = context.getAuthentication();
+            if (authentication != null) {
+                Object user = authentication.getDetails();
+                userDetails = (UserDetails) user;
+            }
+        }
+        return userDetails;
+    }
+
+    /**
+     * 切面中提取方法信息
+     *
+     * @param joinPoint 切入点
+     * @return 方法信息
+     */
+    private ApiInfo extractApiInfo(ProceedingJoinPoint joinPoint) throws NoSuchMethodException {
         ApiInfo apiInfo = ApiUtil.getApiCache(ServletUtil.getCurrentRequest());
         if (apiInfo == null || !(apiInfo.getBean() instanceof MainService)) {
             Object bean = joinPoint.getArgs()[Constant.NumberAbout.ZERO];
@@ -125,13 +166,20 @@ public class LogAop {
         return apiInfo;
     }
 
+    /**
+     * 记录操作日志
+     *
+     * @param serviceExecutionInfo 服务执行信息
+     */
     private void logging(ServiceExecutionInfo serviceExecutionInfo) {
-        BusinessLogService logService = FactoryUtil.getBean(BusinessLogService.class);
-        if (logService != null) {
-            logService.logging(serviceExecutionInfo);
-        }
+        logService.logging(serviceExecutionInfo);
     }
 
+    /**
+     * 记录log4j日志
+     *
+     * @param executionInfo 服务执行信息
+     */
     private void printLog(ServiceExecutionInfo executionInfo) {
         pool.execute(new LogThread(executionInfo));
     }

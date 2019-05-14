@@ -34,6 +34,14 @@ public interface TaskManager {
     List<Target> getApisByTaskCode(Long code);
 
     /**
+     * 根据定时任务标识查询所属任务目标
+     *
+     * @param code 定时任务标识
+     * @return 任务目标列表
+     */
+    List<Task> getTasksByApiCode(String code);
+
+    /**
      * 保存任务和对应的任务列表
      *
      * @param task   任务

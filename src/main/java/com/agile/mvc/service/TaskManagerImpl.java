@@ -64,6 +64,26 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
         return new ArrayList<>(list);
     }
 
+    @Override
+    public List<Task> getTasksByApiCode(String code) {
+        List<SysTaskEntity> list = dao.findAll("SELECT\n" +
+                "sys_task.sys_task_id,\n" +
+                "sys_task.`name`,\n" +
+                "sys_task.`status`,\n" +
+                "sys_task.`enable`,\n" +
+                "sys_task.cron,\n" +
+                "sys_task.sync,\n" +
+                "sys_task.update_time,\n" +
+                "sys_task.create_time\n" +
+                "FROM\n" +
+                "sys_task\n" +
+                "LEFT JOIN sys_bt_task_api ON sys_bt_task_api.sys_task_id = sys_task.sys_task_id\n" +
+                "LEFT JOIN sys_api ON sys_bt_task_api.sys_api_id = sys_api.sys_api_id\n" +
+                "WHERE\n" +
+                "sys_api.`name` = ?\n", SysTaskEntity.class, code);
+        return new ArrayList<>(list);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Long save(Method method) {

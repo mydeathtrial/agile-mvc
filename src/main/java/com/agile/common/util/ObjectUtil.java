@@ -880,7 +880,9 @@ public class ObjectUtil extends ObjectUtils {
             }
             if (clazz == java.util.Date.class) {
                 String format = "yyyy-MM-dd";
-                if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
+                if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}.[\\d]{1,2}", valueStr)) {
+                    format = "yyyy-MM-dd HH:mm:ss.s";
+                } else if (StringUtil.containMatchedString("[\\d]{4}-[\\d]{1,2}-[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
                     format = "yyyy-MM-dd HH:mm:ss";
                 } else if (StringUtil.containMatchedString("[\\d]{4}/[\\d]{1,2}/[\\d]{1,2} [\\d]{1,2}:[\\d]{1,2}:[\\d]{1,2}", valueStr)) {
                     format = "yyyy/MM/dd HH:mm:ss";
