@@ -1,31 +1,32 @@
 package com.agile.mvc.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.Basic;
-import java.io.Serializable;
+import com.agile.common.annotation.Remark;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import javax.validation.constraints.NotBlank;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Update;
 import org.hibernate.annotations.CreationTimestamp;
-import java.util.Date;
+import org.hibernate.validator.constraints.Length;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import org.apache.ibatis.annotations.Delete;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import com.agile.common.annotation.Remark;
 import javax.validation.constraints.Past;
-import javax.persistence.Temporal;
-import javax.validation.constraints.Max;
-import org.apache.ibatis.annotations.Update;
-import org.apache.ibatis.annotations.Insert;
-import org.hibernate.validator.constraints.Length;
-import javax.persistence.Id;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 描述：[系统管理]日志表
@@ -44,15 +45,9 @@ public class LogMainEntity implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String logMainId;
-    @Remark("业务编码")
-    private String businessCode;
-    @Remark("请求地址")
-    private String url;
-    @Remark("bean名")
-    private String bean;
-    @Remark("方法名")
-    private String method;
+    private Long logMainId;
+    @Remark("资源主键")
+    private Long sysResourcesId;
     @Remark("入参")
     private String inParam;
     @Remark("出参")
@@ -66,65 +61,44 @@ public class LogMainEntity implements Serializable, Cloneable {
     @Remark("业务对象类型")
     private String targetType;
     @Remark("业务对象标识")
-    private String targetCode;
+    private Long targetCode;
     @Remark("操作人")
-    private String userId;
+    private String userAccountNumber;
     @Remark("操作时间")
     private Date createTime;
 
-    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
     @Id
-    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
-    @Column(name = "log_main_id", nullable = false, length = 18)
-    public String getLogMainId() {
+    @Column(name = "log_main_id", nullable = false, length = 19)
+    public Long getLogMainId() {
         return logMainId;
     }
 
-    @Column(name = "business_code", nullable = false, length = 6)
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "sys_resources_id", length = 19)
     @Basic
-    @NotBlank(message = "业务编码不能为空", groups = {Insert.class, Update.class})
-    @Length(max = 6, message = "最长为6个字符", groups = {Insert.class, Update.class})
-    public String getBusinessCode() {
-        return businessCode;
+    public Long getSysResourcesId() {
+        return sysResourcesId;
     }
 
     @Length(max = 65535, message = "最长为65535个字符", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "url", columnDefinition = "TEXT default NULL", length = 65535)
-    public String getUrl() {
-        return url;
-    }
-
-    @Column(name = "bean", columnDefinition = "VARCHAR default NULL", length = 40)
-    @Basic
-    @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
-    public String getBean() {
-        return bean;
-    }
-
-    @Basic
-    @Column(name = "method", columnDefinition = "VARCHAR default NULL", length = 40)
-    @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
-    public String getMethod() {
-        return method;
-    }
-
-    @Length(max = 65535, message = "最长为65535个字符", groups = {Insert.class, Update.class})
-    @Basic
-    @Column(name = "in_param", columnDefinition = "TEXT default NULL", length = 65535)
+    @Column(name = "in_param", length = 65535)
     public String getInParam() {
         return inParam;
     }
 
     @Length(max = 65535, message = "最长为65535个字符", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "out_param", columnDefinition = "TEXT default NULL", length = 65535)
+    @Column(name = "out_param", length = 65535)
     public String getOutParam() {
         return outParam;
     }
 
-    @Column(name = "ip", columnDefinition = "VARCHAR default NULL", length = 15)
     @Length(max = 15, message = "最长为15个字符", groups = {Insert.class, Update.class})
+    @Column(name = "ip", length = 15)
     @Basic
     public String getIp() {
         return ip;
@@ -146,26 +120,28 @@ public class LogMainEntity implements Serializable, Cloneable {
         return status;
     }
 
-    @Column(name = "target_type", columnDefinition = "VARCHAR default NULL", length = 4)
+    @Column(name = "target_type", length = 4)
     @Basic
     @Length(max = 4, message = "最长为4个字符", groups = {Insert.class, Update.class})
     public String getTargetType() {
         return targetType;
     }
 
-    @Length(max = 100, message = "最长为100个字符", groups = {Insert.class, Update.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "target_code", length = 19)
     @Basic
-    @Column(name = "target_code", columnDefinition = "VARCHAR default NULL", length = 100)
-    public String getTargetCode() {
+    public Long getTargetCode() {
         return targetCode;
     }
 
-    @NotBlank(message = "操作人不能为空", groups = {Insert.class, Update.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
     @Basic
-    @Length(max = 8, message = "最长为8个字符", groups = {Insert.class, Update.class})
-    @Column(name = "user_id", nullable = false, length = 8)
-    public String getUserId() {
-        return userId;
+    @NotNull(message = "操作人不能为空", groups = {Insert.class, Update.class})
+    @Column(name = "user_account_number", nullable = false, length = 40)
+    public String getUserAccountNumber() {
+        return userAccountNumber;
     }
 
     @Basic

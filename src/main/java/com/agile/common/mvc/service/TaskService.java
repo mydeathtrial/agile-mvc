@@ -31,7 +31,7 @@ import java.util.concurrent.ScheduledFuture;
  * @author 佟盟
  */
 public class TaskService {
-    private static Map<String, TaskInfo> taskInfoMap = new HashMap<>();
+    private static Map<Long, TaskInfo> taskInfoMap = new HashMap<>();
     private static Map<String, ApiBase> apiBaseMap = new HashMap<>();
 
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
@@ -63,7 +63,7 @@ public class TaskService {
      */
     private void initTaskTarget() {
         String[] beans = applicationContext.getBeanDefinitionNames();
-        List<Target> list = taskManager.getTaskTarget();
+        List<Target> list = taskManager.getApis();
         Map<String, Target> mapCache = new HashMap<>(list.size());
         for (Target entity : list) {
             mapCache.put(entity.getCode(), entity);
@@ -83,7 +83,7 @@ public class TaskService {
                 }
 
                 if (!mapCache.containsKey(method.toGenericString())) {
-                    taskManager.save(method.toGenericString());
+                    taskManager.save(method);
                 }
                 apiBaseMap.put(method.toGenericString(), new ApiBase(bean, method, beanName));
             }
@@ -138,9 +138,8 @@ public class TaskService {
      * @param method 方法
      */
     public void addTask(Task task, Method method) {
-
-
-        addTask(task, taskManager.target(method));
+        taskManager.save(task, method);
+        addTask(task);
     }
 
     /**
@@ -150,8 +149,11 @@ public class TaskService {
      * @param target 目标方法信息
      */
     public void addTask(Task task, Target target) {
-        taskManager.save(task, target);
-        addTask(task);
+        ApiBase apiBase = getApi(target.getCode());
+        if (apiBase == null) {
+            return;
+        }
+        addTask(task, apiBase.getMethod());
     }
 
     /**
@@ -161,7 +163,7 @@ public class TaskService {
      */
     public void addTask(Task task) {
         //获取定时任务详情列表
-        List<Target> targets = taskManager.getTaskTargetByTaskCode(task.getCode());
+        List<Target> targets = taskManager.getApisByTaskCode(task.getCode());
 
         if (targets.size() == 0) {
             return;
@@ -171,7 +173,7 @@ public class TaskService {
         TaskTrigger trigger = new TaskTrigger(task.getCron(), task.getSync());
 
         //新建任务
-        TaskJob job = new TaskJob(task.getCode(), trigger, targets);
+        TaskJob job = new TaskJob(task, trigger, targets);
 
         ScheduledFuture scheduledFuture = null;
         if (task.enable()) {
@@ -183,7 +185,7 @@ public class TaskService {
     }
 
 
-    public void removeTask(String id) throws NotFoundTaskException {
+    public void removeTask(long id) throws NotFoundTaskException {
         if (taskInfoMap.containsKey(id)) {
             stopTask(id);
             taskInfoMap.remove(id);
@@ -191,7 +193,7 @@ public class TaskService {
     }
 
 
-    public void stopTask(String id) throws NotFoundTaskException {
+    public void stopTask(long id) throws NotFoundTaskException {
         TaskInfo taskInfo = taskInfoMap.get(id);
         if (ObjectUtil.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
@@ -207,7 +209,7 @@ public class TaskService {
         if (redisConnectionFactory != null) {
             RedisConnection connection = redisConnectionFactory.getConnection();
             if (connection != null) {
-                connection.expire(id.getBytes(StandardCharsets.UTF_8), 0);
+                connection.expire(Long.toString(id).getBytes(StandardCharsets.UTF_8), 0);
             }
         }
 

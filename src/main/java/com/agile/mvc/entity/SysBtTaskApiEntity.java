@@ -9,7 +9,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -20,13 +19,11 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
- * 描述：[系统管理]日志相关表变动信息
- *
+ * 描述：[系统管理]定时任务目标任务表
  * @author agile gennerator
  */
 @Setter
@@ -36,59 +33,59 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "log_table")
-@Remark("[系统管理]日志相关表变动信息")
-public class LogTableEntity implements Serializable, Cloneable {
+@Table(name = "sys_bt_task_api")
+@Remark("[系统管理]定时任务目标任务表")
+public class SysBtTaskApiEntity implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
-    @Remark("唯一标识")
-    private Long logTableId;
-    @Remark("日志标识")
-    private Long logMainId;
-    @Remark("sql语句")
-    private String sql;
-    @Remark("操作顺序")
-    private Integer operationOrder;
+    @Remark("主键")
+    private Long sysBtTaskApiId;
+    @Remark("定时任务标志")
+    private Long sysTaskId;
+    @Remark("目标方法主键")
+    private Long sysApiId;
+    @Remark("优先级")
+    private Integer order;
 
     @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
     @DecimalMin(value = "0", groups = {Insert.class, Update.class})
-    @Column(name = "log_table_id", nullable = false, length = 19)
+    @Column(name = "sys_bt_task_api_id", nullable = false, length = 19)
     @Id
-    public Long getLogTableId() {
-        return logTableId;
+    public Long getSysBtTaskApiId() {
+        return sysBtTaskApiId;
     }
 
     @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
     @DecimalMin(value = "0", groups = {Insert.class, Update.class})
-    @NotNull(message = "日志标识不能为空", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "log_main_id", nullable = false, length = 19)
-    public Long getLogMainId() {
-        return logMainId;
+    @Column(name = "sys_task_id", nullable = false, length = 19)
+    @NotNull(message = "定时任务标志不能为空", groups = {Insert.class, Update.class})
+    public Long getSysTaskId() {
+        return sysTaskId;
     }
 
-    @Length(max = 64, message = "最长为64个字符", groups = {Insert.class, Update.class})
-    @Column(name = "`sql`", nullable = false, length = 64)
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "sys_api_id", nullable = false, length = 19)
     @Basic
-    @NotBlank(message = "数据库不能为空", groups = {Insert.class, Update.class})
-    public String getSql() {
-        return sql;
+    @NotNull(message = "目标方法主键不能为空", groups = {Insert.class, Update.class})
+    public Long getSysApiId() {
+        return sysApiId;
     }
 
     @Min(value = 0, groups = {Insert.class, Update.class})
+    @Column(name = "order", length = 3)
     @Basic
-    @NotNull(message = "操作顺序不能为空", groups = {Insert.class, Update.class})
     @Max(value = 2147483647, groups = {Insert.class, Update.class})
-    @Column(name = "operation_order", nullable = false, length = 10)
-    public Integer getOperationOrder() {
-        return operationOrder;
+    public Integer getOrder() {
+        return order;
     }
 
 
     @Override
-    public LogTableEntity clone() {
+    public SysBtTaskApiEntity clone() {
         try {
-            return (LogTableEntity) super.clone();
+            return (SysBtTaskApiEntity) super.clone();
         } catch (CloneNotSupportedException e) {
             return null;
         }

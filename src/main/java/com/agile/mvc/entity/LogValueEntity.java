@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 import org.hibernate.validator.constraints.Length;
@@ -17,7 +16,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -37,9 +39,9 @@ public class LogValueEntity implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String logValueId;
+    private Long logValueId;
     @Remark("日志相关表标识")
-    private String logTableId;
+    private Long logTableId;
     @Remark("字段")
     private String columnName;
     @Remark("字段类型")
@@ -51,19 +53,20 @@ public class LogValueEntity implements Serializable, Cloneable {
     @Remark("字段含义")
     private String columnInfo;
 
-    @Column(name = "log_value_id", nullable = false, length = 18)
-    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "log_value_id", nullable = false, length = 19)
     @Id
-    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
-    public String getLogValueId() {
+    public Long getLogValueId() {
         return logValueId;
     }
 
-    @Column(name = "log_table_id", nullable = false, length = 18)
+    @NotNull(message = "日志相关表标识不能为空", groups = {Insert.class, Update.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "log_table_id", nullable = false, length = 19)
     @Basic
-    @NotBlank(message = "日志相关表标识不能为空", groups = {Insert.class, Update.class})
-    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
-    public String getLogTableId() {
+    public Long getLogTableId() {
         return logTableId;
     }
 

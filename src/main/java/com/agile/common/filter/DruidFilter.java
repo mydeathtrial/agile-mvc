@@ -1,6 +1,9 @@
 package com.agile.common.filter;
 
 import com.agile.common.factory.LoggerFactory;
+import com.agile.common.log.BusinessLogService;
+import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.SqlUtil;
 import com.alibaba.druid.filter.FilterEventAdapter;
 import com.alibaba.druid.proxy.jdbc.CallableStatementProxy;
 import com.alibaba.druid.proxy.jdbc.PreparedStatementProxy;
@@ -85,6 +88,7 @@ public class DruidFilter extends FilterEventAdapter {
     private void printLog(Statement statement) {
         if (statement instanceof ClientPreparedStatement) {
             try {
+                businessLog(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
                 LoggerFactory.DAO_LOG.info(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -94,16 +98,34 @@ public class DruidFilter extends FilterEventAdapter {
 
     /**
      * 打印异常日志
-     * @param error 异常
+     *
+     * @param error     异常
      * @param statement Statement
      */
     private void printLog(Statement statement, Throwable error) {
         if (statement instanceof ClientPreparedStatement) {
             try {
+                businessLog(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
                 LoggerFactory.DAO_LOG.error(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "), error);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /**
+     * 记录业务日志
+     *
+     * @param sql sql语句
+     */
+    private void businessLog(String sql) {
+        BusinessLogService businessLogService = FactoryUtil.getBean(BusinessLogService.class);
+        String tableName = SqlUtil.extract(sql);
+        if (businessLogService != null) {
+            if (tableName != null && tableName.toLowerCase().startsWith("log_")) {
+                return;
+            }
+            businessLogService.printBusinessLog(sql);
         }
     }
 }

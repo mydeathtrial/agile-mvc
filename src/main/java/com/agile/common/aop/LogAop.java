@@ -1,23 +1,27 @@
 package com.agile.common.aop;
 
+import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.factory.PoolFactory;
+import com.agile.common.log.BusinessLogService;
+import com.agile.common.log.ServiceExecutionInfo;
 import com.agile.common.mvc.service.MainService;
-import com.agile.common.util.AopUtil;
-import com.agile.common.util.JSONUtil;
-import com.agile.common.util.MapUtil;
+import com.agile.common.util.ApiUtil;
+import com.agile.common.util.DateUtil;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.data.util.ProxyUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 public class LogAop {
 
-    private static final int MAX_LENGTH = 5000;
     private static final int CORE_POOL_SIZE = 5;
     private static final int MAX_IMUM_POOL_SIZE = 30;
     private static final int KEEP_ALIVE_TIME = 1;
@@ -42,10 +45,7 @@ public class LogAop {
     private static final String SUCCESS = "SUCCESS";
     private static final String ERROR = "ERROR";
     private static final String DETAIL_ERROR_INFO = "详细错误信息：\n";
-    private static final int LOG_TAB = 10;
-    private static final int REQUEST_INDEX = 2;
-    private static final int METHOD_INDEX = 1;
-    private static final String JSON_ERROR = "特殊入参无法进行json化处理";
+
     /**
      * 日志线程池
      */
@@ -67,56 +67,73 @@ public class LogAop {
      */
     @Around(value = "servicePointCut()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object result;
         long startTime = System.currentTimeMillis();
-        long endTime;
-        MainService service = AopUtil.getTarget(joinPoint, MainService.class);
-        HttpServletRequest request = (HttpServletRequest) joinPoint.getArgs()[REQUEST_INDEX];
-        Method method = (Method) joinPoint.getArgs()[METHOD_INDEX];
-        Map<String, Object> inParam = service.getInParam();
-        inParam.remove(Constant.ResponseAbout.BODY);
+
+        ApiInfo apiInfo = extract(joinPoint);
+
+        if (apiInfo == null || !(apiInfo.getBean() instanceof MainService)) {
+            return joinPoint.proceed();
+        }
+        MainService service = (MainService) apiInfo.getBean();
+
+        ServiceExecutionInfo.ServiceExecutionInfoBuilder builder = ServiceExecutionInfo.builder();
+
+        builder.bean(service)
+                .method(apiInfo.getMethod())
+                .inParam(service.getInParam())
+                .ip(ServletUtil.getCurrentRequestIP())
+                .url(ServletUtil.getCurrentRequestUrl())
+                .executionDate(DateUtil.getCurrentDate())
+                .userDetails((UserDetails) SecurityContextHolder.getContext().getAuthentication().getDetails())
+                .status(true)
+                .build();
+        BusinessLogService logService = FactoryUtil.getBean(BusinessLogService.class);
+        if (logService != null) {
+            logService.clear();
+            logService.initCurrentBusinessLogCode();
+        }
+
+        ServiceExecutionInfo serviceExecutionInfo;
         try {
-            result = joinPoint.proceed();
+            Object result = joinPoint.proceed();
+            builder.timeConsuming(System.currentTimeMillis() - startTime)
+                    .outParam(service.getOutParam());
+            serviceExecutionInfo = builder.build();
+            logging(serviceExecutionInfo);
+            printLog(serviceExecutionInfo);
+            return result;
         } catch (Throwable throwable) {
-            endTime = System.currentTimeMillis();
-            printLog(throwable, endTime - startTime, service, method.getName(), ServletUtil.getRequestIP(request), ServletUtil.getCurrentUrl(request), inParam);
+            builder.status(false);
+            builder.timeConsuming(System.currentTimeMillis() - startTime)
+                    .e(throwable);
+            serviceExecutionInfo = builder.build();
+            logging(serviceExecutionInfo);
+            printLog(serviceExecutionInfo);
             throw throwable;
         }
-        endTime = System.currentTimeMillis();
-        printLog(endTime - startTime, service, method.getName(), ServletUtil.getRequestIP(request), ServletUtil.getCurrentUrl(request), inParam, service.getOutParam());
-        return result;
     }
 
-    /**
-     * 打印日志
-     *
-     * @param time       耗时
-     * @param service    service
-     * @param methodName 方法
-     * @param ip         请求ip
-     * @param url        请求地址
-     * @param inParam    入参
-     * @param outParam   出参
-     */
-    private void printLog(long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
-        LogThread thread = new LogThread(time, service, methodName, ip, url, inParam, outParam);
-        pool.execute(thread);
+    private ApiInfo extract(ProceedingJoinPoint joinPoint) throws NoSuchMethodException {
+        ApiInfo apiInfo = ApiUtil.getApiCache(ServletUtil.getCurrentRequest());
+        if (apiInfo == null || !(apiInfo.getBean() instanceof MainService)) {
+            Object bean = joinPoint.getArgs()[Constant.NumberAbout.ZERO];
+            Class<?> clazz = ProxyUtils.getUserClass(bean);
+            Method method = (Method) joinPoint.getArgs()[Constant.NumberAbout.ONE];
+            Method reallyMethod = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
+            return new ApiInfo(bean, reallyMethod, null, null);
+        }
+        return apiInfo;
     }
 
-    /**
-     * 打印异常日志
-     *
-     * @param throwable  异常
-     * @param time       耗时
-     * @param service    service
-     * @param methodName 方法
-     * @param ip         请求ip
-     * @param url        请求地址
-     * @param inParam    入参
-     */
-    private void printLog(Throwable throwable, long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam) {
-        LogThread thread = new LogThread(throwable, time, service, methodName, ip, url, inParam);
-        pool.execute(thread);
+    private void logging(ServiceExecutionInfo serviceExecutionInfo) {
+        BusinessLogService logService = FactoryUtil.getBean(BusinessLogService.class);
+        if (logService != null) {
+            logService.logging(serviceExecutionInfo);
+        }
+    }
+
+    private void printLog(ServiceExecutionInfo executionInfo) {
+        pool.execute(new LogThread(executionInfo));
     }
 
 
@@ -124,51 +141,40 @@ public class LogAop {
      * 日志线程
      */
     private static class LogThread implements Runnable {
-        Throwable e;
-        long time;
-        Object service;
-        String methodName;
-        String ip;
-        String url;
-        Map<String, Object> inParam;
-        Map<String, Object> outParam;
+        ServiceExecutionInfo serviceExecutionInfo;
 
-        LogThread(long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam, Map<String, Object> outParam) {
-            this(null, time, service, methodName, ip, url, inParam);
-            this.outParam = MapUtil.coverCanSerializer(outParam);
-        }
-
-        LogThread(Throwable e, long time, MainService service, String methodName, String ip, String url, Map<String, Object> inParam) {
-            this.e = e;
-            this.time = time;
-            this.service = service;
-            this.methodName = methodName;
-            this.ip = ip;
-            this.url = url;
-            this.inParam = MapUtil.coverCanSerializer(inParam);
+        LogThread(ServiceExecutionInfo serviceExecutionInfo) {
+            this.serviceExecutionInfo = serviceExecutionInfo;
         }
 
         @Override
         public void run() {
-            try {
-                Class<?> serviceClass = service.getClass();
-                Log logger = LoggerFactory.getServiceLog(serviceClass);
-                if (e == null) {
-                    String outStr = JSONUtil.toStringPretty(outParam, LOG_TAB);
-                    String print = (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
-                    String inParamLog;
-                    try {
-                        inParamLog = JSONUtil.toStringPretty(inParam, LOG_TAB);
-                    } catch (Exception e) {
-                        inParamLog = JSON_ERROR;
-                    }
-                    logger.info(String.format(LOG_TEMPLATE, SUCCESS, ip, url, serviceClass.getSimpleName(), methodName, inParamLog, print, time));
-                } else {
-                    logger.error(String.format(ERROR_LOG_TEMPLATE, ERROR, e.getClass(), e.getMessage(), ip, url, serviceClass.getSimpleName(), methodName, JSONUtil.toStringPretty(inParam, LOG_TAB), time));
-                    logger.error(DETAIL_ERROR_INFO, e);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+
+            Log logger = LoggerFactory.getServiceLog(ProxyUtils.getUserClass(serviceExecutionInfo.getBean()));
+            if (serviceExecutionInfo.getE() == null) {
+                logger.info(String.format(LOG_TEMPLATE,
+                        SUCCESS,
+                        serviceExecutionInfo.getIp(),
+                        serviceExecutionInfo.getUrl(),
+                        serviceExecutionInfo.getBeanName(),
+                        serviceExecutionInfo.getMethodName(),
+                        serviceExecutionInfo.getInParamToJson(),
+                        serviceExecutionInfo.getOutParamToJson(),
+                        serviceExecutionInfo.getTimeConsuming()));
+            } else {
+                logger.error(String.format(ERROR_LOG_TEMPLATE,
+                        ERROR,
+                        serviceExecutionInfo.getE().getClass(),
+                        serviceExecutionInfo.getE().getMessage(),
+                        serviceExecutionInfo.getIp(),
+                        serviceExecutionInfo.getUrl(),
+                        serviceExecutionInfo.getBeanName(),
+                        serviceExecutionInfo.getMethodName(),
+                        serviceExecutionInfo.getInParamToJson(),
+                        serviceExecutionInfo.getTimeConsuming()));
+
+                logger.error(DETAIL_ERROR_INFO,
+                        serviceExecutionInfo.getE());
             }
         }
     }

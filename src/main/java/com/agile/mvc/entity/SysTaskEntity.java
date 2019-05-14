@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 import org.hibernate.annotations.CreationTimestamp;
@@ -23,7 +22,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Past;
 import java.io.Serializable;
 import java.util.Date;
@@ -46,11 +46,13 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
 
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String sysTaskId;
+    private Long sysTaskId;
     @Remark("定时任务名")
     private String name;
     @Remark("状态")
-    private Boolean state;
+    private String status = "1000";
+    @Remark("启动")
+    private boolean enable;
     @Remark("定时表达式")
     private String cron;
     @Remark("是否同步")
@@ -60,16 +62,15 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     @Remark("创建时间")
     private Date createTime;
 
-
-    @Column(name = "sys_task_id", nullable = false, length = 18)
-    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "sys_task_id", nullable = false, length = 19)
     @Id
-    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
-    public String getSysTaskId() {
+    public Long getSysTaskId() {
         return sysTaskId;
     }
 
-    @Column(name = "name", columnDefinition = "VARCHAR default NULL", length = 255)
+    @Column(name = "name", length = 255)
     @Basic
     @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getName() {
@@ -77,42 +78,47 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     }
 
     @Basic
-    @Column(name = "state", columnDefinition = "BIT default NULL", length = 1)
-    public Boolean getState() {
-        return state;
+    @Column(name = "status", length = 4)
+    public String getStatus() {
+        return status;
     }
 
     @Transient
     @Override
-    public String getCode() {
+    public Long getCode() {
         return sysTaskId;
     }
 
     @Override
+    @Column(name = "cron", length = 36)
     @Length(max = 36, message = "最长为36个字符", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "cron", columnDefinition = "VARCHAR default NULL", length = 36)
     public String getCron() {
         return cron;
     }
 
     @Override
     @Basic
-    @Column(name = "sync", columnDefinition = "BIT default NULL", length = 1)
+    @Column(name = "sync", length = 1)
     public boolean getSync() {
-        return sync;
+        return sync == null ? false : sync;
     }
 
-    @Transient
+    @Basic
+    @Column(name = "enable", length = 1)
+    public boolean isEnable() {
+        return enable;
+    }
+
     @Override
     public boolean enable() {
-        return state == null ? true : state;
+        return enable;
     }
 
-    @Column(name = "update_time", columnDefinition = "DATETIME default NULL", length = 26)
     @UpdateTimestamp
     @Basic
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "update_time", length = 26)
     public Date getUpdateTime() {
         return updateTime;
     }
@@ -121,10 +127,11 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     @Temporal(TemporalType.TIMESTAMP)
     @Past
     @CreationTimestamp
-    @Column(name = "create_time", columnDefinition = "DATETIME default NULL", length = 26, updatable = false)
+    @Column(name = "create_time", length = 26, updatable = false)
     public Date getCreateTime() {
         return createTime;
     }
+
 
     @Override
     public SysTaskEntity clone() {

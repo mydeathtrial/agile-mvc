@@ -13,7 +13,7 @@ public interface Task {
      *
      * @return 唯一标识
      */
-    String getCode();
+    Long getCode();
 
     /**
      * 取cron表达式

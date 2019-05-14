@@ -6,6 +6,7 @@ import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.mvc.entity.SysTaskEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,11 +18,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class TaskRevealService extends BusinessService<SysTaskEntity> {
-    private final TaskService taskService;
-
-    public TaskRevealService(TaskService taskService) {
-        this.taskService = taskService;
-    }
+    @Autowired(required = false)
+    private TaskService taskService;
 
     /**
      * 根据定时任务对象添加定时任务
@@ -31,9 +29,10 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
     public RETURN addTask() throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
 
         SysTaskEntity task = super.saveAndReturn();
-        if (task != null) {
-            taskService.addTask(task);
+        if (task == null) {
+            return RETURN.PARAMETER_ERROR;
         }
+        taskService.addTask(task);
         return RETURN.SUCCESS;
     }
 
@@ -43,7 +42,10 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      * @return 是否成功
      */
     public RETURN removeTask() throws NotFoundTaskException {
-        String id = this.getInParam("id", String.class);
+        Long id = this.getInParam("id", Long.class);
+        if (id == null) {
+            return RETURN.PARAMETER_ERROR;
+        }
         taskService.removeTask(id);
         this.dao.deleteById(SysTaskEntity.class, id);
         return RETURN.SUCCESS;
@@ -55,12 +57,15 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      * @return 是否成功
      */
     public RETURN stopTask() throws NotFoundTaskException {
-        String id = this.getInParam("id", String.class);
+        Long id = this.getInParam("id", Long.class);
+        if (id == null) {
+            return RETURN.PARAMETER_ERROR;
+        }
         taskService.stopTask(id);
 
         //同步状态到数据库
         SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-        entity.setState(false);
+        entity.setEnable(false);
         dao.update(entity);
 
         return RETURN.SUCCESS;
@@ -78,7 +83,7 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
 
         //同步状态到数据库
         SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-        entity.setState(true);
+        entity.setEnable(true);
         dao.update(entity);
 
         return RETURN.SUCCESS;

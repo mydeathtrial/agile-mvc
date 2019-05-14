@@ -6,6 +6,7 @@ import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,8 +18,8 @@ import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,9 +36,9 @@ import java.util.Objects;
 public class TaskJob implements Serializable, Runnable {
     private final Log logger = LoggerFactory.createLogger("task", TaskJob.class, Level.INFO, Level.ERROR);
 
-    private String taskName;
+    private Task task;
     private TaskTrigger trigger;
-    private List<Target> taskTargetList;
+    private List<Target> targets;
 
     @Override
     public void run() {
@@ -49,11 +50,11 @@ public class TaskJob implements Serializable, Runnable {
                     long nextTime = (Objects.requireNonNull(this.trigger.nextExecutionTime(new SimpleTriggerContext())).getTime() - System.currentTimeMillis()) / Constant.NumberAbout.THOUSAND;
 
                     //如果抢到同步锁，设置锁定时间并直接运行
-                    if (setNxLock(this.taskName, (int) nextTime)) {
-                        invoke(taskTargetList);
+                    if (setNxLock(Long.toString(this.task.getCode()), (int) nextTime)) {
+                        invoke();
                     }
                 } else {
-                    invoke(taskTargetList);
+                    invoke();
                 }
             } catch (Exception e) {
                 logger.error(e);
@@ -101,29 +102,55 @@ public class TaskJob implements Serializable, Runnable {
 
     /**
      * 逐个执行定时任务目标方法
-     *
-     * @param targets 定时任务详情数据集
      */
     @Transactional(rollbackFor = Exception.class)
-    public void invoke(List<Target> targets) throws InvocationTargetException, IllegalAccessException {
+    public void invoke() {
+        TaskManager taskManager = FactoryUtil.getBean(TaskManager.class);
+        if (taskManager != null) {
+            //通知持久层，任务开始运行
+            taskManager.run(task.getCode());
+        }
+        RunDetail runDetail = RunDetail.builder().taskCode(task.getCode()).startTime(new Date()).build();
+
+        boolean ending = true;
+        String log;
         //逐个执行定时任务目标方法
         for (Target target : targets) {
             if (logger.isInfoEnabled()) {
-                logger.info("开始定时任务:" + target.getCode());
+                log = "开始定时任务:" + task.getCode();
+                logger.info(log);
             }
             if (ObjectUtil.isEmpty(target)) {
+                log = "该定时任务中未绑定任何api信息，任务结束";
+                runDetail.addLog(log);
+                logger.info(log);
                 return;
             }
             ApiBase apiInfo = TaskService.getApi(target.getCode());
             if (apiInfo == null || apiInfo.getMethod().getParameterCount() > 0) {
-                logger.error("定时任务异常:" + target.getCode());
+                log = "该定时任务中绑定的方法不合法，任务结束";
+                runDetail.addLog(log);
+                logger.info(log);
                 return;
             }
-            apiInfo.getMethod().invoke(apiInfo.getBean());
-        }
-    }
+            try {
+                apiInfo.getMethod().invoke(apiInfo.getBean());
+            } catch (Exception e) {
+                log = StringUtil.coverToString(e);
+                runDetail.addLog(log);
+                ending = false;
+                logger.info(log);
+            }
 
-//    public static void main(String[] args) throws NoSuchMethodException {
-//        System.out.println(SyncThreatBookThread.class.getMethod("sync").toGenericString());
-//    }
+        }
+
+        if (taskManager != null) {
+            runDetail.setEndTime(new Date());
+            runDetail.setEnding(ending);
+            taskManager.logging(runDetail);
+            //通知持久层，任务开始运行
+            taskManager.finish(task.getCode());
+        }
+
+    }
 }

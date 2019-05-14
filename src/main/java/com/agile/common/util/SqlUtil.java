@@ -12,6 +12,7 @@ import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
+import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
@@ -498,6 +499,42 @@ public class SqlUtil {
         return sorts;
     }
 
+    public static String extract(String sql) {
+
+        // 新建 MySQL Parser
+        SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
+
+        // 使用Parser解析生成AST，这里SQLStatement就是AST
+        SQLStatement statement = parser.parseStatement();
+
+        // 使用visitor来访问AST
+        MySqlSchemaStatVisitor visitor = new MySqlSchemaStatVisitor();
+        statement.accept(visitor);
+
+
+        String tableName = null;
+        if (statement instanceof SQLUpdateStatement) {
+            tableName = extractUpdate((SQLUpdateStatement) statement);
+        } else if (statement instanceof SQLDeleteStatement) {
+            tableName = extractDelete((SQLDeleteStatement) statement);
+        } else if (statement instanceof SQLInsertStatement) {
+            tableName = extractInsert((SQLInsertStatement) statement);
+        }
+
+        return tableName;
+    }
+
+    private static String extractUpdate(SQLUpdateStatement statement) {
+        return statement.getTableName().getSimpleName();
+    }
+
+    private static String extractDelete(SQLDeleteStatement statement) {
+        return statement.getTableName().getSimpleName();
+    }
+
+    private static String extractInsert(SQLInsertStatement statement) {
+        return statement.getTableName().getSimpleName();
+    }
 //    public static void main(String[] args) {
 //
 //        Map<String, Object> map = new HashMap<>();

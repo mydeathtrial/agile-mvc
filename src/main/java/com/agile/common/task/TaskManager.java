@@ -13,48 +13,66 @@ import java.util.List;
 public interface TaskManager {
     /**
      * 取所有定时任务
+     *
      * @return 定时任务列表
      */
     List<Task> getTask();
 
     /**
      * 取所有任务目标
+     *
      * @return 任务目标列表
      */
-    List<Target> getTaskTarget();
+    List<Target> getApis();
 
     /**
      * 根据定时任务标识查询所属任务目标
+     *
      * @param code 定时任务标识
      * @return 任务目标列表
      */
-    List<Target> getTaskTargetByTaskCode(String code);
+    List<Target> getApisByTaskCode(Long code);
 
     /**
      * 保存任务和对应的任务列表
-     * @param task 任务
-     * @param target 目标
+     *
+     * @param task   任务
+     * @param method 目标
      */
-    void save(Task task, Target target);
+    void save(Task task, Method method);
 
     /**
      * 保存任务目标
-     * @param methodGenericString 任务目标方法的唯一标识
+     *
+     * @param method 任务目标方法
      * @return 标识
      */
-    String save(String methodGenericString);
+    Long save(Method method);
 
     /**
      * 保存任务
+     *
      * @param task 任务
      * @return 任务标识
      */
-    String save(Task task);
+    Long save(Task task);
 
     /**
-     * 方法转换成目标
-     * @param method 方法
-     * @return 目标
+     * 运行
+     *
+     * @param taskCode 任务标识
      */
-    Target target(Method method);
+    void run(Long taskCode);
+
+    /**
+     * 已完成运行
+     *
+     * @param taskCode 任务标识
+     */
+    void finish(Long taskCode);
+
+    /**
+     * 记录运行日志
+     */
+    void logging(RunDetail runDetail);
 }

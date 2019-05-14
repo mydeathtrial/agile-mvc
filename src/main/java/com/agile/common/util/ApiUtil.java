@@ -33,7 +33,7 @@ public class ApiUtil {
             HandlerExecutionChain handlerExecutionChain = getMappingHandlerMapping().getHandler(request);
             if (handlerExecutionChain != null) {
                 HandlerMethod handler = (HandlerMethod) (handlerExecutionChain.getHandler());
-                return getApiInfoCache(handler.getBean(), handler.getMethod());
+                return getApiInfoCache(handler.getMethod());
             }
         } catch (Exception e) {
             return null;
@@ -138,9 +138,8 @@ public class ApiUtil {
         apiInfoCache.put(key, apiInfo);
     }
 
-    public static ApiInfo getApiInfoCache(Object bean, Method method) {
-        String key = String.format("%s.%s", bean, method);
-        return apiInfoCache.get(key);
+    public static ApiInfo getApiInfoCache(Method method) {
+        return apiInfoCache.get(method.toGenericString());
     }
 
     public static Collection<ApiInfo> getApiInfoCache() {

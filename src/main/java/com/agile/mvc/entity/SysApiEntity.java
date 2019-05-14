@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
 import org.hibernate.validator.constraints.Length;
@@ -19,7 +18,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import java.io.Serializable;
 
 /**
@@ -34,13 +34,17 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "sys_task_target")
+@Table(name = "sys_api")
 @Remark("[系统管理]目标任务表")
-public class SysTaskTargetEntity implements Serializable, Cloneable, Target {
+public class SysApiEntity implements Serializable, Cloneable, Target {
 
     private static final long serialVersionUID = 1L;
     @Remark("唯一标识")
-    private String sysTaskTargetId;
+    private Long sysApiId;
+    @Remark("api名字")
+    private String name;
+    @Remark("类型(1:对外restApi；0普通方法)")
+    private Boolean type;
     @Remark("功能")
     private String businessName;
     @Remark("业务编码")
@@ -51,42 +55,59 @@ public class SysTaskTargetEntity implements Serializable, Cloneable, Target {
     @Transient
     @Override
     public String getCode() {
-        return sysTaskTargetId;
+        if (name != null) {
+            return name;
+        }
+        return null;
     }
 
-    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
+    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
+    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    @Column(name = "sys_api_id", nullable = false, length = 19)
     @Id
-    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
-    @Column(name = "sys_task_target_id", nullable = false, length = 255)
-    public String getSysTaskTargetId() {
-        return sysTaskTargetId;
+    public Long getSysApiId() {
+        return sysApiId;
     }
 
+    @Column(name = "name", length = 65535)
+    @Length(max = 65535, message = "最长为65535个字符", groups = {Insert.class, Update.class})
+    @Basic
+    public String getName() {
+        return name;
+    }
+
+    @Column(name = "type", length = 1)
+    @Basic
+    public Boolean getType() {
+        return type;
+    }
+
+    @Column(name = "business_name", length = 40)
     @Basic
     @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
-    @Column(name = "business_name", columnDefinition = "VARCHAR default NULL", length = 40)
     public String getBusinessName() {
         return businessName;
     }
 
     @Basic
+    @Column(name = "business_code", length = 20)
     @Length(max = 20, message = "最长为20个字符", groups = {Insert.class, Update.class})
-    @Column(name = "business_code", columnDefinition = "VARCHAR default NULL", length = 20)
     public String getBusinessCode() {
         return businessCode;
     }
 
-    @Column(name = "remarks", columnDefinition = "VARCHAR default NULL", length = 255)
     @Basic
+    @Column(name = "remarks", length = 255)
     @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getRemarks() {
         return remarks;
     }
 
+
     @Override
-    public SysTaskTargetEntity clone() {
+    public SysApiEntity clone() {
         try {
-            return (SysTaskTargetEntity) super.clone();
+            return (SysApiEntity) super.clone();
         } catch (CloneNotSupportedException e) {
             return null;
         }

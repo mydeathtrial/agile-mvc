@@ -108,6 +108,10 @@ public class Dao {
         return getEntityManager().unwrap(SessionImplementor.class).connection();
     }
 
+    public boolean contains(Object o) {
+        return getEntityManager().contains(o);
+    }
+
     public <T> T saveOrUpdate(T o) {
         if (getEntityManager().contains(o)) {
             return saveAndReturn(o);
@@ -813,7 +817,7 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public Object findParameter(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
-        return query.getSingleResult();
+        return getSingleResult(query, sql);
     }
 
     public Map<String, Object> findOneToMap(String sql, Map<String, Object> parameters) {
@@ -824,7 +828,18 @@ public class Dao {
     public Map<String, Object> findOneToMap(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         queryCoverMap(query);
-        return (Map<String, Object>) query.getSingleResult();
+        return (Map<String, Object>) getSingleResult(query, sql);
+    }
+
+    private Object getSingleResult(Query query, String sql) {
+        List list = query.getResultList();
+        if (list.size() == 0) {
+            return null;
+        } else if (list.size() > 1) {
+            throw new NonUniqueResultException(String.format("Call to stored procedure [%s] returned multiple results", sql));
+        } else {
+            return list.get(0);
+        }
     }
 
     /**

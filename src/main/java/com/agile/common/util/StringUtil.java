@@ -5,6 +5,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BeanPropertyBindingResult;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -569,6 +571,19 @@ public final class StringUtil extends StringUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * 异常转字符串
+     * @param e 异常
+     * @return 字符串
+     */
+    public static String coverToString(Throwable e) {
+        StringWriter writer = new StringWriter();
+        try (PrintWriter pw = new PrintWriter(writer);) {
+            e.printStackTrace(pw);
+        }
+        return writer.toString();
     }
 
 

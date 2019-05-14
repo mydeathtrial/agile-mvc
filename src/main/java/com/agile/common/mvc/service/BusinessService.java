@@ -63,6 +63,9 @@ public class BusinessService<T> extends MainService {
     }
 
     private boolean validateInParam(T entity) {
+        if (entity == null) {
+            return true;
+        }
         List<ValidateMsg> list = validate(entity);
         if (list != null && list.size() > 0) {
             setOutParam(Constant.ResponseAbout.RESULT, list);

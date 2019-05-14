@@ -1,10 +1,10 @@
 agile:
   druid:
-    data-base-ip: 192.168.200.107
-    data-base-name: guosen_two_db
+    data-base-ip: localhost
+    data-base-name: agile_db
     data-base-port: 3306
     username: root
-    password: Idss@1234
+    password: 123456
     max-active: 100
     max-pool-prepared-statement-per-connection-size: 20
     max-wait: 60000

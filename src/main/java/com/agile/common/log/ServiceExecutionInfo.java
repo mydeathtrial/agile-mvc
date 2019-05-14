@@ -1,5 +1,6 @@
 package com.agile.common.log;
 
+import com.agile.common.base.Constant;
 import com.agile.common.util.AopUtil;
 import com.agile.common.util.JSONUtil;
 import lombok.Builder;
@@ -9,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
+
+import static io.swagger.models.properties.PropertyBuilder.PropertyId.MAX_LENGTH;
 
 /**
  * @author 佟盟
@@ -20,7 +23,10 @@ import java.util.Map;
 @Builder
 @Data
 public class ServiceExecutionInfo {
-    private BusinessLog businessLog;
+    private static final int LOG_TAB = 10;
+    private static final String JSON_ERROR = "特殊参数无法进行json化处理";
+    private static final int MAX_LENGTH = 5000;
+
     private String ip;
     private String url;
     private long timeConsuming;
@@ -31,6 +37,7 @@ public class ServiceExecutionInfo {
     private Method method;
     private Map<String, Object> inParam;
     private Map<String, Object> outParam;
+    private Throwable e;
 
     public void setBean(Object bean) {
         if (bean == null) {
@@ -54,11 +61,25 @@ public class ServiceExecutionInfo {
         return method.getName();
     }
 
+    public Map<String, Object> getInParam() {
+        inParam.remove(Constant.ResponseAbout.BODY);
+        return inParam;
+    }
+
     public String getInParamToJson() {
-        return JSONUtil.toJSONString(inParam);
+        try {
+            return JSONUtil.toStringPretty(getInParam(), LOG_TAB);
+        } catch (Exception e) {
+            return JSON_ERROR;
+        }
     }
 
     public String getOutParamToJson() {
-        return JSONUtil.toJSONString(outParam);
+        try {
+            String outStr = JSONUtil.toStringPretty(getOutParam(), LOG_TAB);
+            return (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
+        } catch (Exception e) {
+            return JSON_ERROR;
+        }
     }
 }
