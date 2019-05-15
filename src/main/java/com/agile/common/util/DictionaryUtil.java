@@ -134,7 +134,7 @@ public class DictionaryUtil {
         }
         StringBuilder nameCache = new StringBuilder();
         for (String code : codes.split(Constant.RegularAbout.COMMA)) {
-            nameCache.append(coverDicName(String.format(CODE_FORMAT, parentCode, code)));
+            nameCache.append(coverDicName(String.format(CODE_FORMAT, parentCode, code))).append(Constant.RegularAbout.COMMA);
         }
         if (nameCache.length() > 0) {
             return nameCache.substring(0, nameCache.length() - 1);

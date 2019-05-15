@@ -8,6 +8,7 @@ import com.agile.common.security.FailureHandler;
 import com.agile.common.security.JwtAuthenticationProvider;
 import com.agile.common.security.LoginFilter;
 import com.agile.common.security.LogoutHandler;
+import com.agile.common.security.SuccessHandler;
 import com.agile.common.security.TokenFilter;
 import com.agile.common.security.TokenStrategy;
 import com.agile.common.util.ArrayUtil;
@@ -56,7 +57,7 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests().antMatchers(immuneUrl).permitAll().anyRequest().authenticated()
                 .and().logout().logoutUrl(securityProperties.getLoginOutUrl()).deleteCookies(securityProperties.getTokenHeader()).logoutSuccessHandler(logoutHandler())
-                .and().exceptionHandling().accessDeniedHandler(new FailureHandler())
+                .and().exceptionHandling().accessDeniedHandler(failureHandler())
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).sessionFixation().none()
                 .and().csrf().disable().httpBasic().disable()
                 .addFilterAt(tokenFilter(), LogoutFilter.class)
@@ -77,12 +78,12 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     LoginFilter loginFilter() {
-        return new LoginFilter(jwtAuthenticationProvider(), tokenStrategy(), securityProperties, kaptchaConfigProperties);
+        return new LoginFilter(jwtAuthenticationProvider(), tokenStrategy(), securityProperties, kaptchaConfigProperties, successHandler(), failureHandler());
     }
 
     @Bean
     TokenFilter tokenFilter() {
-        return new TokenFilter(immuneUrl, securityProperties);
+        return new TokenFilter(immuneUrl, securityProperties, failureHandler());
     }
 
     @Bean
@@ -102,9 +103,19 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
                 "/actuator/*",
                 "/actuator",
                 "/jolokia"};
-        this.immuneUrl = (String[]) ArrayUtil.addAll(immuneUrl, PropertiesUtil.getProperty("agile.security.exclude-url").split(Constant.RegularAbout.COMMA));
+        this.immuneUrl = ArrayUtil.addAll(immuneUrl, PropertiesUtil.getProperty("agile.security.exclude-url").split(Constant.RegularAbout.COMMA));
         this.securityProperties = securityProperties;
         this.kaptchaConfigProperties = kaptchaConfigProperties;
         this.customerUserDetailsService = customerUserDetailsService;
+    }
+
+    @Bean
+    SuccessHandler successHandler() {
+        return new SuccessHandler();
+    }
+
+    @Bean
+    FailureHandler failureHandler() {
+        return new FailureHandler(securityProperties);
     }
 }

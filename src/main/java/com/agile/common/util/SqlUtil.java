@@ -447,7 +447,7 @@ public class SqlUtil {
                 if (String.valueOf(value).trim().length() == 0) {
                     sqlValue = null;
                 } else {
-                    sqlValue = String.format("'%s'", String.valueOf(value));
+                    sqlValue = String.format("%s", String.valueOf(value));
                 }
 
             }
@@ -542,10 +542,10 @@ public class SqlUtil {
 //        map.put("taskType", new String[]{"1", "123"});
 //        map.put("ids2", new ArrayList<String>() {
 //        });
-//        map.put("ids3", new HashSet() {{
-//            add("asd");
-//            add("31");
-//        }});
+////        map.put("ids3", new HashSet() {{
+////            add("asd");
+////            add("31");
+////        }});
 //        map.put("name", new Long(111111123));
 //        map.put("taskName1", "qwe");
 //        map.put("nameListStatic", "\\{名单2#2\\}");
@@ -594,9 +594,8 @@ public class SqlUtil {
 //        map.put("assetIp", "192.168.200.106");
 //        map.put("datasourceName", "时间");
 //        map.put("field", "");
-//        System.out.println(parserSQL("select * from vb_analysis where asset_ip ={assetIp} AND flag = 2 AND attack_time >= {startDtm} AND attack_time <= {endDtm} and id in ({ids3})", map) + "\r\r");
+//        System.out.println(parserSQL("select * from vb_analysis where asset_ip ='{assetIp}' AND flag = 2 AND attack_time >= {startDtm} AND attack_time <= {endDtm} and id in ({ids3})", map) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
-
 
 }

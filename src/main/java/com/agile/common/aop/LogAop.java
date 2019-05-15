@@ -83,7 +83,7 @@ public class LogAop {
 
         boolean status = true;
         try {
-            initCurrentBusinessLog();
+            clearCurrentBusinessLog();
             return joinPoint.proceed();
         } catch (Throwable throwable) {
             status = false;
@@ -97,11 +97,6 @@ public class LogAop {
             printLog(executionInfo);
             clearCurrentBusinessLog();
         }
-    }
-
-    private void initCurrentBusinessLog() {
-        logService.clear();
-        logService.initCurrentBusinessLogCode();
     }
 
     private void clearCurrentBusinessLog() {

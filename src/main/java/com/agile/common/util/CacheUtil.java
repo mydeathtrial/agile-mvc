@@ -66,32 +66,36 @@ public class CacheUtil {
         getCache().put(key, value);
     }
 
-    public static void put(Object key, Object value, int timeout) {
+    public static void put(Cache cache, Object key, Object value, int timeout) {
         CacheManager cacheManager = getCacheManager();
         if (cacheManager instanceof EhCacheCacheManager) {
-            Cache springCache = cacheManager.getCache(DEFAULT_CACHE_NAME);
-            if (springCache == null) {
+            if (cache == null) {
                 throw new RuntimeException("not found Cache Instance");
             }
-            net.sf.ehcache.Cache currentCache = (net.sf.ehcache.Cache) springCache.getNativeCache();
+            net.sf.ehcache.Cache currentCache = (net.sf.ehcache.Cache) cache.getNativeCache();
             Element element = new Element(key, value);
             element.setTimeToLive(timeout);
             element.setTimeToIdle(timeout);
             element.setEternal(true);
             currentCache.put(element);
         } else {
-            byte[] byteKey = serializeKey(key);
+            byte[] byteKey = serializeKey(cache, key);
             byte[] byteValue = serializeValue(getRedisTemplate().getValueSerializer(), value);
             getRedisConnectionFactory().getConnection().set(byteKey, byteValue, Expiration.seconds(timeout), RedisStringCommands.SetOption.UPSERT);
         }
+    }
+
+    public static void put(Object key, Object value, int timeout) {
+        CacheManager cacheManager = getCacheManager();
+        put(cacheManager.getCache(DEFAULT_CACHE_NAME), key, value, timeout);
     }
 
     private static byte[] serializeValue(RedisSerializer redisSerializer, Object value) {
         return redisSerializer.serialize(value);
     }
 
-    private static byte[] serializeKey(Object key) {
-        return (DEFAULT_CACHE_NAME + "::" + key).getBytes(StandardCharsets.UTF_8);
+    private static byte[] serializeKey(Cache cache, Object key) {
+        return (cache.getName() + "::" + key).getBytes(StandardCharsets.UTF_8);
     }
 
     public static Cache.ValueWrapper putIfAbsent(Object key, Object value) {

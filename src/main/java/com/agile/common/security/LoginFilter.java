@@ -37,21 +37,19 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private final SuccessHandler successHandler;
     private final AuthenticationProvider loginStrategyProvider;
     private final SessionAuthenticationStrategy tokenStrategy;
-    private final SecurityProperties securityProperties;
     private final KaptchaConfigProperties kaptchaConfigProperties;
 
-    public LoginFilter(AuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy, SecurityProperties securityProperties, KaptchaConfigProperties kaptchaConfigProperties) {
+    public LoginFilter(AuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy, SecurityProperties securityProperties, KaptchaConfigProperties kaptchaConfigProperties, SuccessHandler successHandler, FailureHandler failureHandler) {
         super(new AntPathRequestMatcher(securityProperties.getLoginUrl()));
         this.username = securityProperties.getLoginUsername();
         this.password = securityProperties.getLoginPassword();
         this.code = securityProperties.getVerificationCode();
-        this.failureHandler = new FailureHandler();
-        this.successHandler = new SuccessHandler();
+        this.failureHandler = failureHandler;
+        this.successHandler = successHandler;
         this.loginStrategyProvider = loginStrategyProvider;
         this.tokenStrategy = tokenStrategy;
         setAllowSessionCreation(false);
         afterPropertiesSet();
-        this.securityProperties = securityProperties;
         this.kaptchaConfigProperties = kaptchaConfigProperties;
     }
 

@@ -1,5 +1,7 @@
 package com.agile.common.util;
 
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -12,7 +14,10 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -263,5 +268,52 @@ public class ServletUtil {
             return requestAttributes.getSessionId();
         }
         return null;
+    }
+
+    /**
+     * 字符串数组转RequestMatcher
+     *
+     * @param urls 预匹配路径
+     * @return RequestMatcher集合
+     */
+    public static List<RequestMatcher> coverRequestMatcher(String... urls) {
+        List<RequestMatcher> list = new ArrayList<>();
+        for (String url : urls) {
+            list.add(new AntPathRequestMatcher(url));
+        }
+        return list;
+    }
+
+    /**
+     * 请求路径匹配
+     *
+     * @param request 请求
+     * @param paths   预匹配路径
+     * @return 是/否
+     */
+    public static boolean matcherRequest(HttpServletRequest request, String... paths) {
+        for (String path : paths) {
+            AntPathRequestMatcher matcher = new AntPathRequestMatcher(path);
+            if (matcher.matches(request)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 请求路径匹配
+     *
+     * @param request         请求
+     * @param requestMatchers 预匹配路径
+     * @return 是/否
+     */
+    public static boolean matcherRequest(HttpServletRequest request, Collection<RequestMatcher> requestMatchers) {
+        for (RequestMatcher requestMatcher : requestMatchers) {
+            if (requestMatcher.matches(request)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

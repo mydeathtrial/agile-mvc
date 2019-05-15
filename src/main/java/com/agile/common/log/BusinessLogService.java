@@ -50,10 +50,7 @@ public class BusinessLogService extends MainService {
     }
 
     public void initCurrentBusinessLogCode() {
-        BusinessLogDetail detail = currentBusinessLogCode.get();
-        if (detail == null) {
-            setCurrentBusinessLogCode(IdUtil.generatorId());
-        }
+        this.currentBusinessLogCode.set(new BusinessLogDetail(IdUtil.generatorId(), 0));
     }
 
     private Long getCurrentBusinessLogCode() {
@@ -62,10 +59,6 @@ public class BusinessLogService extends MainService {
             return null;
         }
         return detail.getMainLogId();
-    }
-
-    private void setCurrentBusinessLogCode(long currentBusinessLogCode) {
-        this.currentBusinessLogCode.set(new BusinessLogDetail(currentBusinessLogCode, 0));
     }
 
     private int getStep() {
@@ -113,6 +106,7 @@ public class BusinessLogService extends MainService {
             return;
         }
 
+        initCurrentBusinessLogCode();
         LogMainEntity logMain = LogMainEntity.builder()
                 .logMainId(getCurrentBusinessLogCode())
                 .sysResourcesId(Long.parseLong(resourcesId.toString()))
@@ -125,8 +119,6 @@ public class BusinessLogService extends MainService {
                 .timeConsuming(serviceExecutionInfo.getTimeConsuming())
                 .build();
         dao.save(logMain);
-
-        setCurrentBusinessLogCode(logMain.getLogMainId());
     }
 
 

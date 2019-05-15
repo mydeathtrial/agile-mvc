@@ -46,9 +46,12 @@ agile:
     login-username: userName
     login-password: password
     verification-code: authCode
-    token-timeout: 1800
+    token-timeout: 30m
     token-header: authToken
     token-secret: 23617641641
+    login-error-count: 5
+    login-error-timeout: 2m
+    login-lock-time: 1m
   cors:
     allow-credentials: true
     allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID

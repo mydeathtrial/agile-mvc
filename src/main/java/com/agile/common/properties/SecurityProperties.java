@@ -1,5 +1,6 @@
 package com.agile.common.properties;
 
+import com.agile.common.base.Constant;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -40,7 +41,7 @@ public class SecurityProperties {
     /**
      * token超时时间
      */
-    private Duration tokenTimeout;
+    private Duration tokenTimeout = Duration.ofMinutes(Constant.NumberAbout.TEN * Constant.NumberAbout.THREE);
     /**
      * token传递header名
      */
@@ -73,6 +74,22 @@ public class SecurityProperties {
      * 算法模式
      */
     private String algorithmModel = "AES/CBC/PKCS5Padding";
+
+    /**
+     * 登陆失败次数
+     */
+    private int loginErrorCount = Constant.NumberAbout.FIVE;
+
+    /**
+     * 登陆失败锁定时间
+     */
+    private Duration loginLockTime = Duration.ofMinutes(Constant.NumberAbout.FIVE);
+
+    /**
+     * 登陆失败信息超时
+     */
+    private Duration loginErrorTimeout = Duration.ofMinutes(Constant.NumberAbout.TWO);
+
     /**
      * Token级别
      */
