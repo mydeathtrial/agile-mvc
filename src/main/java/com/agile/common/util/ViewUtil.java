@@ -1,9 +1,6 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Head;
-import com.agile.common.mybatis.Page;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -30,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -173,59 +169,24 @@ public class ViewUtil {
         return viewUtil.viewNameTranslator != null ? viewUtil.viewNameTranslator.getViewName(request) : null;
     }
 
-    public static Model modelProcessing(Map<String, Object> model) {
-        Model m = new Model();
-        m.setModel(model);
+    @SuppressWarnings("unchecked")
+    public static List<Object> extractFiles(Map<String, Object> model) {
+        List<Object> result = new ArrayList<>();
+
         for (Map.Entry<String, Object> entry : model.entrySet()) {
             Object value = entry.getValue();
             if (FileUtil.isFile(value)) {
-                m.addFile(value);
-            } else if (value instanceof Page) {
-                m.addPage(entry.getKey());
-                m.put(entry.getKey(), ((Page) value).getPage());
+                result.add(value);
             } else if (value != null && Map.class.isAssignableFrom(value.getClass())) {
-                Model inm = modelProcessing((Map<String, Object>) value);
-                m.addFiles(inm.getFiles());
-                m.addPages(inm.getPages());
-                m.put(entry.getKey(), inm);
-            } else {
-                m.put(entry.getKey(), entry.getValue());
+                result.addAll(extractFiles((Map<String, Object>) value));
             }
         }
-        return m;
+        return result;
     }
 
     @PostConstruct
     public static void init() {
         viewUtil = new ViewUtil();
     }
-
-    /**
-     * 返回数据经过加公后产生的模型辅助类
-     */
-    @Getter
-    @Setter
-    public static class Model extends LinkedHashMap<String, Object> {
-        List<Object> files = new ArrayList<>();
-        List<String> pages = new ArrayList<>();
-        Map<String, Object> model;
-
-        void addFile(Object file) {
-            this.files.add(file);
-        }
-
-        void addFiles(List<Object> files) {
-            this.files.addAll(files);
-        }
-
-        void addPage(String page) {
-            this.pages.add(page);
-        }
-
-        void addPages(List<String> pages) {
-            this.pages.addAll(pages);
-        }
-    }
-
 
 }

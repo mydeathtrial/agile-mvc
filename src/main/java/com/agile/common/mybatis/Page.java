@@ -1,11 +1,10 @@
 package com.agile.common.mybatis;
 
-import com.agile.common.mvc.model.dao.Dao;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.List;
 
 /**
  * 描述：
@@ -16,18 +15,16 @@ import java.util.LinkedList;
  * @version 1.0
  * @since 1.0
  */
-public class Page<T> extends LinkedList<T> {
-    private PageRequest pageRequest;
+@Data
+public class Page<T> extends ArrayList<T> {
+    private MybatisPage pageRequest;
     private long total;
+    private final List<T> content = new ArrayList<>();
 
-    public Page(Collection<? extends T> c, PageRequest pageRequest, long total) {
+    public Page(Collection<? extends T> c, MybatisPage pageRequest, long total) {
         super(c);
-        Dao.validatePageInfo(pageRequest.getPageNumber(), pageRequest.getPageSize());
         this.pageRequest = pageRequest;
         this.total = total;
-    }
-
-    public org.springframework.data.domain.Page<T> getPage() {
-        return new PageImpl<T>(this, PageRequest.of(pageRequest.getPageNumber(), pageRequest.getPageSize(), pageRequest.getSort()), total);
+        this.content.addAll(c);
     }
 }

@@ -12,7 +12,6 @@ import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
-import org.springframework.data.domain.PageRequest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
@@ -42,13 +41,13 @@ public class MybatisInterceptor implements Interceptor {
         BoundSql boundSql = statementHandler.getBoundSql();
         Object paramObject = boundSql.getParameterObject();
 
-        PageRequest pageRequest = PageExecutor.getPageRequest(paramObject);
+        MybatisPage mybatisPage = PageExecutor.getPageRequest(paramObject);
 
-        if (pageRequest == null || !checkIsSelectFalg(sql)) {
+        if (mybatisPage == null || !checkIsSelectFalg(sql)) {
             return invocation.proceed();
         }
         //修改sql
-        return updateSql2Limit(invocation, metaStatementHandler, boundSql, pageRequest.getPageNumber(), pageRequest.getPageSize());
+        return updateSql2Limit(invocation, metaStatementHandler, mybatisPage.getPageNum(), mybatisPage.getPageSize());
     }
 
     //从代理对象中分离出真实statementHandler对象,非代理对象
@@ -78,7 +77,7 @@ public class MybatisInterceptor implements Interceptor {
     /**
      * 修改原始sql语句为分页sql语句
      */
-    private Object updateSql2Limit(Invocation invocation, MetaObject metaStatementHandler, BoundSql boundSql, int page, int pageSize) throws InvocationTargetException, IllegalAccessException, SQLException {
+    private Object updateSql2Limit(Invocation invocation, MetaObject metaStatementHandler, int page, int pageSize) throws InvocationTargetException, IllegalAccessException, SQLException {
         Dao.validatePageInfo(page, pageSize);
 
         String sql = (String) metaStatementHandler.getValue("delegate.boundSql.sql");

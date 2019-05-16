@@ -1,5 +1,6 @@
 package com.agile.common.mybatis;
 
+import com.agile.common.mvc.model.dao.Dao;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
 import org.apache.ibatis.executor.BatchResult;
@@ -17,7 +18,6 @@ import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.transaction.Transaction;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
-import org.springframework.data.domain.PageRequest;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,24 +41,29 @@ public class PageExecutor implements Executor {
         this.executor = executor;
     }
 
-    public static PageRequest getPageRequest(Object paramerObject) {
-        if (paramerObject == null) {
-            return null;
-        }
+    /**
+     * 获取分页信息
+     *
+     * @param paramObject 参数
+     * @return PageRequest分页对象
+     */
+    public static MybatisPage getPageRequest(Object paramObject) {
+        MybatisPage mybatisPage = null;
 
-        if (paramerObject instanceof Map) {
-            Map<String, Object> params = (Map<String, Object>) paramerObject;
-            for (Map.Entry<String, Object> entry : params.entrySet()) {
-                if (entry.getValue() instanceof PageRequest) {
-                    return (PageRequest) entry.getValue();
+        if (paramObject instanceof Map) {
+            Map params = (Map) paramObject;
+            for (Object value : params.values()) {
+                if (value instanceof MybatisPage) {
+                    mybatisPage = (MybatisPage) value;
                 }
             }
-        } else if (paramerObject instanceof PageRequest) {
-            return (PageRequest) paramerObject;
-        } else if (paramerObject instanceof MybatisPage) {
-            return PageRequest.of(((MybatisPage) paramerObject).getPageNum(), ((MybatisPage) paramerObject).getPageSize());
+        } else if (paramObject instanceof MybatisPage) {
+            mybatisPage = (MybatisPage) paramObject;
         }
-        return null;
+        if (mybatisPage != null) {
+            Dao.validatePageInfo(mybatisPage.getPageNum(), mybatisPage.getPageSize());
+        }
+        return mybatisPage;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class PageExecutor implements Executor {
     }
 
     private <E> List<E> pageResolver(List<E> rows, MappedStatement ms, Object parameter, RowBounds rowBounds) {
-        PageRequest pageRequest = getPageRequest(parameter);
+        MybatisPage pageRequest = getPageRequest(parameter);
         if (pageRequest != null) {
             long count = getCount(ms, parameter);
             return new Page<>(rows, pageRequest, count);
