@@ -148,14 +148,14 @@ public final class LoggerFactory {
 
             Appender appender = RollingFileAppender
                     .newBuilder()
-                    .withName(appenderName)
+                    .setName(appenderName)
                     .withFileName(String.format(path + loggerName + "/%s.log", appenderName))
                     .withFilePattern(path + "logs/%d{yyyy-MM-dd}/" + loggerName + ".log")
                     .withAppend(true)
                     .withLocking(false)
-                    .withIgnoreExceptions(true)
+                    .setIgnoreExceptions(true)
                     .withBufferedIo(true)
-                    .withLayout(layout)
+                    .setLayout(layout)
                     .withPolicy(policy)
                     .withStrategy(DefaultRolloverStrategy.newBuilder().withMax("100").build()).build();
             appender.start();

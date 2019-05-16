@@ -137,7 +137,9 @@ public class LogAop {
             Authentication authentication = context.getAuthentication();
             if (authentication != null) {
                 Object user = authentication.getDetails();
-                userDetails = (UserDetails) user;
+                if (user instanceof UserDetails) {
+                    userDetails = (UserDetails) user;
+                }
             }
         }
         return userDetails;

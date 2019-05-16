@@ -15,10 +15,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +38,8 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
     private static final String CLASS_PATH = "/com/agile/conf/";
     private static final String JSON_FILE_ERROR = "未成功解析的json文件";
     private static Properties properties = new Properties();
+    private static Map<String, Set<String>> filePath = new HashMap<>();
+    private static Map<String, JSON> jsonCache = new HashMap<>();
 
     public static Properties getProperties() {
         return properties;
@@ -72,9 +77,9 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
                             mergeYml(classPathResource + file.getName());
                         } else if (fileName.endsWith("json")) {
                             mergeJson(file);
-                        } else if (fileName.endsWith("py") || fileName.endsWith("jrxml") || fileName.endsWith("datx")) {
-                            mergeFilePath(file);
                         }
+                        mergeFilePath(file);
+
                     } else if (file.isDirectory()) {
                         readDir(classPathResource + file.getName() + "/");
                     }
@@ -181,14 +186,15 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
     }
 
     public static void mergeJson(File file) {
+        String data = null;
         try {
-            if (ObjectUtil.isEmpty(file) || !file.getName().endsWith(".json")) {
-                return;
-            }
-            String data = FileUtils.readFileToString(file, "UTF-8");
-            JSON json = JSONUtil.toJSON(data);
-            properties.put(file.getName(), json == null ? JSON_FILE_ERROR : json);
-        } catch (Exception ignored) {
+            data = FileUtils.readFileToString(file, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JSON json = JSONUtil.toJSON(data);
+        if (json != null) {
+            jsonCache.put(file.getPath(), json);
         }
     }
 
@@ -205,10 +211,9 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
 
 
     private static void mergeFilePath(File file) {
-        try {
-            properties.put(file.getName(), file.getPath());
-        } catch (Exception ignored) {
-        }
+        String name = file.getName();
+        filePath.computeIfAbsent(name, k -> new HashSet<>());
+        filePath.get(name).add(file.getPath());
     }
 
     /**
@@ -265,12 +270,21 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @return JSONObject数据
      */
     public static JSON getJson(String fileName) {
-        String key = String.format("%s.json", fileName);
-        Object value = properties.get(key);
-        if (JSON.class.isAssignableFrom(value.getClass())) {
-            return (JSON) properties.get(key);
+        if (!fileName.endsWith(".json")) {
+            fileName = String.format("%s.json", fileName);
         }
-        return null;
+        String path = getFilePath(fileName);
+        return jsonCache.get(path);
+    }
+
+    /**
+     * 根据文件名取classpath目录下的json数据
+     *
+     * @param fileName 文件绝对路径
+     * @return JSONObject数据
+     */
+    public static JSON getJsonByAbsolutePath(String fileName) {
+        return jsonCache.get(fileName);
     }
 
     /**
@@ -307,7 +321,20 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @return JSONObject数据
      */
     public static String getFilePath(String fileName) {
-        return getProperty(fileName);
+        String result = null;
+        Set<String> set = filePath.get(fileName);
+        if (set != null) {
+            if (set.size() == 1) {
+                result = set.iterator().next();
+            } else if (set.size() > 1) {
+                throw new RuntimeException("The number of results exceeded expectations");
+            }
+        }
+        return result;
+    }
+
+    public static Set<String> getFilePaths(String fileName) {
+        return filePath.get(fileName);
     }
 
     /**

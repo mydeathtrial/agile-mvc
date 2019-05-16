@@ -9,12 +9,18 @@ import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.FreemarkerUtil;
 import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.PropertiesUtil;
 import freemarker.template.TemplateException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.StandardEnvironment;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.context.support.PropertySourcesPlaceholderConfigurer.LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME;
 
 /**
  * @author mydeathtrial on 2017/4/20
@@ -53,6 +59,7 @@ public class AgileGenerator {
 
     /**
      * 取数据库中所有表信息
+     *
      * @return 所有表信息
      */
     private static List<Map<String, Object>> getTableInfo() {
@@ -70,7 +77,13 @@ public class AgileGenerator {
      * 初始化spring容器
      */
     private static void initSpringContext() {
-        new AnnotationConfigApplicationContext(GeneratorConfig.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(GeneratorConfig.class);
+
+        StandardEnvironment environment = new StandardEnvironment();
+        PropertySource<?> localPropertySource = new PropertiesPropertySource(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, PropertiesUtil.getProperties());
+        environment.getPropertySources().addLast(localPropertySource);
+
+        context.setEnvironment(environment);
         druid = FactoryUtil.getBean(DruidConfigProperties.class);
         generator = FactoryUtil.getBean(GeneratorProperties.class);
     }
@@ -93,7 +106,7 @@ public class AgileGenerator {
      * 生成实体文件
      *
      * @param tableModel 表信息集
-     * @throws IOException 异常
+     * @throws IOException       异常
      * @throws TemplateException 异常
      */
     private static void generateEntityFile(TableModel tableModel) throws IOException, TemplateException {
@@ -107,7 +120,7 @@ public class AgileGenerator {
      * 生成service文件
      *
      * @param tableModel 表信息集
-     * @throws IOException 异常
+     * @throws IOException       异常
      * @throws TemplateException 异常
      */
     private static void generateServiceFile(TableModel tableModel) throws IOException, TemplateException {
@@ -127,8 +140,9 @@ public class AgileGenerator {
 
     /**
      * 生成器
+     *
      * @param type 生成文件类型
-     * @throws IOException 异常
+     * @throws IOException       异常
      * @throws TemplateException 异常
      */
     static void generator(TYPE type) throws IOException, TemplateException {

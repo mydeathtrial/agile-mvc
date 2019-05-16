@@ -3,6 +3,7 @@ package com.agile.common.log;
 import com.agile.common.base.Constant;
 import com.agile.common.util.AopUtil;
 import com.agile.common.util.JSONUtil;
+import com.agile.common.util.MapUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,8 +11,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
-
-import static io.swagger.models.properties.PropertyBuilder.PropertyId.MAX_LENGTH;
 
 /**
  * @author 佟盟
@@ -72,7 +71,8 @@ public class ServiceExecutionInfo {
 
     public String getInParamToJson() {
         try {
-            return JSONUtil.toStringPretty(getInParam(), LOG_TAB);
+            Map<String, Object> map = MapUtil.coverCanSerializer(getInParam());
+            return JSONUtil.toStringPretty(map, LOG_TAB);
         } catch (Exception e) {
             return JSON_ERROR;
         }
@@ -80,7 +80,8 @@ public class ServiceExecutionInfo {
 
     public String getOutParamToJson() {
         try {
-            String outStr = JSONUtil.toStringPretty(getOutParam(), LOG_TAB);
+            Map<String, Object> map = MapUtil.coverCanSerializer(getOutParam());
+            String outStr = JSONUtil.toStringPretty(map, LOG_TAB);
             return (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
         } catch (Exception e) {
             return JSON_ERROR;
