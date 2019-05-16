@@ -53,9 +53,9 @@ public class JSONUtil extends JSON {
     /**
      * Object转json字符串并格式化美化
      *
-     * @param obj
-     * @param <T>
-     * @return
+     * @param obj 准备序列化的java对象
+     * @param <T> tab空格数
+     * @return 序列化后的json
      */
     public static <T> String toStringPretty(T obj, int blank) {
         if (obj == null) {
@@ -66,7 +66,7 @@ public class JSONUtil extends JSON {
             StringBuilder s = new StringBuilder();
             int i = 0;
             while (i < blank) {
-                s = s.append(" ");
+                s.append(" ");
                 i++;
             }
             String result = obj instanceof String ? (String) obj : toJSONString(obj, true).replaceAll(r, r + s.toString());
@@ -245,4 +245,5 @@ public class JSONUtil extends JSON {
 //        map.put("body", jsonCover(toJSON(s2)));
 //        ObjectUtil.pathGet("body.name.a.all.url1", map);
 //    }
+
 }
