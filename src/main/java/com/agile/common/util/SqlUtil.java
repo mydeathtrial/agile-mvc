@@ -11,6 +11,7 @@ import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
@@ -392,7 +393,7 @@ public class SqlUtil {
     }
 
     private static void parsingBinaryToString(SQLExpr sqlExpr) {
-        if (!(sqlExpr instanceof SQLIntegerExpr)) {
+        if (!(sqlExpr instanceof SQLIntegerExpr) && !(sqlExpr instanceof SQLNullExpr)) {
             String cache = SQLUtils.toMySqlString(sqlExpr);
             if (!cache.startsWith(Constant.RegularAbout.UP_COMMA) || !cache.endsWith(Constant.RegularAbout.UP_COMMA)) {
                 SQLExpr newSQLExpr = SQLUtils.toSQLExpr(String.format("'%s'", cache));
@@ -594,7 +595,8 @@ public class SqlUtil {
 //        map.put("assetIp", "192.168.200.106");
 //        map.put("datasourceName", "时间");
 //        map.put("field", "");
-//        System.out.println(parserSQL("select * from vb_analysis where asset_ip ='{assetIp}' AND flag = 2 AND attack_time >= {startDtm} AND attack_time <= {endDtm} and id in ({ids3})", map) + "\r\r");
+////        System.out.println(parserSQL("select * from vb_analysis where asset_ip ='{assetIp}' AND flag = 2 AND attack_time >= {startDtm} AND attack_time <= {endDtm} and id in ({ids3})", map) + "\r\r");
+//        System.out.println(parserSQL("select * from vb_analysis where {taskName1} is not null", map) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

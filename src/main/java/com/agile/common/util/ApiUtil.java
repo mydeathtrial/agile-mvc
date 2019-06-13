@@ -2,7 +2,7 @@ package com.agile.common.util;
 
 import com.agile.common.annotation.NotAPI;
 import com.agile.common.base.ApiInfo;
-import com.agile.common.container.MappingHandlerMapping;
+import com.agile.common.container.AgileHandlerMapping;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.ServiceInterface;
 import org.springframework.data.util.ProxyUtils;
@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -23,7 +22,7 @@ import java.util.Map;
  */
 public class ApiUtil {
     private static Map<String, ApiInfo> apiInfoCache = new HashMap<>();
-    private static MappingHandlerMapping mappingHandlerMapping;
+    private static AgileHandlerMapping mappingHandlerMapping;
 
     public static ApiInfo getApiCache(HttpServletRequest request) {
         if (mappingHandlerMapping == null) {
@@ -96,7 +95,7 @@ public class ApiUtil {
      * @param clazz    真实类
      */
     private static void registerApiMapping(String beanName, Object bean, Method method, Class clazz) {
-        MappingHandlerMapping handler = ApiUtil.getMappingHandlerMapping();
+        AgileHandlerMapping handler = ApiUtil.getMappingHandlerMapping();
 
         //@Mapping信息
         RequestMappingInfo requestMappingInfo = handler.getMappingForMethod(method, clazz);
@@ -131,9 +130,7 @@ public class ApiUtil {
             apiInfo = apiInfoCache.get(key);
             apiInfo.add(requestMappingInfo);
         } else {
-            apiInfo = new ApiInfo(bean, method, beanName, new HashSet<RequestMappingInfo>() {{
-                add(requestMappingInfo);
-            }});
+            apiInfo = new ApiInfo(bean, method, beanName, requestMappingInfo);
         }
         apiInfoCache.put(key, apiInfo);
     }
@@ -154,9 +151,9 @@ public class ApiUtil {
         return apiInfoCache.containsKey(key);
     }
 
-    private static MappingHandlerMapping getMappingHandlerMapping() {
+    public static AgileHandlerMapping getMappingHandlerMapping() {
         if (mappingHandlerMapping == null) {
-            mappingHandlerMapping = new MappingHandlerMapping();
+            mappingHandlerMapping = new AgileHandlerMapping();
             mappingHandlerMapping.afterPropertiesSet();
         }
         return mappingHandlerMapping;

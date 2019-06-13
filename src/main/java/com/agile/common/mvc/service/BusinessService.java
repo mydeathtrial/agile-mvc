@@ -289,9 +289,6 @@ public class BusinessService<T> extends MainService {
         Field idField = dao.getIdField(entityClass);
 
         T target = dao.findOne(entityClass, getInParam(ID, idField.getType()));
-        if (!ObjectUtil.isEmpty(entity) && !ObjectUtil.compareOfNotNull(entity, target)) {
-            target = null;
-        }
 
         setOutParam(Constant.ResponseAbout.RESULT, target);
         return RETURN.SUCCESS;

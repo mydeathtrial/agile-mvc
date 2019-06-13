@@ -1,7 +1,7 @@
 package com.agile.mvc.controller;
 
 import com.agile.common.base.Constant;
-import com.agile.common.container.MappingHandlerMapping;
+import com.agile.common.container.AgileHandlerMapping;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.PropertiesUtil;
@@ -50,7 +50,7 @@ public class MainControllerTest implements ApplicationContextAware {
      */
     @Before
     public void setUp() {
-        handlerMapping = FactoryUtil.getBean(MappingHandlerMapping.class);
+        handlerMapping = FactoryUtil.getBean(AgileHandlerMapping.class);
         if (handlerMapping == null) {
             handlerMapping = (RequestMappingHandlerMapping) FactoryUtil.getBean("requestMappingHandlerMapping");
         }

@@ -25,8 +25,9 @@ public class ListenerContainerInit implements ApplicationListener<WebServerIniti
 
     @Override
     public void onApplicationEvent(WebServerInitializedEvent event) {
-        applicationContext.getBean(ParsingInit.class).parse();
         annotationHandler();
+        applicationContext.getBean(ParsingInit.class).parse();
+
 
         long current = event.getTimestamp();
         String currentTime = DateUtil.convertToString(new Date(current), "yyyy年MM月dd日 HH:mm:ss");

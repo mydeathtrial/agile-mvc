@@ -8,6 +8,7 @@ import com.agile.common.log.BusinessLogService;
 import com.agile.common.log.ServiceExecutionInfo;
 import com.agile.common.mvc.service.MainService;
 import com.agile.common.util.ApiUtil;
+import com.agile.common.util.ClassUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.ServletUtil;
 import org.apache.commons.logging.Log;
@@ -157,8 +158,8 @@ public class LogAop {
             Object bean = joinPoint.getArgs()[Constant.NumberAbout.ZERO];
             Class<?> clazz = ProxyUtils.getUserClass(bean);
             Method method = (Method) joinPoint.getArgs()[Constant.NumberAbout.ONE];
-            Method reallyMethod = clazz.getDeclaredMethod(method.getName(), method.getParameterTypes());
-            return new ApiInfo(bean, reallyMethod, null, null);
+            Method reallyMethod = ClassUtil.getMethod(clazz, method.getName(), method.getParameterTypes());
+            return new ApiInfo(bean, reallyMethod);
         }
         return apiInfo;
     }

@@ -9,6 +9,7 @@ import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.types.Expiration;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.nio.charset.StandardCharsets;
 
@@ -91,11 +92,22 @@ public class CacheUtil {
     }
 
     private static byte[] serializeValue(RedisSerializer redisSerializer, Object value) {
+        if (redisSerializer instanceof StringRedisSerializer) {
+            return redisSerializer.serialize(String.valueOf(value));
+        }
         return redisSerializer.serialize(value);
     }
 
-    private static byte[] serializeKey(Cache cache, Object key) {
+    public static byte[] serializeKey(Cache cache, Object key) {
         return (cache.getName() + "::" + key).getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static byte[] serializeKey(Object key) {
+        return (DEFAULT_CACHE_NAME + "::" + key).getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static byte[] serializeValue(Object value) {
+        return serializeValue(getRedisTemplate().getValueSerializer(), value);
     }
 
     public static Cache.ValueWrapper putIfAbsent(Object key, Object value) {

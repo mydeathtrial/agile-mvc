@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * @author 佟盟 on 2018/11/4
  */
-public class MappingHandlerMapping extends RequestMappingHandlerMapping {
+public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     private boolean useSuffixPatternMatch = true;
     private boolean useRegisteredSuffixPatternMatch = false;
     private boolean useTrailingSlashMatch = true;

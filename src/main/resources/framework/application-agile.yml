@@ -39,8 +39,8 @@ agile:
       org.springframework: info,error,debug
       com.idss.common.datafactory: info,error,debug
   security:
-    enable: false
-    exclude-url: /test,/test2,/swaggerInfo*,/api/test/test*,/swagger-ui.html
+    enable: true
+    exclude-url: /swagger-ui.html,/webjars/springfox-swagger-ui/*,/v2/api-docs,/swagger-resources/**
     login-out-url: /api/logout
     login-url: /api/login
     login-username: userName

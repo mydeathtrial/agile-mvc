@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -127,7 +128,7 @@ public class BusinessLogService extends MainService {
      *
      * @param sql sql语句
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void printBusinessLog(String sql) {
         Long mainLogId = getCurrentBusinessLogCode();
         if (mainLogId == null) {
