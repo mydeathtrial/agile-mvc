@@ -78,7 +78,7 @@ public class TaskService {
             Class<?> clazz = ProxyUtils.getUserClass(bean.getClass());
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
-                if (method.getParameterCount() > 0 || method.getGenericReturnType() != void.class) {
+                if (method.getParameterCount() > 1 || method.getGenericReturnType() != void.class) {
                     continue;
                 }
 

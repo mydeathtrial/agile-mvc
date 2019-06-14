@@ -18,6 +18,7 @@ import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +58,7 @@ public class TaskJob implements Serializable, Runnable {
                     invoke();
                 }
             } catch (Exception e) {
-                logger.error(e);
+                logger.error(StringUtil.coverToString(e));
             }
         }
     }
@@ -91,7 +92,8 @@ public class TaskJob implements Serializable, Runnable {
             byte[] lockKeyBytes = lockKey.getBytes(StandardCharsets.UTF_8);
 
             //抢占锁
-            boolean isLock = connection.setNX(lockNameBytes, lockKeyBytes);
+            Boolean lock = connection.setNX(lockNameBytes, lockKeyBytes);
+            boolean isLock = lock == null ? false : lock;
             if (isLock) {
                 //拿到Lock，设置超时时间
                 connection.expire(lockNameBytes, second - 1);
@@ -134,7 +136,13 @@ public class TaskJob implements Serializable, Runnable {
                 return;
             }
             try {
-                apiInfo.getMethod().invoke(apiInfo.getBean());
+                Method method = apiInfo.getMethod();
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                if (parameterTypes.length == 1) {
+                    method.invoke(apiInfo.getBean(), ObjectUtil.cast(parameterTypes[0], task.getCode()));
+                } else {
+                    method.invoke(apiInfo.getBean());
+                }
             } catch (Exception e) {
                 log = StringUtil.coverToString(e);
                 runDetail.addLog(log);
