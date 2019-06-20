@@ -129,7 +129,7 @@ public class TaskJob implements Serializable, Runnable {
                 return;
             }
             ApiBase apiInfo = TaskService.getApi(target.getCode());
-            if (apiInfo == null || apiInfo.getMethod().getParameterCount() > 0) {
+            if (apiInfo == null || apiInfo.getMethod().getParameterCount() > 1) {
                 log = "该定时任务中绑定的方法不合法，任务结束";
                 runDetail.addLog(log);
                 logger.info(log);

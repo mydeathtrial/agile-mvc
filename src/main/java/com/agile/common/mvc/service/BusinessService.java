@@ -270,7 +270,7 @@ public class BusinessService<T> extends MainService {
     }
 
     public PageRequest getPageRequest() {
-        return PageRequest.of(getInParam(PAGE_NUM, Integer.class, DEF_PAGE), getInParam(PAGE_SIZE, Integer.class, DEF_SIZE), getSort());
+        return PageRequest.of(getInParam(PAGE_NUM, Integer.class, DEF_PAGE) - 1, getInParam(PAGE_SIZE, Integer.class, DEF_SIZE), getSort());
     }
 
     public RETURN queryById() throws NoSuchIDException {

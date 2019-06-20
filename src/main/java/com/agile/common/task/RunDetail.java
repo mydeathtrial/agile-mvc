@@ -19,12 +19,10 @@ public class RunDetail {
     private boolean ending;
     private Date startTime;
     private Date endTime;
-    private StringBuilder log;
+    @Builder.Default
+    private StringBuilder log = new StringBuilder();
 
     void addLog(String log) {
-        if (this.log == null) {
-            this.log = new StringBuilder();
-        }
         this.log.append(log).append("\n");
     }
 }

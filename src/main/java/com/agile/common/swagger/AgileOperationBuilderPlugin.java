@@ -4,7 +4,6 @@ import com.fasterxml.classmate.types.ResolvedObjectType;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.OperationBuilderPlugin;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 1.0
  */
-@Component
 public class AgileOperationBuilderPlugin implements OperationBuilderPlugin {
 
     @Autowired

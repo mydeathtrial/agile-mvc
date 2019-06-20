@@ -49,11 +49,6 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         mergeEnv();
         readDir("/");
         readDir(CLASS_PATH);
-        mergeOrder("application-agile");
-        mergeOrder("application-datasource");
-        mergeOrder("application-jpa");
-        mergeOrder("application-mvc");
-        mergeOrder("application-kafka ");
         mergeOrder("application");
         mergeOrder("bootstrap");
         mergeOrder("agile-reset");

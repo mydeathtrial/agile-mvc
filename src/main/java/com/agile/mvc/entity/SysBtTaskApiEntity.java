@@ -74,7 +74,7 @@ public class SysBtTaskApiEntity implements Serializable, Cloneable {
     }
 
     @Min(value = 0, groups = {Insert.class, Update.class})
-    @Column(name = "order", length = 3)
+    @Column(name = "`order`", length = 3)
     @Basic
     @Max(value = 2147483647, groups = {Insert.class, Update.class})
     public Integer getOrder() {

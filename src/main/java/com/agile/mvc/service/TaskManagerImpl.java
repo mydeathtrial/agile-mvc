@@ -1,5 +1,6 @@
 package com.agile.mvc.service;
 
+import com.agile.common.base.Constant;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.common.task.RunDetail;
 import com.agile.common.task.Target;
@@ -115,9 +116,10 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
         Long taskCode = save(task);
         Long targetCode = save(method);
         dao.saveAndReturn(SysBtTaskApiEntity.builder()
-                .sysTaskId(IdUtil.generatorId())
+                .sysBtTaskApiId(IdUtil.generatorId())
                 .sysTaskId(taskCode)
                 .sysApiId(targetCode)
+                .order(Constant.NumberAbout.ONE)
                 .build()
         );
     }

@@ -512,11 +512,11 @@ public class Dao {
      * @return 分页信息
      */
     public <T> Page<T> findAll(T object, int page, int size, Sort sort) {
+        validatePageInfo(page, size);
         return findAll(object, PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
     }
 
     public <T> Page<T> findAll(T object, PageRequest pageRequest) {
-        validatePageInfo(pageRequest);
         if (object.getClass() == Class.class) {
             return this.getRepository((Class) object).findAll(pageRequest);
         }
@@ -618,10 +618,6 @@ public class Dao {
         if (page < 1) {
             throw new IllegalArgumentException("最小页为数字 1");
         }
-    }
-
-    public static void validatePageInfo(PageRequest pageRequest) {
-        validatePageInfo(pageRequest.getPageNumber(), pageRequest.getPageSize());
     }
 
     /**

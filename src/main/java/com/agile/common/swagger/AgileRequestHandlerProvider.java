@@ -1,7 +1,6 @@
 package com.agile.common.swagger;
 
 import com.agile.common.util.ApiUtil;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfoHandlerMapping;
@@ -27,7 +26,6 @@ import static springfox.documentation.spi.service.contexts.Orderings.byPatternsC
  * @version 1.0
  * @since 1.0
  */
-@Component
 public class AgileRequestHandlerProvider implements RequestHandlerProvider {
     private final List<RequestMappingInfoHandlerMapping> handlerMappings;
     private final HandlerMethodResolver methodResolver;

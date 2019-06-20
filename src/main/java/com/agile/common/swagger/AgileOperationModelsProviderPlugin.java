@@ -2,7 +2,6 @@ package com.agile.common.swagger;
 
 import com.agile.common.annotation.Models;
 import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.OperationModelsProviderPlugin;
 import springfox.documentation.spi.service.contexts.RequestMappingContext;
@@ -15,8 +14,7 @@ import springfox.documentation.swagger.common.SwaggerPluginSupport;
  * @version 1.0
  * @since 1.0
  */
-@Component
-@Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
+
 public class AgileOperationModelsProviderPlugin implements OperationModelsProviderPlugin {
 
     @Override

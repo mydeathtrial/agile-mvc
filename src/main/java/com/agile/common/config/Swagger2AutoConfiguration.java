@@ -1,12 +1,16 @@
 package com.agile.common.config;
 
 import com.agile.common.properties.SwaggerConfigProperties;
+import com.agile.common.swagger.AgileOperationBuilderPlugin;
+import com.agile.common.swagger.AgileOperationModelsProviderPlugin;
+import com.agile.common.swagger.AgileRequestHandlerProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -17,6 +21,8 @@ import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.spring.web.readers.operation.HandlerMethodResolver;
+import springfox.documentation.swagger.common.SwaggerPluginSupport;
 import springfox.documentation.swagger.web.DocExpansion;
 import springfox.documentation.swagger.web.ModelRendering;
 import springfox.documentation.swagger.web.OperationsSorter;
@@ -136,4 +142,20 @@ public class Swagger2AutoConfiguration {
                 .build();
     }
 
+
+    @Bean
+    public AgileRequestHandlerProvider agileRequestHandlerProvider(HandlerMethodResolver handlerMethodResolver) {
+        return new AgileRequestHandlerProvider(handlerMethodResolver);
+    }
+
+    @Bean
+    public AgileOperationBuilderPlugin agileOperationBuilderPlugin() {
+        return new AgileOperationBuilderPlugin();
+    }
+
+    @Bean
+    @Order(SwaggerPluginSupport.SWAGGER_PLUGIN_ORDER)
+    public AgileOperationModelsProviderPlugin agileOperationModelsProviderPlugin() {
+        return new AgileOperationModelsProviderPlugin();
+    }
 }
