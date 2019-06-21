@@ -20,6 +20,7 @@ import java.net.URI;
 @Order(1)
 @Plugin(name = "LoggerFactoryConfig", category = ConfigurationFactory.CATEGORY)
 public class LoggerFactoryConfig extends ConfigurationFactory {
+    private static final String PATTERN = "%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %clr{%5p} ] %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} [ %clr{%-40.40c{1.}}{cyan} ] %m%n%xwEx}{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}";
 
     private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder) {
         builder.setConfigurationName(name);
@@ -29,7 +30,7 @@ public class LoggerFactoryConfig extends ConfigurationFactory {
 
         //控制台日志
         AppenderComponentBuilder consoleConfig = builder.newAppender("Stdout", "CONSOLE").addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
-        consoleConfig.add(builder.newLayout("PatternLayout").addAttribute("pattern", " "));
+        consoleConfig.add(builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN));
         builder.add(consoleConfig);
 
         builder.add(builder.newAsyncRootLogger(Level.OFF).add(builder.newAppenderRef("Stdout")));

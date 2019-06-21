@@ -22,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.context.request.async.WebAsyncTask;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * 主控制层
@@ -177,6 +179,33 @@ public class MainController {
         }
 
         return processor(currentRequest, currentResponse);
+    }
+
+    @RequestMapping(value = {"/test"})
+    public WebAsyncTask<ModelAndView> asynProcessor() {
+        System.out.println("处理请求线程" + Thread.currentThread().getId());
+        Callable<ModelAndView> callable = () -> {
+            ModelAndView mav = new ModelAndView("longtimetask");
+            try {
+                Thread.sleep(3000); //假设是一些长时间任务
+                mav.addObject("result", "执行成功");
+                System.out.println("执行成功线程" + Thread.currentThread().getId());
+            }catch (InterruptedException e){
+                System.out.println("time out");
+            }
+            return mav;
+        };
+
+        WebAsyncTask<ModelAndView> asyncTask = new WebAsyncTask<>(5000, callable);
+        asyncTask.onTimeout(
+                () -> {
+                    ModelAndView mav = new ModelAndView("longtimetask");
+                    mav.addObject("result", "执行超时");
+                    System.out.println("执行超时线程" + Thread.currentThread().getId());
+                    return mav;
+                }
+        );
+        return asyncTask;
     }
 
     private Object processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {

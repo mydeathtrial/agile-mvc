@@ -46,7 +46,6 @@ public class AgileOperationBuilderPlugin implements OperationBuilderPlugin {
             List<Parameter> parameters = expander.expand(new ExpansionContext(apiImplicitParam.name(), ResolvedObjectType.create(apiImplicitParam.dataTypeClass(), null, null, null), context));
             context.operationBuilder().parameters(parameters);
         }
-        System.out.println();
     }
 
     @Override
