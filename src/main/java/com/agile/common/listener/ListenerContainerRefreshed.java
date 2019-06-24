@@ -19,7 +19,7 @@ public class ListenerContainerRefreshed implements ApplicationListener<ContextRe
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         long current = contextRefreshedEvent.getTimestamp();
         String currentTime = DateUtil.convertToString(new Date(current), "yyyy年MM月dd日 HH:mm:ss");
-        PrintUtil.writeln("已成功刷新容器", PrintUtil.YELLOW);
+        PrintUtil.writeln(" :: 已成功刷新容器 :: ", PrintUtil.YELLOW);
         PrintUtil.write(" :: 刷新时间 :: ", PrintUtil.CYAN);
         PrintUtil.writeln(currentTime, PrintUtil.YELLOW);
     }

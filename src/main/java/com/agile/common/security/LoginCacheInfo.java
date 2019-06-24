@@ -36,7 +36,8 @@ class LoginCacheInfo implements Serializable {
 
     private String username;
     private Authentication authentication;
-    private Map<Long, TokenInfo> sessionTokens;
+    private Map<Long, TokenInfo> sessionTokens = new HashMap<>();
+    private static SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
 
     private static Cache cache = CacheUtil.getCache(Objects.requireNonNull(FactoryUtil.getBean(SecurityProperties.class)).getTokenHeader());
 
@@ -80,13 +81,7 @@ class LoginCacheInfo implements Serializable {
      * @param sessionTokens 会话令牌集合
      */
     private static void parsingTimeOut(Map<Long, TokenInfo> sessionTokens) {
-        for (Map.Entry<Long, TokenInfo> entity : sessionTokens.entrySet()) {
-            Long key = entity.getKey();
-            TokenInfo tokenInfo = entity.getValue();
-            if (DateUtil.compareDate(tokenInfo.getEnd(), tokenInfo.getStart()) <= 0) {
-                sessionTokens.remove(key);
-            }
-        }
+        sessionTokens.values().removeIf(tokenInfo -> !tokenInfo.getEnd().after(DateUtil.getCurrentDate()));
     }
 
     /**
@@ -100,25 +95,18 @@ class LoginCacheInfo implements Serializable {
             throw new NoSignInException("账号尚未登陆");
         }
 
-        if (!TokenUtil.validateToken(token)) {
-            throw new TokenIllegalException("身份令牌已过期");
-        }
-
         Claims claims = TokenUtil.getClaimsFromToken(token);
         if (claims == null) {
             throw new TokenIllegalException("身份令牌验证失败");
+        } else {
+            validateTimeOut(claims);
         }
+
 
         Long sessionToken = claims.get(TokenUtil.AUTHENTICATION_SESSION_TOKEN, Long.class);
         String username = claims.get(TokenUtil.AUTHENTICATION_USER_NAME, String.class);
 
         LoginCacheInfo loginCacheInfo = cache.get(username, LoginCacheInfo.class);
-
-        if (loginCacheInfo == null || !loginCacheInfo.getSessionTokens().containsKey(sessionToken)) {
-            throw new TokenIllegalException("身份令牌验证失败");
-        }
-
-        SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
 
         //判断策略,复杂策略时，更新会话令牌
         if (securityProperties != null && securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
@@ -144,6 +132,28 @@ class LoginCacheInfo implements Serializable {
         }
 
         return new CurrentLoginInfo(sessionToken, loginCacheInfo);
+    }
+
+    /**
+     * 验证token过期
+     *
+     * @param claims 令牌信息
+     */
+    private static void validateTimeOut(Claims claims) {
+        Long sessionToken = claims.get(TokenUtil.AUTHENTICATION_SESSION_TOKEN, Long.class);
+        String username = claims.get(TokenUtil.AUTHENTICATION_USER_NAME, String.class);
+
+        LoginCacheInfo loginCacheInfo = cache.get(username, LoginCacheInfo.class);
+
+        if (loginCacheInfo == null || loginCacheInfo.getSessionTokens().get(sessionToken) == null) {
+            throw new TokenIllegalException("身份令牌验证失败");
+        }
+        TokenInfo sessionInfo = loginCacheInfo.getSessionTokens().get(sessionToken);
+        if (!sessionInfo.getEnd().after(DateUtil.getCurrentDate()) || !claims.getExpiration().after(DateUtil.getCurrentDate())) {
+            throw new TokenIllegalException("身份令牌已过期");
+        }
+        sessionInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
+        cache.put(username, loginCacheInfo);
     }
 
     /**

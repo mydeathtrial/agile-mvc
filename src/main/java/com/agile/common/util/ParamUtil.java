@@ -243,12 +243,14 @@ public class ParamUtil {
     }
 
     public static <T> List<T> getInParamOfArray(Map<String, Object> map, String key, Class<T> clazz) {
-        List<T> result = null;
+        List<T> result;
         Object value = ObjectUtil.pathGet(key, map);
         if (value != null && Iterable.class.isAssignableFrom(value.getClass())) {
             result = ArrayUtil.cast(clazz, (Iterable) value);
         } else if (value != null && value.getClass().isArray()) {
             result = ArrayUtil.cast(clazz, ArrayUtil.asList((Object[]) value));
+        } else {
+            result = ArrayUtil.cast(clazz, new ArrayList<Object>(){{add(value);}});
         }
         return result;
     }

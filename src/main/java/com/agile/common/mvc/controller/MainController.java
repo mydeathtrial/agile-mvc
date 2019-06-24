@@ -10,6 +10,7 @@ import com.agile.common.base.RETURN;
 import com.agile.common.base.RequestWrapper;
 import com.agile.common.exception.NoSuchRequestMethodException;
 import com.agile.common.exception.NoSuchRequestServiceException;
+import com.agile.common.exception.SpringExceptionHandler;
 import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.util.ApiUtil;
@@ -18,6 +19,8 @@ import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ParamUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.validate.ValidateMsg;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -55,98 +59,173 @@ public class MainController {
      */
     private static ThreadLocal<HttpServletRequest> request = new ThreadLocal<>();
 
+    @Autowired
+    private WebMvcProperties webMvcProperties;
     /**
      * 非法请求处理器
      *
      * @param currentRequest  请求
      * @param currentResponse 响应
      * @return 视图
-     * @throws UnlawfulRequestException 非法路径请求
      */
     @RequestMapping(value = {"/", "/*", "/*/*/*/**"})
-    public Object othersProcessor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
-        //清理缓存
-        clear();
+    public Object othersProcessor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) {
+        return asyncProcessor(() -> {
+            try {
+                //清理缓存
+                clear();
 
-        //设置当前request
-        request.set(currentRequest);
+                //设置当前request
+                request.set(currentRequest);
 
-        if (initApiInfoByRequestMapping()) {
-            throw new UnlawfulRequestException();
-        }
-        return processor(currentRequest, currentResponse);
+                if (initApiInfoByRequestMapping()) {
+                    throw new UnlawfulRequestException();
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.GET)
-    public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.GET)
-    public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-            requestWrapper.addParameter("id", id);
-            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "queryById");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+                    requestWrapper.addParameter("id", id);
+                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "queryById");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}/page/{page}/{size}"}, method = RequestMethod.GET)
-    public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-            requestWrapper.addParameter("page", page);
-            requestWrapper.addParameter("size", size);
-            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "pageQuery");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+                    requestWrapper.addParameter("page", page);
+                    requestWrapper.addParameter("size", size);
+                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "pageQuery");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.POST)
-    public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.PUT)
-    public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-            requestWrapper.addParameter("id", id);
-            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "update");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+                    requestWrapper.addParameter("id", id);
+                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "update");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.DELETE)
-    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.DELETE)
-    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) throws Throwable {
-        request.set(currentRequest);
-        if (initApiInfoByRequestMapping()) {
-            RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-            requestWrapper.addParameter("id", id);
-            return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "delete");
-        }
-        return processor(currentRequest, currentResponse);
+    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+        return asyncProcessor(() -> {
+            try {
+                request.set(currentRequest);
+                if (initApiInfoByRequestMapping()) {
+                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
+                    requestWrapper.addParameter("id", id);
+                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "delete");
+                }
+                return processor(currentRequest, currentResponse);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
+    }
+
+    /**
+     * agile框架处理器
+     *
+     * @param service         服务名
+     * @param method          方法名
+     * @param currentRequest  request信息
+     * @param currentResponse response信息
+     * @return 响应试图数据
+     */
+    @RequestMapping(value = {"/api/{service}/{method}", "/api/{service}/{method}/**", "/{service}/{method}"})
+    public Object proxyProcessor(
+            HttpServletRequest currentRequest,
+            HttpServletResponse currentResponse,
+            @PathVariable String service,
+            @PathVariable String method
+    ) {
+        return asyncProcessor(() -> {
+            try {
+                return processor(currentRequest, currentResponse, service, method);
+            } catch (Throwable e) {
+                return SpringExceptionHandler.createModelAndView(e);
+            }
+        });
+
     }
 
     /**
@@ -159,12 +238,11 @@ public class MainController {
      * @return 响应试图数据
      * @throws Throwable 所有异常
      */
-    @RequestMapping(value = {"/api/{service}/{method}", "/api/{service}/{method}/**", "/{service}/{method}"})
-    public Object processor(
+    public ModelAndView processor(
             HttpServletRequest currentRequest,
             HttpServletResponse currentResponse,
-            @PathVariable String service,
-            @PathVariable String method
+            String service,
+            String method
     ) throws Throwable {
         //清理缓存
         clear();
@@ -181,34 +259,16 @@ public class MainController {
         return processor(currentRequest, currentResponse);
     }
 
-    @RequestMapping(value = {"/test"})
-    public WebAsyncTask<ModelAndView> asynProcessor() {
-        System.out.println("处理请求线程" + Thread.currentThread().getId());
-        Callable<ModelAndView> callable = () -> {
-            ModelAndView mav = new ModelAndView("longtimetask");
-            try {
-                Thread.sleep(3000); //假设是一些长时间任务
-                mav.addObject("result", "执行成功");
-                System.out.println("执行成功线程" + Thread.currentThread().getId());
-            }catch (InterruptedException e){
-                System.out.println("time out");
-            }
-            return mav;
-        };
-
-        WebAsyncTask<ModelAndView> asyncTask = new WebAsyncTask<>(5000, callable);
+    private WebAsyncTask<ModelAndView> asyncProcessor(Callable<ModelAndView> callable) {
+        Duration timeout = webMvcProperties.getAsync().getRequestTimeout();
+        WebAsyncTask<ModelAndView> asyncTask = new WebAsyncTask<>(timeout.toMillis(), callable);
         asyncTask.onTimeout(
-                () -> {
-                    ModelAndView mav = new ModelAndView("longtimetask");
-                    mav.addObject("result", "执行超时");
-                    System.out.println("执行超时线程" + Thread.currentThread().getId());
-                    return mav;
-                }
+                () -> SpringExceptionHandler.createModelAndView(new InterruptedException())
         );
         return asyncTask;
     }
 
-    private Object processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
+    private ModelAndView processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
 
         //处理入参
         handleInParam();

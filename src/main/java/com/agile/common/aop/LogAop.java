@@ -152,7 +152,7 @@ public class LogAop {
      * @param joinPoint 切入点
      * @return 方法信息
      */
-    private ApiInfo extractApiInfo(ProceedingJoinPoint joinPoint) throws NoSuchMethodException {
+    private ApiInfo extractApiInfo(ProceedingJoinPoint joinPoint) {
         ApiInfo apiInfo = ApiUtil.getApiCache(ServletUtil.getCurrentRequest());
         if (apiInfo == null || !(apiInfo.getBean() instanceof MainService)) {
             Object bean = joinPoint.getArgs()[Constant.NumberAbout.ZERO];

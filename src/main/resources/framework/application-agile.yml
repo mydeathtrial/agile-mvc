@@ -21,11 +21,11 @@ agile:
     enable: true
     token-header: authCode
     border: 'no'
-    border-color: black
+    border-color: 45,45,45
     image-height: 45
     image-width: 125
     textproducer-char-length: 4
-    textproducer-font-color: black
+    textproducer-font-color: 255,255,255
     textproducer-font-names: 宋体,楷体,微软雅黑
     textproducer-font-size: 40
     live-time: 60
@@ -40,7 +40,7 @@ agile:
       org.springframework: info,error,debug
       com.idss: info,error,debug
   security:
-    enable: false
+    enable: true
     exclude-url: /swagger-ui.html,/webjars/springfox-swagger-ui/*,/v2/api-docs,/swagger-resources/**
     login-out-url: /api/logout
     login-url: /api/login

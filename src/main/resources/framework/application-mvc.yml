@@ -9,6 +9,8 @@ spring:
         xml: application/xml
         json: application/json
     static-path-pattern: /static/**
+    async:
+      request-timeout: 2m
   messages:
     encoding: UTF-8
     basename: 'message'
