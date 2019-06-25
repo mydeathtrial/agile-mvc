@@ -35,10 +35,6 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
      */
     private Map<String, SysApiEntity> cache = new HashMap<>();
 
-    public void test() {
-        System.out.println("执行");
-    }
-
     @Override
     public List<Task> getTask() {
         List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);

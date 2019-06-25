@@ -115,12 +115,12 @@ public class Constant {
         public static final String MONTH = "^(0?[1-9]|1[0-2])$";
         public static final String DAY = "^((0?[1-9])|((1|2)[0-9])|30|31)$";
         public static final String MONEY = "^(0|-?[1-9][0-9]*)$";
-        public static final String XML_FILE_NAME = "^([a-zA-Z]+-?)+[a-zA-Z0-9]+\\\\.[x|X][m|M][l|L]$";
+        public static final String XML_FILE_NAME = "^([a-zA-Z]+-?)+[a-zA-Z0-9]+\\.[x|X][m|M][l|L]$";
         public static final String CHINESE_LANGUAGE = "[\\u4e00-\\u9fa5]";
         public static final String TWO_CHAR = "[^\\x00-\\xff]";
         public static final String QQ = "[1-9][0-9]{4,}";
         public static final String MAIL_NO = "[1-9]\\d{5}(?!\\d)";
-        public static final String IP = "((?:(?:25[0-5]|2[0-4]\\\\d|[01]?\\\\d?\\\\d)\\\\.){3}(?:25[0-5]|2[0-4]\\\\d|[01]?\\\\d?\\\\d))";
+        public static final String IP = "((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))";
         public static final String NUMBER = "^[0-9]*$";
         public static final String FLOAT = "^-?([1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*|0?\\.0+|0)$";
         public static final String ENGLISH_NUMBER = "^[A-Za-z0-9]+$";

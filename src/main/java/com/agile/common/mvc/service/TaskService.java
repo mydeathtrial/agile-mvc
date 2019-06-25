@@ -11,7 +11,6 @@ import com.agile.common.task.TaskManager;
 import com.agile.common.task.TaskTrigger;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
-import com.agile.mvc.entity.SysTaskEntity;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

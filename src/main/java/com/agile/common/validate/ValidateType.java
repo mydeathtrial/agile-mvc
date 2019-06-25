@@ -140,8 +140,12 @@ public enum ValidateType implements ValidateInterface {
 
         ValidateMsg v = new ValidateMsg(key, value);
         list.add(v);
-        if (value != null && !StringUtil.isBlank(value.toString())) {
+        if (value != null) {
             boolean state;
+            if (!validate.isBlank() && StringUtil.isBlank(value.toString())) {
+                v.setState(false);
+                v.setMessage(createMessage(validate, "不允许为空值"));
+            }
             if (validate.validateType() != NO) {
                 state = StringUtil.containMatchedString(regex, String.valueOf(value));
                 if (!state) {
