@@ -250,7 +250,9 @@ public class ParamUtil {
         } else if (value != null && value.getClass().isArray()) {
             result = ArrayUtil.cast(clazz, ArrayUtil.asList((Object[]) value));
         } else {
-            result = ArrayUtil.cast(clazz, new ArrayList<Object>(){{add(value);}});
+            result = ArrayUtil.cast(clazz, new ArrayList<Object>() {{
+                add(value);
+            }});
         }
         return result;
     }

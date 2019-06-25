@@ -57,9 +57,9 @@ public class KaptchaAutoConfiguration extends Configurable implements TextProduc
 
     private Properties properties() {
         Properties properties = new Properties();
-        properties.setProperty("kaptcha.background.clear.from","45,45,45");
-        properties.setProperty("kaptcha.background.clear.to","45,45,45");
-        properties.setProperty("kaptcha.noise.color","45,45,45");
+        properties.setProperty("kaptcha.background.clear.from", "45,45,45");
+        properties.setProperty("kaptcha.background.clear.to", "45,45,45");
+        properties.setProperty("kaptcha.noise.color", "45,45,45");
         properties.setProperty("kaptcha.border", kaptchaConfigProperties.getBorder());
         properties.setProperty("kaptcha.border.color", kaptchaConfigProperties.getBorderColor());
         properties.setProperty("kaptcha.textproducer.font.color", kaptchaConfigProperties.getTextproducerFontColor());

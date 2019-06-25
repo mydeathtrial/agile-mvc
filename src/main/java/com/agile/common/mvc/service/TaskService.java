@@ -110,7 +110,7 @@ public class TaskService {
         if (method == null) {
             return false;
         }
-        if (method.getParameterCount() > 0 || method.getGenericReturnType() != void.class) {
+        if (method.getParameterCount() > 1 || method.getGenericReturnType() != void.class) {
             new IllegalArgumentException(String.format("[Method:%s][Reason:Must be an empty argument method with a return value of void]", method.toGenericString())).printStackTrace();
             return false;
         }
@@ -215,7 +215,7 @@ public class TaskService {
 
     }
 
-    public void startTask(String id) throws NotFoundTaskException {
+    public void startTask(long id) throws NotFoundTaskException {
         TaskInfo taskInfo = taskInfoMap.get(id);
         if (ObjectUtil.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
@@ -228,9 +228,9 @@ public class TaskService {
     }
 
 
-    public void updateTask(SysTaskEntity sysTaskEntity) throws NotFoundTaskException {
-        removeTask(sysTaskEntity.getSysTaskId());
-        addTask(sysTaskEntity);
+    public void updateTask(Task task) throws NotFoundTaskException {
+        removeTask(task.getCode());
+        addTask(task);
     }
 
     public void removeTask(Method method) throws NotFoundTaskException {

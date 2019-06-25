@@ -1,11 +1,9 @@
 package com.agile.common.swagger;
 
 import com.agile.common.annotation.Models;
-import org.springframework.core.annotation.Order;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.OperationModelsProviderPlugin;
 import springfox.documentation.spi.service.contexts.RequestMappingContext;
-import springfox.documentation.swagger.common.SwaggerPluginSupport;
 
 /**
  * @author 佟盟

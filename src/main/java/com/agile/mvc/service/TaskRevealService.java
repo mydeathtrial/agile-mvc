@@ -78,7 +78,10 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      * @return 是否成功
      */
     public RETURN startTask() throws NotFoundTaskException {
-        String id = this.getInParam("id", String.class);
+        Long id = this.getInParam("id", long.class);
+        if (id == null) {
+            return RETURN.PARAMETER_ERROR;
+        }
         taskService.startTask(id);
 
         //同步状态到数据库
