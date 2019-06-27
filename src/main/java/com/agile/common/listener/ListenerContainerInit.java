@@ -4,6 +4,7 @@ import com.agile.common.annotation.AnnotationProcessor;
 import com.agile.common.annotation.ParsingBeanAfter;
 import com.agile.common.annotation.ParsingInit;
 import com.agile.common.annotation.ParsingMethodAfter;
+import com.agile.common.base.AgileApp;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.PrintUtil;
 import org.springframework.beans.BeansException;
@@ -28,17 +29,11 @@ public class ListenerContainerInit implements ApplicationListener<WebServerIniti
         annotationHandler();
         applicationContext.getBean(ParsingInit.class).parse();
 
-
-        long current = event.getTimestamp();
-        String currentTime = DateUtil.convertToString(new Date(current), "yyyy年MM月dd日 HH:mm:ss");
-        PrintUtil.writeln("\n :: 敏捷开发框架 Agile Framework :: ", PrintUtil.CYAN);
-        PrintUtil.write(" :: 启动状态 :: ", PrintUtil.CYAN);
-        PrintUtil.writeln("已成功启动", PrintUtil.YELLOW);
-        PrintUtil.write(" :: 启动时间 :: ", PrintUtil.CYAN);
-        PrintUtil.writeln(currentTime, PrintUtil.YELLOW);
-
-        PrintUtil.write(" :: 启动端口 :: ", PrintUtil.CYAN);
-        PrintUtil.writeln(event.getWebServer().getPort() + "\n", PrintUtil.YELLOW);
+        PrintUtil.writeMessage("敏捷开发框架 Agile Framework");
+        PrintUtil.writeMessage("启动状态", "已成功启动");
+        PrintUtil.writeMessage("启动时间", DateUtil.convertToString(new Date(event.getTimestamp()), "yyyy年MM月dd日 HH:mm:ss"));
+        PrintUtil.writeMessage("启动端口", event.getWebServer().getPort());
+        PrintUtil.writeMessage("启动耗时", AgileApp.getConsumeTime() + "秒");
     }
 
 

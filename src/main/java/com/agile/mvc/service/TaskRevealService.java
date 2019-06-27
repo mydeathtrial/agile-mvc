@@ -6,8 +6,6 @@ import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.mvc.entity.SysTaskEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @author 佟盟
@@ -16,10 +14,12 @@ import org.springframework.stereotype.Service;
  * @version 1.0
  * @since 1.0
  */
-@Service
 public class TaskRevealService extends BusinessService<SysTaskEntity> {
-    @Autowired(required = false)
     private TaskService taskService;
+
+    public TaskRevealService(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     /**
      * 根据定时任务对象添加定时任务

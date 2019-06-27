@@ -97,4 +97,16 @@ public class PrintUtil {
         System.out.println(fmt(txt, RED));
     }
 
+    public static void writeMessage(String key, Object value) {
+        write(String.format(" :: %s :: ", key), PrintUtil.CYAN);
+        if (value != null) {
+            writeln(String.valueOf(value), PrintUtil.YELLOW);
+        } else {
+            System.out.println();
+        }
+    }
+
+    public static void writeMessage(String key) {
+        writeMessage(key, null);
+    }
 }

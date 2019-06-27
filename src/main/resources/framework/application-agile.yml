@@ -28,7 +28,7 @@ agile:
     textproducer-font-color: 255,255,255
     textproducer-font-names: 宋体,楷体,微软雅黑
     textproducer-font-size: 40
-    live-time: 60
+    live-time: 180
     url: /api/authcode
     text:
   log:
@@ -59,7 +59,7 @@ agile:
     allow-methods: GET,POST,PUT,DELETE,OPTIONS,JSONP
     allow-origin: '*'
   task:
-    enable: false
+    enable: true
   swagger:
     enable: true
     title: Agile 平台API文档

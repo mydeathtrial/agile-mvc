@@ -1,7 +1,9 @@
 package com.agile.mvc.service;
 
+import com.agile.common.annotation.Init;
 import com.agile.common.base.Constant;
 import com.agile.common.mvc.service.BusinessService;
+import com.agile.common.task.ApiBase;
 import com.agile.common.task.RunDetail;
 import com.agile.common.task.Target;
 import com.agile.common.task.Task;
@@ -12,6 +14,8 @@ import com.agile.mvc.entity.SysApiEntity;
 import com.agile.mvc.entity.SysBtTaskApiEntity;
 import com.agile.mvc.entity.SysTaskDetailEntity;
 import com.agile.mvc.entity.SysTaskEntity;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +39,22 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
      */
     private Map<String, SysApiEntity> cache = new HashMap<>();
 
+    /**
+     * 初始化系统方法数据
+     */
+    @Init
+    @Transactional(rollbackFor = Exception.class)
+    public void init() {
+        List<Target> targets = getApis(true);
+
+        Map<String, Target> databaseCache = Maps.newHashMapWithExpectedSize(targets.size());
+        targets.forEach(target -> databaseCache.put(target.getCode(), target));
+
+        Map<String, ApiBase> programCache = Maps.newHashMap(ApiUtil.getApiInfos());
+        targets.stream().filter(target -> !programCache.containsKey(target.getCode())).forEach(target -> dao.delete(target));
+        programCache.values().stream().filter(apiBase -> !databaseCache.containsKey(apiBase.getMethod().toGenericString())).forEach(apiInfo -> save(apiInfo.getMethod(), true));
+    }
+
     @Override
     public List<Task> getTask() {
         List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
@@ -42,15 +62,10 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
     }
 
     @Override
-    public List<Target> getApis() {
-        if (cache.size() == 0) {
-            List<SysApiEntity> list = dao.findAll(SysApiEntity.builder().type(false).build());
-            for (SysApiEntity task : list) {
-                cache.put(task.getName(), task);
-            }
-        }
-
-        return new ArrayList<>(cache.values());
+    public List<Target> getApis(boolean type) {
+        List<SysApiEntity> list = dao.findAll(SysApiEntity.builder().type(type).build());
+        list.parallelStream().forEach(sysApiEntity -> cache.put(sysApiEntity.getName(), sysApiEntity));
+        return Lists.newArrayList(list);
     }
 
     @Override
@@ -81,36 +96,35 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
         return new ArrayList<>(list);
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
-    public Long save(Method method) {
+    public Long save(Method method, boolean type) {
         String methodGenericString = method.toGenericString();
         if (cache.containsKey(methodGenericString)) {
             return cache.get(methodGenericString).getSysApiId();
         } else {
-            SysApiEntity apiEntity = dao.findOne(SysApiEntity.builder().name(methodGenericString).build());
-            if (apiEntity != null) {
-                cache.put(apiEntity.getName(), apiEntity);
-                return apiEntity.getSysApiId();
-            }
+            SysApiEntity entity = dao.saveOrUpdate(
+                    SysApiEntity
+                            .builder()
+                            .type(type)
+                            .sysApiId(IdUtil.generatorId())
+                            .name(methodGenericString)
+                            .build()
+            );
+            cache.put(methodGenericString, entity);
+            return entity.getSysApiId();
         }
+    }
 
-        SysApiEntity entity = dao.saveOrUpdate(
-                SysApiEntity
-                        .builder()
-                        .type(ApiUtil.containsApiInfo(method.toGenericString()))
-                        .sysApiId(IdUtil.generatorId())
-                        .name(methodGenericString)
-                        .build()
-        );
-        return entity.getSysApiId();
+    @Override
+    public void remove(Target target) {
+        dao.delete(target);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void save(Task task, Method method) {
         Long taskCode = save(task);
-        Long targetCode = save(method);
+        Long targetCode = save(method, false);
         dao.saveAndReturn(SysBtTaskApiEntity.builder()
                 .sysBtTaskApiId(IdUtil.generatorId())
                 .sysTaskId(taskCode)

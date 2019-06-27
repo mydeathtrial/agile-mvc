@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.util.ProxyUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +48,7 @@ public class TaskService {
      * spring容器初始化时初始化全部定时任务
      */
     @Init
+    @Async(value = "applicationTaskExecutor")
     @Transactional(rollbackFor = Exception.class)
     public void init() {
         initTaskTarget();
@@ -62,11 +64,6 @@ public class TaskService {
      */
     private void initTaskTarget() {
         String[] beans = applicationContext.getBeanDefinitionNames();
-        List<Target> list = taskManager.getApis();
-        Map<String, Target> mapCache = new HashMap<>(list.size());
-        for (Target entity : list) {
-            mapCache.put(entity.getCode(), entity);
-        }
 
         for (String beanName : beans) {
 
@@ -81,9 +78,6 @@ public class TaskService {
                     continue;
                 }
 
-                if (!mapCache.containsKey(method.toGenericString())) {
-                    taskManager.save(method);
-                }
                 apiBaseMap.put(method.toGenericString(), new ApiBase(bean, method, beanName));
             }
         }

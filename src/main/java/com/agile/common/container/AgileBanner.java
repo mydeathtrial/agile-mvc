@@ -55,5 +55,4 @@ public class AgileBanner implements Banner {
         printStream.println(AnsiOutput.toString(AnsiColor.GREEN, AGILE_FRAMEWORK, AnsiColor.DEFAULT, padding.toString(), AnsiStyle.FAINT, version));
         printStream.println();
     }
-
 }

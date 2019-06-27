@@ -15,15 +15,19 @@ import org.springframework.boot.SpringApplication;
  * @since 1.0
  */
 public class AgileApp {
+    private static long startTime;
+
     public static void run(Class<?> primarySource, String[] args) {
-        try {
-            ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
-            SpringApplication app = new SpringApplication(primarySource);
-            app.setBanner(new AgileBanner());
-            app.setDefaultProperties(PropertiesUtil.getProperties());
-            app.run(args);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        startTime = System.currentTimeMillis();
+        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
+        SpringApplication app = new SpringApplication(primarySource);
+        app.setBanner(new AgileBanner());
+        app.setDefaultProperties(PropertiesUtil.getProperties());
+        app.run(args);
     }
+
+    public static long getConsumeTime() {
+        return (System.currentTimeMillis() - startTime) / Constant.NumberAbout.THOUSAND;
+    }
+
 }

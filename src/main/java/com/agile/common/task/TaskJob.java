@@ -18,11 +18,12 @@ import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author 佟盟
@@ -112,7 +113,7 @@ public class TaskJob implements Serializable, Runnable {
             //通知持久层，任务开始运行
             taskManager.run(task.getCode());
         }
-        RunDetail runDetail = RunDetail.builder().taskCode(task.getCode()).startTime(new Date()).build();
+        RunDetail runDetail = RunDetail.builder().taskCode(task.getCode()).startTime(new Date()).ending(true).build();
 
         boolean ending = true;
         String log;
@@ -135,30 +136,29 @@ public class TaskJob implements Serializable, Runnable {
                 logger.info(log);
                 return;
             }
-            try {
-                Method method = apiInfo.getMethod();
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    method.invoke(apiInfo.getBean(), ObjectUtil.cast(parameterTypes[0], task.getCode()));
-                } else {
-                    method.invoke(apiInfo.getBean());
+            TaskProxy taskProxy = FactoryUtil.getBean(TaskProxy.class);
+            Optional.ofNullable(taskProxy).ifPresent((proxy) -> {
+                try {
+                    proxy.invoke(apiInfo, task);
+                } catch (InvocationTargetException | IllegalAccessException e) {
+                    exception(e, runDetail);
                 }
-            } catch (Exception e) {
-                log = StringUtil.coverToString(e);
-                runDetail.addLog(log);
-                ending = false;
-                logger.info(log);
-            }
-
+            });
         }
 
         if (taskManager != null) {
             runDetail.setEndTime(new Date());
-            runDetail.setEnding(ending);
             taskManager.logging(runDetail);
             //通知持久层，任务开始运行
             taskManager.finish(task.getCode());
         }
 
+    }
+
+    private void exception(Throwable e, RunDetail runDetail) {
+        String log = StringUtil.coverToString(e);
+        runDetail.addLog(log);
+        runDetail.setEnding(false);
+        logger.info(log);
     }
 }

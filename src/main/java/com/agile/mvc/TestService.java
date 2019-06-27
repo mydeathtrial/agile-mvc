@@ -24,4 +24,9 @@ public class TestService extends MainService {
         LogFactory.getLog(this.getClass()).debug("22222");
         return RETURN.SUCCESS;
     }
+
+    public void test2() {
+        LoggerFactory.getLogger(this.getClass()).debug("111111");
+        LogFactory.getLog(this.getClass()).debug("22222");
+    }
 }

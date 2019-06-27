@@ -5,6 +5,7 @@ import com.agile.common.base.ApiInfo;
 import com.agile.common.container.AgileHandlerMapping;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.ServiceInterface;
+import com.google.common.collect.Maps;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -16,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author 佟盟 on 2018/8/23
@@ -48,16 +50,17 @@ public class ApiUtil {
         addApiInfoCache(bean, method, beanName, requestMappingInfo);
     }
 
-    private static void printLog(String beanName, Method method, RequestMappingInfo requestMappingInfo) {
-        //打印API信息
-        if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
-            PatternsRequestCondition patterns = requestMappingInfo.getPatternsCondition();
-            if (patterns != null) {
-                for (String path : patterns.getPatterns()) {
-                    LoggerFactory.COMMON_LOG.debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, beanName, method.getName()));
-                }
-            }
-        }
+    public static void printLog() {
+        getApiInfoCache().parallelStream().forEach(apiInfo -> apiInfo.getRequestMappingInfos().parallelStream().forEach(requestMappingInfo -> {
+            PatternsRequestCondition patternsRequestCondition = requestMappingInfo.getPatternsCondition();
+            Optional.ofNullable(patternsRequestCondition)
+                    .ifPresent(condition ->
+                            condition.getPatterns().parallelStream()
+                                    .forEach(path ->
+                                            LoggerFactory.COMMON_LOG.debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, apiInfo.getBeanName(), apiInfo.getMethod().getName()))
+                                    )
+                    );
+        }));
     }
 
     /**
@@ -102,7 +105,6 @@ public class ApiUtil {
         if (requestMappingInfo != null) {
             getMappingHandlerMapping().registerHandlerMethod(bean, method, requestMappingInfo);
             addMappingInfoCache(beanName, bean, method, requestMappingInfo);
-            printLog(beanName, method, requestMappingInfo);
         }
 
         //默认映射信息
@@ -110,7 +112,6 @@ public class ApiUtil {
         if (defaultRequestMappingInfo != null) {
             getMappingHandlerMapping().registerHandlerMethod(bean, method, defaultRequestMappingInfo);
             addMappingInfoCache(beanName, bean, method, defaultRequestMappingInfo);
-            printLog(beanName, method, defaultRequestMappingInfo);
         }
     }
 
@@ -143,12 +144,8 @@ public class ApiUtil {
         return apiInfoCache.values();
     }
 
-    public static ApiInfo getApiInfo(String key) {
-        return apiInfoCache.get(key);
-    }
-
-    public static boolean containsApiInfo(String key) {
-        return apiInfoCache.containsKey(key);
+    public static HashMap<String, ApiInfo> getApiInfos() {
+        return Maps.newHashMap(apiInfoCache);
     }
 
     public static AgileHandlerMapping getMappingHandlerMapping() {

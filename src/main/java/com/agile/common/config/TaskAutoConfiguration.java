@@ -4,6 +4,8 @@ import com.agile.common.factory.TaskFactory;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.common.properties.TaskProperties;
 import com.agile.common.task.TaskManager;
+import com.agile.common.task.TaskProxy;
+import com.agile.mvc.service.TaskRevealService;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfiguration;
@@ -34,5 +36,15 @@ public class TaskAutoConfiguration {
     @Bean
     public TaskFactory taskFactory(ThreadPoolTaskScheduler threadPoolTaskScheduler) {
         return TaskFactory.after(threadPoolTaskScheduler);
+    }
+
+    @Bean
+    public TaskProxy taskProxy() {
+        return new TaskProxy();
+    }
+
+    @Bean
+    public TaskRevealService taskRevealService(TaskService taskService) {
+        return new TaskRevealService(taskService);
     }
 }

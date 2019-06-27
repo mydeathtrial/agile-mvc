@@ -1,17 +1,12 @@
 package com.agile.common.log;
 
-import com.agile.common.annotation.Init;
 import com.agile.common.annotation.NotAPI;
-import com.agile.common.base.ApiInfo;
 import com.agile.common.mvc.service.MainService;
-import com.agile.common.util.ApiUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.mvc.entity.LogMainEntity;
 import com.agile.mvc.entity.LogTableEntity;
-import com.agile.mvc.service.TaskManagerImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,16 +65,6 @@ public class BusinessLogService extends MainService {
         currentBusinessLogCode.remove();
     }
 
-    @Autowired
-    private TaskManagerImpl apiManager;
-
-    @Init
-    public void initBusinessApi() {
-        for (ApiInfo apiInfo : ApiUtil.getApiInfoCache()) {
-            apiManager.save(apiInfo.getMethod());
-        }
-    }
-
     /**
      * 记录操作日志
      *
@@ -122,6 +107,10 @@ public class BusinessLogService extends MainService {
         dao.save(logMain);
     }
 
+    public boolean needPrintBusinessLog() {
+        Long mainLogId = getCurrentBusinessLogCode();
+        return mainLogId != null;
+    }
 
     /**
      * 记录操纵sql日志
