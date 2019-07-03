@@ -52,6 +52,7 @@ public final class RETURN {
         return code;
     }
 
+    @Deprecated
     public RETURN setCode(String code) {
         this.code = code;
         return this;
@@ -61,6 +62,7 @@ public final class RETURN {
         return msg;
     }
 
+    @Deprecated
     public RETURN setMsg(String msg) {
         this.msg = msg;
         return this;

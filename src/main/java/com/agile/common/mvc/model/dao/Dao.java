@@ -574,7 +574,7 @@ public class Dao {
         if (maxResults != null) {
             query.setMaxResults(maxResults);
         }
-        List<Map<String, Object>> list = query.getResultList();
+        List<Map> list = query.getResultList();
 
         if (list != null && list.size() > 0) {
             List<T> result = new ArrayList<>();

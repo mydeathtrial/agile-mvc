@@ -474,6 +474,9 @@ public class ObjectUtil extends ObjectUtils {
      * @return 返回指定对象类型对象
      */
     public static <T> T getObjectFromMap(Class<T> clazz, Map<String, Object> map, String prefix, String suffix) {
+        if (Map.class.isAssignableFrom(clazz)) {
+            return (T) map;
+        }
         T object = null;
         boolean notNull = true;
 

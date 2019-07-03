@@ -10,5 +10,5 @@ import java.util.List;
 public interface ValidateInterface {
     List<ValidateMsg> validateParam(String key, Object value, Validate validate);
 
-    List<ValidateMsg> validateArray(String key, List value, Validate validate);
+    List<ValidateMsg> validateArray(String key, List<Object> value, Validate validate);
 }

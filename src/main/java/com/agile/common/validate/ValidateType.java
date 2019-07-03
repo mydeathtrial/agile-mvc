@@ -10,6 +10,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -78,19 +79,22 @@ public enum ValidateType implements ValidateInterface {
     }
 
     @Override
+    @NotNull
     public List<ValidateMsg> validateParam(String key, Object value, Validate validate) {
         return validate(key, value, validate);
     }
 
     @Override
-    public List<ValidateMsg> validateArray(String key, List value, Validate validate) {
-        List<ValidateMsg> list = new ArrayList<>();
-        for (Object o : value) {
-            List<ValidateMsg> v = validate(key, o, validate);
-            if (v != null) {
-                list.addAll(v);
+    @NotNull
+    public List<ValidateMsg> validateArray(String key, List<Object> value, Validate validate) {
+
+        List<ValidateMsg> list = value.stream().map(node -> validate(key, node, validate)).reduce((all, a) -> {
+            if (a != null) {
+                all.addAll(a);
             }
-        }
+            return all;
+        }).orElse(new ArrayList<>());
+
         int size = value.size();
         if (!(validate.min_size() <= size && size <= validate.max_size())) {
             ValidateMsg v = new ValidateMsg(createMessage(validate, "长度超出阈值"), false, key, value);
@@ -142,9 +146,12 @@ public enum ValidateType implements ValidateInterface {
         list.add(v);
         if (value != null) {
             boolean state;
-            if (!validate.isBlank() && StringUtil.isBlank(value.toString())) {
-                v.setState(false);
-                v.setMessage(createMessage(validate, "不允许为空值"));
+            if (!validate.isBlank()) {
+                state = !StringUtil.isBlank(value.toString());
+                if (!state) {
+                    v.setState(false);
+                    v.setMessage(createMessage(validate, "不允许为空值"));
+                }
             }
             if (validate.validateType() != NO) {
                 state = StringUtil.containMatchedString(regex, String.valueOf(value));
@@ -183,11 +190,10 @@ public enum ValidateType implements ValidateInterface {
                     }
             }
         } else {
-            if (validate.nullable()) {
-                return null;
+            if (!validate.nullable()) {
+                v.setState(false);
+                v.setMessage(createMessage(validate, "不允许为空值"));
             }
-            v.setState(false);
-            v.setMessage(createMessage(validate, "不允许为空值"));
         }
         return list;
     }

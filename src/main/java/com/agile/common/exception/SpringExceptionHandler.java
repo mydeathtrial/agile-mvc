@@ -33,10 +33,10 @@ public class SpringExceptionHandler {
             r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()), ((AbstractCustomException) e).getParams());
         } else {
             if (e.getCause() == null) {
-                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()));
+                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()), e.getMessage());
 
             } else {
-                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getCause().getClass().getSimpleName()));
+                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getCause().getClass().getSimpleName()), e.getMessage());
             }
         }
         if (r == null) {

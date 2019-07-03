@@ -34,6 +34,7 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 /**
@@ -275,10 +276,10 @@ public class MainController {
 
         //入参验证
         List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getService(), getMethod());
-        validateMessages = ParamUtil.aggregation(validateMessages);
-        if (validateMessages != null && validateMessages.size() > 0) {
+        Optional<List<ValidateMsg>> optionalValidateMsgList = ParamUtil.aggregation(validateMessages);
+        if (optionalValidateMsgList.isPresent()) {
             assert RETURN.PARAMETER_ERROR != null;
-            return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), validateMessages.toArray());
+            return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
         }
 
         //调用目标方法

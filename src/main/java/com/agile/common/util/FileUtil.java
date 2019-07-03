@@ -19,12 +19,14 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -329,7 +331,7 @@ public class FileUtil extends FileUtils {
                 return null;
             }
         }
-        File file = new File(dir.getPath() + fileName);
+        File file = new File(dir.getPath() + "/" + fileName);
         if (!file.exists()) {
             boolean isSuccess = file.createNewFile();
             if (!isSuccess) {
@@ -390,5 +392,11 @@ public class FileUtil extends FileUtils {
             return false;
         }
         return value instanceof ExcelFile || ResponseFile.class.isAssignableFrom(value.getClass()) || File.class.isAssignableFrom(value.getClass());
+    }
+
+    public static void write(File file, String text) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.write(text);
+        writer.close();
     }
 }

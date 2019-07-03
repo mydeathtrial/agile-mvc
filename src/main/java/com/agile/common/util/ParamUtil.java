@@ -14,6 +14,8 @@ import com.agile.common.view.ForwardView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.collect.Maps;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -27,7 +29,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author 佟盟
@@ -326,28 +331,22 @@ public class ParamUtil {
     /**
      * 入参验证
      *
+     * @param service 服务实例
+     * @param method  方法
      * @return 验证信息集
-     * @throws InstantiationException 异常
-     * @throws IllegalAccessException 异常
      */
-    public static List<ValidateMsg> handleInParamValidate(ServiceInterface service, Method method) throws InstantiationException, IllegalAccessException {
-        List<ValidateMsg> list = null;
-        Validates vs = method.getAnnotation(Validates.class);
-        if (vs != null) {
-            list = handleValidateAnnotation(service, vs);
-        }
-        Validate v = method.getAnnotation(Validate.class);
-        if (v != null) {
-            List<ValidateMsg> rs = handleValidateAnnotation(service, v);
-            if (rs != null) {
-                if (list != null) {
-                    list.addAll(rs);
-                }
-                list = rs;
-            }
-        }
+    public static List<ValidateMsg> handleInParamValidate(ServiceInterface service, Method method) {
+        Optional<Validates> validatesOptional = Optional.ofNullable(method.getAnnotation(Validates.class));
+        Optional<Validate> validateOptional = Optional.ofNullable(method.getAnnotation(Validate.class));
 
-        return list;
+        List<Validate> validateList = Lists.newArrayList();
+        validatesOptional.ifPresent(validates -> validateList.addAll(Stream.of(validates.value()).collect(Collectors.toList())));
+        validateOptional.ifPresent(validateList::add);
+
+        return validateList.stream().map(validate -> handleValidateAnnotation(service, validate)).reduce((all, validateMsgList) -> {
+            all.addAll(validateMsgList);
+            return all;
+        }).orElse(Lists.newArrayList());
     }
 
     /**
@@ -356,15 +355,13 @@ public class ParamUtil {
      * @param v Validate注解
      * @return 验证信息集
      */
-    public static List<ValidateMsg> handleValidateAnnotation(ServiceInterface service, Validate v) {
+    private static List<ValidateMsg> handleValidateAnnotation(ServiceInterface service, Validate v) {
         List<ValidateMsg> list = new ArrayList<>();
 
         if (v == null) {
             return list;
         }
-        if (StringUtil.isBlank(v.value()) && v.beanClass() == Class.class) {
-            return list;
-        }
+
         String key = v.value().trim();
         Object value;
         if (StringUtil.isBlank(key)) {
@@ -375,43 +372,9 @@ public class ParamUtil {
 
         ValidateType validateType = v.validateType();
         if (value != null && List.class.isAssignableFrom(value.getClass())) {
-            List<ValidateMsg> rs = validateType.validateArray(key, (List) value, v);
-
-            if (rs != null) {
-                for (ValidateMsg validateMsg : rs) {
-                    if (validateMsg.isState()) {
-                        continue;
-                    }
-                    list.add(validateMsg);
-                }
-            }
+            list.addAll(validateType.validateArray(key, (List) value, v));
         } else {
-            List<ValidateMsg> r = validateType.validateParam(key, value, v);
-            if (r != null) {
-                list = new ArrayList<>(r);
-            }
-        }
-        return list;
-    }
-
-    /**
-     * 根据参数验证集注解取验证信息集
-     *
-     * @param vs Validates注解
-     * @return 验证信息集
-     * @throws InstantiationException 异常
-     * @throws IllegalAccessException 异常
-     */
-    public static List<ValidateMsg> handleValidateAnnotation(ServiceInterface service, Validates vs) throws InstantiationException, IllegalAccessException {
-        List<ValidateMsg> list = null;
-        for (Validate v : vs.value()) {
-            List<ValidateMsg> r = handleValidateAnnotation(service, v);
-            if (r != null) {
-                if (list == null) {
-                    list = new ArrayList<>();
-                }
-                list.addAll(r);
-            }
+            list.addAll(validateType.validateParam(key, value, v));
         }
         return list;
     }
@@ -422,25 +385,23 @@ public class ParamUtil {
      * @param list 聚合之前的错误信息
      * @return 聚合后的信息
      */
-    public static List<ValidateMsg> aggregation(List<ValidateMsg> list) {
-        List<ValidateMsg> result = new ArrayList<>();
-        if (list == null) {
-            return result;
-        }
-        Map<String, ValidateMsg> cache = new HashMap<>(list.size());
-        for (ValidateMsg msg : list) {
-            if (msg.isState()) {
-                continue;
-            }
-            String key = msg.getItem();
-            if (cache.containsKey(key)) {
-                cache.get(key).addMessage(msg.getMessage());
-            } else {
-                cache.put(key, msg);
-            }
+    public static Optional<List<ValidateMsg>> aggregation(List<ValidateMsg> list) {
 
+        List<ValidateMsg> errors = list.parallelStream().filter(validateMsg -> !validateMsg.isState()).collect(Collectors.toList());
+
+        Map<String, ValidateMsg> cache = Maps.newHashMapWithExpectedSize(errors.size());
+
+        errors.parallelStream().forEach(validateMsg -> {
+            String key = validateMsg.getItem();
+            if (cache.containsKey(key)) {
+                cache.get(key).addMessage(validateMsg.getMessage());
+            } else {
+                cache.put(key, validateMsg);
+            }
+        });
+        if (cache.size() > 0) {
+            return Optional.of(new ArrayList<>(cache.values()));
         }
-        result.addAll(cache.values());
-        return result;
+        return Optional.empty();
     }
 }

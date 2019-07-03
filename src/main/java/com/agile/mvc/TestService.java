@@ -18,15 +18,18 @@ import org.springframework.stereotype.Service;
 public class TestService extends MainService {
 
 
-    @Mapping(value = "/test")
+    @Mapping(value = "/test/{asd:.+}")
     public Object test() {
+
         LoggerFactory.getLogger(this.getClass()).debug("111111");
         LogFactory.getLog(this.getClass()).debug("22222");
         return RETURN.SUCCESS;
     }
 
-    public void test2() {
+    @Mapping(value = "/test")
+    public Object test2() {
         LoggerFactory.getLogger(this.getClass()).debug("111111");
         LogFactory.getLog(this.getClass()).debug("22222");
+        return RETURN.SUCCESS;
     }
 }

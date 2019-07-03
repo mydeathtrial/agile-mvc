@@ -106,7 +106,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         }
         Object cacheCodeToken = CacheUtil.get(codeToken);
         if (cacheCodeToken == null || !cacheCodeToken.toString().equalsIgnoreCase(inCode)) {
-            throw new VerificationCodeException(null);
+            throw new VerificationCodeException(String.format("正确值:%s;输入值:%s", cacheCodeToken, inCode));
         }
         Cookie cookie = new Cookie(kaptchaConfigProperties.getTokenHeader(), null);
         String cookiePath = request.getContextPath() + "/";
