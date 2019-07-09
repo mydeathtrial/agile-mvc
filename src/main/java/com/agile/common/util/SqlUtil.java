@@ -209,6 +209,7 @@ public class SqlUtil {
      */
     private static void parsingUpdateItem(List<SQLUpdateSetItem> updateSetItems) {
         updateSetItems.removeIf(updateSetItem -> !parser(Collections.singletonList(updateSetItem.getValue())));
+        updateSetItems.stream().forEach(updateSetItem -> parsingBinaryToString(updateSetItem.getValue()));
         updateSetItems.removeIf(updateSetItem -> !parser(Collections.singletonList(updateSetItem.getColumn())));
     }
 
@@ -595,8 +596,14 @@ public class SqlUtil {
 //        map.put("assetIp", "192.168.200.106");
 //        map.put("datasourceName", "时间");
 //        map.put("field", "");
+//        map.put("name", "test");
+//        map.put("leader", "领导");
+//        map.put("sysDepartId", "123546456");
+//        map.put("onLineStrategy", "3000");
 ////        System.out.println(parserSQL("select * from vb_analysis where asset_ip ='{assetIp}' AND flag = 2 AND attack_time >= {startDtm} AND attack_time <= {endDtm} and id in ({ids3})", map) + "\r\r");
-//        System.out.println(parserSQL("select * from vb_analysis where {taskName1} is not null", map) + "\r\r");
+//        String sql = "update sys_users set `name` ={name},sex={sex},user_number={userNumber},leader={leader},telephone={telephone},email='{email}'," +
+//                "sys_depart_id={sysDepartId},on_line_strategy={onLineStrategy},is_locked={isLocked},expired_time='{expiredTime}',update_user='tudou' where sys_users_id={sysUsersId}";
+//        System.out.println(parserSQL(sql, map) + "\r\r");
 ////        System.out.println(parserCountSQL(sql, null));
 //    }
 

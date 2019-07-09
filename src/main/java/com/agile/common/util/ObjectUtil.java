@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author 佟盟 on 2017/1/9
@@ -477,54 +478,42 @@ public class ObjectUtil extends ObjectUtils {
         if (Map.class.isAssignableFrom(clazz)) {
             return (T) map;
         }
-        T object = null;
-        boolean notNull = true;
-
         if (!ObjectUtil.isEmpty(map)) {
             try {
-                object = clazz.newInstance();
+                T object = clazz.newInstance();
+
+                Set<Field> fields = getAllField(clazz);
+                fields.parallelStream().forEach(field -> {
+                    String key = coverFieldNameToMapKey(clazz, field, prefix, suffix, map);
+                    if (key != null) {
+                        try {
+                            Object value = map.get(key);
+
+                            Method setMethod = setMethod(clazz, field, value);
+
+                            if (setMethod == null) {
+                                field.set(object, value);
+                            } else {
+                                Class<?>[] parameterTypes = setMethod.getParameterTypes();
+                                Class<?> type = parameterTypes[0];
+                                setMethod.invoke(object, cast(type, value));
+                            }
+                        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
+                        }
+                    }
+                });
+                if (!isAllNullValidity(object)) {
+                    return object;
+                }
             } catch (InstantiationException | IllegalAccessException ignored) {
             }
-            if (object == null) {
-                return null;
-            }
-
-            Set<Field> fields = getAllField(clazz);
-            for (Field field : fields) {
-                String key = coverFieldNameToMapKey(clazz, field, prefix, suffix, map);
-                if (key != null) {
-                    try {
-                        Object value = map.get(key);
-
-                        Method setMethod = setMethod(clazz, field, value);
-
-                        if (setMethod == null) {
-                            field.set(object, value);
-                        } else {
-                            Class<?>[] parameterTypes = setMethod.getParameterTypes();
-                            Class<?> type = parameterTypes[0];
-                            setMethod.invoke(object, cast(type, value));
-                        }
-
-                        if (field.get(object) != null) {
-                            notNull = false;
-                        }
-                    } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
-                    }
-                }
-            }
         }
-
-        if (notNull) {
-            return null;
-        }
-        return object;
+        return null;
     }
 
 //    public static void main(String[] args) {
 //        Map<String, Object> map = new HashMap<>();
-//        map.put("list", "sysUsersId,s,d,f");
-//        map.put("s", "12");
+//        map.put("a", new ArrayList<>());
 //        getObjectFromMap(Demo.class, map);
 //    }
 
@@ -839,21 +828,30 @@ public class ObjectUtil extends ObjectUtils {
      * 判断对象属性是否全空
      */
     public static boolean isAllNullValidity(Object object) {
-        boolean result = true;
         Class<?> clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
-            field.setAccessible(true);
-            try {
-                if (!isEmpty(field.get(object))) {
-                    result = false;
+        final String serialVersionUID = "serialVersionUID";
+        try {
+            Object newObject = clazz.newInstance();
+            Set<Field> haveValueFields = ObjectUtil.getAllField(clazz).parallelStream().filter(field -> {
+                field.setAccessible(true);
+                try {
+                    if (serialVersionUID.equals(field.getName())) {
+                        return false;
+                    }
+                    Object currentValue = field.get(object);
+                    Object initValue = field.get(newObject);
+                    return currentValue != null && currentValue != initValue;
+                } catch (Exception e) {
+                    return false;
                 }
-            } catch (Exception e) {
-                continue;
-            }
+
+            }).collect(Collectors.toSet());
+
+            return haveValueFields.size() == 0;
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            return false;
         }
-        return result;
     }
 
     /**
@@ -864,13 +862,13 @@ public class ObjectUtil extends ObjectUtils {
      * @return 转换后的值
      */
     public static <T> T cast(Class<T> clazz, Object value) {
-        if (ObjectUtil.isEmpty(value)) {
+        if (value == null) {
             return null;
         }
 
         Object temp = null;
 
-        boolean isSame = Map.class.isAssignableFrom(clazz) && Map.class.isAssignableFrom(value.getClass()) || (clazz == value.getClass());
+        boolean isSame = Map.class.isAssignableFrom(clazz) && Map.class.isAssignableFrom(value.getClass()) || (clazz == value.getClass()) || (clazz.isAssignableFrom(value.getClass()));
         if (isSame) {
             return (T) value;
         }

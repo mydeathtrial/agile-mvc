@@ -35,7 +35,7 @@ public @interface Validate {
 
     boolean nullable() default true;
 
-    boolean isBlank() default false;
+    boolean isBlank() default true;
 
     int max() default Integer.MAX_VALUE;
 

@@ -5,6 +5,7 @@ import com.agile.common.base.RETURN;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.StringUtil;
 import com.agile.common.util.ViewUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -34,7 +35,7 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
             }}, request, response);
             LoggerFactory.AUTHORITY_LOG.info(String.format("成功登陆[令牌：%s]", token));
         } catch (Exception e) {
-            LoggerFactory.AUTHORITY_LOG.debug(e);
+            LoggerFactory.AUTHORITY_LOG.debug(StringUtil.coverToString(e));
         }
     }
 }
