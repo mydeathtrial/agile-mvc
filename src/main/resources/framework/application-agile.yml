@@ -35,6 +35,7 @@ agile:
     package-uri: ${LOCAL_LOGS_PATH:-logs}/
     trigger-type: size
     trigger-value: 1M
+    levels: debug,info,error
     package-name:
       com.agile: info,error,debug
       org.springframework: info,error,debug

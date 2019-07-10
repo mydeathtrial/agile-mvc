@@ -38,6 +38,11 @@ public class LoggerProperties {
     private Map<String, Level[]> packageName = new HashMap<>();
 
     /**
+     * 日志级别
+     */
+    private Level[] levels = new Level[]{Level.DEBUG, Level.INFO, Level.ERROR};
+
+    /**
      * 类型
      */
     public enum TriggerType {

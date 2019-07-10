@@ -5,6 +5,7 @@ import com.agile.common.container.WebInitializer;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.properties.LoggerProperties;
 import com.agile.common.security.TokenFilter;
+import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
@@ -32,8 +33,10 @@ import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.elasticsearch.client.Client;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.agile.common.base.Constant.NumberAbout.TWO;
 
@@ -45,6 +48,7 @@ public final class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
     private static LoggerProperties loggerProperties = FactoryUtil.getBean(LoggerProperties.class);
+    private static Level[] defaultLevels = loggerProperties != null ? loggerProperties.getLevels() : new Level[]{Level.DEBUG, Level.INFO, Level.ERROR};
     private static String path;
     private static final String PATTERN = "%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %clr{%5p} ] %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} [ %clr{%-40.40c{1.}}{cyan} ] %m%n%xwEx}" +
             "{FATAL=Bright Red, ERROR=Bright Magenta, WARN=Bright Yellow, INFO=Bright Green, DEBUG=Bright Cyan, TRACE=Bright White}";
@@ -70,11 +74,11 @@ public final class LoggerFactory {
         }
     }
 
-    public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, Level.INFO, Level.DEBUG, Level.ERROR);
-    public static final Log AUTHORITY_LOG = createLogger("authority", TokenFilter.class, Level.INFO, Level.DEBUG, Level.ERROR);
-    public static final Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, Level.INFO, Level.ERROR);
-    public static final Log CACHE_LOG = createLogger("cache", CacheUtil.class, Level.INFO, Level.DEBUG, Level.ERROR);
-    public static final Log DAO_LOG = createLogger("sql", Dao.class, Level.INFO, Level.DEBUG, Level.ERROR);
+    public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, defaultLevels);
+    public static final Log AUTHORITY_LOG = createLogger("authority", TokenFilter.class, defaultLevels);
+    public static final Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, defaultLevels);
+    public static final Log CACHE_LOG = createLogger("cache", CacheUtil.class, defaultLevels);
+    public static final Log DAO_LOG = createLogger("sql", Dao.class, defaultLevels);
 
     private static Map<Class, Log> serviceCacheLogs = new HashMap<>();
 
@@ -109,6 +113,7 @@ public final class LoggerFactory {
                 .withPattern(PATTERN)
                 .build();
 
+        levels = Arrays.stream(levels).filter(level -> ArrayUtil.contains(defaultLevels, level)).collect(Collectors.toList()).toArray(new Level[]{});
         AppenderRef[] refs = new AppenderRef[levels.length * TWO];
         String[] appenders = new String[levels.length * TWO];
         for (int i = 0; i < levels.length; i++) {
