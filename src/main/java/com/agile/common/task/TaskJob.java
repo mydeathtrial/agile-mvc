@@ -3,8 +3,8 @@ package com.agile.common.task;
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.TaskService;
+import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.IdUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
 import lombok.AllArgsConstructor;
@@ -12,14 +12,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
-import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -77,27 +76,11 @@ public class TaskJob implements Serializable, Runnable {
             return true;
         }
         synchronized (this) {
-
-            RedisConnection connection = redisConnectionFactory.getConnection();
-
-            if (connection == null) {
-                return true;
-            }
-            //生成随机的Value值
-            String lockKey = String.valueOf(IdUtil.generatorId());
-
-            if (lockName == null) {
-                return true;
-            }
-            byte[] lockNameBytes = lockName.getBytes(StandardCharsets.UTF_8);
-            byte[] lockKeyBytes = lockKey.getBytes(StandardCharsets.UTF_8);
-
             //抢占锁
-            Boolean lock = connection.setNX(lockNameBytes, lockKeyBytes);
-            boolean isLock = lock == null ? false : lock;
+            boolean isLock = CacheUtil.lock(lockName);
             if (isLock) {
                 //拿到Lock，设置超时时间
-                connection.expire(lockNameBytes, second - 1);
+                CacheUtil.unlock(lockName, Duration.ofSeconds(second - 1));
             }
             return isLock;
         }

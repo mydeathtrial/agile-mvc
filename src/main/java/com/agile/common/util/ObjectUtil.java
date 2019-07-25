@@ -1,6 +1,8 @@
 package com.agile.common.util;
 
+import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
+import com.agile.common.task.ApiBase;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
@@ -412,7 +414,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param map   属性集合
      * @return 返回指定对象类型对象
      */
-    public static <T> T getObjectFromMap(Class<T> clazz, Map<String, Object> map) {
+    public static <T> T getObjectFromMap(Class<T> clazz, Map map) {
         return getObjectFromMap(clazz, map, "", "");
     }
 
@@ -474,7 +476,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param prefix 属性前缀
      * @return 返回指定对象类型对象
      */
-    public static <T> T getObjectFromMap(Class<T> clazz, Map<String, Object> map, String prefix, String suffix) {
+    public static <T> T getObjectFromMap(Class<T> clazz, Map map, String prefix, String suffix) {
         if (Map.class.isAssignableFrom(clazz)) {
             return (T) map;
         }
@@ -854,6 +856,13 @@ public class ObjectUtil extends ObjectUtils {
         }
     }
 
+    public static void main(String[] args) {
+        ApiBase api = new ApiInfo(null, null);
+        ApiBase api1 = new ApiBase(null, null, null);
+
+        System.out.println((ApiInfo) null);
+    }
+
     /**
      * 对象类型转换
      *
@@ -862,22 +871,21 @@ public class ObjectUtil extends ObjectUtils {
      * @return 转换后的值
      */
     public static <T> T cast(Class<T> clazz, Object value) {
-        if (value == null) {
-            return null;
+        if (value == null || clazz.isAssignableFrom(value.getClass())) {
+            return (T) value;
         }
+
 
         Object temp = null;
 
-        boolean isSame = Map.class.isAssignableFrom(clazz) && Map.class.isAssignableFrom(value.getClass()) || (clazz == value.getClass()) || (clazz.isAssignableFrom(value.getClass()));
-        if (isSame) {
-            return (T) value;
+        String valueStr = String.valueOf(value);
+
+        if (clazz == String.class) {
+            temp = valueStr;
         }
-        if (Map.class.isAssignableFrom(value.getClass())) {
-            temp = getObjectFromMap(clazz, (Map<String, Object>) value);
-        } else {
-            String valueStr = String.valueOf(value);
-            if (clazz == String.class) {
-                temp = valueStr;
+        try {
+            if (Map.class.isAssignableFrom(value.getClass())) {
+                return getObjectFromMap(clazz, (Map) value);
             }
             if (clazz == java.util.Date.class) {
                 String format = "yyyy-MM-dd";
@@ -935,6 +943,7 @@ public class ObjectUtil extends ObjectUtils {
                 char[] array = valueStr.toCharArray();
                 temp = array.length > 0 ? array[0] : null;
             }
+        } catch (Exception ignored) {
         }
         return (T) (temp);
     }

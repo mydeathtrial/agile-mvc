@@ -1,8 +1,8 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
+import com.agile.common.cache.AgileCache;
 import com.agile.mvc.entity.DictionaryDataEntity;
-import org.springframework.cache.Cache;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -333,7 +333,7 @@ public class DictionaryUtil {
         return cache;
     }
 
-    public static Cache getCache() {
+    public static AgileCache getCache() {
         return CacheUtil.getCache(DEFAULT_CACHE_NAME);
     }
 }

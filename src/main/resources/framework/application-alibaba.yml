@@ -7,8 +7,6 @@ csp:
   sentinel:
     dashboard:
       server: localhost:8080
-server:
-  port: 18083
 management:
   endpoints:
     web:
@@ -21,6 +19,16 @@ management:
     #\u53EF\u4EE5\u5173\u95ED\u6307\u5B9A\u7684\u7AEF\u70B9
     shutdown:
       enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+      jmx:
+        enabled: true
 feign:
   sentinel:
     enabled: true

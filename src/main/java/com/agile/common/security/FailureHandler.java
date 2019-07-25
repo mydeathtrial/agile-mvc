@@ -1,5 +1,6 @@
 package com.agile.common.security;
 
+import com.agile.common.cache.AgileCache;
 import com.agile.common.exception.LoginErrorLockException;
 import com.agile.common.exception.SpringExceptionHandler;
 import com.agile.common.factory.LoggerFactory;
@@ -7,7 +8,6 @@ import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.ViewUtil;
-import org.springframework.cache.Cache;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -63,7 +63,7 @@ public class FailureHandler implements AuthenticationFailureHandler, AccessDenie
         if (!ServletUtil.matcherRequest(request, properties.getLoginUrl())) {
             return true;
         }
-        Cache cache = CacheUtil.getCache(properties.getTokenHeader());
+        AgileCache cache = CacheUtil.getCache(properties.getTokenHeader());
         Integer sessionIdLoginCount = cache.get(request.getSession().getId(), Integer.class);
         if (sessionIdLoginCount == null) {
             CacheUtil.put(cache, request.getSession().getId(), 1, Integer.valueOf(Long.toString(properties.getLoginErrorTimeout().getSeconds())));

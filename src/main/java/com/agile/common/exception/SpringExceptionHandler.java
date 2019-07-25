@@ -9,14 +9,18 @@ import com.agile.common.util.FactoryUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author 佟盟 on 2018/6/25
  */
 @Order(0)
 @ControllerAdvice
-public class SpringExceptionHandler {
+public class SpringExceptionHandler implements HandlerExceptionResolver {
 
     private static final String MESSAGE_PREFIX = "agile.exception.%s";
 
@@ -28,15 +32,15 @@ public class SpringExceptionHandler {
     public static ModelAndView createModelAndView(Throwable e) {
         ModelAndView modelAndView;
 
-        RETURN r;
+        RETURN r = null;
         if (e instanceof AbstractCustomException) {
             r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()), ((AbstractCustomException) e).getParams());
         } else {
-            if (e.getCause() == null) {
-                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()), e.getMessage());
-
-            } else {
+            if (e.getCause() != null) {
                 r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getCause().getClass().getSimpleName()), e.getMessage());
+            }
+            if (r == null) {
+                r = RETURN.getMessage(String.format(MESSAGE_PREFIX, e.getClass().getSimpleName()), e.getMessage());
             }
         }
         if (r == null) {
@@ -64,4 +68,8 @@ public class SpringExceptionHandler {
         return modelAndView;
     }
 
+    @Override
+    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        return createModelAndView(ex);
+    }
 }

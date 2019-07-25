@@ -169,14 +169,14 @@ public enum ValidateType implements ValidateInterface {
             }
             switch (validate.validateType()) {
                 case NUMBER:
-                    int n = Integer.parseInt(String.valueOf(value));
+                    int n = "".equals(value) ? 0 : Integer.parseInt(String.valueOf(value));
                     if (!(validate.min() <= n && n <= validate.max())) {
                         v.setState(false);
                         v.setMessage(createMessage(validate, "值超出阈值"));
                     }
                     break;
                 case FLOAT:
-                    float n1 = Float.parseFloat(String.valueOf(value));
+                    float n1 = "".equals(value) ? 0 : Float.parseFloat(String.valueOf(value));
                     if (!(validate.min() <= n1 && n1 <= validate.max())) {
                         v.setState(false);
                         v.setMessage(createMessage(validate, "值超出阈值"));

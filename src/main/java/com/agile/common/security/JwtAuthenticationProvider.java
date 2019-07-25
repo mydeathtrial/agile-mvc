@@ -1,11 +1,11 @@
 package com.agile.common.security;
 
+import com.agile.common.cache.AgileCache;
 import com.agile.common.exception.RepeatAccount;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.PasswordUtil;
-import org.springframework.cache.Cache;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -78,7 +78,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     private void loginStrategyHandler(UserDetails user) {
         SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
         assert securityProperties != null;
-        Cache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
+        AgileCache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
 
         LoginCacheInfo loginCacheInfo = cache.get(user.getUsername(), LoginCacheInfo.class);
         if (loginCacheInfo != null && loginCacheInfo.getSessionTokens().size() > 0) {

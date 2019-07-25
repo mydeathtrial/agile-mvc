@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cache.ehcache.EhCacheCache;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,30 +32,12 @@ public class EhCacheAutoConfiguration {
 
     @Bean
     public EhCacheCacheManager cacheManager(CacheManager ehCacheCacheManager) {
-        return new CustomEhCacheCacheManager(ehCacheCacheManager);
+        return new EhCacheCacheManager(ehCacheCacheManager);
     }
 
     @Bean
     public CacheManager ehCacheCacheManager() {
         return new CacheManager(configuration());
-    }
-
-    /**
-     * 重写getMissingCache
-     */
-    public class CustomEhCacheCacheManager extends EhCacheCacheManager {
-        CustomEhCacheCacheManager(CacheManager object) {
-            super(object);
-        }
-
-        @Override
-        protected org.springframework.cache.Cache getMissingCache(String name) {
-            CacheManager cacheManager = this.getCacheManager();
-            if (cacheManager == null) {
-                return null;
-            }
-            return new EhCacheCache(cacheManager.addCacheIfAbsent(name));
-        }
     }
 
     public net.sf.ehcache.config.Configuration configuration() {

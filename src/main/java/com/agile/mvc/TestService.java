@@ -7,6 +7,8 @@ import org.apache.commons.logging.LogFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+
 /**
  * @author 佟盟
  * 日期 2019/6/18 15:57
@@ -31,7 +33,8 @@ public class TestService extends MainService {
      */
     @Mapping(path = "/test")
     public Object test2() {
+        System.gc();
 
-        return RETURN.SUCCESS;
+        return new File("D:\\workspace-idss\\agile\\src\\main\\resources\\asd.json");
     }
 }

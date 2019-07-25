@@ -22,7 +22,9 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -97,6 +99,10 @@ public class ParamUtil {
 
         //处理Mapping参数
         String uri = currentRequest.getRequestURI();
+        try {
+            uri = URLDecoder.decode(uri, "UTF-8");
+        } catch (UnsupportedEncodingException ignored) {
+        }
         String extension = UriUtils.extractFileExtension(uri);
         if ("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension)) {
             uri = uri.replaceAll("." + extension, "");

@@ -34,6 +34,7 @@ public class ListenerContainerInit implements ApplicationListener<WebServerIniti
         PrintUtil.writeMessage("启动时间", DateUtil.convertToString(new Date(event.getTimestamp()), "yyyy年MM月dd日 HH:mm:ss"));
         PrintUtil.writeMessage("启动端口", event.getWebServer().getPort());
         PrintUtil.writeMessage("启动耗时", AgileApp.getConsumeTime() + "秒");
+        System.gc();
     }
 
 
