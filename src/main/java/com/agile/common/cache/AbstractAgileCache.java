@@ -55,7 +55,11 @@ public abstract class AbstractAgileCache implements AgileCache {
 
     @Override
     public ValueWrapper get(Object key) {
-        return cache.get(key);
+        try {
+            return cache.get(key);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

@@ -6,6 +6,7 @@ import org.springframework.cache.support.NullValue;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.cache.RedisCache;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -21,6 +22,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +62,7 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public boolean containKey(Object key) {
-        return cache.get(key) != null;
+        return execute(name, connection -> connection.exists(createAndConvertCacheKey(key)));
     }
 
     @Override
@@ -196,6 +198,15 @@ public class AgileRedis extends AbstractAgileCache {
         return cacheConfig.getValueSerializationPair().read(ByteBuffer.wrap(value));
     }
 
+    protected Object deserializeCacheKey(byte[] value) {
+
+        if (isAllowNullValues() && ObjectUtils.nullSafeEquals(value, BINARY_NULL_VALUE)) {
+            return NullValue.INSTANCE;
+        }
+
+        return cacheConfig.getKeySerializationPair().read(ByteBuffer.wrap(value));
+    }
+
     private boolean isAllowNullValues() {
         return ((RedisCache) cache).isAllowNullValues();
     }
@@ -284,22 +295,49 @@ public class AgileRedis extends AbstractAgileCache {
     public void put(Object key, Object value) {
         if (Map.class.isAssignableFrom(value.getClass())) {
             Map<byte[], byte[]> map = Maps.newHashMapWithExpectedSize(((Map) value).size());
-            ((Map<Object, Object>) value).forEach((eKey, eValue) -> map.put(createAndConvertCacheKey(eKey), serializeCacheValue(eValue)));
-            executeConsumer(name, connection -> connection.hMSet(createAndConvertCacheKey(key), map));
+            ((Map<Object, Object>) value).forEach((eKey, eValue) -> map.put(serializeCacheKey(convertKey(eKey)), serializeCacheValue(eValue)));
+            try {
+                executeConsumer(name, connection -> connection.hMSet(createAndConvertCacheKey(key), map));
+            } catch (RedisSystemException e) {
+                map.forEach((ekey, eValue) -> {
+                    addToMap(key, ekey, eValue);
+                });
+            }
+
         } else if (List.class.isAssignableFrom(value.getClass())) {
             int size = ((List) value).size();
             byte[][] arr = new byte[size][];
             List<byte[]> result = ((List<Object>) value).stream().map(this::serializeCacheValue).collect(Collectors.toList());
             byte[][] list = result.toArray(arr);
-            execute(name, connection -> connection.lPush(createAndConvertCacheKey(key), list));
+            execute(name, connection -> connection.rPush(createAndConvertCacheKey(key), list));
         } else if (Set.class.isAssignableFrom(value.getClass())) {
             int size = ((Set) value).size();
             byte[][] arr = new byte[size][];
             Set<byte[]> result = ((Set<Object>) value).stream().map(this::serializeCacheValue).collect(Collectors.toSet());
-            byte[][] list = result.toArray(arr);
-            execute(name, connection -> connection.sAdd(createAndConvertCacheKey(key), list));
+            byte[][] set = result.toArray(arr);
+            execute(name, connection -> connection.sAdd(createAndConvertCacheKey(key), set));
         } else {
             super.put(key, value);
+        }
+    }
+
+    @Override
+    public <T> T get(Object key, Class<T> clazz) {
+        if (Map.class.isAssignableFrom(clazz)) {
+            Map<byte[], byte[]> map = execute(name, connection -> connection.hGetAll(createAndConvertCacheKey(key)));
+            HashMap<Object, Object> res = Maps.newHashMapWithExpectedSize(map.size());
+            map.forEach((eK, eV) -> {
+                res.put(deserializeCacheKey(eK), deserializeCacheValue(eV));
+            });
+            return (T) res;
+        } else if (List.class.isAssignableFrom(clazz)) {
+            List<byte[]> list = execute(name, connection -> connection.lRange(createAndConvertCacheKey(key), 0, -1));
+            return (T) list.stream().map(node -> deserializeCacheValue(node)).collect(Collectors.toList());
+        } else if (Set.class.isAssignableFrom(clazz)) {
+            Set<byte[]> set = execute(name, connection -> connection.sMembers(createAndConvertCacheKey(key)));
+            return (T) set.stream().map(node -> deserializeCacheValue(node)).collect(Collectors.toSet());
+        } else {
+            return super.get(key, clazz);
         }
     }
 
@@ -307,4 +345,6 @@ public class AgileRedis extends AbstractAgileCache {
     public Object getNativeCache() {
         return redisConnectionFactory.getConnection();
     }
+
+
 }
