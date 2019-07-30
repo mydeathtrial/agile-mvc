@@ -43,5 +43,5 @@ public @interface Validate {
 
     int max_size() default Integer.MAX_VALUE;
 
-    int min_size() default 0;
+    int min_size() default -1;
 }

@@ -153,7 +153,7 @@ public enum ValidateType implements ValidateInterface {
                     v.setMessage(createMessage(validate, "不允许为空值"));
                 }
             }
-            if (validate.validateType() != NO) {
+            if (!StringUtil.isBlank(value.toString()) && validate.validateType() != NO) {
                 state = StringUtil.containMatchedString(regex, String.valueOf(value));
                 if (!state) {
                     v.setState(false);

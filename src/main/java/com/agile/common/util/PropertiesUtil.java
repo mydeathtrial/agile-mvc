@@ -45,6 +45,19 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
         return properties;
     }
 
+    public static void setProperties(String key, String value) {
+        properties.setProperty(key, value);
+    }
+
+    public static void appendProperties(String key, String value) {
+        String v = properties.getProperty(key);
+        if (v == null) {
+            properties.setProperty(key, value);
+        } else {
+            properties.setProperty(key, v + value);
+        }
+    }
+
     static {
         mergeEnv();
         readDir("/");

@@ -18,5 +18,3 @@ spring:
           use_structured_entries: false
           hbm2ddl:
             auto: update
-          region:
-            factory_class: com.agile.common.cache.redis.RedisRegionFactory

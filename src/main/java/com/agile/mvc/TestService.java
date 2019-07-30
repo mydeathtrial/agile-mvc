@@ -34,7 +34,6 @@ public class TestService extends MainService {
     @Mapping(path = "/test")
     public Object test2() {
         System.gc();
-
         return new File("D:\\workspace-idss\\agile\\src\\main\\resources\\asd.json");
     }
 }
