@@ -16,7 +16,6 @@ import com.agile.mvc.entity.SysTaskDetailEntity;
 import com.agile.mvc.entity.SysTaskEntity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
@@ -32,7 +31,6 @@ import java.util.Map;
  * @version 1.0
  * @since 1.0
  */
-@Service
 public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements TaskManager {
     /**
      * 任务缓存

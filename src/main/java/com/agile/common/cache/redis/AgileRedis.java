@@ -67,21 +67,22 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void addToMap(Object mapKey, Object key, Object value) {
-        executeConsumer(name, connection -> connection.hSet(createAndConvertCacheKey(mapKey), createAndConvertCacheKey(key), serializeCacheValue(value)));
+        executeConsumer(name, connection -> connection.hSet(createAndConvertCacheKey(mapKey), serializeCacheKey(convertKey(key)), serializeCacheValue(value)));
     }
 
     @Override
     public Object getFromMap(Object mapKey, Object key) {
-        List<byte[]> list = execute(name, connection -> connection.hMGet(createAndConvertCacheKey(mapKey), createAndConvertCacheKey(key)));
-        if (list == null) {
+        List<byte[]> list = execute(name, connection -> connection.hMGet(createAndConvertCacheKey(mapKey), serializeCacheKey(convertKey(key))));
+        if (list == null || list.get(0) == null) {
             return null;
         }
+
         return deserializeCacheValue(list.get(0));
     }
 
     @Override
     public void removeFromMap(Object mapKey, Object key) {
-        executeConsumer(name, connection -> connection.hDel(createAndConvertCacheKey(mapKey), createAndConvertCacheKey(key)));
+        executeConsumer(name, connection -> connection.hDel(createAndConvertCacheKey(mapKey), serializeCacheKey(convertKey(key))));
     }
 
     @Override

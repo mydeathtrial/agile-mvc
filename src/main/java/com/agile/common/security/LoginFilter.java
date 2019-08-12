@@ -2,6 +2,7 @@ package com.agile.common.security;
 
 import com.agile.common.exception.NoCompleteFormSign;
 import com.agile.common.exception.VerificationCodeException;
+import com.agile.common.exception.VerificationCodeExpire;
 import com.agile.common.exception.VerificationCodeNon;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
@@ -105,7 +106,10 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
             throw new VerificationCodeException(null);
         }
         Object cacheCodeToken = CacheUtil.get(codeToken);
-        if (cacheCodeToken == null || !cacheCodeToken.toString().equalsIgnoreCase(inCode)) {
+        if (cacheCodeToken == null) {
+            throw new VerificationCodeExpire(null);
+        }
+        if (!cacheCodeToken.toString().equalsIgnoreCase(inCode)) {
             throw new VerificationCodeException(String.format("正确值:%s;输入值:%s", cacheCodeToken, inCode));
         }
         Cookie cookie = new Cookie(kaptchaConfigProperties.getTokenHeader(), null);

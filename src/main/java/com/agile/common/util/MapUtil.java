@@ -2,7 +2,9 @@ package com.agile.common.util;
 
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Field;
@@ -12,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author 佟盟 on 2017/12/22
@@ -133,37 +136,35 @@ public class MapUtil extends MapUtils {
     }
 
     public static Map<String, Object> coverCanSerializer(Map<String, Object> source) {
-        final int length = 16;
-        Map<String, Object> target = new HashMap<>(length);
-        target.putAll(source);
-        for (Map.Entry<String, Object> entity : target.entrySet()) {
-            Object value = entity.getValue();
-            if (value == null) {
-                continue;
-            }
+        HashMap<String, Object> map = Maps.newHashMapWithExpectedSize(source.size());
+        source.entrySet().stream().filter(entry -> !(entry.getValue() instanceof BindingResult)).peek(entry -> {
+            Object value = entry.getValue();
             if (value instanceof MultipartFile) {
-                target.put(entity.getKey(), ((MultipartFile) value).getOriginalFilename());
+                entry.setValue(((MultipartFile) value).getOriginalFilename());
             } else if (value instanceof ResponseFile) {
-                target.put(entity.getKey(), ((ResponseFile) value).getFileName());
+                entry.setValue(((ResponseFile) value).getFileName());
             } else if (value instanceof ExcelFile) {
-                target.put(entity.getKey(), ((ExcelFile) value).getFileName());
-            } else if (List.class.isAssignableFrom(value.getClass())) {
-                List list = (List) value;
-                if (list.size() > 0) {
-                    for (int i = 0; i < list.size(); i++) {
-                        Object o = list.get(i);
-                        if (o instanceof MultipartFile) {
-                            list.set(i, ((MultipartFile) o).getOriginalFilename());
-                        } else if (o instanceof ResponseFile) {
-                            list.set(i, ((ResponseFile) o).getFileName());
-                        } else if (o instanceof ExcelFile) {
-                            list.set(i, ((ExcelFile) o).getFileName());
-                        }
-                    }
-                }
+                entry.setValue(((ExcelFile) value).getFileName());
             }
-        }
-        return source;
+        }).peek(entry -> {
+            Object value = entry.getValue();
+            if (value != null && List.class.isAssignableFrom(value.getClass())) {
+                entry.setValue(((List) value).stream().map(node -> {
+                    if (node instanceof MultipartFile) {
+                        return ((MultipartFile) node).getOriginalFilename();
+                    } else if (node instanceof ResponseFile) {
+                        return ((ResponseFile) node).getFileName();
+                    } else if (node instanceof ExcelFile) {
+                        return ((ExcelFile) node).getFileName();
+                    } else {
+                        return node;
+                    }
+                }).collect(Collectors.toList()));
+            }
+        }).forEach(entry -> {
+            map.put(entry.getKey(), entry.getValue());
+        });
+        return map;
     }
 
 }

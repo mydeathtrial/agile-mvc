@@ -30,9 +30,8 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author 佟盟 on 2017/5/5
  */
-@WebAppConfiguration
-@SpringBootTest
-@ContextConfiguration(classes = {App.class})
+//@SpringBootTest
+//@ContextConfiguration(classes = {App.class})
 public class MainControllerTest implements ApplicationContextAware {
     private static RequestMappingHandlerMapping handlerMapping;
     private static RequestMappingHandlerAdapter handlerAdapter;

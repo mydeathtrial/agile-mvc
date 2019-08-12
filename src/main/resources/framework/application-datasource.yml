@@ -1,10 +1,10 @@
 agile:
   druid:
-    data-base-ip: 192.168.200.107
-    data-base-name: guosen_two_db
+    data-base-ip: 127.0.0.1
+    data-base-name: agile_db
     data-base-port: 3306
     username: root
-    password: Idss@1234
+    password: 123456
     # 最大连接数
     max-active: 100
     max-pool-prepared-statement-per-connection-size: 20
@@ -38,3 +38,4 @@ agile:
     data-base-url-param: 'serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL'
     type: mysql
     connection-error-retry-attempts: 10
+    url: jdbc:mysql://${agile.druid.data-base-ip}:${agile.druid.data-base-port}/${agile.druid.data-base-name}?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true

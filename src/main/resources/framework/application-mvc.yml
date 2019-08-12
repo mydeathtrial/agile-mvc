@@ -18,7 +18,7 @@ spring:
     cache-duration: 3600
   servlet:
     multipart:
-      max-request-size: 10MB
+      max-request-size: 1MB
       max-file-size: 2MB
       enabled: true
       file-size-threshold: 100KB

@@ -1,9 +1,9 @@
 package com.agile.mvc;
 
 import com.agile.common.annotation.EnableAgile;
-import com.agile.common.base.AgileApp;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 /**
  * 入口工程
  *

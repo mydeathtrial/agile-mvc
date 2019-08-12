@@ -1,11 +1,16 @@
 package com.agile.common.properties;
 
 import com.agile.common.base.Constant;
+import com.agile.common.filter.DruidFilter;
 import com.agile.common.util.DataBaseUtil;
+import com.alibaba.druid.filter.Filter;
 import com.alibaba.druid.pool.DruidDataSource;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.Collections;
+import java.util.List;
 
 import static com.agile.common.util.DataBaseUtil.DB.MYSQL;
 
@@ -97,4 +102,10 @@ public class DruidConfigProperties extends DruidDataSource {
         this.setDriverClassName(type.getDriver());
         this.setValidationQuery(type.getTestSql());
     }
+
+    @Override
+    public void setProxyFilters(List<Filter> filters) {
+        super.setProxyFilters(Collections.singletonList(new DruidFilter()));
+    }
+
 }

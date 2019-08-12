@@ -1,11 +1,13 @@
 package com.agile.common.mvc.service;
 
 import com.agile.common.annotation.Init;
-import com.agile.common.annotation.NotAPI;
+import com.agile.common.properties.DictionaryProperties;
 import com.agile.common.util.DictionaryUtil;
 import com.agile.common.util.TreeUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
@@ -16,8 +18,9 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-@Service
-@NotAPI
+@Configuration
+@EnableConfigurationProperties(value = {DictionaryProperties.class})
+@ConditionalOnProperty(name = "enable", prefix = "agile.dictionary", havingValue = "true")
 public class DictionaryService extends MainService {
     @Init
     public void synchronousCache() throws NoSuchFieldException, IllegalAccessException {

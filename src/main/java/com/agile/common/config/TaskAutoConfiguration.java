@@ -5,6 +5,7 @@ import com.agile.common.mvc.service.TaskService;
 import com.agile.common.properties.TaskProperties;
 import com.agile.common.task.TaskManager;
 import com.agile.common.task.TaskProxy;
+import com.agile.mvc.service.TaskManagerImpl;
 import com.agile.mvc.service.TaskRevealService;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -46,5 +47,10 @@ public class TaskAutoConfiguration {
     @Bean
     public TaskRevealService taskRevealService(TaskService taskService) {
         return new TaskRevealService(taskService);
+    }
+
+    @Bean
+    public TaskManagerImpl taskManager() {
+        return new TaskManagerImpl();
     }
 }

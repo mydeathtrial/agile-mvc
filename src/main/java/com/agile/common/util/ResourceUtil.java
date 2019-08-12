@@ -276,6 +276,10 @@ public class ResourceUtil {
         if (path.contains(classesPath)) {
             return path.replaceFirst(classesPath, Constant.RegularAbout.BLANK);
         }
+        path = path.replaceFirst("classes", "test-classes");
+        if (path.contains(classesPath)) {
+            return path.replaceFirst(classesPath, Constant.RegularAbout.BLANK);
+        }
         return null;
     }
 

@@ -43,6 +43,11 @@ public class LoggerProperties {
     private Level[] levels = new Level[]{Level.DEBUG, Level.INFO, Level.ERROR};
 
     /**
+     * 业务日志
+     */
+    private boolean businessLog = true;
+
+    /**
      * 类型
      */
     public enum TriggerType {
