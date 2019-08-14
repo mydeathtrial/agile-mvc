@@ -67,12 +67,12 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void addToMap(Object mapKey, Object key, Object value) {
-        executeConsumer(name, connection -> connection.hSet(createAndConvertCacheKey(mapKey), serializeCacheKey(convertKey(key)), serializeCacheValue(value)));
+        executeConsumer(name, connection -> connection.hSet(createAndConvertCacheKey(mapKey), serializeCacheValue(key), serializeCacheValue(value)));
     }
 
     @Override
     public Object getFromMap(Object mapKey, Object key) {
-        List<byte[]> list = execute(name, connection -> connection.hMGet(createAndConvertCacheKey(mapKey), serializeCacheKey(convertKey(key))));
+        List<byte[]> list = execute(name, connection -> connection.hMGet(createAndConvertCacheKey(mapKey), serializeCacheValue(key)));
         if (list == null || list.get(0) == null) {
             return null;
         }
@@ -82,7 +82,7 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void removeFromMap(Object mapKey, Object key) {
-        executeConsumer(name, connection -> connection.hDel(createAndConvertCacheKey(mapKey), serializeCacheKey(convertKey(key))));
+        executeConsumer(name, connection -> connection.hDel(createAndConvertCacheKey(mapKey), serializeCacheValue(key)));
     }
 
     @Override
@@ -294,14 +294,15 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void put(Object key, Object value) {
+        evict(key);
         if (Map.class.isAssignableFrom(value.getClass())) {
             Map<byte[], byte[]> map = Maps.newHashMapWithExpectedSize(((Map) value).size());
-            ((Map<Object, Object>) value).forEach((eKey, eValue) -> map.put(serializeCacheKey(convertKey(eKey)), serializeCacheValue(eValue)));
+            ((Map<Object, Object>) value).forEach((eKey, eValue) -> map.put(serializeCacheValue(eKey), serializeCacheValue(eValue)));
             try {
                 executeConsumer(name, connection -> connection.hMSet(createAndConvertCacheKey(key), map));
             } catch (RedisSystemException e) {
-                map.forEach((ekey, eValue) -> {
-                    addToMap(key, ekey, eValue);
+                map.forEach((eKey, eValue) -> {
+                    addToMap(key, eKey, eValue);
                 });
             }
 
@@ -328,7 +329,7 @@ public class AgileRedis extends AbstractAgileCache {
             Map<byte[], byte[]> map = execute(name, connection -> connection.hGetAll(createAndConvertCacheKey(key)));
             HashMap<Object, Object> res = Maps.newHashMapWithExpectedSize(map.size());
             map.forEach((eK, eV) -> {
-                res.put(deserializeCacheKey(eK), deserializeCacheValue(eV));
+                res.put(deserializeCacheValue(eK), deserializeCacheValue(eV));
             });
             return (T) res;
         } else if (List.class.isAssignableFrom(clazz)) {
