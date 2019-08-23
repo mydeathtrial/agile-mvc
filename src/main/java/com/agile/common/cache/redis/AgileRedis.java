@@ -294,8 +294,8 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void put(Object key, Object value) {
-        evict(key);
         if (Map.class.isAssignableFrom(value.getClass())) {
+            evict(key);
             Map<byte[], byte[]> map = Maps.newHashMapWithExpectedSize(((Map) value).size());
             ((Map<Object, Object>) value).forEach((eKey, eValue) -> map.put(serializeCacheValue(eKey), serializeCacheValue(eValue)));
             try {
@@ -307,12 +307,14 @@ public class AgileRedis extends AbstractAgileCache {
             }
 
         } else if (List.class.isAssignableFrom(value.getClass())) {
+            evict(key);
             int size = ((List) value).size();
             byte[][] arr = new byte[size][];
             List<byte[]> result = ((List<Object>) value).stream().map(this::serializeCacheValue).collect(Collectors.toList());
             byte[][] list = result.toArray(arr);
             execute(name, connection -> connection.rPush(createAndConvertCacheKey(key), list));
         } else if (Set.class.isAssignableFrom(value.getClass())) {
+            evict(key);
             int size = ((Set) value).size();
             byte[][] arr = new byte[size][];
             Set<byte[]> result = ((Set<Object>) value).stream().map(this::serializeCacheValue).collect(Collectors.toSet());

@@ -72,7 +72,7 @@ public class ShowdocGenerator extends MainControllerTest {
 //                .andReturn().getResponse().getContentAsString();   //将相应的数据转换为字符串
 //        System.out.println("-----返回的json = " + responseString);
 
-        MvcResult result = mockMvc.perform(post("/test").content(jsonData).contentType(MediaType.APPLICATION_JSON))
+        MvcResult result = mockMvc.perform(post("/api/dashboard/common/picture/oTtVj7h5AaGNotZop5JnCPEpYkS3szuVAw7l1Tr2dbUOXr6dtS?time=1566555462014").content(jsonData).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andDo(print()) // 期待返回状态吗码200
                 // JsonPath expression  https://github.com/jayway/JsonPath
                 //.andExpect(jsonPath("$[1].name").exists()) // 这里是期待返回值是数组，并且第二个值的 name 存在，所以这里测试是失败的

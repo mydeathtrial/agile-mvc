@@ -17,6 +17,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
@@ -216,7 +217,7 @@ public class FileUtil extends FileUtils {
     /**
      * 文件下载
      *
-     * @param file 要下载的文件
+     * @param file 控制层直接下载文件
      * @return 文件下载响应
      * @throws FileNotFoundException 文件未找到
      */
@@ -237,7 +238,7 @@ public class FileUtil extends FileUtils {
     /**
      * 文件下载
      *
-     * @param filePath 要下载的文件地址
+     * @param filePath 控制层直接下载文件
      * @return 文件下载响应
      * @throws FileNotFoundException 文件未找到
      */
@@ -246,6 +247,7 @@ public class FileUtil extends FileUtils {
     }
 
     public static void downloadFile(String fileName, String contentType, InputStream stream, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        setContentLength(stream, response);
         setContentDisposition(fileName, request, response);
         response.setContentType(contentType == null ? MediaType.APPLICATION_OCTET_STREAM.toString() : contentType);
         inWriteOut(stream, response.getOutputStream());
@@ -253,6 +255,10 @@ public class FileUtil extends FileUtils {
 
     public static void downloadFile(String fileName, String contentType, File file, HttpServletRequest request, HttpServletResponse response) throws IOException {
         downloadFile(fileName, contentType, new FileInputStream(file), request, response);
+    }
+
+    private static void setContentLength(InputStream stream, HttpServletResponse response) throws IOException {
+        response.setHeader("Content-Length", String.valueOf(stream.available()));
     }
 
     private static void setContentDisposition(String fileName, HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
@@ -266,7 +272,7 @@ public class FileUtil extends FileUtils {
     }
 
     public static void downloadFile(File file, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        downloadFile(file.getName(), null, file, request, response);
+        downloadFile(file.getName(), new MimetypesFileTypeMap().getContentType(file), file, request, response);
     }
 
     public static void downloadFile(ExcelFile excelFile, HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -385,6 +391,8 @@ public class FileUtil extends FileUtils {
             outputStream.write(buffer, 0, r);
         }
         inputStream.close();
+        outputStream.flush();
+        outputStream.close();
     }
 
     public static boolean isFile(Object value) {

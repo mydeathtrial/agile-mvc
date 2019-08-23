@@ -14,7 +14,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author 佟盟 on 2017/12/22
@@ -140,26 +139,11 @@ public class MapUtil extends MapUtils {
         source.entrySet().stream().filter(entry -> !(entry.getValue() instanceof BindingResult)).peek(entry -> {
             Object value = entry.getValue();
             if (value instanceof MultipartFile) {
-                entry.setValue(((MultipartFile) value).getOriginalFilename());
+                map.put(entry.getKey(), ((MultipartFile) value).getOriginalFilename());
             } else if (value instanceof ResponseFile) {
-                entry.setValue(((ResponseFile) value).getFileName());
+                map.put(entry.getKey(), ((ResponseFile) value).getFileName());
             } else if (value instanceof ExcelFile) {
-                entry.setValue(((ExcelFile) value).getFileName());
-            }
-        }).peek(entry -> {
-            Object value = entry.getValue();
-            if (value != null && List.class.isAssignableFrom(value.getClass())) {
-                entry.setValue(((List) value).stream().map(node -> {
-                    if (node instanceof MultipartFile) {
-                        return ((MultipartFile) node).getOriginalFilename();
-                    } else if (node instanceof ResponseFile) {
-                        return ((ResponseFile) node).getFileName();
-                    } else if (node instanceof ExcelFile) {
-                        return ((ExcelFile) node).getFileName();
-                    } else {
-                        return node;
-                    }
-                }).collect(Collectors.toList()));
+                map.put(entry.getKey(), ((ExcelFile) value).getFileName());
             }
         }).forEach(entry -> {
             map.put(entry.getKey(), entry.getValue());
