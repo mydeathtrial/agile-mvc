@@ -9,8 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * @author tudou
  */
-//@EnableDiscoveryClient
-//@EnableFeignClients
 @EnableAgile
 @SpringBootApplication
 public class App {

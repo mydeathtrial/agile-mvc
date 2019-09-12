@@ -1,5 +1,6 @@
 package com.agile.common.security;
 
+import com.agile.common.exception.NoSuchDataException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,4 +39,12 @@ public interface CustomerUserDetailsService extends UserDetailsService {
      * @param token        令牌
      */
     void loadLoginInfo(UserDetails securityUser, String ip, String token);
+
+    /**
+     * 重置账号密码
+     *
+     * @param userName 账号
+     * @return 新密码
+     */
+    String refreshPassword(String userName, String newPassword) throws NoSuchDataException;
 }

@@ -31,7 +31,7 @@ import java.util.Objects;
  */
 @Data
 @NoArgsConstructor
-class LoginCacheInfo implements Serializable {
+public class LoginCacheInfo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private String username;
@@ -40,6 +40,10 @@ class LoginCacheInfo implements Serializable {
     private static SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
 
     private static Cache cache = CacheUtil.getCache(Objects.requireNonNull(FactoryUtil.getBean(SecurityProperties.class)).getTokenHeader());
+
+    public static Cache getCache() {
+        return cache;
+    }
 
     /**
      * 创建登陆信息
