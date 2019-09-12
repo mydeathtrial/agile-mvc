@@ -1,5 +1,5 @@
 
-<img src="doc/Logo.png" width="50%" height="50%" />
+<img src="https://images.gitee.com/uploads/images/2019/0912/201757_6d887de5_451899.jpeg" width="20%" height="20%" />
 
 # Spring-Agile
 [![CircleCI](https://circleci.com/gh/alibaba/spring-cloud-alibaba/tree/master.svg?style=svg)](https://circleci.com/gh/alibaba/spring-cloud-alibaba/tree/master)
