@@ -19,7 +19,7 @@
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-boot-parent</artifactId>
-        <version>LATEST</version>
+        <version>1.2.3</version>
         <relativePath>./parent</relativePath>
     </parent>
 
@@ -40,99 +40,6 @@
 <!--            <version>LATEST</version>-->
 <!--            <scope>test</scope>-->
 <!--        </dependency>-->
-
-<!--        &lt;!&ndash; 共同组件 &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>com.idss.agile</groupId>-->
-<!--            <artifactId>argus-common</artifactId>-->
-<!--            <version>LATEST</version>-->
-<!--        </dependency>-->
-
-<!--                &lt;!&ndash; 全文检索 &ndash;&gt;-->
-<!--                <dependency>-->
-<!--                    <groupId>com.idss.agile</groupId>-->
-<!--                    <artifactId>argus-service-full-retrieval</artifactId>-->
-<!--                    <version>LATEST</version>-->
-<!--                </dependency>-->
-
-
-        <!--        &lt;!&ndash; 健康监控相关 &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-monitor</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash; 自定义仪表盘 &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-dashboard</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--系统管理-->
-<!--        <dependency>-->
-<!--            <groupId>com.idss.agile</groupId>-->
-<!--            <artifactId>argus-service-system</artifactId>-->
-<!--            <version>LATEST</version>-->
-<!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-system-setting</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash;资产&ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-asset</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash;直接使用国信版本&ndash;&gt;-->
-
-        <!--        &lt;!&ndash; pipeline &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-pipeline</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash; 事件相关 &ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-eventretrieval</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash;soc&ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-soc</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash;ueba&ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-ueba</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-        <!--        &lt;!&ndash;报表管理&ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-report</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
-
-
-        <!--        &lt;!&ndash;配置管理 邮箱 接口等设置&ndash;&gt;-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.idss.agile</groupId>-->
-        <!--            <artifactId>argus-service-settings</artifactId>-->
-        <!--            <version>LATEST</version>-->
-        <!--        </dependency>-->
     </dependencies>
 
     <build>
@@ -146,7 +53,7 @@
                         <phase>validate</phase>
                         <configuration> <!-- 配置文件的路径，在style文件夹下 -->
                             <configLocation>
-                                http://localhost:8081/repository/maven-releases/com/agileframework/checkstyle/1.0/checkstyle-1.0.xm;
+                                checkstyle-ali.xml
                             </configLocation>
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>

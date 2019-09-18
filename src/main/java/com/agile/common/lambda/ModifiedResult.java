@@ -4,10 +4,11 @@ package com.agile.common.lambda;
  * @author 佟盟
  * 日期 2019/9/17 11:24
  * 描述 TODO
+ * @param <I> 参数
  * @version 1.0
  * @since 1.0
  */
-public class ModifiedResult<I> {
+public final class ModifiedResult<I> {
     private final I source;
     private final boolean isSuccess;
 
@@ -24,9 +25,10 @@ public class ModifiedResult<I> {
         return isSuccess;
     }
 
-    public boolean haveInParam(){
+    public boolean haveInParam() {
         return source != null;
     }
+
     public static <I> ModifiedResult<I> init(I inParam) {
         return new ModifiedResult<>(inParam, false);
     }

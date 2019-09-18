@@ -31,8 +31,6 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.elasticsearch.client.Client;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +74,6 @@ public final class LoggerFactory {
 
     public static final Log COMMON_LOG = createLogger("container", WebInitializer.class, defaultLevels);
     public static final Log AUTHORITY_LOG = createLogger("authority", TokenFilter.class, defaultLevels);
-    public static final Log ES_LOG = createPlugLogger("elasticsearch", "agile.elasticsearch.enable", Client.class, defaultLevels);
     public static final Log CACHE_LOG = createLogger("cache", CacheUtil.class, defaultLevels);
     public static final Log DAO_LOG = createLogger("sql", Dao.class, defaultLevels);
 

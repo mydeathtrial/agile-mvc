@@ -16,13 +16,14 @@ public class LambdaUtil {
 
     /**
      * 运用lambda表达式中，反复试运行若干段程序段场景
+     *
      * @param consumer 试运行的程序段
-     * @param <I> 原始参数
+     * @param <I>      原始参数
      * @return 试运行后的包装结果
      */
     public static <I> Function<ModifiedResult<I>, ModifiedResult<I>> test(Consumer<ModifiedResult<I>> consumer) {
         return modifiedResult -> {
-            if(modifiedResult.isSuccess()){
+            if (modifiedResult.isSuccess()) {
                 return modifiedResult;
             }
             try {
