@@ -49,14 +49,15 @@ Agile-Framework 系列脚手架致力于帮助开发人员从繁重的代码当�
 
 ### 无状态话
 工程认证方面采用JWT + Redis + Spring Security Filter完成无状态话API认证，并且可以支持Token自动延时、Token失效、账号修改、强踢、多点、单点等功能
+
+-------
 ![龙江银行](https://images.gitee.com/uploads/images/2019/0912/192435_6f8ca194_451899.gif "logo.gif")
 ![输入图片说明](https://images.gitee.com/uploads/images/2019/0912/193812_fcfe31ca_451899.jpeg "timg 拷贝.jpg")
 ![输入图片说明](https://images.gitee.com/uploads/images/2019/0912/193722_c45d1a93_451899.jpeg "timg2.jpeg")
 ![输入图片说明](https://images.gitee.com/uploads/images/2019/0912/193918_e3c779ca_451899.jpeg "jtw.jpg")
 ![输入图片说明](https://images.gitee.com/uploads/images/2019/0912/194129_179b6342_451899.png "logo1.png")
 
-
-
+-------
 
 ##工程目录结构
 ```$xslt
