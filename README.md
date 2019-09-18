@@ -10,7 +10,7 @@
 [![Gitter](https://travis-ci.org/alibaba/nacos.svg?branch=master)](https://travis-ci.org/alibaba/nacos)
 
 -------
-Agile-Framework系列脚手架致力于帮助开发人员从繁重的代码当中解脱出来，用最简单的代码勾画出最美的艺术。Spring-Agile提供Web开发一站式解决方案。此项目包含Web开发相关的各种必要组件及辅助工具集，方便开发者通过 Agile 编程模型轻松使用这些组件来开发单体应用及分布式应用。
+Agile-Framework 系列脚手架致力于帮助开发人员从繁重的代码当中解脱出来，用最简单的代码勾画出最美的艺术。Spring-Agile提供Web开发一站式解决方案。此项目包含Web开发相关的各种必要组件及辅助工具集，方便开发者通过 Agile 编程模型轻松使用这些组件来开发单体应用及分布式应用。
 
 参考文档 请查看 [WIKI](https://gitee.com/mydeathtrial/agile/wikis) 。
 
