@@ -19,7 +19,8 @@
     <parent>
         <groupId>com.agileframework</groupId>
         <artifactId>agile-boot-parent</artifactId>
-        <version>1.2.3</version>
+        <version>LATEST</version>
+        <relativePath>./parent</relativePath>
     </parent>
 
     <dependencies>
