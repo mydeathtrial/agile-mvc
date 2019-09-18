@@ -14,6 +14,10 @@
             <id>privateMaven</id>
             <url>http://10.10.10.9:8081/nexus/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
     </repositories>
 
     <parent>
