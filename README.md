@@ -2,7 +2,7 @@
 <img src="https://images.gitee.com/uploads/images/2019/0912/201757_6d887de5_451899.jpeg" width="20%" height="20%" />
 
 # Spring-Agile
-[![CircleCI](https://circleci.com/gh/alibaba/spring-cloud-alibaba/tree/master.svg?style=svg)](https://circleci.com/gh/alibaba/spring-cloud-alibaba/tree/master)
+[![CircleCI](https://circleci.com/gh/mydeathtrial/agile/tree/master.svg?style=svg)](https://circleci.com/gh/mydeathtrial/agile/tree/master)
 [![Maven Central](https://img.shields.io/maven-central/v/com.alibaba.cloud/spring-cloud-alibaba-dependencies.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:com.alibaba.cloud%20AND%20a:spring-cloud-alibaba-dependencies)
 [![Codecov](https://codecov.io/gh/alibaba/spring-cloud-alibaba/branch/master/graph/badge.svg)](https://codecov.io/gh/alibaba/spring-cloud-alibaba)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
