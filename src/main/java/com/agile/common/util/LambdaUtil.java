@@ -1,5 +1,10 @@
 package com.agile.common.util;
 
+import com.agile.common.lambda.ModifiedResult;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 /**
  * @author 佟盟
  * 日期 2019/6/28 13:36
@@ -8,14 +13,24 @@ package com.agile.common.util;
  * @since 1.0
  */
 public class LambdaUtil {
+
     /**
-     * 处理lambda异常抛出问题
-     *
-     * @param e   异常
-     * @param <E> 泛型
-     * @throws E 泛型
+     * 运用lambda表达式中，反复试运行若干段程序段场景
+     * @param consumer 试运行的程序段
+     * @param <I> 原始参数
+     * @return 试运行后的包装结果
      */
-    static <E extends Throwable> void doThrow(Throwable e) throws E {
-        throw (E) e;
+    public static <I> Function<ModifiedResult<I>, ModifiedResult<I>> test(Consumer<ModifiedResult<I>> consumer) {
+        return modifiedResult -> {
+            if(modifiedResult.isSuccess()){
+                return modifiedResult;
+            }
+            try {
+                consumer.accept(modifiedResult);
+                return ModifiedResult.success(modifiedResult.getSource());
+            } catch (Exception e) {
+                return ModifiedResult.init(modifiedResult.getSource());
+            }
+        };
     }
 }

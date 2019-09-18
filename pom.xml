@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.5.35</version>
+    <version>1.0.5.41</version>
     <name>AgileFramework</name>
     <description>Agile API平台</description>
     <url>http://10.10.10.9:8081/nexus/content/repositories/agile/</url>
@@ -33,19 +33,19 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>LATEST</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter</artifactId>-->
+<!--            <version>LATEST</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
-<!--                        &lt;!&ndash; 共同组件 &ndash;&gt;-->
-<!--                <dependency>-->
-<!--                    <groupId>com.idss.agile</groupId>-->
-<!--                    <artifactId>argus-common</artifactId>-->
-<!--                    <version>LATEST</version>-->
-<!--                </dependency>-->
+<!--        &lt;!&ndash; 共同组件 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.idss.agile</groupId>-->
+<!--            <artifactId>argus-common</artifactId>-->
+<!--            <version>LATEST</version>-->
+<!--        </dependency>-->
 
 <!--                &lt;!&ndash; 全文检索 &ndash;&gt;-->
 <!--                <dependency>-->
@@ -69,12 +69,12 @@
         <!--            <version>LATEST</version>-->
         <!--        </dependency>-->
 
-<!--                &lt;!&ndash;系统管理&ndash;&gt;-->
-<!--                <dependency>-->
-<!--                    <groupId>com.idss.agile</groupId>-->
-<!--                    <artifactId>argus-service-system</artifactId>-->
-<!--                    <version>LATEST</version>-->
-<!--                </dependency>-->
+        <!--系统管理-->
+<!--        <dependency>-->
+<!--            <groupId>com.idss.agile</groupId>-->
+<!--            <artifactId>argus-service-system</artifactId>-->
+<!--            <version>LATEST</version>-->
+<!--        </dependency>-->
         <!--        <dependency>-->
         <!--            <groupId>com.idss.agile</groupId>-->
         <!--            <artifactId>argus-service-system-setting</artifactId>-->

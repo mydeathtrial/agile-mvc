@@ -77,13 +77,16 @@ public class AgileGenerator {
      * 初始化spring容器
      */
     private static void initSpringContext() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(GeneratorConfig.class);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
         StandardEnvironment environment = new StandardEnvironment();
         PropertySource<?> localPropertySource = new PropertiesPropertySource(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, PropertiesUtil.getProperties());
         environment.getPropertySources().addLast(localPropertySource);
 
         context.setEnvironment(environment);
+        context.register(GeneratorConfig.class);
+        context.refresh();
+
         druid = FactoryUtil.getBean(DruidConfigProperties.class);
         generator = FactoryUtil.getBean(GeneratorProperties.class);
     }

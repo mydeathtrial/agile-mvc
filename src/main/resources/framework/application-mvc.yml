@@ -39,4 +39,4 @@ spring:
       period: 604800
     static-locations: classpath:com/agile/static/
 server:
-  port: 18081
+  port: 18080

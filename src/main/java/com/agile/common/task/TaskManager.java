@@ -20,7 +20,7 @@ public interface TaskManager {
 
     /**
      * 取所有任务目标
-     *
+     * @param type 类型
      * @return 任务目标列表
      */
     List<Target> getApis(boolean type);
@@ -88,6 +88,7 @@ public interface TaskManager {
 
     /**
      * 记录运行日志
+     * @param runDetail 运行信息
      */
     void logging(RunDetail runDetail);
 }

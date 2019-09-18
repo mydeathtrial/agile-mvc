@@ -1,8 +1,6 @@
 package com.agile.common.util;
 
-import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
-import com.agile.common.task.ApiBase;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
@@ -22,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -275,12 +274,6 @@ public class ObjectUtil extends ObjectUtils {
             }
         }
     }
-//
-//    public static void main(String[] args) {
-//        SysUsersEntity a = SysUsersEntity.builder().build();
-//        SysUsersEntity b = SysUsersEntity.builder().email("email").build();
-//        copyProperties(a, b, Compare.DIFF_SOURCE_NOT_NULL);
-//    }
 
     /**
      * 复制对象属性
@@ -491,16 +484,8 @@ public class ObjectUtil extends ObjectUtils {
                         try {
                             Object value = map.get(key);
 
-                            Method setMethod = setMethod(clazz, field, value);
-
-                            if (setMethod == null) {
-                                field.set(object, value);
-                            } else {
-                                Class<?>[] parameterTypes = setMethod.getParameterTypes();
-                                Class<?> type = parameterTypes[0];
-                                setMethod.invoke(object, cast(type, value));
-                            }
-                        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
+                            setValue(object, field, value);
+                        } catch (IllegalArgumentException ignored) {
                         }
                     }
                 });
@@ -513,49 +498,74 @@ public class ObjectUtil extends ObjectUtils {
         return null;
     }
 
-//    public static void main(String[] args) {
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("a", new ArrayList<>());
-//        getObjectFromMap(Demo.class, map);
-//    }
-
     /**
-     * 取指定属性的set方法
+     * 为object对象的field字段设置value值
      *
-     * @param clazz 类
-     * @param field 属性
-     * @return set方法
+     * @param object 对象
+     * @param field  字段
+     * @param value  值
      */
-    public static Method setMethod(Class clazz, Field field, Object value) {
+    public static void setValue(Object object, Field field, Object value) {
+        Optional.ofNullable(object).orElseThrow(IllegalArgumentException::new);
+
         field.setAccessible(true);
-        Class<?> type = field.getType();
+        Class objectClass = object.getClass();
         String fieldName = field.getName();
-        String setMethodName = "set" + StringUtil.toUpperName(fieldName);
+        Optional<Object> optional = Optional.ofNullable(value);
+        if (optional.isPresent()) {
 
-        try {
-            return ClassUtil.getMethod(clazz, setMethodName, type);
-        } catch (IllegalStateException ignored) {
-        }
-
-        if (value != null) {
-            try {
-                return ClassUtil.getMethod(clazz, setMethodName, value.getClass());
-            } catch (IllegalStateException ignored) {
-            }
-        }
-
-        try {
-            Method setMethodCache = ClassUtil.getMethod(clazz, setMethodName);
-            if (setMethodCache != null) {
-                Class<?>[] parameterTypes = setMethodCache.getParameterTypes();
-                if (parameterTypes.length == 1) {
-                    return setMethodCache;
+            Class fieldType = field.getType();
+            if (fieldType == value.getClass()) {
+                try {
+                    field.set(object, value);
+                } catch (IllegalAccessException | IllegalArgumentException ignored) {
                 }
             }
-        } catch (IllegalStateException ignored) {
+            String setMethodName;
+            try {
+                if (fieldType == Boolean.class) {
+                    setMethodName = "is" + StringUtil.toUpperName(fieldName);
+                    Method setMethod = ClassUtil.getMethod(objectClass, setMethodName, value.getClass());
+                    if (Optional.ofNullable(setMethod).isPresent()) {
+                        setMethod.invoke(object, value);
+                    }
+                }
+            } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+            }
+
+            try {
+                if (field.get(object) == null) {
+                    setMethodName = "set" + StringUtil.toUpperName(fieldName);
+                    Method setMethod = ClassUtil.getMethod(objectClass, setMethodName, value.getClass());
+                    if (Optional.ofNullable(setMethod).isPresent()) {
+                        setMethod.invoke(object, value);
+                    }
+                }
+            } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+            }
+
+            try {
+                if (field.get(object) == null) {
+                    setMethodName = "set" + StringUtil.toUpperName(fieldName);
+                    Method setMethod = ClassUtil.getMethod(objectClass, setMethodName, fieldType);
+                    if (setMethod != null) {
+                        Class<?>[] parameterTypes = setMethod.getParameterTypes();
+                        if (parameterTypes.length == 1) {
+                            setMethod.invoke(object, cast(parameterTypes[0], value));
+                        }
+                    }
+                }
+            } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+            }
+        } else {
+            if (!field.getType().isPrimitive()) {
+                try {
+                    field.set(object, null);
+                } catch (IllegalArgumentException | IllegalAccessException ignored) {
+                }
+            }
         }
 
-        return null;
     }
 
     /**
@@ -856,12 +866,12 @@ public class ObjectUtil extends ObjectUtils {
         }
     }
 
-    public static void main(String[] args) {
-        ApiBase api = new ApiInfo(null, null);
-        ApiBase api1 = new ApiBase(null, null, null);
-
-        System.out.println((ApiInfo) null);
-    }
+//    public static void main(String[] args) {
+//
+//        HashMap<Object, Object> map = Maps.newHashMap();
+//        map.put("group_Id", Arrays.asList("1", "2"));
+//        getObjectFromMap(DatasourceFieldEntity.class, map);
+//    }
 
     /**
      * 对象类型转换

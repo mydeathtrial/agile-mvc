@@ -1,7 +1,6 @@
 package com.agile.common.generator;
 
 import com.agile.mvc.App;
-import com.agile.mvc.controller.MainControllerTest;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
@@ -36,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = App.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ShowdocGenerator extends MainControllerTest {
+public class ShowdocGenerator {
     @Autowired
     private WebApplicationContext context;
     private MockMvc mockMvc;

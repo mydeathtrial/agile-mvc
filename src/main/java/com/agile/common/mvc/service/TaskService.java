@@ -224,6 +224,7 @@ public class TaskService {
     public void updateTask(Task task) throws NotFoundTaskException {
         removeTask(task.getCode());
         addTask(task);
+        taskManager.save(task);
     }
 
     public void removeTask(Method method) throws NotFoundTaskException {
