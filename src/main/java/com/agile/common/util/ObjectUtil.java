@@ -513,59 +513,99 @@ public class ObjectUtil extends ObjectUtils {
         String fieldName = field.getName();
         Optional<Object> optional = Optional.ofNullable(value);
         if (optional.isPresent()) {
-
-            Class fieldType = field.getType();
-            if (fieldType == value.getClass()) {
-                try {
-                    field.set(object, value);
-                } catch (IllegalAccessException | IllegalArgumentException ignored) {
-                }
-            }
-            String setMethodName;
+            Class<?> fieldType = field.getType();
+            String setMethodName = "set" + StringUtil.toUpperName(fieldName);
+            Method setMethod;
+            //取默认值
+            Object initValue = null;
             try {
-                if (fieldType == Boolean.class) {
-                    setMethodName = "is" + StringUtil.toUpperName(fieldName);
-                    Method setMethod = ClassUtil.getMethod(objectClass, setMethodName, value.getClass());
-                    if (Optional.ofNullable(setMethod).isPresent()) {
-                        setMethod.invoke(object, value);
-                    }
-                }
-            } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+                initValue = field.get(object);
+            } catch (Exception ignored) {
             }
 
+            //取方法入参类型与属性类型相同方法尝试
             try {
-                if (field.get(object) == null) {
-                    setMethodName = "set" + StringUtil.toUpperName(fieldName);
-                    Method setMethod = ClassUtil.getMethod(objectClass, setMethodName, value.getClass());
-                    if (Optional.ofNullable(setMethod).isPresent()) {
-                        setMethod.invoke(object, value);
-                    }
-                }
-            } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+                setMethod = ClassUtil.getMethod(objectClass, setMethodName, fieldType);
+                invokeMethodIfParamNotNull(object, setMethod, value);
+            } catch (Exception ignored) {
             }
 
+            //取方法入参类型与值类型相同方法尝试
             try {
-                if (field.get(object) == null) {
-                    setMethodName = "set" + StringUtil.toUpperName(fieldName);
-                    Method setMethod = ClassUtil.getMethod(objectClass, setMethodName, fieldType);
-                    if (setMethod != null) {
-                        Class<?>[] parameterTypes = setMethod.getParameterTypes();
-                        if (parameterTypes.length == 1) {
-                            setMethod.invoke(object, cast(parameterTypes[0], value));
+                if (ObjectUtil.nullSafeEquals(field.get(object), initValue)) {
+                    setMethod = ClassUtil.getMethod(objectClass, setMethodName, value.getClass());
+                    invokeMethodIfParamNotNull(object, setMethod, value);
+                }
+            } catch (Exception ignored) {
+            }
+
+            //终极解决方式
+            try {
+                if (ObjectUtil.nullSafeEquals(field.get(object), initValue)) {
+                    List<Method> list = Arrays.stream(objectClass.getMethods())
+                            .filter(method -> setMethodName.equals(method.getName()))
+                            .collect(Collectors.toList());
+
+                    for (Method method : list) {
+                        invokeMethodIfParamNotNull(object, method, value);
+                        if (field.get(object) != initValue) {
+                            return;
                         }
                     }
                 }
-            } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+            } catch (Exception ignored) {
             }
+
+            //将来值类型与属性类型相同时，直接设置
+            setValueIfNotNull(object, field, value);
         } else {
             if (!field.getType().isPrimitive()) {
                 try {
                     field.set(object, null);
-                } catch (IllegalArgumentException | IllegalAccessException ignored) {
+                } catch (Exception ignored) {
                 }
             }
         }
 
+    }
+
+    /**
+     * 如果值转换不为空情况下，强设置值
+     *
+     * @param object 对象
+     * @param field  属性
+     * @param value  值
+     */
+    public static void setValueIfNotNull(Object object, Field field, Object value) {
+
+        Optional.ofNullable(cast(field.getType(), value)).ifPresent(v -> {
+            try {
+                field.set(object, v);
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    /**
+     * 如果值转换不为空情况下，强调用
+     *
+     * @param object 对象
+     * @param method 方法
+     * @param value  值
+     */
+    public static void invokeMethodIfParamNotNull(Object object, Method method, Object value) {
+        if (object == null || method == null || value == null) {
+            return;
+        }
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length == 1) {
+            Optional.ofNullable(cast(parameterTypes[0], value)).ifPresent(v -> {
+                try {
+                    method.invoke(object, v);
+                } catch (Exception ignored) {
+                }
+            });
+        }
     }
 
     /**
