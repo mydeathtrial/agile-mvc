@@ -55,7 +55,7 @@ public class DataBaseUtil {
             DatabaseMetaData meta = conn.getMetaData();
             // 数据库的用户
             String schemaPattern = null;
-
+            String catalog = null;
             switch (type) {
                 case TABLE:
                     String[] types = {"TABLE", "VIEW"};
@@ -84,9 +84,12 @@ public class DataBaseUtil {
                         if (null != schemaPattern) {
                             schemaPattern = schemaPattern.toUpperCase();
                         }
+                    } else if (DB.MYSQL == dbInfo.type) {
+                        catalog = dbInfo.dbName;
+                        schemaPattern = dbInfo.dbName;
                     }
 
-                    rs = meta.getColumns(null, schemaPattern, pattern, columnNamePattern);
+                    rs = meta.getColumns(catalog, schemaPattern, pattern, columnNamePattern);
                     break;
                 case PRIMARY_KEY:
                     pattern = pattern.toUpperCase();

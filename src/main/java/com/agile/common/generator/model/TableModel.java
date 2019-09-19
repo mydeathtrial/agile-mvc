@@ -8,11 +8,11 @@ import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
+import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +41,7 @@ public class TableModel {
     private String refGeneration;
     private String typeName;
 
-    private List<ColumnModel> columns = new ArrayList<>();
+    private Set<ColumnModel> columns = Sets.newHashSet();
     private Set<String> imports = new HashSet<>();
     private String serviceName;
     private String entityName;

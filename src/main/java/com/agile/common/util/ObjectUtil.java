@@ -515,12 +515,6 @@ public class ObjectUtil extends ObjectUtils {
         if (optional.isPresent()) {
 
             Class fieldType = field.getType();
-            if (fieldType == value.getClass()) {
-                try {
-                    field.set(object, value);
-                } catch (IllegalAccessException | IllegalArgumentException ignored) {
-                }
-            }
             String setMethodName;
             try {
                 if (fieldType == Boolean.class) {
@@ -556,6 +550,12 @@ public class ObjectUtil extends ObjectUtils {
                     }
                 }
             } catch (IllegalStateException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ignored) {
+            }
+            if (fieldType == value.getClass()) {
+                try {
+                    field.set(object, value);
+                } catch (IllegalAccessException | IllegalArgumentException ignored) {
+                }
             }
         } else {
             if (!field.getType().isPrimitive()) {
