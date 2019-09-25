@@ -43,7 +43,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         //验证密码
         checkPassword(authentication, user);
 
-        //判断登陆策略
+        //判断登录策略
         loginStrategyHandler(user);
 
         //设置详情，用于token策略
@@ -73,7 +73,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     }
 
     /**
-     * 登陆策略
+     * 登录策略
      */
     private void loginStrategyHandler(UserDetails user) {
         SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
@@ -89,7 +89,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 case MORE:
                     break;
                 default:
-                    throw new RepeatAccount("重复账户登陆");
+                    throw new RepeatAccount("重复账户登录");
             }
         }
     }

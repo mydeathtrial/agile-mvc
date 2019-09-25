@@ -38,7 +38,7 @@ agile:
       com.idss: info,error,debug
   security:
     enable: true
-    exclude-url: /swagger-ui.html,/webjars/springfox-swagger-ui/*,/v2/api-docs,/swagger-resources/**
+    exclude-url: /swagger-ui.html,/webjars/springfox-swagger-ui/*,/v2/api-docs,/swagger-resources/**,/api/password-find
     login-out-url: /api/logout
     login-url: /api/login
     login-username: userName

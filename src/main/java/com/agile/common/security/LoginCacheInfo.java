@@ -46,7 +46,7 @@ public class LoginCacheInfo implements Serializable {
     }
 
     /**
-     * 创建登陆信息
+     * 创建登录信息
      *
      * @param username       账号
      * @param authentication 用户权限信息
@@ -96,7 +96,7 @@ public class LoginCacheInfo implements Serializable {
      */
     static CurrentLoginInfo getCurrentLoginInfo(String token) {
         if (StringUtil.isBlank(token)) {
-            throw new NoSignInException("账号尚未登陆");
+            throw new NoSignInException("账号尚未登录");
         }
 
         Claims claims = TokenUtil.getClaimsFromToken(token);
@@ -117,7 +117,7 @@ public class LoginCacheInfo implements Serializable {
             //创建新会话令牌
             long newSessionToken = IdUtil.generatorId();
 
-            //更新数据库登陆信息
+            //更新数据库登录信息
             CustomerUserDetailsService securityUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
             assert securityUserDetailsService != null;
             securityUserDetailsService.updateLoginInfo(username, Long.toString(sessionToken), Long.toString(newSessionToken));
@@ -172,7 +172,7 @@ public class LoginCacheInfo implements Serializable {
     /**
      * 退出操作，根据currentLoginInfo删除指定会话令牌
      *
-     * @param currentLoginInfo 当前登陆信息
+     * @param currentLoginInfo 当前登录信息
      */
     public static void remove(CurrentLoginInfo currentLoginInfo) {
         currentLoginInfo.getLoginCacheInfo().getSessionTokens().remove(currentLoginInfo.getSessionToken());

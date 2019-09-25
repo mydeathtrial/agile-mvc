@@ -271,7 +271,7 @@ public class MainService implements ServiceInterface {
     public CustomerUserDetails getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            throw new NoSignInException("账号尚未登陆，服务中无法获取登陆信息");
+            throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");
         } else {
             return (CustomerUserDetails) authentication.getDetails();
         }

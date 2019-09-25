@@ -1,5 +1,7 @@
 package com.agile.common.security;
 
+import com.agile.common.cache.AgileCache;
+import com.agile.common.exception.LoginErrorLockException;
 import com.agile.common.exception.NoCompleteFormSign;
 import com.agile.common.exception.VerificationCodeException;
 import com.agile.common.exception.VerificationCodeExpire;
@@ -39,12 +41,14 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private final AuthenticationProvider loginStrategyProvider;
     private final SessionAuthenticationStrategy tokenStrategy;
     private final KaptchaConfigProperties kaptchaConfigProperties;
+    private final SecurityProperties securityProperties;
 
     public LoginFilter(AuthenticationProvider loginStrategyProvider, TokenStrategy tokenStrategy, SecurityProperties securityProperties, KaptchaConfigProperties kaptchaConfigProperties, SuccessHandler successHandler, FailureHandler failureHandler) {
         super(new AntPathRequestMatcher(securityProperties.getLoginUrl()));
         this.username = securityProperties.getLoginUsername();
         this.password = securityProperties.getLoginPassword();
         this.code = securityProperties.getVerificationCode();
+        this.securityProperties = securityProperties;
         this.failureHandler = failureHandler;
         this.successHandler = successHandler;
         this.loginStrategyProvider = loginStrategyProvider;
@@ -66,6 +70,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        judgeLoginErrorLock(request);
         //获取用户名密码
         Map<String, Object> params = ParamUtil.handleInParam(request);
         String sourceUsername = ParamUtil.getInParam(params, this.username, String.class);
@@ -117,6 +122,27 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         cookie.setPath(cookiePath);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+    }
+
+    /**
+     * 判断登录失败锁
+     *
+     * @param request 请求
+     * @return 是否
+     */
+    private void judgeLoginErrorLock(HttpServletRequest request) throws LoginErrorLockException {
+        if (!ServletUtil.matcherRequest(request, securityProperties.getLoginUrl())) {
+            return;
+        }
+        AgileCache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
+        Integer sessionIdLoginCount = cache.get(request.getSession().getId(), Integer.class);
+        if (sessionIdLoginCount == null) {
+            CacheUtil.put(cache, request.getSession().getId(), 1, Integer.valueOf(Long.toString(securityProperties.getLoginErrorTimeout().getSeconds())));
+        } else if (sessionIdLoginCount >= securityProperties.getLoginErrorCount() - 1) {
+            throw new LoginErrorLockException(String.valueOf(securityProperties.getLoginLockTime().toMinutes()));
+        } else {
+            CacheUtil.put(cache, request.getSession().getId(), ++sessionIdLoginCount, Integer.valueOf(Long.toString(securityProperties.getLoginErrorTimeout().getSeconds())));
+        }
     }
 
 }

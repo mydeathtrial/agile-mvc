@@ -23,7 +23,7 @@ public class SecurityProperties {
      */
     private String excludeUrl = "";
     /**
-     * 登陆地址
+     * 登录地址
      */
     private String loginUrl = "/login";
     /**
@@ -47,11 +47,11 @@ public class SecurityProperties {
      */
     private String tokenHeader = "AGILE_TOKEN";
     /**
-     * 登陆账号表单名
+     * 登录账号表单名
      */
     private String loginUsername = "username";
     /**
-     * 登陆密码表单名
+     * 登录密码表单名
      */
     private String loginPassword = "password";
 
@@ -76,17 +76,17 @@ public class SecurityProperties {
     private String algorithmModel = "AES/CBC/PKCS5Padding";
 
     /**
-     * 登陆失败次数
+     * 登录失败次数
      */
     private int loginErrorCount = Constant.NumberAbout.FIVE;
 
     /**
-     * 登陆失败锁定时间
+     * 登录失败锁定时间
      */
     private Duration loginLockTime = Duration.ofMinutes(Constant.NumberAbout.FIVE);
 
     /**
-     * 登陆失败信息超时
+     * 登录失败信息超时
      */
     private Duration loginErrorTimeout = Duration.ofMinutes(Constant.NumberAbout.TWO);
 

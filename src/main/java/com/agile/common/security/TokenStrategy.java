@@ -43,13 +43,13 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         //创建token令牌
         String token = TokenUtil.generateToken(username, sessionToken, DateUtil.addYear(new Date(), Constant.NumberAbout.ONE));
 
-        //创建登陆信息
+        //创建登录信息
         LoginCacheInfo loginCacheInfo = LoginCacheInfo.createLoginCacheInfo(username, authentication, sessionToken, token, new Date(), DateUtil.add(securityProperties.getTokenTimeout()));
 
         //放入缓存
         cache.put(username, loginCacheInfo);
 
-        //存储登陆信息
+        //存储登录信息
         securityUserDetailsService.loadLoginInfo(userDetails, ServletUtil.getRequestIP(httpServletRequest), Long.toString(sessionToken));
 
         //通知前端

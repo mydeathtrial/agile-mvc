@@ -29,7 +29,7 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
         //获取令牌
         String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
 
-        //获取当前登陆信息
+        //获取当前登录信息
         CurrentLoginInfo currentLoginInfo = LoginCacheInfo.getCurrentLoginInfo(token);
         String username = currentLoginInfo.getLoginCacheInfo().getUsername();
         String sessionToken = Long.toString(currentLoginInfo.getSessionToken());

@@ -11,9 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public interface CustomerUserDetails extends UserDetails {
     /**
-     * 登陆策略
+     * 登录策略
      *
-     * @return 用户登陆策略
+     * @return 用户登录策略
      */
     LoginStrategy getLoginStrategy();
 

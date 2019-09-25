@@ -33,7 +33,7 @@ public class SuccessHandler implements AuthenticationSuccessHandler {
                 put("realName", ((CustomerUserDetails) authentication.getDetails()).getName());
                 put("detail", authentication);
             }}, request, response);
-            LoggerFactory.AUTHORITY_LOG.info(String.format("成功登陆[令牌：%s]", token));
+            LoggerFactory.AUTHORITY_LOG.info(String.format("成功登录[令牌：%s]", token));
         } catch (Exception e) {
             LoggerFactory.AUTHORITY_LOG.debug(StringUtil.coverToString(e));
         }

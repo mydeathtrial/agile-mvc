@@ -63,14 +63,14 @@ public class DruidConfigProperties extends DruidDataSource {
     private String exclusions = "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*";
 
     /**
-     * druid监控登陆账号
+     * druid监控登录账号
      */
     @Setter
     @Getter
     private String managerName = "admin";
 
     /**
-     * druid监控登陆密码
+     * druid监控登录密码
      */
     @Setter
     @Getter

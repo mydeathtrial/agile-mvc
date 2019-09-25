@@ -22,7 +22,7 @@ public interface CustomerUserDetailsService extends UserDetailsService {
     void validate(UserDetails securityUser) throws AuthenticationException;
 
     /**
-     * 更新登陆信息
+     * 更新登录信息
      */
     void updateLoginInfo(String userName, String oldToken, String newToken);
 
@@ -32,10 +32,10 @@ public interface CustomerUserDetailsService extends UserDetailsService {
     void stopLoginInfo(String userName, String token);
 
     /**
-     * 新增登陆信息
+     * 新增登录信息
      *
      * @param securityUser 用户信息
-     * @param ip           登陆ip
+     * @param ip           登录ip
      * @param token        令牌
      */
     void loadLoginInfo(UserDetails securityUser, String ip, String token);

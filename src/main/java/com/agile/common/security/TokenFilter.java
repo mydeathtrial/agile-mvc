@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 登陆验证码拦截器
+ * 登录验证码拦截器
  *
  * @author 佟盟 on 2017/9/27
  */
@@ -45,7 +45,7 @@ public class TokenFilter extends OncePerRequestFilter {
             //获取令牌
             String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
 
-            //获取当前登陆信息
+            //获取当前登录信息
             CurrentLoginInfo currentLoginInfo = LoginCacheInfo.getCurrentLoginInfo(token);
 
             //判断策略
@@ -73,7 +73,7 @@ public class TokenFilter extends OncePerRequestFilter {
     /**
      * 刷新令牌
      *
-     * @param currentLoginInfo    当前登陆信息
+     * @param currentLoginInfo    当前登录信息
      * @param httpServletResponse 响应
      */
     private void refreshToken(CurrentLoginInfo currentLoginInfo, HttpServletResponse httpServletResponse) {

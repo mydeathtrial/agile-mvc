@@ -18,9 +18,9 @@ public interface CustomerLoginInfo {
     String getUserName();
 
     /**
-     * 登陆时间
+     * 登录时间
      *
-     * @return 登陆时间
+     * @return 登录时间
      */
     Date getLoginTime();
 
@@ -32,9 +32,9 @@ public interface CustomerLoginInfo {
     Date getLogoutTime();
 
     /**
-     * 登陆ip
+     * 登录ip
      *
-     * @return 登陆ip
+     * @return 登录ip
      */
     String getLoginIp();
 
