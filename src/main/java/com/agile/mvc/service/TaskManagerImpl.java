@@ -1,21 +1,17 @@
 package com.agile.mvc.service;
 
-import com.agile.common.annotation.Init;
 import com.agile.common.base.Constant;
 import com.agile.common.mvc.service.BusinessService;
-import com.agile.common.task.ApiBase;
 import com.agile.common.task.RunDetail;
 import com.agile.common.task.Target;
 import com.agile.common.task.Task;
 import com.agile.common.task.TaskManager;
-import com.agile.common.util.ApiUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.mvc.entity.SysApiEntity;
 import com.agile.mvc.entity.SysBtTaskApiEntity;
 import com.agile.mvc.entity.SysTaskDetailEntity;
 import com.agile.mvc.entity.SysTaskEntity;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
@@ -36,22 +32,6 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
      * 任务缓存
      */
     private Map<String, SysApiEntity> cache = new HashMap<>();
-
-    /**
-     * 初始化系统方法数据
-     */
-    @Init
-    @Transactional(rollbackFor = Exception.class)
-    public void init() {
-        List<Target> targets = getApis(true);
-
-        Map<String, Target> databaseCache = Maps.newHashMapWithExpectedSize(targets.size());
-        targets.forEach(target -> databaseCache.put(target.getCode(), target));
-
-        Map<String, ApiBase> programCache = Maps.newHashMap(ApiUtil.getApiInfos());
-        targets.stream().filter(target -> !programCache.containsKey(target.getCode())).forEach(target -> dao.delete(target));
-        programCache.values().stream().filter(apiBase -> !databaseCache.containsKey(apiBase.getMethod().toGenericString())).forEach(apiInfo -> save(apiInfo.getMethod(), true));
-    }
 
     @Override
     public List<Task> getTask() {

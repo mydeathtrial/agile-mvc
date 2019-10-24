@@ -981,7 +981,11 @@ public class ObjectUtil extends ObjectUtils {
                 temp = Float.parseFloat(valueStr);
             }
             if (clazz == Boolean.class || clazz == boolean.class) {
-                temp = Boolean.parseBoolean(valueStr);
+                if (NumberUtil.isParsable(valueStr)) {
+                    temp = NumberUtil.createNumber(valueStr).intValue() > 0;
+                } else {
+                    temp = Boolean.parseBoolean(valueStr);
+                }
             }
             if (clazz == Byte.class || clazz == byte.class) {
                 temp = Byte.parseByte(valueStr);

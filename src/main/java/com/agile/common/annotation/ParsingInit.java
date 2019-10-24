@@ -1,5 +1,6 @@
 package com.agile.common.annotation;
 
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.CollectionsUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
@@ -47,10 +48,12 @@ public class ParsingInit implements ParsingMethodAfter {
      */
     @Transactional(rollbackFor = Exception.class)
     public void parse(Object bean, Method method) {
+
         method.setAccessible(true);
         Init init = (Init) method.getAnnotation(getAnnotation());
         if (!ObjectUtil.isEmpty(init)) {
             try {
+                LoggerFactory.COMMON_LOG.info(String.format("启动初始化方法:%s\n", method.toGenericString()));
                 method.invoke(bean);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
@@ -63,7 +66,10 @@ public class ParsingInit implements ParsingMethodAfter {
     public void parse() {
         CollectionsUtil.sort(inits, "order");
         for (InitApiInfo initApiInfo : inits) {
-            parse(FactoryUtil.getBean(initApiInfo.beanName), initApiInfo.method);
+            try {
+                parse(FactoryUtil.getBean(initApiInfo.beanName), initApiInfo.method);
+            } catch (Exception ignored) {
+            }
         }
     }
 

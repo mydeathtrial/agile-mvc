@@ -13,3 +13,7 @@ agile:
         clusterName: idss-guosen2
         clusterNodes: 192.168.200.104:9300
         clusterHosts: 192.168.200.104:9200
+      zhong-sen:
+        clusterName: idss-guosen2
+        clusterNodes: 192.168.200.104:9300
+        clusterHosts: 192.168.200.104:9200

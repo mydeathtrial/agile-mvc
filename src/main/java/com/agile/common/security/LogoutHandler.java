@@ -5,8 +5,10 @@ import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.ViewUtil;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AbstractAuthenticationTargetUrlRequestHandler;
@@ -28,6 +30,9 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         //获取令牌
         String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
+
+        //执行前钩子
+        before(token);
 
         //获取当前登录信息
         CurrentLoginInfo currentLoginInfo = LoginCacheInfo.getCurrentLoginInfo(token);
@@ -51,6 +56,10 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
             LoggerFactory.AUTHORITY_LOG.debug(e);
         }
         LoggerFactory.AUTHORITY_LOG.info(String.format("账号退出[username:%s][token：%s]", username, sessionToken));
+
+
+        //执行后钩子
+        after(token);
     }
 
     /**
@@ -71,5 +80,26 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
 //        cookie.setMaxAge(0);
 //        cookie.setPath(Constant.RegularAbout.SLASH);
 //        httpServletResponse.addCookie(cookie);
+    }
+
+    private void before(String token) {
+        ObjectProvider<LoginOutProcessor> observers = FactoryUtil.getApplicationContext().getBeanProvider(LoginOutProcessor.class);
+        observers.stream().forEach(node -> {
+                    try {
+                        node.before(token);
+                    } catch (Exception ignored) {
+                    }
+                }
+        );
+    }
+
+    private void after(String token) {
+        ObjectProvider<LoginOutProcessor> observers = FactoryUtil.getApplicationContext().getBeanProvider(LoginOutProcessor.class);
+        observers.stream().forEach(node -> {
+            try {
+                node.after(token);
+            } catch (Exception ignored) {
+            }
+        });
     }
 }

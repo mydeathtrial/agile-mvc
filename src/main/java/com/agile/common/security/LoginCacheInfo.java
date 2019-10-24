@@ -8,6 +8,7 @@ import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
+import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
@@ -15,12 +16,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author 佟盟
@@ -44,6 +47,10 @@ public class LoginCacheInfo implements Serializable {
     public static Cache getCache() {
         return cache;
     }
+
+    private static CustomerUserDetailsService customerUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
+
+    private static LogoutHandler logoutHandler = FactoryUtil.getBean(LogoutHandler.class);
 
     /**
      * 创建登录信息
@@ -106,11 +113,13 @@ public class LoginCacheInfo implements Serializable {
             validateTimeOut(claims);
         }
 
-
         Long sessionToken = claims.get(TokenUtil.AUTHENTICATION_SESSION_TOKEN, Long.class);
         String username = claims.get(TokenUtil.AUTHENTICATION_USER_NAME, String.class);
 
         LoginCacheInfo loginCacheInfo = cache.get(username, LoginCacheInfo.class);
+
+        //验证登陆账号信息合法性
+        validateCacheDate(loginCacheInfo);
 
         //判断策略,复杂策略时，更新会话令牌
         if (securityProperties != null && securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
@@ -136,6 +145,23 @@ public class LoginCacheInfo implements Serializable {
         }
 
         return new CurrentLoginInfo(sessionToken, loginCacheInfo);
+    }
+
+    /**
+     * 验证当前redis缓存数据是否合法
+     *
+     * @param loginCacheInfo 登陆信息
+     */
+    private static void validateCacheDate(LoginCacheInfo loginCacheInfo) {
+        Optional<LoginCacheInfo> loginCacheInfoOptional = Optional.ofNullable(loginCacheInfo);
+        if (loginCacheInfoOptional.isPresent()) {
+            try {
+                customerUserDetailsService.validate((UserDetails) loginCacheInfo.getAuthentication().getDetails());
+            } catch (Exception e) {
+                logoutHandler.onLogoutSuccess(ServletUtil.getCurrentRequest(), ServletUtil.getCurrentResponse(), loginCacheInfo.getAuthentication());
+                throw e;
+            }
+        }
     }
 
     /**
