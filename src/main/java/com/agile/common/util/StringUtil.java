@@ -240,18 +240,18 @@ public final class StringUtil extends StringUtils {
     public static Map<String, String> getParamByRegex(String regex, String text) {
         Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(text);
-
+        if (!matcher.find()) {
+            return null;
+        }
         int count = matcher.groupCount();
 
         String[] groupNames = getMatchedString("(?<=<)[\\w]+(?=>)", regex);
         if (count > 0 && groupNames != null && groupNames.length > 0) {
             Map<String, String> result = new HashMap<>(groupNames.length);
-            if (matcher.find()) {
                 for (String key : groupNames) {
                     result.put(key, matcher.group(key));
                 }
                 return result;
-            }
         }
         return null;
     }

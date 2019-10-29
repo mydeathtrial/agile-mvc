@@ -87,6 +87,13 @@ public class LoginCacheInfo implements Serializable {
     }
 
     /**
+     * 处理掉过期时间
+     */
+    public void parsingTimeOut() {
+        parsingTimeOut(sessionTokens);
+    }
+
+    /**
      * 处理过期数据
      *
      * @param sessionTokens 会话令牌集合

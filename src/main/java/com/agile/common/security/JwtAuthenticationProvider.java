@@ -13,6 +13,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Optional;
+
 /**
  * @author 佟盟 on 2017/1/13
  */
@@ -81,6 +83,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         AgileCache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
 
         LoginCacheInfo loginCacheInfo = cache.get(user.getUsername(), LoginCacheInfo.class);
+        Optional.ofNullable(loginCacheInfo).ifPresent(l -> l.parsingTimeOut());
         if (loginCacheInfo != null && loginCacheInfo.getSessionTokens().size() > 0) {
             switch (((CustomerUserDetails) user).getLoginStrategy()) {
                 case SINGLETON_REPLACE:

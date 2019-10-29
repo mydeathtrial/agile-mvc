@@ -36,6 +36,7 @@ public class EsProperties {
     private int scrollTimeValue;
     private int scrollSetSize;
     private String defaultEsKey;
+    private int maxSize;
 
     /**
      * ES配置
