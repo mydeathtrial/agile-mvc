@@ -19,7 +19,6 @@ import org.apache.commons.compress.utils.Lists;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.util.UriUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -102,10 +101,6 @@ public class ParamUtil {
         try {
             uri = URLDecoder.decode(uri, "UTF-8");
         } catch (UnsupportedEncodingException ignored) {
-        }
-        String extension = UriUtils.extractFileExtension(uri);
-        if ("json".equals(extension) || "xml".equals(extension) || "plain".equals(extension)) {
-            uri = uri.replaceAll("." + extension, "");
         }
         ApiInfo info = ApiUtil.getApiCache(currentRequest);
 

@@ -8,12 +8,8 @@ agile:
     scrollTimeValue: 60000
     scrollSetSize: 30000
     default-es-key: guo-sen
-    config:
-      guo-sen:
-        clusterName: idss-guosen2
-        clusterNodes: 192.168.200.104:9300
-        clusterHosts: 192.168.200.104:9200
-      zhong-sen:
-        clusterName: idss-guosen2
-        clusterNodes: 192.168.200.104:9300
-        clusterHosts: 192.168.200.104:9200
+#    config:
+#      guo-sen:
+#        clusterName: idss-guosen2
+#        clusterNodes: 192.168.200.104:9300
+#        clusterHosts: 192.168.200.104:9200

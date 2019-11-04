@@ -2,12 +2,13 @@ spring:
   mvc:
     date-format: 'yyyy-MM-dd HH:mm:ss'
     contentnegotiation:
-      favor-parameter: false
-      favor-path-extension: true
+      favor-parameter: true
+      favor-path-extension: false
       media-types:
         plain: text/plain
         xml: application/xml
         json: application/json
+      parameter-name: 'response-format'
     static-path-pattern: /static/**
     async:
       request-timeout: 2m
