@@ -313,9 +313,7 @@ public class FileUtil extends FileUtils {
     }
 
     public static void downloadZip(List fileList, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        MultipartProperties multipartProperties = FactoryUtil.getBean(MultipartProperties.class);
-        assert multipartProperties != null;
-        File zip = createFile(multipartProperties.getLocation(), "download.zip");
+        File zip = createFile(getTempPath(), "download.zip");
         if (zip != null) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             createZipFile(fileList, new FileOutputStream(zip));
@@ -327,6 +325,44 @@ public class FileUtil extends FileUtils {
                 throw new RuntimeException("zip cache delete fail");
             }
         }
+    }
+
+    /**
+     * 缓存目录全路径
+     */
+    private static String tempPath;
+
+    /**
+     * 获取缓存目录全路径
+     *
+     * @return 缓存目录路径
+     */
+    public static String getTempPath() {
+        if (!StringUtil.isBlank(tempPath)) {
+            return tempPath;
+        }
+        MultipartProperties properties = FactoryUtil.getBean(MultipartProperties.class);
+        if (properties == null) {
+            throw new RuntimeException("未加载到缓存文件相关配置");
+        }
+        String filePath = properties.getLocation();
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            boolean is = file.mkdirs();
+            if (!is) {
+                throw new RuntimeException("缓存目录无法创建");
+            }
+        }
+        try {
+            tempPath = file.getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!tempPath.endsWith(File.separator)) {
+            tempPath += File.separator;
+        }
+        return tempPath;
     }
 
     public static File createFile(String path, String fileName) throws IOException {
