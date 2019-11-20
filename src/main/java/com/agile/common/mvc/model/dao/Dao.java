@@ -13,6 +13,7 @@ import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.ResultTransformer;
 import org.hibernate.transform.Transformers;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -254,8 +255,14 @@ public class Dao {
      * @param <T>        查询的目标表对应实体类型
      */
     @SuppressWarnings("unchecked")
-    public <T> void deleteById(Class<T> tableClass, Object id) {
-        getRepository(tableClass).deleteById(id);
+    public <T> boolean deleteById(Class<T> tableClass, Object id) {
+        try {
+            getRepository(tableClass).deleteById(id);
+        } catch (EmptyResultDataAccessException ignored) {
+            return false;
+        }
+        return true;
+
     }
 
     /**

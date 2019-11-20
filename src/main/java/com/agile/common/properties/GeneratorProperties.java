@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author 佟盟
@@ -67,8 +68,23 @@ public class GeneratorProperties {
      */
     private Map<String, String> columnType = new HashMap<>();
 
+    private Set<AnnotationType> annotation;
+
     public String getJavaType(String type) {
         return columnType.get(type);
+    }
+
+    /**
+     * 注解类型
+     */
+    public enum AnnotationType {
+        /**
+         * JPA注解
+         */
+        JPA,
+        HibernateValidate,
+        Swagger,
+        NO
     }
 
     public GeneratorProperties() {

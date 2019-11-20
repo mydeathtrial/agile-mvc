@@ -93,21 +93,21 @@ public class ColumnModel {
             if (javaType == String.class) {
                 if (Boolean.valueOf(isPrimaryKey)) {
                     if (javaType == String.class) {
-                        setAnnotation("@NotBlank(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
+                        setAnnotation("@NotBlank(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})", GeneratorProperties.AnnotationType.HibernateValidate);
                         setImport(Update.class, NotBlank.class, Delete.class);
                     }
                 } else {
-                    setAnnotation(String.format("@NotBlank(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks == null ? "" : remarks));
+                    setAnnotation(String.format("@NotBlank(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks == null ? "" : remarks), GeneratorProperties.AnnotationType.HibernateValidate);
                     setImport(Insert.class, NotBlank.class, Update.class);
                 }
             } else {
                 if (Boolean.valueOf(isPrimaryKey)) {
                     if (javaType == String.class) {
-                        setAnnotation("@NotNull(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})");
+                        setAnnotation("@NotNull(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})", GeneratorProperties.AnnotationType.HibernateValidate);
                         setImport(Delete.class, NotNull.class, Update.class);
                     }
                 } else {
-                    setAnnotation(String.format("@NotNull(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks == null ? "" : remarks));
+                    setAnnotation(String.format("@NotNull(message = \"%s不能为空\", groups = {Insert.class, Update.class})", remarks == null ? "" : remarks), GeneratorProperties.AnnotationType.HibernateValidate);
                     setImport(Insert.class, Update.class, NotNull.class);
                 }
             }
@@ -119,35 +119,35 @@ public class ColumnModel {
             temp.append(", length = ").append(columnSize);
             if (javaType == String.class) {
                 setImport(Length.class, Insert.class, Update.class);
-                setAnnotation(String.format("@Length(max = %s, message = \"最长为%s个字符\", groups = {Insert.class, Update.class})", columnSize, columnSize));
+                setAnnotation(String.format("@Length(max = %s, message = \"最长为%s个字符\", groups = {Insert.class, Update.class})", columnSize, columnSize), GeneratorProperties.AnnotationType.HibernateValidate);
             } else if (javaType == int.class || javaType == Integer.class) {
                 setImport(Max.class, Min.class);
-                setAnnotation(String.format("@Max(value = %s, groups = {Insert.class, Update.class})", Integer.MAX_VALUE));
-                setAnnotation(String.format("@Min(value = %s, groups = {Insert.class, Update.class})", Constant.NumberAbout.ZERO));
+                setAnnotation(String.format("@Max(value = %s, groups = {Insert.class, Update.class})", Integer.MAX_VALUE), GeneratorProperties.AnnotationType.HibernateValidate);
+                setAnnotation(String.format("@Min(value = %s, groups = {Insert.class, Update.class})", Constant.NumberAbout.ZERO), GeneratorProperties.AnnotationType.HibernateValidate);
             } else if (javaType == long.class || javaType == Long.class) {
                 setImport(DecimalMax.class, DecimalMin.class);
-                setAnnotation(String.format("@DecimalMax(value = \"%s\", groups = {Insert.class, Update.class})", Long.MAX_VALUE));
-                setAnnotation(String.format("@DecimalMin(value = \"%s\", groups = {Insert.class, Update.class})", Constant.NumberAbout.ZERO));
+                setAnnotation(String.format("@DecimalMax(value = \"%s\", groups = {Insert.class, Update.class})", Long.MAX_VALUE), GeneratorProperties.AnnotationType.HibernateValidate);
+                setAnnotation(String.format("@DecimalMin(value = \"%s\", groups = {Insert.class, Update.class})", Constant.NumberAbout.ZERO), GeneratorProperties.AnnotationType.HibernateValidate);
             }
         }
         if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
             temp.append(", updatable = false");
             setImport(Past.class);
-            setAnnotation("@Past");
+            setAnnotation("@Past", GeneratorProperties.AnnotationType.HibernateValidate);
         }
-        setAnnotation(String.format("@Column(%s)", temp));
+        setAnnotation(String.format("@Column(%s)", temp), GeneratorProperties.AnnotationType.JPA);
 
         if (Boolean.valueOf(isPrimaryKey)) {
-            setAnnotation("@Id");
+            setAnnotation("@Id", GeneratorProperties.AnnotationType.JPA);
         } else {
             if ("byte[]".equals(javaTypeName) || "java.sql.Blob".equals(javaTypeName) || "java.sql.Clob".equals(javaTypeName)) {
                 if ("java.sql.Blob".equals(javaTypeName) || "java.sql.Clob".equals(javaTypeName)) {
-                    setAnnotation("@Lob");
+                    setAnnotation("@Lob", GeneratorProperties.AnnotationType.JPA);
                     setImport(Lob.class, FetchType.class);
                 }
-                setAnnotation("@Basic(fetch = FetchType.LAZY)");
+                setAnnotation("@Basic(fetch = FetchType.LAZY)", GeneratorProperties.AnnotationType.JPA);
             } else {
-                setAnnotation("@Basic");
+                setAnnotation("@Basic", GeneratorProperties.AnnotationType.JPA);
             }
         }
     }
@@ -164,14 +164,14 @@ public class ColumnModel {
         javaName = javaName.replaceAll(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.BLANK);
 
         if ("updateTime".equals(javaName) || "updateDate".equals(javaName)) {
-            setAnnotation("@Temporal(TemporalType.TIMESTAMP)");
-            setAnnotation("@UpdateTimestamp");
+            setAnnotation("@Temporal(TemporalType.TIMESTAMP)", GeneratorProperties.AnnotationType.JPA);
+            setAnnotation("@UpdateTimestamp", GeneratorProperties.AnnotationType.JPA);
             setImport(UpdateTimestamp.class, Temporal.class, TemporalType.class);
         }
 
         if ("creatDate".equals(javaName) || "creatTime".equals(javaName) || "createTime".equals(javaName) || "createDate".equals(javaName)) {
-            setAnnotation("@Temporal(TemporalType.TIMESTAMP)");
-            setAnnotation("@CreationTimestamp");
+            setAnnotation("@Temporal(TemporalType.TIMESTAMP)", GeneratorProperties.AnnotationType.JPA);
+            setAnnotation("@CreationTimestamp", GeneratorProperties.AnnotationType.JPA);
             setImport(CreationTimestamp.class, Temporal.class, TemporalType.class);
         }
         setMethod(javaName);
@@ -180,7 +180,7 @@ public class ColumnModel {
     public void setTypeName(String typeName) {
         this.typeName = typeName;
         if ("TIMESTAMP".equals(typeName) || "DATE".equals(typeName) || "TIME".equals(typeName)) {
-            setAnnotation(String.format("@Temporal(TemporalType.%s)", typeName));
+            setAnnotation(String.format("@Temporal(TemporalType.%s)", typeName), GeneratorProperties.AnnotationType.JPA);
             setImport(Temporal.class, TemporalType.class);
         }
 
@@ -214,7 +214,7 @@ public class ColumnModel {
         this.isAutoincrement = isAutoincrement;
         if ("YES".equals(isAutoincrement)) {
             setImport(GenerationType.class, GeneratedValue.class);
-            setAnnotation("@GeneratedValue(strategy = GenerationType.IDENTITY)");
+            setAnnotation("@GeneratedValue(strategy = GenerationType.IDENTITY)", GeneratorProperties.AnnotationType.JPA);
         }
     }
 
@@ -257,8 +257,10 @@ public class ColumnModel {
         }
     }
 
-    private void setAnnotation(String annotation) {
-        this.annotations.add(annotation);
+    private void setAnnotation(String annotation, GeneratorProperties.AnnotationType annotationType) {
+        if (!properties.getAnnotation().contains(GeneratorProperties.AnnotationType.NO) && properties.getAnnotation().contains(annotationType)) {
+            this.annotations.add(annotation);
+        }
     }
 
 }

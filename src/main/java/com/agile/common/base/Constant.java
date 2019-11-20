@@ -98,7 +98,7 @@ public class Constant {
         public static final String EMAIL = "^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$";
         public static final String DOMAIN = "[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(/.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+/.?";
         public static final String INTERNET_UTL = "^http://([\\w-]+\\.)+[\\w-]+(/[\\w-./?%&=]*)?$";
-        public static final String MOBILE_PHONE = "^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\\d{8}$";
+        public static final String MOBILE_PHONE = "^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|1[8|7][0|1|2|3|5|6|7|8|9])\\d{8}$";
         public static final String PHONE = "^(\\(\\d{3,4}-)|\\d{3.4}-)?\\d{7,8}$";
         public static final String CHINA_PHONE = "\\d{3}-\\d{8}|\\d{4}-\\d{7}";
         public static final String ID_CARD = "^\\d{15}|\\d{18}$";

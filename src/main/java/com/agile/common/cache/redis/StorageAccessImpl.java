@@ -1,6 +1,7 @@
 package com.agile.common.cache.redis;
 
 import com.agile.common.factory.LoggerFactory;
+import com.agile.common.util.StringUtil;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.spi.support.DomainDataStorageAccess;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -51,7 +52,7 @@ public class StorageAccessImpl implements DomainDataStorageAccess {
             throw new CacheException(e);
         } catch (Exception e) {
             if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
-                LoggerFactory.CACHE_LOG.error("redis缓存存放失败");
+                LoggerFactory.CACHE_LOG.error("redis缓存存放失败" + StringUtil.coverToString(e));
             }
             throw new CacheException(e);
         }

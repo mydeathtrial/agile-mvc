@@ -8,6 +8,7 @@ agile:
     scrollTimeValue: 60000
     scrollSetSize: 30000
     default-es-key: guo-sen
+    max-size: 10000
 #    config:
 #      guo-sen:
 #        clusterName: idss-guosen2
