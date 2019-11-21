@@ -15,15 +15,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Validate {
-    String MSG = "格式错误";
-
     String value() default "";
 
     ValidateType validateType() default ValidateType.NO;
 
     String validateRegex() default "";
 
-    String validateMsg() default MSG;
+    String validateMsg() default "";
 
     String validateMsgKey() default "";
 
@@ -37,9 +35,9 @@ public @interface Validate {
 
     boolean isBlank() default true;
 
-    int max() default Integer.MAX_VALUE;
+    double max() default Double.MAX_VALUE;
 
-    int min() default Integer.MIN_VALUE;
+    double min() default Double.MIN_VALUE;
 
     int max_size() default Integer.MAX_VALUE;
 

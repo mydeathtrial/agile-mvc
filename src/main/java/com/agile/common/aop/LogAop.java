@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Aspect
 public class LogAop {
-    @Autowired
+    @Autowired(required = false)
     private BusinessLogService logService;
 
     private static final int CORE_POOL_SIZE = 5;
@@ -101,7 +101,9 @@ public class LogAop {
     }
 
     private void clearCurrentBusinessLog() {
-        logService.clear();
+        if (logService != null) {
+            logService.clear();
+        }
     }
 
     /**
@@ -170,7 +172,9 @@ public class LogAop {
      * @param serviceExecutionInfo 服务执行信息
      */
     private void logging(ServiceExecutionInfo serviceExecutionInfo) {
-        logService.logging(serviceExecutionInfo);
+        if (logService != null) {
+            logService.logging(serviceExecutionInfo);
+        }
     }
 
     /**

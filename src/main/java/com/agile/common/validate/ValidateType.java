@@ -2,6 +2,7 @@ package com.agile.common.validate;
 
 import com.agile.common.annotation.Validate;
 import com.agile.common.base.Constant;
+import com.agile.common.util.NumberUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
@@ -105,11 +106,11 @@ public enum ValidateType implements ValidateInterface {
 
     private String createMessage(Validate validate, String defaultMessage) {
         String result;
-        if (StringUtil.isEmpty(validate.validateMsg()) && StringUtil.isEmpty(validate.validateMsgKey())) {
-            result = String.format("不符合%s格式", info);
-        } else if (!Validate.MSG.equals(validate.validateMsg())) {
+        if (StringUtil.isBlank(validate.validateMsg()) && StringUtil.isBlank(validate.validateMsgKey())) {
+            result = String.format("不符合%s格式", info == null ? "自定义" : info);
+        } else if (!StringUtil.isBlank(validate.validateMsg())) {
             result = validate.validateMsg();
-        } else if (!StringUtil.isEmpty(validate.validateMsgKey())) {
+        } else if (!StringUtil.isBlank(validate.validateMsgKey())) {
             result = PropertiesUtil.getMessage(validate.validateMsgKey(), (Object[]) validate.validateMsgParams());
         } else {
             result = defaultMessage;
@@ -165,29 +166,21 @@ public enum ValidateType implements ValidateInterface {
                 if (!state) {
                     v.setState(false);
                     v.setMessage(createMessage(validate));
+                } else {
+                    if (validate.validateType() == NUMBER || validate.validateType() == FLOAT) {
+                        Number n = "".equals(value) ? 0 : NumberUtil.createNumber(String.valueOf(value));
+                        if (!(validate.min() <= n.doubleValue() && n.doubleValue() <= validate.max())) {
+                            v.setState(false);
+                            v.setMessage(createMessage(validate, "值超出阈值"));
+                        }
+                    }
                 }
             }
-            switch (validate.validateType()) {
-                case NUMBER:
-                    int n = "".equals(value) ? 0 : Integer.parseInt(String.valueOf(value));
-                    if (!(validate.min() <= n && n <= validate.max())) {
-                        v.setState(false);
-                        v.setMessage(createMessage(validate, "值超出阈值"));
-                    }
-                    break;
-                case FLOAT:
-                    float n1 = "".equals(value) ? 0 : Float.parseFloat(String.valueOf(value));
-                    if (!(validate.min() <= n1 && n1 <= validate.max())) {
-                        v.setState(false);
-                        v.setMessage(createMessage(validate, "值超出阈值"));
-                    }
-                    break;
-                default:
-                    int size = String.valueOf(value).length();
-                    if (!(validate.min_size() <= size && size <= validate.max_size())) {
-                        v.setState(false);
-                        v.setMessage(createMessage(validate, "长度超出阈值"));
-                    }
+
+            int size = String.valueOf(value).length();
+            if (!(validate.min_size() <= size && size <= validate.max_size())) {
+                v.setState(false);
+                v.setMessage(createMessage(validate, "长度超出阈值"));
             }
         } else {
             if (!validate.nullable()) {

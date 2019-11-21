@@ -7,6 +7,7 @@ import com.agile.mvc.entity.LogMainEntity;
 import com.agile.mvc.entity.LogTableEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @NotAPI
+@ConditionalOnProperty(name = "business-log", prefix = "agile.log", havingValue = "true")
 public class BusinessLogService extends MainService {
     /**
      * 业务日志标识

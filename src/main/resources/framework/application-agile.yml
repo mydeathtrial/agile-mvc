@@ -33,6 +33,7 @@ agile:
     trigger-type: size
     trigger-value: 1M
     levels: debug,info,error
+    business-log: true
     package-name:
       com.agile: info,error,debug
       org.springframework: info,error,debug
