@@ -1,6 +1,5 @@
 package com.agile.common.util;
 
-import com.agile.common.properties.SecurityProperties;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
@@ -21,57 +20,6 @@ public class AesUtil {
      * 密钥算法
      */
     private static final String ALGORITHM = "AES";
-    /**
-     * 密钥
-     */
-    private static String key;
-    /**
-     * 偏移量
-     */
-    private static String iv;
-    /**
-     * 算法模式
-     */
-    private static String algorithmstr;
-
-    static {
-        SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
-        assert securityProperties != null;
-        key = securityProperties.getAesKey();
-        iv = securityProperties.getAesOffset();
-        algorithmstr = securityProperties.getAlgorithmModel();
-    }
-
-    /**
-     * AES解密
-     *
-     * @param encrypt 待解密内容
-     * @return
-     * @throws Exception
-     */
-    public static String aesDecrypt(String encrypt) {
-        try {
-            return aesDecrypt(encrypt, key, iv);
-        } catch (Exception e) {
-            return encrypt;
-        }
-    }
-
-    /**
-     * AES加密
-     *
-     * @param content 需加密内容
-     * @return
-     * @throws Exception
-     */
-    public static String aesEncrypt(String content) {
-        try {
-            return aesEncrypt(content, key, iv);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "";
-        }
-    }
 
     /**
      * 将byte[]转为各种进制的字符串
@@ -114,7 +62,7 @@ public class AesUtil {
      * @return 加密后的byte[]
      * @throws Exception
      */
-    public static byte[] aesEncryptToBytes(String content, String encryptKey, String encryptIV) throws Exception {
+    public static byte[] aesEncryptToBytes(String content, String encryptKey, String encryptIV, String algorithmstr) throws Exception {
         byte[] raw = encryptKey.getBytes(StandardCharsets.UTF_8);
         SecretKeySpec secretKeySpec = new SecretKeySpec(raw, ALGORITHM);
         Cipher cipher = Cipher.getInstance(algorithmstr);
@@ -132,8 +80,8 @@ public class AesUtil {
      * @return 加密后的base 64 code
      * @throws Exception
      */
-    public static String aesEncrypt(String content, String encryptKey, String encryptIV) throws Exception {
-        return StringUtil.isEmpty(content) ? null : base64Encode(aesEncryptToBytes(content, encryptKey, encryptIV));
+    public static String aesEncrypt(String content, String encryptKey, String encryptIV, String algorithmstr) throws Exception {
+        return StringUtil.isEmpty(content) ? null : base64Encode(aesEncryptToBytes(content, encryptKey, encryptIV, algorithmstr));
     }
 
     /**
@@ -144,7 +92,7 @@ public class AesUtil {
      * @return 解密后的String
      * @throws Exception
      */
-    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIV) throws Exception {
+    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIV, String algorithmstr) throws Exception {
         byte[] raw = decryptKey.getBytes(StandardCharsets.US_ASCII);
         SecretKeySpec skeySpec = new SecretKeySpec(raw, ALGORITHM);
 
@@ -156,6 +104,17 @@ public class AesUtil {
         return new String(decryptBytes, StandardCharsets.UTF_8);
     }
 
+    public static String aesEncrypt(String content, String encryptKey, String encryptIV) throws Exception {
+        return aesEncrypt(content, encryptKey, encryptIV, "AES/CBC/PKCS5Padding");
+    }
+
+    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIV) throws Exception {
+        return aesDecryptByBytes(encryptBytes, decryptKey, encryptIV, "AES/CBC/PKCS5Padding");
+    }
+
+    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIV) {
+        return aesDecrypt(encryptStr, decryptKey, encryptIV, "AES/CBC/PKCS5Padding");
+    }
 
     /**
      * 将base 64 code AES解密
@@ -163,9 +122,12 @@ public class AesUtil {
      * @param encryptStr 待解密的base 64 code
      * @param decryptKey 解密密钥
      * @return 解密后的string
-     * @throws Exception
      */
-    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIV) throws Exception {
-        return StringUtil.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIV);
+    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIV, String algorithmstr) {
+        try {
+            return StringUtil.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIV, algorithmstr);
+        } catch (Exception e) {
+            return encryptStr;
+        }
     }
 }

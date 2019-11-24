@@ -78,7 +78,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         String validateCode = ParamUtil.getInParam(params, this.code, String.class);
 
         //解密
-        sourcePassword = AesUtil.aesDecrypt(sourcePassword);
+        sourcePassword = AesUtil.aesDecrypt(sourcePassword, securityProperties.getAesKey(), securityProperties.getAesOffset(), securityProperties.getAlgorithmModel());
 
         if (StringUtil.isEmpty(sourceUsername)) {
             throw new NoCompleteFormSign();
