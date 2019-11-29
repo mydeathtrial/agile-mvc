@@ -11,6 +11,7 @@ import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.ServletUtil;
+import com.agile.common.util.StringUtil;
 import org.apache.commons.logging.Log;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -223,8 +224,7 @@ public class LogAop {
                         serviceExecutionInfo.getInParamToJson(),
                         serviceExecutionInfo.getTimeConsuming()));
 
-                logger.error(DETAIL_ERROR_INFO,
-                        serviceExecutionInfo.getE());
+                logger.error(DETAIL_ERROR_INFO + StringUtil.coverToString(serviceExecutionInfo.getE()));
             }
         }
     }

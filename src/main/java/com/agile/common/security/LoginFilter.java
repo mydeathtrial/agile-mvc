@@ -6,6 +6,7 @@ import com.agile.common.exception.NoCompleteFormSign;
 import com.agile.common.exception.VerificationCodeException;
 import com.agile.common.exception.VerificationCodeExpire;
 import com.agile.common.exception.VerificationCodeNon;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.AesUtil;
@@ -70,12 +71,15 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        judgeLoginErrorLock(request);
         //获取用户名密码
         Map<String, Object> params = ParamUtil.handleInParam(request);
         String sourceUsername = ParamUtil.getInParam(params, this.username, String.class);
         String sourcePassword = ParamUtil.getInParam(params, this.password, String.class);
         String validateCode = ParamUtil.getInParam(params, this.code, String.class);
+
+        LoggerFactory.AUTHORITY_LOG.info(String.format("正在登陆...[账号：%s][密码：%s][验证码：%s]", sourceUsername, sourcePassword, validateCode));
+        judgeLoginErrorLock(request);
+
 
         //解密
         sourcePassword = AesUtil.aesDecrypt(sourcePassword, securityProperties.getAesKey(), securityProperties.getAesOffset(), securityProperties.getAlgorithmModel());
