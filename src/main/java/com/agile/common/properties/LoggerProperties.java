@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.apache.logging.log4j.Level;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,6 +47,16 @@ public class LoggerProperties {
      * 业务日志
      */
     private boolean businessLog = true;
+
+    /**
+     * 删除多久之前的日志
+     */
+    private Duration timeout = Duration.ofDays(2);
+
+    /**
+     * 文件超多多大删掉
+     */
+    private String maxSize = "100M";
 
     /**
      * 类型

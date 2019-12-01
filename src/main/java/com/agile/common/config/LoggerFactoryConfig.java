@@ -9,6 +9,7 @@ import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Order;
 import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.LayoutComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 
@@ -25,16 +26,16 @@ public class LoggerFactoryConfig extends ConfigurationFactory {
 
     private static Configuration createConfiguration(final String name, ConfigurationBuilder<BuiltConfiguration> builder) {
         builder.setConfigurationName(name);
+        final LayoutComponentBuilder layout = builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN);
 
         //log4j2自身内部日志级别
-        builder.setStatusLevel(Level.INFO);
+        builder.setStatusLevel(Level.ERROR);
 
         //控制台日志
-        AppenderComponentBuilder consoleConfig = builder.newAppender("Stdout", "CONSOLE").addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT);
-        consoleConfig.add(builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN));
+        AppenderComponentBuilder consoleConfig = builder.newAppender("Stdout", "CONSOLE").addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT).addComponent(layout);
         builder.add(consoleConfig);
 
-        builder.add(builder.newAsyncRootLogger(Level.OFF).add(builder.newAppenderRef("Stdout")));
+        builder.add(builder.newAsyncRootLogger(Level.ALL).add(builder.newAppenderRef("Stdout")));
         return builder.build();
 
     }

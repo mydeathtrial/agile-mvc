@@ -3,236 +3,32 @@ package com.agile.common.util;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.MessageSource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author mydeathtrial on 2017/3/11
  */
-public final class PropertiesUtil extends PropertiesLoaderUtils {
-
-    private static final String CLASS_PATH = "/com/agile/conf/";
-    private static final String JSON_FILE_ERROR = "未成功解析的json文件";
-    private static Properties properties = new Properties();
-    private static Map<String, Set<String>> filePath = new HashMap<>();
-    private static Map<String, JSON> jsonCache = new HashMap<>();
-
-    public static Properties getProperties() {
-        return properties;
-    }
-
-    public static void setProperties(String key, String value) {
-        properties.setProperty(key, value);
-    }
-
-    public static void appendProperties(String key, String value) {
-        String v = properties.getProperty(key);
-        if (v == null) {
-            properties.setProperty(key, value);
-        } else {
-            properties.setProperty(key, v + value);
-        }
-    }
-
-    static {
-        mergeEnv();
-        readDir("/");
-        readDir(CLASS_PATH);
-        mergeOrder("application");
-        mergeOrder("bootstrap");
-        mergeOrder("agile-reset");
-        coverEL();
-    }
-
-    private static void readDir(String classPathResource) {
-        try {
-            File dir = new File(PropertiesUtil.class.getResource(classPathResource).toURI().getPath());
-            if (dir.exists() && dir.isDirectory()) {
-                File[] files = dir.listFiles();
-                if (files == null) {
-                    return;
-                }
-                for (File file : files) {
-                    if (file.isFile()) {
-                        String fileName = file.getName();
-                        if (fileName.endsWith("properties")) {
-                            mergeProperties(file);
-                        } else if (fileName.endsWith("yml")) {
-                            mergeYml(classPathResource + file.getName());
-                        } else if (fileName.endsWith("json")) {
-                            mergeJson(file);
-                        }
-                        mergeFilePath(file);
-
-                    } else if (file.isDirectory()) {
-                        readDir(classPathResource + file.getName() + "/");
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private static void coverEL() {
-        if (properties == null) {
-            return;
-        }
-        for (Map.Entry<Object, Object> v : properties.entrySet()) {
-            if (StringUtil.isString(v.getValue())) {
-                properties.setProperty(String.valueOf(v.getKey()), StringUtil.parsingPlaceholder("${env.", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));
-                properties.setProperty(String.valueOf(v.getKey()), StringUtil.parsingPlaceholder("${", "}", String.valueOf(v.getValue()), PropertiesUtil.properties));
-            }
-        }
-    }
-
-    private static void mergeEnv() {
-        merge(System.getProperties());
-        merge(System.getenv());
-    }
-
-    private static void mergeOrder(String fileName) {
-        merge(CLASS_PATH + fileName + ".properties");
-        merge(CLASS_PATH + fileName + ".yml");
-        merge(fileName + ".properties");
-        merge(fileName + ".yml");
-    }
-
-    public static void merge(String fileName) {
-        try {
-
-            if (ObjectUtil.isEmpty(fileName)) {
-                return;
-            }
-            if (fileName.endsWith("properties")) {
-                merge(PropertiesUtil.class.getResourceAsStream(fileName));
-            } else if (fileName.endsWith("yml")) {
-                mergeYml(fileName);
-            } else if (fileName.endsWith("json")) {
-                mergeJson(fileName, PropertiesUtil.class.getResourceAsStream(fileName));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void merge(InputStream in) {
-        try {
-            if (ObjectUtil.isEmpty(in)) {
-                return;
-            }
-            properties.load(in);
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void merge(Properties p) {
-        for (Map.Entry<Object, Object> entry : p.entrySet()) {
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            properties.setProperty(key.toString(), value.toString());
-        }
-    }
-
-    public static void merge(Map<String, String> p) {
-        for (Map.Entry<String, String> entry : p.entrySet()) {
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-            properties.setProperty(key.toString(), value.toString());
-        }
-    }
-
-    public static void mergeProperties(File file) {
-        try {
-            if (ObjectUtil.isEmpty(file) || !file.getName().endsWith(".properties")) {
-                return;
-            }
-            merge(new BufferedInputStream(new FileInputStream(file)));
-        } catch (Exception ignored) {
-        }
-    }
-
-    public static void mergeYml(String classPathResource) {
-        try {
-            if (classPathResource == null || !classPathResource.endsWith(".yml")) {
-                return;
-            }
-            YamlPropertiesFactoryBean yml = new YamlPropertiesFactoryBean();
-            ClassPathResource resource = new ClassPathResource(classPathResource);
-            if (!resource.exists()) {
-                return;
-            }
-            yml.setResources(resource);
-            merge(Objects.requireNonNull(yml.getObject()));
-        } catch (Exception ignored) {
-        }
-    }
-
-    public static void mergeJson(File file) {
-        String data = null;
-        try {
-            data = FileUtils.readFileToString(file, "UTF-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JSON json = JSONUtil.toJSON(data);
-        if (json != null) {
-            jsonCache.put(file.getPath(), json);
-        }
-    }
-
-    private static void mergeJson(String fileName, InputStream in) {
-        try {
-            if (ObjectUtil.isEmpty(fileName) || !fileName.endsWith(".json")) {
-                return;
-            }
-            String data = IOUtils.toString(in, "UTF-8");
-            properties.put(fileName, JSONUtil.toJSON(data));
-        } catch (Exception ignored) {
-        }
-    }
-
-
-    private static void mergeFilePath(File file) {
-        String name = file.getName();
-        filePath.computeIfAbsent(name, k -> new HashSet<>());
-        filePath.get(name).add(file.getPath());
-    }
-
-    /**
-     * 获取工程配置信息
-     *
-     * @param key 句柄
-     * @return 值
-     */
-    public static String getProperty(String key) {
-        return properties.getProperty(key);
-    }
+public final class PropertiesUtil extends com.agile.common.util.properties.PropertiesUtil {
 
     /**
      * 获取工程格式化响应文
@@ -262,7 +58,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
 
         if (message == null) {
             try {
-                message = MessageFormat.format(properties.getProperty(key), params);
+                message = MessageFormat.format(getProperty(key), params);
             } catch (Exception ignored) {
             }
         }
@@ -278,11 +74,41 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @return JSONObject数据
      */
     public static JSON getJson(String fileName) {
-        if (!fileName.endsWith(".json")) {
-            fileName = String.format("%s.json", fileName);
+        try {
+            if (!fileName.endsWith(".json")) {
+                fileName = String.format("%s.json", fileName);
+            }
+            String path = getFilePath(fileName);
+            InputStream stream = PropertiesUtil.class.getResourceAsStream(path);
+            return streamToJson(stream);
+        } catch (Exception e) {
+            return null;
         }
-        String path = getFilePath(fileName);
-        return jsonCache.get(path);
+    }
+
+    private static JSON streamToJson(InputStream stream) {
+        return (JSON) com.agile.common.util.json.JSONUtil.parse(inputStreamToString(stream));
+    }
+
+    /**
+     * 输入流转字符串
+     *
+     * @param inputStream 输入流
+     * @return 字符串
+     */
+    private static String inputStreamToString(InputStream inputStream) {
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+            StringBuilder stringBuffer = new StringBuilder();
+            String oneLine;
+            while ((oneLine = bufferedReader.readLine()) != null) {
+                stringBuffer.append(oneLine);
+            }
+            return stringBuffer.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -292,7 +118,12 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      * @return JSONObject数据
      */
     public static JSON getJsonByAbsolutePath(String fileName) {
-        return jsonCache.get(fileName);
+        try {
+            return streamToJson(new FileInputStream(new File(fileName)));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -304,11 +135,11 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
     public static List<JSONObject> getJsonBySuffix(String fileNameSuffix) {
         List<JSONObject> list = new ArrayList<>();
         fileNameSuffix = String.format("%s.json", fileNameSuffix);
-        Enumeration<Object> keys = properties.keys();
+        Enumeration<Object> keys = getProperties().keys();
         while (keys.hasMoreElements()) {
             String key = String.valueOf(keys.nextElement());
             if (key.endsWith(fileNameSuffix)) {
-                JSONObject node = properties.get(key) instanceof JSONObject ? (JSONObject) properties.get(key) : null;
+                JSONObject node = getProperties().get(key) instanceof JSONObject ? (JSONObject) getProperties().get(key) : null;
                 if (node != null) {
                     list.add(node);
                 }
@@ -330,19 +161,17 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      */
     public static String getFilePath(String fileName) {
         String result = null;
-        Set<String> set = filePath.get(fileName);
-        if (set != null) {
-            if (set.size() == 1) {
-                result = set.iterator().next();
-            } else if (set.size() > 1) {
-                throw new RuntimeException("The number of results exceeded expectations");
-            }
+        Set<String> set = getFilePaths(fileName);
+        if (set.size() == 1) {
+            result = set.iterator().next();
+        } else if (set.size() > 1) {
+            throw new RuntimeException("The number of results exceeded expectations");
         }
         return result;
     }
 
     public static Set<String> getFilePaths(String fileName) {
-        return filePath.get(fileName);
+        return getFileNames().stream().filter(name -> name.endsWith(fileName)).collect(Collectors.toSet());
     }
 
     /**
@@ -381,7 +210,7 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
      */
     public static <T> List<T> getObjectFromJson(Class<T> clazz, String fileSuffixName) {
         List<T> list = new ArrayList<>();
-        Enumeration<Object> it = properties.keys();
+        Enumeration<Object> it = getProperties().keys();
         while (it.hasMoreElements()) {
             String key = String.valueOf(it.nextElement());
             if (key.endsWith(String.format("%s.json", fileSuffixName))) {
@@ -423,39 +252,5 @@ public final class PropertiesUtil extends PropertiesLoaderUtils {
             }
         }
         return list;
-    }
-
-    /**
-     * 获取工程配置信息
-     *
-     * @param key 句柄
-     * @return 值
-     */
-    public static String getProperty(String key, String defaultValue) {
-        Object value = getProperty(key);
-        if (!ObjectUtil.isEmpty(value)) {
-            return value.toString();
-        }
-        return defaultValue;
-    }
-
-    public static Properties getPropertyByPrefix(String prefix) {
-        Properties r = new Properties();
-        Set<String> propertyNames = properties.stringPropertyNames();
-        for (String name : propertyNames) {
-            if (name.startsWith(prefix)) {
-                r.put(name, properties.get(name));
-            }
-        }
-        return r;
-
-    }
-
-    public static <T> T getProperty(String var1, Class<T> var2) {
-        return ObjectUtil.cast(var2, getProperty(var1));
-    }
-
-    public static <T> T getProperty(String var1, Class<T> var2, String defaultValue) {
-        return ObjectUtil.cast(var2, getProperty(var1, defaultValue));
     }
 }

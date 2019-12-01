@@ -1,11 +1,14 @@
 package com.agile.mvc.service;
 
+import com.agile.common.annotation.Mapping;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.mvc.entity.SysTaskEntity;
+
+import static com.agile.common.base.RETURN.SUCCESS;
 
 /**
  * @author 佟盟
@@ -33,7 +36,7 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
             return RETURN.PARAMETER_ERROR;
         }
         taskService.addTask(task);
-        return RETURN.SUCCESS;
+        return SUCCESS;
     }
 
     /**
@@ -48,7 +51,7 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
         }
         taskService.removeTask(id);
         this.dao.deleteById(SysTaskEntity.class, id);
-        return RETURN.SUCCESS;
+        return SUCCESS;
     }
 
     /**
@@ -68,7 +71,7 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
         entity.setEnable(false);
         dao.update(entity);
 
-        return RETURN.SUCCESS;
+        return SUCCESS;
     }
 
 
@@ -89,7 +92,7 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
         entity.setEnable(true);
         dao.update(entity);
 
-        return RETURN.SUCCESS;
+        return SUCCESS;
     }
 
     /**
@@ -101,6 +104,18 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
         SysTaskEntity entity = super.updateAndReturn();
         taskService.updateTask(entity);
 
-        return RETURN.SUCCESS;
+        return SUCCESS;
     }
+
+    /**
+     * 描述：
+     * @author 佟盟
+     * @date 2019/12/1 22:06
+    */
+    @Mapping(path = "/test")
+    public Object test() {
+        logger.error("1231231231231231");
+        return SUCCESS;
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.agile.common.generator;
 
+import com.agile.common.util.PropertiesUtil;
 import com.agile.mvc.App;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -39,6 +40,10 @@ public class ShowdocGenerator {
     @Autowired
     private WebApplicationContext context;
     private MockMvc mockMvc;
+
+    static {
+        PropertiesUtil.read("test.yml", ShowdocGenerator.class.getResourceAsStream("/test.yml"));
+    }
 
     @Before
     public void setUp() {
