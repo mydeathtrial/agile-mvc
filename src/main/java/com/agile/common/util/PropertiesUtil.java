@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.factory.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -79,6 +80,9 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
                 fileName = String.format("%s.json", fileName);
             }
             String path = getFilePath(fileName);
+            if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
+                LoggerFactory.COMMON_LOG.debug("获取json文件路径:" + path);
+            }
             InputStream stream = PropertiesUtil.class.getResourceAsStream(path);
             return streamToJson(stream);
         } catch (Exception e) {
@@ -160,14 +164,11 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
      * @return JSONObject数据
      */
     public static String getFilePath(String fileName) {
-        String result = null;
         Set<String> set = getFilePaths(fileName);
-        if (set.size() == 1) {
-            result = set.iterator().next();
-        } else if (set.size() > 1) {
-            throw new RuntimeException("The number of results exceeded expectations");
+        if (set.size() > 0) {
+            return set.iterator().next();
         }
-        return result;
+        return null;
     }
 
     public static Set<String> getFilePaths(String fileName) {

@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author 佟盟 on n017/TWO/n3
+ * @author 佟盟
  * 日志工厂
  */
 public final class LoggerFactory {
@@ -181,10 +181,10 @@ public final class LoggerFactory {
             policy = TimeBasedTriggeringPolicy.newBuilder().withModulate(true).withInterval(Integer.parseInt(loggerProperties.getTriggerValue())).build();
         }
 
-        IfFileName.createNameCondition("*.log.gz",null);
+        IfFileName.createNameCondition("*.log.gz", null);
         DeleteAction deleteAction = DeleteAction.createDeleteAction(path + "old",
                 false,
-                3,
+                Constant.NumberAbout.THREE,
                 false,
                 null,
                 new PathCondition[]{IfLastModified.createAgeCondition(Duration.parse(loggerProperties.getTimeout().getSeconds() + "s")), IfAccumulatedFileSize.createFileSizeCondition(loggerProperties.getMaxSize())},

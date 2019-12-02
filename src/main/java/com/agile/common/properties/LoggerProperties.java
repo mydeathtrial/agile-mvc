@@ -51,7 +51,7 @@ public class LoggerProperties {
     /**
      * 删除多久之前的日志
      */
-    private Duration timeout = Duration.ofDays(2);
+    private Duration timeout = Duration.ofDays(Constant.NumberAbout.TWO);
 
     /**
      * 文件超多多大删掉
