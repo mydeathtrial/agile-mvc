@@ -11,6 +11,7 @@ package com.agile.common.task;
 public interface Target {
     /**
      * 取任务目标标识
+     *
      * @return 唯一标识
      */
     String getCode();

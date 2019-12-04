@@ -1,18 +1,15 @@
 package com.agile.common.task;
 
-import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.CacheUtil;
-import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.DateUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.logging.Log;
-import org.apache.logging.log4j.Level;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -35,8 +31,23 @@ import java.util.Optional;
 @Getter
 @AllArgsConstructor
 public class TaskJob implements Serializable, Runnable {
-    private final Log logger = LoggerFactory.createLogger("task", TaskJob.class, Level.INFO, Level.ERROR);
 
+    private static final String START_TASK = "任务:[%s][开始执行]";
+    private static final String NO_API_TASK = "任务:[%s][非法任务，未绑定任何api信息，任务结束]";
+    private static final String ILLEGAL_API_TASK = "任务:[%s][非法任务，入参大于1个，任务结束]";
+    private static final String EXCEPTION_API_TASK = "任务:[%s][任务异常]";
+    private static final String END_TASK = "任务:[%s][任务完成]";
+    private static final String NEXT_TASK = "任务:[%s][下次执行时间%s]";
+
+    private final Log logger = LoggerFactory.createLogger("task", TaskJob.class);
+    /**
+     * 持久层工具
+     */
+    private TaskManager taskManager;
+    /**
+     * 任务执行代理
+     */
+    private TaskProxy taskProxy;
     private Task task;
     private TaskTrigger trigger;
     private List<Target> targets;
@@ -45,20 +56,21 @@ public class TaskJob implements Serializable, Runnable {
     public void run() {
         synchronized (this) {
             try {
-                //判断是否需要同步，同步情况下获取同步锁后方可执行，非同步情况下直接运行
-                if (this.trigger.isSync()) {
-                    //获取下次执行时间（秒）
-                    long nextTime = (Objects.requireNonNull(this.trigger.nextExecutionTime(new SimpleTriggerContext())).getTime() - System.currentTimeMillis()) / Constant.NumberAbout.THOUSAND;
+                //获取下次执行时间（秒）
+                Date nextTime = trigger.nextExecutionTime(new SimpleTriggerContext());
 
+                //判断是否需要同步，同步情况下获取同步锁后方可执行，非同步情况下直接运行
+                if (trigger.getSync()) {
                     //如果抢到同步锁，设置锁定时间并直接运行
-                    if (setNxLock(Long.toString(this.task.getCode()), (int) nextTime)) {
+                    if (setNxLock(Long.toString(task.getCode()), nextTime)) {
                         invoke();
                     }
                 } else {
                     invoke();
                 }
+                logger.info(String.format(NEXT_TASK, task.getCode(), DateUtil.convertToString(nextTime, "yyyy-MM-dd HH:mm:ss")));
             } catch (Exception e) {
-                logger.error(StringUtil.coverToString(e));
+                logger.error(String.format(EXCEPTION_API_TASK, task.getCode()), e);
             }
         }
     }
@@ -66,82 +78,103 @@ public class TaskJob implements Serializable, Runnable {
     /**
      * 获取分布式锁
      *
-     * @param lockName 锁名称
-     * @param second   加锁时间（秒）
+     * @param lockName   锁名称
+     * @param unlockTime 加锁时间（秒）
      * @return 如果获取到锁，则返回lockKey值，否则为null
      */
-    private boolean setNxLock(String lockName, int second) {
-        RedisConnectionFactory redisConnectionFactory = FactoryUtil.getBean(RedisConnectionFactory.class);
-        if (redisConnectionFactory == null) {
-            return true;
-        }
+    private boolean setNxLock(String lockName, Date unlockTime) {
         synchronized (this) {
             //抢占锁
             boolean isLock = CacheUtil.lock(lockName);
             if (isLock) {
                 //拿到Lock，设置超时时间
-                CacheUtil.unlock(lockName, Duration.ofSeconds(second - 1));
+                CacheUtil.unlock(lockName, Duration.ofMillis((unlockTime.getTime() - System.currentTimeMillis()) - 1));
             }
             return isLock;
         }
     }
+
 
     /**
      * 逐个执行定时任务目标方法
      */
     @Transactional(rollbackFor = Exception.class)
     public void invoke() {
-        TaskManager taskManager = FactoryUtil.getBean(TaskManager.class);
+        RunDetail runDetail = RunDetail.builder().taskCode(task.getCode()).startTime(new Date()).ending(true).build();
+        start(runDetail);
+        running(runDetail);
+        end(runDetail);
+    }
+
+    private void exception(Throwable e, RunDetail runDetail) {
+        runDetail.addLog(StringUtil.coverToString(e));
+        runDetail.setEnding(false);
+        if (logger.isErrorEnabled()) {
+            logger.error(String.format(EXCEPTION_API_TASK, runDetail.getTaskCode()), e);
+        }
+    }
+
+    private void start(RunDetail runDetail) {
+        if (logger.isInfoEnabled()) {
+            logger.info(String.format(START_TASK, runDetail.getTaskCode()));
+        }
         if (taskManager != null) {
             //通知持久层，任务开始运行
-            taskManager.run(task.getCode());
+            taskManager.run(runDetail.getTaskCode());
         }
-        RunDetail runDetail = RunDetail.builder().taskCode(task.getCode()).startTime(new Date()).ending(true).build();
+    }
 
-        boolean ending = true;
-        String log;
-        //逐个执行定时任务目标方法
-        for (Target target : targets) {
-            if (logger.isInfoEnabled()) {
-                log = "开始定时任务:" + task.getCode();
-                logger.info(log);
-            }
+    private void running(RunDetail runDetail) {
+        targets.forEach(target -> {
+            String log;
             if (ObjectUtil.isEmpty(target)) {
-                log = "该定时任务中未绑定任何api信息，任务结束";
+                log = String.format(NO_API_TASK, task.getCode());
                 runDetail.addLog(log);
-                logger.info(log);
+                if (logger.isErrorEnabled()) {
+                    logger.error(String.format(log, target.getCode()));
+                }
                 return;
             }
             ApiBase apiInfo = TaskService.getApi(target.getCode());
-            if (apiInfo == null || apiInfo.getMethod().getParameterCount() > 1) {
-                log = "该定时任务中绑定的方法不合法，任务结束";
+            if (apiInfo == null) {
+                log = String.format(NO_API_TASK, task.getCode());
                 runDetail.addLog(log);
-                logger.info(log);
+                if (logger.isErrorEnabled()) {
+                    logger.error(String.format(log, target.getCode()));
+                }
                 return;
             }
-            TaskProxy taskProxy = FactoryUtil.getBean(TaskProxy.class);
+            if (apiInfo.getMethod().getParameterCount() > 1) {
+                log = String.format(ILLEGAL_API_TASK, target.getCode());
+                runDetail.addLog(log);
+                if (logger.isErrorEnabled()) {
+                    logger.error(String.format(log, target.getCode()));
+                }
+                return;
+            }
+
             Optional.ofNullable(taskProxy).ifPresent((proxy) -> {
                 try {
                     proxy.invoke(apiInfo, task);
                 } catch (InvocationTargetException | IllegalAccessException e) {
+                    if (logger.isErrorEnabled()) {
+                        logger.error(String.format(EXCEPTION_API_TASK, target.getCode()), e);
+                    }
                     exception(e, runDetail);
                 }
             });
-        }
+        });
+    }
 
+    private void end(RunDetail runDetail) {
+        if (logger.isInfoEnabled()) {
+            logger.info(String.format(END_TASK, runDetail.getTaskCode()));
+        }
         if (taskManager != null) {
             runDetail.setEndTime(new Date());
             taskManager.logging(runDetail);
             //通知持久层，任务开始运行
             taskManager.finish(task.getCode());
         }
-
-    }
-
-    private void exception(Throwable e, RunDetail runDetail) {
-        String log = StringUtil.coverToString(e);
-        runDetail.addLog(log);
-        runDetail.setEnding(false);
-        logger.info(log);
     }
 }

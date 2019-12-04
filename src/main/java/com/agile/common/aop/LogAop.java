@@ -77,7 +77,7 @@ public class LogAop {
 
         ApiInfo apiInfo = extractApiInfo(joinPoint);
 
-        if (apiInfo == null || !(apiInfo.getBean() instanceof MainService)) {
+        if (!(apiInfo.getBean() instanceof MainService)) {
             return joinPoint.proceed();
         }
 

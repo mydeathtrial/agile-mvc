@@ -478,7 +478,7 @@ public class ObjectUtil extends ObjectUtils {
                 T object = clazz.newInstance();
 
                 Set<Field> fields = getAllField(clazz);
-                fields.parallelStream().forEach(field -> {
+                fields.forEach(field -> {
                     String key = coverFieldNameToMapKey(clazz, field, prefix, suffix, map);
                     if (key != null) {
                         try {
@@ -884,7 +884,7 @@ public class ObjectUtil extends ObjectUtils {
         final String serialVersionUID = "serialVersionUID";
         try {
             Object newObject = clazz.newInstance();
-            Set<Field> haveValueFields = ObjectUtil.getAllField(clazz).parallelStream().filter(field -> {
+            Set<Field> haveValueFields = ObjectUtil.getAllField(clazz).stream().filter(field -> {
                 field.setAccessible(true);
                 try {
                     if (serialVersionUID.equals(field.getName())) {

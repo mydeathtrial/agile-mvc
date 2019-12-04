@@ -2,6 +2,7 @@ package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
 import com.agile.common.task.Task;
+import com.agile.common.util.FactoryUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -50,9 +51,9 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     @Remark("定时任务名")
     private String name;
     @Remark("状态")
-    private String status = "1000";
+    private String status;
     @Remark("启动")
-    private boolean enable;
+    private Boolean enable;
     @Remark("定时表达式")
     private String cron;
     @Remark("是否同步")
@@ -61,6 +62,9 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     private Date updateTime;
     @Remark("创建时间")
     private Date createTime;
+    @Remark("应用名字")
+    @Builder.Default
+    private String application = FactoryUtil.getApplicationContext().getId();
 
     @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
     @DecimalMin(value = "0", groups = {Insert.class, Update.class})
@@ -100,18 +104,14 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     @Override
     @Basic
     @Column(name = "sync", length = 1)
-    public boolean getSync() {
-        return sync == null ? false : sync;
+    public Boolean getSync() {
+        return sync;
     }
 
     @Basic
     @Column(name = "enable", length = 1)
-    public boolean isEnable() {
-        return enable;
-    }
-
     @Override
-    public boolean enable() {
+    public Boolean getEnable() {
         return enable;
     }
 
@@ -132,6 +132,12 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
         return createTime;
     }
 
+    @Column(name = "application", length = 255)
+    @Basic
+    @Length(max = 30, message = "最长为30个字符", groups = {Insert.class, Update.class})
+    public String getApplication() {
+        return application;
+    }
 
     @Override
     public SysTaskEntity clone() {

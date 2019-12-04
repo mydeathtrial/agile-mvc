@@ -17,6 +17,7 @@ public class TaskProxy {
     @Transactional(rollbackFor = Exception.class)
     public void invoke(ApiBase apiInfo, Task task) throws InvocationTargetException, IllegalAccessException {
         Method method = apiInfo.getMethod();
+        method.setAccessible(true);
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 1) {
             method.invoke(apiInfo.getBean(), ObjectUtil.cast(parameterTypes[0], task.getCode()));

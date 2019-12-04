@@ -60,7 +60,7 @@ public class TokenFilter extends OncePerRequestFilter {
             if (e instanceof AuthenticationException) {
                 exceptionHandler(request, response, (AuthenticationException) e);
             } else {
-                LoggerFactory.AUTHORITY_LOG.error(e);
+                LoggerFactory.AUTHORITY_LOG.error("会话令牌解析异常", e);
                 exceptionHandler(request, response, new TokenIllegalException(null));
             }
         }

@@ -27,8 +27,8 @@ public class EhCacheRegionFactory extends SingletonEhcacheRegionFactory {
             REFERENCE_COUNT.incrementAndGet();
             return Objects.requireNonNull(FactoryUtil.getBean(EhCacheCacheManager.class)).getCacheManager();
         } catch (Exception e) {
-            if (LoggerFactory.CACHE_LOG.isInfoEnabled()) {
-                LoggerFactory.CACHE_LOG.error("初始化EhCache二级缓存区域失败");
+            if (LoggerFactory.CACHE_LOG.isErrorEnabled()) {
+                LoggerFactory.CACHE_LOG.error("初始化EhCache二级缓存区域失败", e);
             }
             REFERENCE_COUNT.decrementAndGet();
             throw e;

@@ -392,7 +392,7 @@ public class ParamUtil {
 
         Map<String, ValidateMsg> cache = Maps.newHashMapWithExpectedSize(errors.size());
 
-        errors.parallelStream().forEach(validateMsg -> {
+        errors.forEach(validateMsg -> {
             String key = validateMsg.getItem();
             if (cache.containsKey(key)) {
                 cache.get(key).addMessage(validateMsg.getMessage());

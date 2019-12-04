@@ -2,25 +2,31 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.annotation.Init;
 import com.agile.common.exception.NotFoundTaskException;
+import com.agile.common.factory.LoggerFactory;
 import com.agile.common.task.ApiBase;
 import com.agile.common.task.Target;
 import com.agile.common.task.Task;
 import com.agile.common.task.TaskInfo;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskManager;
+import com.agile.common.task.TaskProxy;
 import com.agile.common.task.TaskTrigger;
+import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
+import org.apache.commons.logging.Log;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +37,17 @@ import java.util.concurrent.ScheduledFuture;
  * @author 佟盟
  */
 public class TaskService {
+    private final Log logger = LoggerFactory.createLogger("task", TaskService.class);
+    private static final String INIT_TASK = "任务:[%s][完成初始化][下次执行时间%s]";
+    private static final String INIT_TASKS = "检测出定时任务%s条";
+
     private static Map<Long, TaskInfo> taskInfoMap = new HashMap<>();
     private static Map<String, ApiBase> apiBaseMap = new HashMap<>();
 
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
     private TaskManager taskManager;
+    private TaskProxy taskProxy;
 
     public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskManager) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
@@ -54,6 +65,9 @@ public class TaskService {
         initTaskTarget();
         //获取持久层定时任务数据集
         List<Task> list = taskManager.getTask();
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format(INIT_TASKS, list.size()));
+        }
         for (Task task : list) {
             addTask(task);
         }
@@ -68,9 +82,6 @@ public class TaskService {
         for (String beanName : beans) {
 
             Object bean = applicationContext.getBean(beanName);
-            if (bean == null) {
-                continue;
-            }
             Class<?> clazz = ProxyUtils.getUserClass(bean.getClass());
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {
@@ -166,15 +177,20 @@ public class TaskService {
         TaskTrigger trigger = new TaskTrigger(task.getCron(), task.getSync());
 
         //新建任务
-        TaskJob job = new TaskJob(task, trigger, targets);
+        TaskJob job = new TaskJob(taskManager, taskProxy, task, trigger, targets);
 
         ScheduledFuture scheduledFuture = null;
-        if (task.enable()) {
+        if (task.getEnable()) {
             scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
         }
 
         //定时任务装入缓冲区
         taskInfoMap.put(task.getCode(), new TaskInfo(task, trigger, job, scheduledFuture));
+
+        if (logger.isDebugEnabled()) {
+            Date date = trigger.nextExecutionTime(new SimpleTriggerContext());
+            logger.debug(String.format(INIT_TASK, task.getCode(), DateUtil.convertToString(date, "yyyy-MM-dd HH:mm:ss")));
+        }
     }
 
 
@@ -201,9 +217,7 @@ public class TaskService {
         RedisConnectionFactory redisConnectionFactory = FactoryUtil.getBean(RedisConnectionFactory.class);
         if (redisConnectionFactory != null) {
             RedisConnection connection = redisConnectionFactory.getConnection();
-            if (connection != null) {
-                connection.expire(Long.toString(id).getBytes(StandardCharsets.UTF_8), 0);
-            }
+            connection.expire(Long.toString(id).getBytes(StandardCharsets.UTF_8), 0);
         }
 
     }

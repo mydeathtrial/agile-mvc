@@ -31,15 +31,19 @@ agile:
   log:
     package-uri: ${LOCAL_LOGS_PATH:-logs}/
     trigger-type: size
-    trigger-value: 10M
+    trigger-value: 5M
     levels: debug,info,error
     business-log: true
     package-name:
       com.agile: info,error,debug
-      org.springframework: info,error,debug
-      com.idss: info,error,debug
+      org: error
+      com: error
+      io: error
+      javax: error
+      net: error
     timeout: 1d
-    max-size: 20M
+    max-size: 200M
+    custom-log: true
   security:
     enable: true
     exclude-url: /swagger-ui.html,/webjars/springfox-swagger-ui/*,/v2/api-docs,/swagger-resources/**,/api/password-find

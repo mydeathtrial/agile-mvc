@@ -29,13 +29,13 @@ public class LoggerFactoryConfig extends ConfigurationFactory {
         final LayoutComponentBuilder layout = builder.newLayout("PatternLayout").addAttribute("pattern", PATTERN);
 
         //log4j2自身内部日志级别
-        builder.setStatusLevel(Level.ERROR);
+        builder.setStatusLevel(Level.OFF);
 
         //控制台日志
         AppenderComponentBuilder consoleConfig = builder.newAppender("Stdout", "CONSOLE").addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT).addComponent(layout);
         builder.add(consoleConfig);
 
-        builder.add(builder.newAsyncRootLogger(Level.ALL).add(builder.newAppenderRef("Stdout")));
+        builder.add(builder.newAsyncRootLogger(Level.OFF).add(builder.newAppenderRef("Stdout")));
         return builder.build();
 
     }

@@ -20,6 +20,7 @@ public interface TaskManager {
 
     /**
      * 取所有任务目标
+     *
      * @param type 类型
      * @return 任务目标列表
      */
@@ -53,7 +54,7 @@ public interface TaskManager {
      * 保存任务目标
      *
      * @param method 任务目标方法
-     * @param type 是否对外开放
+     * @param type   是否对外开放
      * @return 标识
      */
     Long save(Method method, boolean type);
@@ -68,6 +69,7 @@ public interface TaskManager {
 
     /**
      * 删除的api数据
+     *
      * @param target api数据
      */
     void remove(Target target);
@@ -88,6 +90,7 @@ public interface TaskManager {
 
     /**
      * 记录运行日志
+     *
      * @param runDetail 运行信息
      */
     void logging(RunDetail runDetail);

@@ -9,6 +9,7 @@ import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.array.ArrayUtil;
+import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.Level;
@@ -26,7 +27,6 @@ import org.apache.logging.log4j.core.appender.rolling.action.Action;
 import org.apache.logging.log4j.core.appender.rolling.action.DeleteAction;
 import org.apache.logging.log4j.core.appender.rolling.action.Duration;
 import org.apache.logging.log4j.core.appender.rolling.action.IfAccumulatedFileSize;
-import org.apache.logging.log4j.core.appender.rolling.action.IfFileName;
 import org.apache.logging.log4j.core.appender.rolling.action.IfLastModified;
 import org.apache.logging.log4j.core.appender.rolling.action.PathCondition;
 import org.apache.logging.log4j.core.async.AsyncLoggerConfig;
@@ -36,6 +36,8 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.filter.LevelRangeFilter;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,14 +65,7 @@ public final class LoggerFactory {
         if (loggerProperties == null) {
             throw new RuntimeException();
         }
-        path = loggerProperties.getPackageUri();
-        if (!path.endsWith(Constant.RegularAbout.BACKSLASH) && !path.endsWith(Constant.RegularAbout.SLASH)) {
-            path += Constant.RegularAbout.SLASH;
-        }
-        loggerProperties.setPackageUri(path);
-        if (!path.endsWith(Constant.RegularAbout.SLASH)) {
-            path += Constant.RegularAbout.SLASH;
-        }
+
 
         for (Map.Entry<String, Level[]> packageInfo : loggerProperties.getPackageName().entrySet()) {
             Level[] levels = packageInfo.getValue();
@@ -107,7 +102,7 @@ public final class LoggerFactory {
         if (levels == null || levels.length == 0) {
             levels = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR};
         }
-        getLogger(fileName, clazz.getPackage().getName(), levels);
+        getLogger(fileName, clazz.getName(), levels);
         return LogFactory.getLog(clazz);
     }
 
@@ -165,7 +160,7 @@ public final class LoggerFactory {
      * @param loggerName 日志名字
      * @return 输出引擎
      */
-    private static RollingFileAppender getRollingFileAppender(String loggerName, Level level) {
+    private static RollingFileAppender getRollingFileAppender(String loggerName, Level level, boolean isPackage) {
         if (!ArrayUtil.contains(defaultLevels, level)) {
             return null;
         }
@@ -181,8 +176,7 @@ public final class LoggerFactory {
             policy = TimeBasedTriggeringPolicy.newBuilder().withModulate(true).withInterval(Integer.parseInt(loggerProperties.getTriggerValue())).build();
         }
 
-        IfFileName.createNameCondition("*.log.gz", null);
-        DeleteAction deleteAction = DeleteAction.createDeleteAction(path + "old",
+        DeleteAction deleteAction = DeleteAction.createDeleteAction(getPath() + "old",
                 false,
                 Constant.NumberAbout.THREE,
                 false,
@@ -195,8 +189,8 @@ public final class LoggerFactory {
         RollingFileAppender appender = RollingFileAppender
                 .newBuilder()
                 .setName(name)
-                .withFileName(loggerName.contains(".") ? String.format(path + "%s.log", level.name().toLowerCase()) : String.format(path + loggerName + "/%s.log", level.name().toLowerCase()))
-                .withFilePattern(loggerName.contains(".") ? path + "old/%d{yyyy-MM-dd}-" + level.name().toLowerCase() + ".log.gz" : path + "old/%d{yyyy-MM-dd}-" + loggerName + ".log.gz")
+                .withFileName(createFileName(loggerName, level, isPackage))
+                .withFilePattern(createFilePattern(loggerName, level, isPackage))
                 .withAppend(true)
                 .withLocking(false)
                 .setFilter(getFilter(level))
@@ -211,6 +205,38 @@ public final class LoggerFactory {
     }
 
     /**
+     * 创建日志文件名
+     *
+     * @param loggerName 日志名字
+     * @param level      级别
+     * @param isPackage  是否是包日志
+     * @return 名字
+     */
+    private static String createFileName(String loggerName, Level level, boolean isPackage) {
+        final String levelName = level.name().toLowerCase();
+        if (isPackage || !loggerProperties.isCustomLog()) {
+            return String.format("%s%s.log", getPath(), levelName);
+        }
+        return String.format("%sdetail/%s/%s.log", getPath(), loggerName, levelName);
+    }
+
+    /**
+     * 创建日志打包报名
+     *
+     * @param loggerName 日志名字
+     * @param level      级别
+     * @param isPackage  是不是包日志
+     * @return 名字
+     */
+    private static String createFilePattern(String loggerName, Level level, boolean isPackage) {
+        final String levelName = level.name().toLowerCase();
+        if (isPackage || !loggerProperties.isCustomLog()) {
+            return getPath() + "old/%d{yyyy-MM-dd}/%d{HH-mm-ss}-" + levelName + ".log.gz";
+        }
+        return getPath() + "old/%d{yyyy-MM-dd}/%d{HH-mm-ss}-" + loggerName + "/detail/" + levelName + ".log.gz";
+    }
+
+    /**
      * 初始化日志配置
      *
      * @param loggerName  日志名
@@ -218,27 +244,24 @@ public final class LoggerFactory {
      * @param levels      级别
      */
     private static void getLogger(String loggerName, String packageName, Level... levels) {
-        if (loggerName == null) {
-            loggerName = packageName;
+        Set<Appender> appenderSet = Sets.newHashSet();
+        if (loggerName != null) {
+            appenderSet.addAll(Stream.of(levels)
+                    .map(level ->
+                            getRollingFileAppender(loggerName, level, false)
+                    ).filter(Objects::nonNull).collect(Collectors.toSet()));
         }
-        String finalLoggerName = loggerName;
-
-        Set<Appender> appenderSet = Stream.of(levels)
-                .map(level ->
-                        getConsoleAppender(finalLoggerName, level)
-                ).filter(Objects::nonNull).collect(Collectors.toSet());
 
         appenderSet.addAll(Stream.of(levels)
                 .map(level ->
-                        getRollingFileAppender(finalLoggerName, level)
+                        getConsoleAppender(packageName, level)
                 ).filter(Objects::nonNull).collect(Collectors.toSet()));
 
-        if (!loggerName.equals(packageName)) {
-            appenderSet.addAll(Stream.of(levels)
-                    .map(level ->
-                            getRollingFileAppender(packageName, level)
-                    ).filter(Objects::nonNull).collect(Collectors.toSet()));
-        }
+        appenderSet.addAll(Stream.of(levels)
+                .map(level ->
+                        getRollingFileAppender(packageName, level, true)
+                ).filter(Objects::nonNull).collect(Collectors.toSet()));
+
 
         AppenderRef[] refs = appenderSet.stream()
                 .peek(appender -> config.addAppender(appender))
@@ -261,13 +284,29 @@ public final class LoggerFactory {
         ctx.updateLoggers();
     }
 
-    public static void stop(String loggerName) {
-        Level[] levels = Level.values();
-        for (Level level : levels) {
-            String filename = StringUtil.camelToUnderline(loggerName) + "_" + level.name();
-            config.getRootLogger().removeAppender(filename);
-        }
-        ctx.updateLoggers();
-    }
+    private static String getPath() {
 
+        if (!StringUtil.isBlank(path)) {
+            return path;
+        }
+        path = loggerProperties.getPackageUri();
+
+        File file = new File(path);
+
+        if (!file.exists()) {
+            boolean is = file.mkdirs();
+            if (!is) {
+                throw new RuntimeException("日志目录无法创建");
+            }
+        }
+        try {
+            path = file.getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!path.endsWith(File.separator)) {
+            path += File.separator;
+        }
+        return path;
+    }
 }

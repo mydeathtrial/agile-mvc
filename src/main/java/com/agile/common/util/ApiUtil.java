@@ -51,11 +51,11 @@ public class ApiUtil {
     }
 
     public static void printLog() {
-        getApiInfoCache().parallelStream().forEach(apiInfo -> apiInfo.getRequestMappingInfos().parallelStream().forEach(requestMappingInfo -> {
+        getApiInfoCache().forEach(apiInfo -> apiInfo.getRequestMappingInfos().forEach(requestMappingInfo -> {
             PatternsRequestCondition patternsRequestCondition = requestMappingInfo.getPatternsCondition();
-            Optional.ofNullable(patternsRequestCondition)
+            Optional.of(patternsRequestCondition)
                     .ifPresent(condition ->
-                            condition.getPatterns().parallelStream()
+                            condition.getPatterns()
                                     .forEach(path ->
                                             LoggerFactory.COMMON_LOG.debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, apiInfo.getBeanName(), apiInfo.getMethod().getName()))
                                     )

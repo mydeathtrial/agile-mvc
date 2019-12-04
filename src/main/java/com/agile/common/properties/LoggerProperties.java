@@ -49,6 +49,11 @@ public class LoggerProperties {
     private boolean businessLog = true;
 
     /**
+     * 自定义日志
+     */
+    private boolean customLog = true;
+
+    /**
      * 删除多久之前的日志
      */
     private Duration timeout = Duration.ofDays(Constant.NumberAbout.TWO);

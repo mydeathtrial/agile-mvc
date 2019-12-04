@@ -61,7 +61,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
 
         final String errorCode = "2";
         if (r.getCode().startsWith(errorCode)) {
-            LoggerFactory.COMMON_LOG.error(e);
+            LoggerFactory.COMMON_LOG.error("请求异常捕获", e);
             e.printStackTrace();
         }
 

@@ -35,14 +35,14 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
 
     @Override
     public List<Task> getTask() {
-        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.class);
+        List<SysTaskEntity> list = dao.findAll(SysTaskEntity.builder().build());
         return new ArrayList<>(list);
     }
 
     @Override
     public List<Target> getApis(boolean type) {
         List<SysApiEntity> list = dao.findAll(SysApiEntity.builder().type(type).build());
-        list.parallelStream().forEach(sysApiEntity -> cache.put(sysApiEntity.getName(), sysApiEntity));
+        list.forEach(sysApiEntity -> cache.put(sysApiEntity.getName(), sysApiEntity));
         return Lists.newArrayList(list);
     }
 

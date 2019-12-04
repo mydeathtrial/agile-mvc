@@ -27,13 +27,13 @@ public interface Task {
      *
      * @return 是否
      */
-    boolean getSync();
+    Boolean getSync();
 
     /**
      * 是否可用
      *
      * @return 是否
      */
-    boolean enable();
+    Boolean getEnable();
 
 }
