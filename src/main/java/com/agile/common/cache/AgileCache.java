@@ -33,7 +33,7 @@ public interface AgileCache extends Cache {
      * 如果不存在就存，存在就不存
      *  @param key   索引
      * @param value 值
-     * @return
+     * @return 包装值
      */
     @Override
     ValueWrapper putIfAbsent(Object key, Object value);
@@ -182,7 +182,7 @@ public interface AgileCache extends Cache {
 
     /**
      * 解锁
-     *
+     * @param timeout 过期时间
      * @param lock 锁标识
      */
     void unlock(Object lock, Duration timeout);

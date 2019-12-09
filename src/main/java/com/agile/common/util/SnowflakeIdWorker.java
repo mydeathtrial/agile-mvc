@@ -156,23 +156,4 @@ public class SnowflakeIdWorker {
     private long timeGen() {
         return System.currentTimeMillis();
     }
-
-//    public static void main(String[] args) {
-//        SnowflakeIdWorker sdf = new SnowflakeIdWorker(Constant.NumberAbout.ONE, Constant.NumberAbout.ONE);
-//        long start = System.currentTimeMillis();
-//
-//        StringBuilder s = new StringBuilder();
-//
-//        boolean is = true;
-//        int count = 0;
-//        while (is) {
-//            s.append(sdf.nextId()).append("\n");
-//            count++;
-//            if (System.currentTimeMillis() - start > 1000) {
-//                is = false;
-//                System.out.println(s);
-//                System.out.println(count);
-//            }
-//        }
-//    }
 }

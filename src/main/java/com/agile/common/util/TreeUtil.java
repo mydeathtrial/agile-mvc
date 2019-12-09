@@ -7,8 +7,6 @@ import java.util.List;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/2/26 16:46
- * @Description TODO
  * @since 1.0
  */
 public class TreeUtil {

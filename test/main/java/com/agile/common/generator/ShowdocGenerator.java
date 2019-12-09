@@ -30,8 +30,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/2/25 18:47
- * @Description TODO
  * @since 1.0
  */
 @RunWith(SpringRunner.class)

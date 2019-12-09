@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/3/5 9:37
- * @Description TODO
  * @since 1.0
  */
 @Configuration

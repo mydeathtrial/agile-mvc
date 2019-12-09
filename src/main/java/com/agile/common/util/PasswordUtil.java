@@ -6,8 +6,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/2/24 13:30
- * @Description TODO
  * @since 1.0
  */
 public class PasswordUtil {

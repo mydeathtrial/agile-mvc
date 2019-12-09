@@ -11,8 +11,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author 佟盟
  * @version 1.0
- * @Date 2019/2/27 16:48
- * @Description TODO
  * @since 1.0
  */
 public class AesUtil {
