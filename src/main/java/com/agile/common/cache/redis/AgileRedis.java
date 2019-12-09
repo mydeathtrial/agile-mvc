@@ -302,11 +302,11 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void put(Object key, Object value) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\n", cache.getName(), String.valueOf(key), String.valueOf(value)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\nvalue值：%s\n", cache.getName(), key, value));
         if (Map.class.isAssignableFrom(value.getClass())) {
             evict(key);
-            Map<byte[], byte[]> map = Maps.newHashMapWithExpectedSize(((Map) value).size());
-            ((Map<Object, Object>) value).forEach((eKey, eValue) -> map.put(serializeCacheValue(eKey), serializeCacheValue(eValue)));
+            Map<byte[], byte[]> map = Maps.newHashMapWithExpectedSize(((Map<?, ?>) value).size());
+            ((Map<?, ?>) value).forEach((eKey, eValue) -> map.put(serializeCacheValue(eKey), serializeCacheValue(eValue)));
             try {
                 executeConsumer(name, connection -> connection.hMSet(createAndConvertCacheKey(key), map));
             } catch (RedisSystemException e) {
@@ -317,16 +317,16 @@ public class AgileRedis extends AbstractAgileCache {
 
         } else if (List.class.isAssignableFrom(value.getClass())) {
             evict(key);
-            int size = ((List) value).size();
+            int size = ((List<?>) value).size();
             byte[][] arr = new byte[size][];
-            List<byte[]> result = ((List<Object>) value).stream().map(this::serializeCacheValue).collect(Collectors.toList());
+            List<byte[]> result = ((List<?>) value).stream().map(this::serializeCacheValue).collect(Collectors.toList());
             byte[][] list = result.toArray(arr);
             execute(name, connection -> connection.rPush(createAndConvertCacheKey(key), list));
         } else if (Set.class.isAssignableFrom(value.getClass())) {
             evict(key);
-            int size = ((Set) value).size();
+            int size = ((Set<?>) value).size();
             byte[][] arr = new byte[size][];
-            Set<byte[]> result = ((Set<Object>) value).stream().map(this::serializeCacheValue).collect(Collectors.toSet());
+            Set<byte[]> result = ((Set<?>) value).stream().map(this::serializeCacheValue).collect(Collectors.toSet());
             byte[][] set = result.toArray(arr);
             execute(name, connection -> connection.sAdd(createAndConvertCacheKey(key), set));
         } else {
@@ -340,16 +340,14 @@ public class AgileRedis extends AbstractAgileCache {
         if (Map.class.isAssignableFrom(clazz)) {
             Map<byte[], byte[]> map = execute(name, connection -> connection.hGetAll(createAndConvertCacheKey(key)));
             HashMap<Object, Object> res = Maps.newHashMapWithExpectedSize(map.size());
-            map.forEach((eK, eV) -> {
-                res.put(deserializeCacheValue(eK), deserializeCacheValue(eV));
-            });
+            map.forEach((k, v) -> res.put(deserializeCacheValue(k), deserializeCacheValue(v)));
             return (T) res;
         } else if (List.class.isAssignableFrom(clazz)) {
             List<byte[]> list = execute(name, connection -> connection.lRange(createAndConvertCacheKey(key), 0, -1));
-            return (T) list.stream().map(node -> deserializeCacheValue(node)).collect(Collectors.toList());
+            return (T) list.stream().map(this::deserializeCacheValue).collect(Collectors.toList());
         } else if (Set.class.isAssignableFrom(clazz)) {
             Set<byte[]> set = execute(name, connection -> connection.sMembers(createAndConvertCacheKey(key)));
-            return (T) set.stream().map(node -> deserializeCacheValue(node)).collect(Collectors.toSet());
+            return (T) set.stream().map(this::deserializeCacheValue).collect(Collectors.toSet());
         } else {
             return super.get(key, clazz);
         }

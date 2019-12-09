@@ -1,6 +1,5 @@
 package com.agile.common.container;
 
-import com.agile.common.util.PrintUtil;
 import com.agile.common.util.PropertiesUtil;
 import org.springframework.boot.Banner;
 import org.springframework.boot.ansi.AnsiColor;
@@ -36,9 +35,9 @@ public class AgileBanner implements Banner {
             char[] c = line.toCharArray();
             for (char cc : c) {
                 if ('_' == cc) {
-                    PrintUtil.write(Character.toString(cc), PrintUtil.YELLOW);
+                    printStream.print(AnsiOutput.toString(AnsiColor.GREEN, cc));
                 } else {
-                    PrintUtil.write(Character.toString(cc), PrintUtil.CYAN);
+                    printStream.print(AnsiOutput.toString(AnsiColor.BLUE, cc));
                 }
             }
             System.out.println();

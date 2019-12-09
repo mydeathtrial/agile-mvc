@@ -1,7 +1,8 @@
 package com.agile.common.listener;
 
 import com.agile.common.util.DateUtil;
-import com.agile.common.util.PrintUtil;
+import org.springframework.boot.ansi.AnsiColor;
+import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -19,9 +20,8 @@ public class ListenerContainerRefreshed implements ApplicationListener<ContextRe
     public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
         long current = contextRefreshedEvent.getTimestamp();
         String currentTime = DateUtil.convertToString(new Date(current), "yyyy年MM月dd日 HH:mm:ss");
-        PrintUtil.writeln(" :: 已成功刷新容器 :: ", PrintUtil.YELLOW);
-        PrintUtil.write(" :: 刷新时间 :: ", PrintUtil.CYAN);
-        PrintUtil.writeln(currentTime, PrintUtil.YELLOW);
+        System.out.println(AnsiOutput.toString(AnsiColor.GREEN, " :: 已成功刷新容器 :: "));
+        System.out.println(AnsiOutput.toString(AnsiColor.GREEN, " :: 刷新时间 :: ", AnsiColor.BLUE, currentTime));
     }
 
 }

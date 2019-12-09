@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -164,11 +165,9 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
      * @return JSONObject数据
      */
     public static String getFilePath(String fileName) {
+        final String regex = "[\\\\/]";
         Set<String> set = getFilePaths(fileName);
-        if (set.size() > 0) {
-            return set.iterator().next();
-        }
-        return null;
+        return set.stream().min(Comparator.comparingInt(a -> a.split(regex).length)).orElse(null);
     }
 
     public static Set<String> getFilePaths(String fileName) {
