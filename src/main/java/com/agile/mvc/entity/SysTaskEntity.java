@@ -2,7 +2,7 @@ package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
 import com.agile.common.task.Task;
-import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.PropertiesUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -64,7 +64,7 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     private Date createTime;
     @Remark("应用名字")
     @Builder.Default
-    private String application = FactoryUtil.getApplicationContext().getId();
+    private String application = PropertiesUtil.getProperty("spring.application.name");
 
     @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
     @DecimalMin(value = "0", groups = {Insert.class, Update.class})

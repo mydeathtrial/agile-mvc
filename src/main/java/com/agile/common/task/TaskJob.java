@@ -36,6 +36,8 @@ public class TaskJob implements Serializable, Runnable {
     private static final String NO_API_TASK = "任务:[%s][非法任务，未绑定任何api信息，任务结束]";
     private static final String ILLEGAL_API_TASK = "任务:[%s][非法任务，入参大于1个，任务结束]";
     private static final String EXCEPTION_API_TASK = "任务:[%s][任务异常]";
+    private static final String RUN_TASK_API = "任务:[%s][%s][执行]";
+    private static final String EXCEPTION_RUN_TASK_API = "任务:[%s][%s][任务异常]";
     private static final String END_TASK = "任务:[%s][任务完成]";
     private static final String NEXT_TASK = "任务:[%s][下次执行时间%s]";
 
@@ -122,19 +124,21 @@ public class TaskJob implements Serializable, Runnable {
             //通知持久层，任务开始运行
             taskManager.run(runDetail.getTaskCode());
         }
+
     }
 
     private void running(RunDetail runDetail) {
+        if (ObjectUtil.isEmpty(targets)) {
+            String log = String.format(NO_API_TASK, task.getCode());
+            runDetail.addLog(log);
+            if (logger.isErrorEnabled()) {
+                logger.error(String.format(log, runDetail.getTaskCode()));
+            }
+            return;
+        }
+
         targets.forEach(target -> {
             String log;
-            if (ObjectUtil.isEmpty(target)) {
-                log = String.format(NO_API_TASK, task.getCode());
-                runDetail.addLog(log);
-                if (logger.isErrorEnabled()) {
-                    logger.error(String.format(log, target.getCode()));
-                }
-                return;
-            }
             ApiBase apiInfo = TaskService.getApi(target.getCode());
             if (apiInfo == null) {
                 log = String.format(NO_API_TASK, task.getCode());
@@ -155,10 +159,13 @@ public class TaskJob implements Serializable, Runnable {
 
             Optional.ofNullable(taskProxy).ifPresent((proxy) -> {
                 try {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format(RUN_TASK_API, target.getCode(), apiInfo.getMethod().toGenericString()));
+                    }
                     proxy.invoke(apiInfo, task);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     if (logger.isErrorEnabled()) {
-                        logger.error(String.format(EXCEPTION_API_TASK, target.getCode()), e);
+                        logger.error(String.format(EXCEPTION_RUN_TASK_API, target.getCode(), apiInfo.getMethod().toGenericString()), e);
                     }
                     exception(e, runDetail);
                 }

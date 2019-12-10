@@ -50,7 +50,6 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
             return RETURN.PARAMETER_ERROR;
         }
         taskService.removeTask(id);
-        this.dao.deleteById(SysTaskEntity.class, id);
         return SUCCESS;
     }
 
@@ -106,15 +105,4 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
 
         return SUCCESS;
     }
-
-    /**
-     * 描述：
-     * @author 佟盟
-    */
-    @Mapping(path = "/test")
-    public Object test() {
-        logger.error("1231231231231231");
-        return SUCCESS;
-    }
-
 }

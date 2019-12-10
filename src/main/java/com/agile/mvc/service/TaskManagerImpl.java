@@ -11,14 +11,11 @@ import com.agile.mvc.entity.SysApiEntity;
 import com.agile.mvc.entity.SysBtTaskApiEntity;
 import com.agile.mvc.entity.SysTaskDetailEntity;
 import com.agile.mvc.entity.SysTaskEntity;
-import com.google.common.collect.Lists;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 佟盟
@@ -28,22 +25,10 @@ import java.util.Map;
  * @since 1.0
  */
 public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements TaskManager {
-    /**
-     * 任务缓存
-     */
-    private Map<String, SysApiEntity> cache = new HashMap<>();
-
     @Override
     public List<Task> getTask() {
         List<SysTaskEntity> list = dao.findAll(SysTaskEntity.builder().build());
         return new ArrayList<>(list);
-    }
-
-    @Override
-    public List<Target> getApis(boolean type) {
-        List<SysApiEntity> list = dao.findAll(SysApiEntity.builder().type(type).build());
-        list.forEach(sysApiEntity -> cache.put(sysApiEntity.getName(), sysApiEntity));
-        return Lists.newArrayList(list);
     }
 
     @Override
@@ -77,8 +62,9 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
     @Override
     public Long save(Method method, boolean type) {
         String methodGenericString = method.toGenericString();
-        if (cache.containsKey(methodGenericString)) {
-            return cache.get(methodGenericString).getSysApiId();
+        SysApiEntity api = dao.findOne(SysApiEntity.builder().name(methodGenericString).build());
+        if (api != null) {
+            return api.getSysApiId();
         } else {
             SysApiEntity entity = dao.saveOrUpdate(
                     SysApiEntity
@@ -88,14 +74,8 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
                             .name(methodGenericString)
                             .build()
             );
-            cache.put(methodGenericString, entity);
             return entity.getSysApiId();
         }
-    }
-
-    @Override
-    public void remove(Target target) {
-        dao.delete(target);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -120,6 +100,12 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
         }
         task = dao.saveOrUpdate(task);
         return task.getCode();
+    }
+
+    @Override
+    public void remove(Long id) {
+        dao.deleteInBatch(dao.findAll(SysBtTaskApiEntity.builder().sysTaskId(id).build()));
+        dao.deleteById(SysTaskEntity.class, id);
     }
 
     @Transactional(rollbackFor = Exception.class)

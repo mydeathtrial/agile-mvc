@@ -19,14 +19,6 @@ public interface TaskManager {
     List<Task> getTask();
 
     /**
-     * 取所有任务目标
-     *
-     * @param type 类型
-     * @return 任务目标列表
-     */
-    List<Target> getApis(boolean type);
-
-    /**
      * 根据定时任务标识查询所属任务目标
      *
      * @param code 定时任务标识
@@ -68,11 +60,11 @@ public interface TaskManager {
     Long save(Task task);
 
     /**
-     * 删除的api数据
+     * 删除定时任务
      *
-     * @param target api数据
+     * @param id 定时任务
      */
-    void remove(Target target);
+    void remove(Long id);
 
     /**
      * 运行

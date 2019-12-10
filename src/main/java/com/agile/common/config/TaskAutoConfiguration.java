@@ -30,8 +30,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @AutoConfigureAfter(TaskSchedulingAutoConfiguration.class)
 public class TaskAutoConfiguration {
     @Bean
-    public TaskService customTaskServer(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskTargetService) {
-        return new TaskService(threadPoolTaskScheduler, applicationContext, taskTargetService);
+    public TaskService customTaskServer(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskTargetService, TaskProxy taskProxy) {
+        return new TaskService(threadPoolTaskScheduler, applicationContext, taskTargetService, taskProxy);
     }
 
     @Bean

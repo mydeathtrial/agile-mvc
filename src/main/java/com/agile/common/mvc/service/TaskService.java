@@ -49,10 +49,11 @@ public class TaskService {
     private TaskManager taskManager;
     private TaskProxy taskProxy;
 
-    public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskManager) {
+    public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskManager, TaskProxy taskProxy) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
         this.applicationContext = applicationContext;
         this.taskManager = taskManager;
+        this.taskProxy = taskProxy;
     }
 
     /**
@@ -179,7 +180,7 @@ public class TaskService {
         //新建任务
         TaskJob job = new TaskJob(taskManager, taskProxy, task, trigger, targets);
 
-        ScheduledFuture scheduledFuture = null;
+        ScheduledFuture<?> scheduledFuture = null;
         if (task.getEnable()) {
             scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
         }
@@ -199,6 +200,7 @@ public class TaskService {
             stopTask(id);
             taskInfoMap.remove(id);
         }
+        taskManager.remove(id);
     }
 
 
@@ -207,7 +209,7 @@ public class TaskService {
         if (ObjectUtil.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
-        ScheduledFuture future = taskInfo.getScheduledFuture();
+        ScheduledFuture<?> future = taskInfo.getScheduledFuture();
         if (ObjectUtil.isEmpty(future)) {
             return;
         }
@@ -227,7 +229,7 @@ public class TaskService {
         if (ObjectUtil.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
-        ScheduledFuture future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
+        ScheduledFuture<?> future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
         if (ObjectUtil.isEmpty(future)) {
             return;
         }
