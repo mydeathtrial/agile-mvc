@@ -1,6 +1,5 @@
 package com.agile.mvc.service;
 
-import com.agile.common.annotation.Mapping;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.NotFoundTaskException;

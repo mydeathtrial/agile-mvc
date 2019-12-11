@@ -15,6 +15,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -157,6 +160,42 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
         return null;
     }
 
+    /**
+     * 取配置文件内容
+     *
+     * @param fileName 文件名字
+     * @return 文件内容
+     */
+    public static String getFileContent(String fileName) {
+        InputStream inputStream = getFileStream(fileName);
+        return inputStreamToString(inputStream);
+    }
+
+    /**
+     * 取配置文件流
+     *
+     * @param fileName 文件名字
+     * @return 文件流
+     */
+    public static InputStream getFileStream(String fileName) {
+        String path = getFileClassPath(fileName);
+        if (path == null) {
+            return null;
+        }
+        return PropertiesUtil.class.getResourceAsStream(path);
+    }
+
+    /**
+     * 取配置文件编译路径
+     *
+     * @param fileName 文件名字
+     * @return 编译路径
+     */
+    public static String getFileClassPath(String fileName) {
+        final String regex = "[\\\\/]";
+        Set<String> set = getFilePaths("/" + fileName);
+        return set.stream().min(Comparator.comparingInt(a -> a.split(regex).length)).orElse(null);
+    }
 
     /**
      * 根据文件名取classpath目录下的json数据
@@ -165,9 +204,20 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
      * @return JSONObject数据
      */
     public static String getFilePath(String fileName) {
-        final String regex = "[\\\\/]";
-        Set<String> set = getFilePaths(fileName);
-        return set.stream().min(Comparator.comparingInt(a -> a.split(regex).length)).orElse(null);
+        String path = getFileClassPath(fileName);
+        if (path == null) {
+            return null;
+        }
+        URL absolutePath = PropertiesUtil.class.getResource(path);
+        if (absolutePath == null) {
+            return path;
+        }
+        try {
+            return URLDecoder.decode(absolutePath.getPath(), StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return path;
     }
 
     public static Set<String> getFilePaths(String fileName) {
