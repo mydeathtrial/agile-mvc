@@ -31,8 +31,8 @@ import java.util.NoSuchElementException;
  * This is the default implementation of a MyBatis Cursor.
  * This implementation is not thread safe.
  *
- * @author Guillaume Darmont / guillaume@dropinocean.com
  * @param <T> 游标实体泛型
+ * @author Guillaume Darmont / guillaume@dropinocean.com
  */
 public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
 
@@ -169,6 +169,7 @@ public class CustomCursor<T> implements org.apache.ibatis.cursor.Cursor<T> {
 
     /**
      * 对象包装结果处理器
+     *
      * @param <T>
      */
     private static class ObjectWrapperResultHandler<T> implements ResultHandler<T> {

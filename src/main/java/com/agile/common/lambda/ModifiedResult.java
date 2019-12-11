@@ -1,10 +1,10 @@
 package com.agile.common.lambda;
 
 /**
+ * @param <I> 参数
  * @author 佟盟
  * 日期 2019/9/17 11:24
  * 描述 TODO
- * @param <I> 参数
  * @version 1.0
  * @since 1.0
  */

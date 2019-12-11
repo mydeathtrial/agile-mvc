@@ -10,12 +10,14 @@ package com.agile.common.security;
 public interface LoginOutProcessor {
     /**
      * 退出之前
+     *
      * @param token 身份令牌
      */
     void before(String token);
 
     /**
      * 退出之后
+     *
      * @param token 身份令牌
      */
     void after(String token);

@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 /**
  * 描述：[系统管理]日志相关字段值变动信息
+ *
  * @author agile gennerator
  */
 @Setter

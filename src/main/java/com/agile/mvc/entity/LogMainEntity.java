@@ -30,6 +30,7 @@ import java.util.Date;
 
 /**
  * 描述：[系统管理]日志表
+ *
  * @author agile gennerator
  */
 @Setter

@@ -11,7 +11,6 @@ import java.util.Map;
 
 /**
  * @author 佟盟 on 2018/3/26
- *
  * @author 佟盟
  */
 public class ForwardView extends AbstractView {

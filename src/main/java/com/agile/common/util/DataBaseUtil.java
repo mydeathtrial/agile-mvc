@@ -2,12 +2,15 @@ package com.agile.common.util;
 
 
 import com.agile.common.base.Constant;
-import com.agile.common.properties.DruidConfigProperties;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
+import com.agile.common.util.pattern.PatternUtil;
+import lombok.Data;
 import org.apache.commons.logging.Log;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -18,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * @author 佟盟 on 2018/9/7
@@ -26,24 +30,15 @@ public class DataBaseUtil {
     private static Log logger = null;
     private static Connection conn;
 
-    /**
-     * 根据字符串,判断数据库类型
-     */
-    private static DB parseDB(String dbType) {
-        try {
-            DB result = DB.valueOf(dbType.toUpperCase());
-            DriverManager.registerDriver((Driver) Class.forName(result.driver).newInstance());
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException("不认识的数据库类型!");
+    private static ResultSet getResultSet(PATTERN type, DataSourceProperties dataSourceProperties, String pattern) {
+
+        String url = dataSourceProperties.getUrl();
+        DBInfo dbInfo = parseDBUrl(url);
+        if (dbInfo == null) {
+            throw new RuntimeException("无法识别的数据库类型");
         }
-    }
-
-    private static ResultSet getResultSet(PATTERN type, DBInfo dbInfo, String pattern) {
-
-        String url = createDBUrl(dbInfo);
         try {
-            conn = getConnection(url, dbInfo.user, dbInfo.pass);
+            conn = getConnection(url, dataSourceProperties.getUsername(), dataSourceProperties.getPassword());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,16 +56,16 @@ public class DataBaseUtil {
                     String[] types = {"TABLE", "VIEW"};
 
                     if (dbInfo.type == DB.ORACLE) {
-                        schemaPattern = dbInfo.user;
+                        schemaPattern = dataSourceProperties.getUsername();
                         if (null != schemaPattern) {
                             schemaPattern = schemaPattern.toUpperCase();
                         }
                         rs = meta.getTables(null, schemaPattern, pattern, types);
                     } else if (dbInfo.type == DB.MYSQL) {
-                        schemaPattern = dbInfo.dbName;
+                        schemaPattern = dbInfo.getName();
                         rs = meta.getTables(schemaPattern, schemaPattern, pattern, types);
                     } else if (dbInfo.type == DB.DB2) {
-                        schemaPattern = "jence_user";
+                        schemaPattern = dbInfo.getName();
                         rs = meta.getTables(null, schemaPattern, pattern, types);
                     } else {
                         rs = meta.getTables(null, null, pattern, types);
@@ -80,13 +75,13 @@ public class DataBaseUtil {
                     pattern = pattern.toUpperCase();
                     String columnNamePattern = null;
                     if (DB.ORACLE == dbInfo.type) {
-                        schemaPattern = dbInfo.user;
+                        schemaPattern = dataSourceProperties.getUsername();
                         if (null != schemaPattern) {
                             schemaPattern = schemaPattern.toUpperCase();
                         }
                     } else if (DB.MYSQL == dbInfo.type) {
-                        catalog = dbInfo.dbName;
-                        schemaPattern = dbInfo.dbName;
+                        catalog = dbInfo.getName();
+                        schemaPattern = dbInfo.getName();
                     }
 
                     rs = meta.getColumns(catalog, schemaPattern, pattern, columnNamePattern);
@@ -94,7 +89,7 @@ public class DataBaseUtil {
                 case PRIMARY_KEY:
                     pattern = pattern.toUpperCase();
                     if (DB.ORACLE == dbInfo.type) {
-                        schemaPattern = dbInfo.user;
+                        schemaPattern = dataSourceProperties.getUsername();
                         if (null != schemaPattern) {
                             schemaPattern = schemaPattern.toUpperCase();
                         }
@@ -110,37 +105,27 @@ public class DataBaseUtil {
         return rs;
     }
 
-    public static List<Map<String, Object>> listTables(String dbType, String url, String username, String password, String tableName) {
-        Map<String, String> map = parseDBUrl(parseDB(dbType), url);
-        final String name = "name";
-        final String ip = "ip";
-        final String port = "port";
-        DBInfo dbInfo = new DBInfo(dbType, map.get(ip), map.get(port), map.get(name), username, password);
-
-        return listTables(dbInfo, tableName);
-    }
-
     /**
      * 列出数据库的所有表
      */
-    public static List<Map<String, Object>> listTables(DBInfo dbInfo, String tableName) {
+    public static List<Map<String, Object>> listTables(DataSourceProperties dataSourceProperties, String tableName) {
         if (tableName.contains(Constant.RegularAbout.COMMA)) {
             String[] tables = tableName.replaceAll("((?![%-])\\W)+", Constant.RegularAbout.COMMA).split(Constant.RegularAbout.COMMA);
             List<Map<String, Object>> list = new ArrayList<>();
-            for (int i = 0; i < tables.length; i++) {
-                list.addAll(getDBInfo(PATTERN.TABLE, dbInfo, tables[i]));
+            for (String table : tables) {
+                list.addAll(getDBInfo(PATTERN.TABLE, dataSourceProperties, table));
             }
             return list;
         }
-        return getDBInfo(PATTERN.TABLE, dbInfo, tableName.trim());
+        return getDBInfo(PATTERN.TABLE, dataSourceProperties, tableName.trim());
     }
 
     /**
      * 列出表的所有字段
      */
-    public static List<Map<String, Object>> listColumns(DBInfo dbInfo, String tableName) {
-        List<Map<String, Object>> list = getDBInfo(PATTERN.COLUMN, dbInfo, tableName);
-        List<Map<String, Object>> keyList = listPrimayKeys(dbInfo, tableName);
+    public static List<Map<String, Object>> listColumns(DataSourceProperties dataSourceProperties, String tableName) {
+        List<Map<String, Object>> list = getDBInfo(PATTERN.COLUMN, dataSourceProperties, tableName);
+        List<Map<String, Object>> keyList = listPrimayKeys(dataSourceProperties, tableName);
         for (Map<String, Object> keyColumn : keyList) {
             for (Map<String, Object> column : list) {
                 boolean isPrimaryKey = false;
@@ -156,18 +141,18 @@ public class DataBaseUtil {
     /**
      * 列出表的所有主键
      */
-    public static List<Map<String, Object>> listPrimayKeys(DBInfo dbInfo, String tableName) {
-        return getDBInfo(PATTERN.PRIMARY_KEY, dbInfo, tableName);
+    public static List<Map<String, Object>> listPrimayKeys(DataSourceProperties dataSourceProperties, String tableName) {
+        return getDBInfo(PATTERN.PRIMARY_KEY, dataSourceProperties, tableName);
     }
 
     /**
      * 列出表的所有主键
      */
-    public static List<Map<String, Object>> getDBInfo(PATTERN pattern, DBInfo dbInfo, String tableName) {
+    public static List<Map<String, Object>> getDBInfo(PATTERN pattern, DataSourceProperties dataSourceProperties, String tableName) {
         List<Map<String, Object>> list = null;
         ResultSet rs = null;
         try {
-            rs = getResultSet(pattern, dbInfo, tableName);
+            rs = getResultSet(pattern, dataSourceProperties, tableName);
             list = parseResultSetToMapList(rs);
         } catch (Exception e) {
             e.printStackTrace();
@@ -178,31 +163,23 @@ public class DataBaseUtil {
         return list;
     }
 
-    private static Map<String, String> parseDBUrl(DB type, String url) {
-        String temp = type.parsingUrlRegx;
-        return StringUtil.getParamByRegex(temp, url.replace(" ", ""));
-    }
+    private static DBInfo parseDBUrl(String url) {
+        DB db = Stream.of(DB.values())
+                .filter(node -> PatternUtil.matches(node.parsingUrlRegx, url))
+                .findFirst()
+                .orElse(null);
 
-    /**
-     * 根据IP,端口,以及数据库名字,拼接Oracle连接字符串
-     */
-    public static String createDBUrl(DBInfo dbInfo) {
-        if (dbInfo.type == null || StringUtil.isBlank(dbInfo.type.templateUrl)) {
-            throw new RuntimeException("不认识的数据库类型!");
+        if (db == null) {
+            return null;
         }
-        String template = dbInfo.type.templateUrl;
-        Map<String, String> param = new HashMap<>(Constant.NumberAbout.THREE);
-        param.put("ip", dbInfo.ip);
-        param.put("port", dbInfo.port);
-        param.put("name", dbInfo.dbName);
-
-        String url = StringUtil.parsingPlaceholder("{", "}", template, param);
-        if (dbInfo.type == DB.MYSQL) {
-            url = url + "?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true";
-        } else if (dbInfo.type == DB.SQL_SERVER) {
-            url = url + ";lastupdatecount=true";
+        Map<String, String> map = StringUtil.getParamByRegex(db.parsingUrlRegx, url.replace(" ", ""));
+        if (map == null) {
+            return null;
         }
-        return url;
+        DBInfo dbInfo = ObjectUtil.to(map, new TypeReference<DBInfo>() {
+        });
+        dbInfo.setType(db);
+        return dbInfo;
     }
 
     /**
@@ -362,55 +339,12 @@ public class DataBaseUtil {
     /**
      * 数据库信息
      */
+    @Data
     public static class DBInfo {
         private DB type;
         private String ip;
         private String port;
-        private String dbName;
-        private String user;
-        private String pass;
-
-        public DBInfo(String type, String ip, String port, String dbName, String user, String pass) {
-            this.type = parseDB(type);
-            this.ip = ip;
-            this.port = port;
-            this.dbName = dbName;
-            this.user = user;
-            this.pass = pass;
-        }
-
-        public DBInfo(DruidConfigProperties properties) {
-            this.type = properties.getType();
-            this.ip = properties.getDataBaseIp();
-            this.port = properties.getDataBasePort();
-            this.dbName = properties.getDataBaseName();
-            this.user = properties.getUsername();
-            this.pass = properties.getPassword();
-        }
-
-        public DB getType() {
-            return type;
-        }
-
-        public String getIp() {
-            return ip;
-        }
-
-        public String getPort() {
-            return port;
-        }
-
-        public String getDbName() {
-            return dbName;
-        }
-
-        public String getUser() {
-            return user;
-        }
-
-        public String getPass() {
-            return pass;
-        }
+        private String name;
     }
 
     /**
@@ -420,45 +354,21 @@ public class DataBaseUtil {
         /**
          * 数据库类型
          */
-        ORACLE("oracle.jdbc.OracleDriver", "SELECT 'x' FROM DUAL", Constant.RegularAbout.ORACLE, "jdbc:oracle:thin:@{ip}:{port}:{name}"),
-        MYSQL("com.mysql.cj.jdbc.Driver", "SELECT 1", Constant.RegularAbout.MYSQL, "jdbc:mysql://{ip}:{port}/{name}"),
-        SQL_SERVER("com.microsoft.jdbc.sqlserver.SQLServerDriver", "SELECT 1", Constant.RegularAbout.SQL_SERVER, "jdbc:jtds:sqlserver://{ip}:{port}/{name}"),
-        SQL_SERVER2005("com.microsoft.sqlserver.jdbc.SQLServerDriver", "SELECT 1", Constant.RegularAbout.SQL_SERVER2005, "jdbc:sqlserver://{ip}:{port};DatabaseName={name}"),
-        DB2("com.ibm.db2.jcc.DB2Driver", "SELECT 1", Constant.RegularAbout.DB2, "jdbc:db2://{ip}:{port}/{name}"),
-        INFORMIX("", "", Constant.RegularAbout.INFORMIX, "jdbc:informix-sqli://{ip}:{port}/{name}"),
-        SYBASE("", "", Constant.RegularAbout.SYBASE, "jdbc:sybase:Tds:{ip}:{port}/{name}"),
-        OTHER;
+        ORACLE(Constant.RegularAbout.ORACLE),
+        MYSQL(Constant.RegularAbout.MYSQL),
+        SQL_SERVER(Constant.RegularAbout.SQL_SERVER),
+        SQL_SERVER2005(Constant.RegularAbout.SQL_SERVER2005),
+        DB2(Constant.RegularAbout.DB2),
+        INFORMIX(Constant.RegularAbout.INFORMIX),
+        SYBASE(Constant.RegularAbout.SYBASE),
+        OTHER(null);
 
-        private String driver;
-        private String testSql;
         private String parsingUrlRegx;
-        private String templateUrl;
 
-        DB(String driver, String testSql, String parsingUrlRegx, String templateUrl) {
-            this.driver = driver;
-            this.testSql = testSql;
+        DB(String parsingUrlRegx) {
             this.parsingUrlRegx = parsingUrlRegx;
-            this.templateUrl = templateUrl;
         }
 
-        DB() {
-        }
-
-        public String getDriver() {
-            return driver;
-        }
-
-        public String getTestSql() {
-            return testSql;
-        }
-
-        public String getParsingUrlRegx() {
-            return parsingUrlRegx;
-        }
-
-        public String getTemplateUrl() {
-            return templateUrl;
-        }
     }
 
     /**

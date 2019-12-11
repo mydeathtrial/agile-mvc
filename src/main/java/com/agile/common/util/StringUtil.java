@@ -248,10 +248,10 @@ public final class StringUtil extends StringUtils {
         String[] groupNames = getMatchedString("(?<=<)[\\w]+(?=>)", regex);
         if (count > 0 && groupNames != null && groupNames.length > 0) {
             Map<String, String> result = new HashMap<>(groupNames.length);
-                for (String key : groupNames) {
-                    result.put(key, matcher.group(key));
-                }
-                return result;
+            for (String key : groupNames) {
+                result.put(key, matcher.group(key));
+            }
+            return result;
         }
         return null;
     }
@@ -575,6 +575,7 @@ public final class StringUtil extends StringUtils {
 
     /**
      * 异常转字符串
+     *
      * @param e 异常
      * @return 字符串
      */

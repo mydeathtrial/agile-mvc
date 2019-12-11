@@ -22,7 +22,7 @@ public class JSONUtil extends JSON {
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 
-//    static {
+    //    static {
 //        objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>() {
 //            @Override
 //            public void serialize(Object o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
@@ -50,6 +50,7 @@ public class JSONUtil extends JSON {
 //        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
 //    }
     private static final String JSON_ERROR = "特殊参数无法进行json化处理";
+
     /**
      * Object转json字符串并格式化美化
      *

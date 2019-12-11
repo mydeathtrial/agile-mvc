@@ -62,6 +62,7 @@ public class MainController {
 
     @Autowired
     private WebMvcProperties webMvcProperties;
+
     /**
      * 非法请求处理器
      *

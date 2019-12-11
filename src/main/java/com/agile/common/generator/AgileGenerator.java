@@ -3,7 +3,6 @@ package com.agile.common.generator;
 import com.agile.common.base.Constant;
 import com.agile.common.config.GeneratorConfig;
 import com.agile.common.generator.model.TableModel;
-import com.agile.common.properties.DruidConfigProperties;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.util.DataBaseUtil;
 import com.agile.common.util.FactoryUtil;
@@ -11,6 +10,7 @@ import com.agile.common.util.FreemarkerUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import freemarker.template.TemplateException;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
@@ -30,8 +30,7 @@ public class AgileGenerator {
     private static final String ENTITY_FTL = "Entity.ftl";
     private static final String SERVICE_FTL = "Service.ftl";
     private static final String FILE_EXTENSION = ".java";
-    private static DataBaseUtil.DBInfo dbInfo;
-    private static DruidConfigProperties druid;
+    private static DataSourceProperties dataSourceProperties;
     private static GeneratorProperties generator;
 
 
@@ -63,14 +62,7 @@ public class AgileGenerator {
      * @return 所有表信息
      */
     private static List<Map<String, Object>> getTableInfo() {
-        return DataBaseUtil.listTables(dbInfo, generator.getTableName());
-    }
-
-    /**
-     * 初始化数据库信息
-     */
-    private static void initDBInfo() {
-        dbInfo = new DataBaseUtil.DBInfo(druid);
+        return DataBaseUtil.listTables(dataSourceProperties, generator.getTableName());
     }
 
     /**
@@ -87,7 +79,7 @@ public class AgileGenerator {
         context.register(GeneratorConfig.class);
         context.refresh();
 
-        druid = FactoryUtil.getBean(DruidConfigProperties.class);
+        dataSourceProperties = FactoryUtil.getBean(DataSourceProperties.class);
         generator = FactoryUtil.getBean(GeneratorProperties.class);
     }
 
@@ -138,7 +130,6 @@ public class AgileGenerator {
      */
     public static void init() {
         initSpringContext();
-        initDBInfo();
     }
 
     /**
@@ -150,7 +141,7 @@ public class AgileGenerator {
      */
     static void generator(TYPE type) throws IOException, TemplateException {
         for (Map<String, Object> table : getTableInfo()) {
-            TableModel.setDbInfo(dbInfo);
+            TableModel.setDbInfo(dataSourceProperties);
             TableModel tableModel = ObjectUtil.getObjectFromMap(TableModel.class, table);
             switch (type) {
                 case ENTITY:

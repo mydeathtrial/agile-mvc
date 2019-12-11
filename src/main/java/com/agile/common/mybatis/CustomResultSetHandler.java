@@ -33,6 +33,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
+
 import javax.persistence.Column;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -1200,10 +1201,11 @@ public class CustomResultSetHandler implements ResultSetHandler {
 
         /**
          * 省略
-         * @param column 省略
-         * @param property 省略
+         *
+         * @param column      省略
+         * @param property    省略
          * @param typeHandler 省略
-         * @param primitive 省略
+         * @param primitive   省略
          */
         UnMappedColumnAutoMapping(String column, String property, TypeHandler<?> typeHandler, boolean primitive) {
             this.column = column;

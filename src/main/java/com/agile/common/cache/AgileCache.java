@@ -31,7 +31,8 @@ public interface AgileCache extends Cache {
 
     /**
      * 如果不存在就存，存在就不存
-     *  @param key   索引
+     *
+     * @param key   索引
      * @param value 值
      * @return 包装值
      */
@@ -167,9 +168,9 @@ public interface AgileCache extends Cache {
     /**
      * 分布式同步锁
      *
-     * @param lock 锁标识
-     * @return 是否加锁成功
+     * @param lock    锁标识
      * @param timeout 超时
+     * @return 是否加锁成功
      */
     boolean lock(Object lock, Duration timeout);
 
@@ -182,8 +183,9 @@ public interface AgileCache extends Cache {
 
     /**
      * 解锁
+     *
      * @param timeout 过期时间
-     * @param lock 锁标识
+     * @param lock    锁标识
      */
     void unlock(Object lock, Duration timeout);
 

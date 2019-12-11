@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
 import java.util.HashSet;
 import java.util.List;
@@ -51,7 +52,7 @@ public class TableModel {
     private String entityPackageName;
 
     private GeneratorProperties properties = FactoryUtil.getBean(GeneratorProperties.class);
-    private static DataBaseUtil.DBInfo dbInfo;
+    private static DataSourceProperties dataSourceProperties;
 
     public void setColumn(ColumnModel columns) {
         this.columns.add(columns);
@@ -68,7 +69,7 @@ public class TableModel {
         this.tableName = tableName;
         this.javaName = StringUtil.toUpperName(tableName);
 
-        List<Map<String, Object>> columnInfos = DataBaseUtil.listColumns(dbInfo, tableName);
+        List<Map<String, Object>> columnInfos = DataBaseUtil.listColumns(dataSourceProperties, tableName);
         for (Map<String, Object> column : columnInfos) {
             ColumnModel columnModel = ObjectUtil.getObjectFromMap(ColumnModel.class, column);
             columnModel.build();
@@ -97,7 +98,7 @@ public class TableModel {
         this.imports.add(String.format("%s.%s", clazz.getPackage().getName(), clazz.getSimpleName()));
     }
 
-    public static void setDbInfo(DataBaseUtil.DBInfo dbInfo) {
-        TableModel.dbInfo = dbInfo;
+    public static void setDbInfo(DataSourceProperties dataSourceProperties) {
+        TableModel.dataSourceProperties = dataSourceProperties;
     }
 }

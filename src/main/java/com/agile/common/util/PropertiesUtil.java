@@ -83,7 +83,7 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
             if (!fileName.endsWith(".json")) {
                 fileName = String.format("%s.json", fileName);
             }
-            String path = getFilePath(fileName);
+            String path = getFileClassPath(fileName);
             if (LoggerFactory.COMMON_LOG.isDebugEnabled()) {
                 LoggerFactory.COMMON_LOG.debug("获取json文件路径:" + path);
             }

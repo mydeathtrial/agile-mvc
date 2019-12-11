@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 /**
  * 描述：[系统管理]定时任务目标任务表
+ *
  * @author agile gennerator
  */
 @Setter

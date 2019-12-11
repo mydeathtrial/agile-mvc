@@ -5,7 +5,7 @@ agile:
   generator:
     entity-prefix: ''
     entity-suffix: Entity
-    entity-url: D:\workspace-idss\argus-common\src\main\java\com\agile\mvc\entity\systerm
+    entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity\systerm
     service-prefix: ''
     service-suffix: Service
     service-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service

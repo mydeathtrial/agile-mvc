@@ -14,9 +14,9 @@ agile:
     min-evictable-idle-time-millis: 1800000
     use-global-data-source-stat: true
     # 初始化时建立物理连接的个数
-    initial-size: 1
+    initial-size: 5
     # 最小连接池数量
-    min-idle: 1
+    min-idle: 5
     # 是否缓存preparedStatement，也就是PSCache
     pool-prepared-statements: false
     remove-abandoned: true
@@ -29,13 +29,13 @@ agile:
     test-on-return: false
     # 建议配置为true，不影响性能，并且保证安全性,申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。
     test-while-idle: true
-    exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+    exclusions: "*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*"
     manager-name: admin
     manager-password: admin
     reset-enable: true
     session-stat-max-count: 100000
     dashboard-url: /druid
-    data-base-url-param: 'serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL'
+    data-base-url-param: 'serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true'
     type: mysql
     connection-error-retry-attempts: 10
     url: jdbc:mysql://${agile.druid.data-base-ip}:${agile.druid.data-base-port}/${agile.druid.data-base-name}?serverTimezone=GMT%2B8&useSSL=false&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=CONVERT_TO_NULL&autoReconnect=true&allowPublicKeyRetrieval=true

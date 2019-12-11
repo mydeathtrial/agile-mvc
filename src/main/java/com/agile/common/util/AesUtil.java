@@ -1,5 +1,6 @@
 package com.agile.common.util;
 
+import com.agile.common.factory.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
@@ -125,6 +126,7 @@ public class AesUtil {
         try {
             return StringUtil.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIV, algorithmstr);
         } catch (Exception e) {
+            LoggerFactory.COMMON_LOG.error("解密失败", e);
             return encryptStr;
         }
     }

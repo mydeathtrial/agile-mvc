@@ -5,7 +5,7 @@
     <groupId>com.agileframework</groupId>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.5.77</version>
+    <version>1.0.5.79</version>
 
     <name>AgileFramework</name>
     <description>Agile API平台</description>
@@ -60,7 +60,6 @@
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
         <commons-collections.verison>3.2.1</commons-collections.verison>
         <jwt.version>0.9.1</jwt.version>
-        <druid.version>1.1.12</druid.version>
         <oracle.version>1.0</oracle.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <poi.version>4.0.0</poi.version>
@@ -74,6 +73,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid-spring-boot-starter</artifactId>
+            <version>LATEST</version>
+        </dependency>
 
         <!--元数据配置检查-->
         <dependency>
@@ -191,13 +195,6 @@
                     <groupId>org.jboss</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <!--#数据连接池-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>${druid.version}</version>
         </dependency>
 
         <!--#mysql桥接-->
