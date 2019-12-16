@@ -41,7 +41,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @ConditionalOnClass({WebSecurityConfigurerAdapter.class, AuthenticationProvider.class})
 @ConditionalOnBean({CustomerUserDetailsService.class})
-@AutoConfigureAfter({DruidAutoConfiguration.class})
+@AutoConfigureAfter({DaoAutoConfiguration.class})
 public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
 
     private String[] immuneUrl;

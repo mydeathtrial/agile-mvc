@@ -26,8 +26,6 @@ spring:
       # 打开PSCache，并且指定每个连接上PSCache的大小
       poolPreparedStatements: true
       maxPoolPreparedStatementPerConnectionSize: ${agile.druid.max-pool-prepared-statement-per-connection-size}
-      # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-      filters: stat,wall,slf4j
       # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
       connectionProperties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
       # 配置DruidStatFilter
@@ -39,10 +37,6 @@ spring:
       # 配置DruidStatViewServlet
       stat-view-servlet:
         url-pattern: ${agile.druid.dashboard-url}/*
-        # IP白名单(没有配置或者为空，则允许所有访问)
-        allow: 127.0.0.1,192.168.163.1
-        # IP黑名单 (存在共同时，deny优先于allow)
-        deny: 192.168.1.73
         #  禁用HTML页面上的“Reset All”功能
         reset-enable: ${agile.druid.reset-enable}
         # 登录名
@@ -53,3 +47,20 @@ spring:
         enabled: true
       connection-error-retry-attempts: ${agile.druid.connection-error-retry-attempts}
       aop-patterns: com.agile.mvc.service.*
+      filter:
+        wall:
+          config:
+            select-where-alway-true-check: false
+          enabled: false
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 1000
+        slf4j:
+          enabled: true
+          data-source-log-enabled: true
+          connection-log-enabled: true
+          statement-log-enabled: true
+          result-set-log-enabled: true
+        config:
+          enabled: true
