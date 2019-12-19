@@ -53,7 +53,9 @@ spring:
       aop-patterns: com.agile.mvc.service.*
       filter:
         wall:
-          enabled: true
+          config:
+            select-where-alway-true-check: false
+          enabled: false
         stat:
           enabled: true
           log-slow-sql: true
