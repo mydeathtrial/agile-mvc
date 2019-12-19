@@ -278,22 +278,19 @@ public final class StringUtil extends StringUtils {
             int first = last.indexOf(startChar);
             last = last.substring(first + startChar.length());
             index += (first + startChar.length());
-            end = last.indexOf(equalChar);
-            if (end == -1) {
-                return map;
-            }
-            String key = last.substring(0, end);
-            index += end;
-            last = last.substring(end + equalChar.length());
-            index += equalChar.length();
             end = last.indexOf(endChar);
             if (end == -1) {
                 return map;
             }
-            String value = last.substring(0, end);
-            index += end;
-            last = last.substring(end + endChar.length());
-            map.put(key, value);
+            String mapV = last.substring(0, end);
+
+            int consume = end + endChar.length();
+            index += consume;
+
+            last = last.substring(consume);
+
+            String[] mapVs = mapV.split(equalChar);
+            map.put(mapVs[0], mapVs.length > 1 ? mapVs[1] : null);
         }
         return map;
     }
@@ -409,7 +406,11 @@ public final class StringUtil extends StringUtils {
     }
 
     public static String parsingPlaceholder(String openToken, String closeToken, String text, Map args) {
-        return parsingPlaceholder(openToken, closeToken, text, args, null);
+        return parsingPlaceholder(openToken, closeToken, ":-", text, args, null);
+    }
+
+    public static String parsingPlaceholder(String openToken, String closeToken, String equalToken, String text, Map args) {
+        return parsingPlaceholder(openToken, closeToken, equalToken, text, args, null);
     }
 
     /**
@@ -422,7 +423,7 @@ public final class StringUtil extends StringUtils {
      * @param replaceNull 代替空参占位
      * @return
      */
-    public static String parsingPlaceholder(String openToken, String closeToken, String text, Map args, String replaceNull) {
+    public static String parsingPlaceholder(String openToken, String closeToken, String equalToken, String text, Map args, String replaceNull) {
         if (args == null || args.size() <= 0) {
             if (replaceNull != null) {
                 args = new HashMap(0);
@@ -476,7 +477,7 @@ public final class StringUtil extends StringUtils {
                     offset = src.length;
                 } else {
                     String key = expression.toString();
-                    String[] keyObj = key.split(":-");
+                    String[] keyObj = key.split(equalToken);
                     Object o;
                     String value;
                     //判断是否有配置了默认值(:-)  by nhApis 2018.12.27

@@ -37,6 +37,10 @@ spring:
       # 配置DruidStatViewServlet
       stat-view-servlet:
         url-pattern: ${agile.druid.dashboard-url}/*
+        # IP白名单(没有配置或者为空，则允许所有访问)
+        allow: 127.0.0.1,192.168.101.78
+        # IP黑名单 (存在共同时，deny优先于allow)
+        deny: 192.168.1.73
         #  禁用HTML页面上的“Reset All”功能
         reset-enable: ${agile.druid.reset-enable}
         # 登录名
@@ -49,9 +53,7 @@ spring:
       aop-patterns: com.agile.mvc.service.*
       filter:
         wall:
-          config:
-            select-where-alway-true-check: false
-          enabled: false
+          enabled: true
         stat:
           enabled: true
           log-slow-sql: true

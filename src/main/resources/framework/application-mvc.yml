@@ -11,7 +11,7 @@ spring:
       parameter-name: 'response-format'
     static-path-pattern: /static/**
     async:
-      request-timeout: 2m
+      request-timeout: 10s
   messages:
     encoding: UTF-8
     basename: 'message'
