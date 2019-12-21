@@ -1,18 +1,15 @@
 package com.agile.common.util;
 
-import com.agile.common.base.Constant;
-import com.agile.common.util.pattern.PatternUtil;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
-import com.alibaba.druid.sql.ast.SQLReplaceable;
 import com.alibaba.druid.sql.ast.SQLStatement;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
-import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
-import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
@@ -30,22 +27,17 @@ import com.alibaba.druid.sql.ast.statement.SQLUnionQueryTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
-import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.util.JdbcUtils;
 import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
+import static com.alibaba.druid.sql.ast.expr.SQLBinaryOperator.Equality;
 
 /**
  * 描述：
@@ -56,18 +48,9 @@ import static java.util.stream.Collectors.toList;
  * @since 1.0
  */
 public class SqlUtil {
-    private static final String CURLY_BRACES_LEFT = "'\\W*\\{";
-    private static final String CURLY_BRACES_RIGHT = "}\\W*'";
-    private static final String CURLY_BRACES_LEFT_2 = "'{";
-    private static final String CURLY_BRACES_RIGHT_2 = "}'";
-    private static final String CURLY_BRACES_LEFT_3 = "{";
-    private static final String CURLY_BRACES_RIGHT_3 = "}";
-    private static final String PARAM_FORMAT = "{%s}";
-    private static final String STRING_PARAM_FORMAT = "'%s'";
     private static final String REPLACE_NULL_CONDITION = " 1=1 ";
     private static final String REPLACE_NULL = "null";
-    private static final String NOT_FOUND_PARAM = "@NOT_FOUND_PARAM_";
-    private static final String NOT_FOUND_PARAM_LIKE_REGEX = "%[ ]*'#NOT FOUND PARAM#'[ ]*%";
+
 
     /**
      * 根据给定参数动态生成完成参数占位的查询条数sql语句
@@ -87,16 +70,8 @@ public class SqlUtil {
     }
 
     public static String parserSQL(String sql, Map<String, Object> parameters) {
-        sql = parsingSqlString(sql, parsingParam(parameters));
-
-//        String[] s = StringUtil.getMatchedString("%[\\S]*%", sql);
-//        if (s != null) {
-//            for (String x : s) {
-//                String t = x.replace(Constant.RegularAbout.UP_COMMA, Constant.RegularAbout.BLANK);
-//                sql = sql.replace(x, t);
-//            }
-//        }
-        return parserSQL(sql).replace("\\", "");
+        sql = Param.parsingSqlString(sql, Param.parsingParam(parameters));
+        return parserSQL(sql);
     }
 
     /**
@@ -135,18 +110,35 @@ public class SqlUtil {
         SQLExpr where = statement.getWhere();
         parserSQLObject(where);
 
+        if (where != null) {
+            SQLObject parent = where.getParent();
+            if (parent instanceof SQLDeleteStatement) {
+                where = ((SQLDeleteStatement) parent).getWhere();
+            }
+
+            statement.setWhere(parsingWhereConstant(where));
+        }
+
         return statement;
     }
 
     private static SQLObject parserUpdate(SQLUpdateStatement statement) {
-        List<SQLUpdateSetItem> updateSetItems = statement.getItems();
-        parsingUpdateItem(updateSetItems);
+        Param.parsingSQLUpdateStatement(statement);
 
         SQLTableSource from = statement.getFrom();
         parsingTableSource(from);
 
         SQLExpr where = statement.getWhere();
         parserSQLObject(where);
+
+        if (where != null) {
+            SQLObject parent = where.getParent();
+            if (parent instanceof SQLUpdateStatement) {
+                where = ((SQLUpdateStatement) parent).getWhere();
+            }
+
+            statement.setWhere(parsingWhereConstant(where));
+        }
 
         SQLOrderBy order = statement.getOrderBy();
         if (order != null) {
@@ -170,8 +162,7 @@ public class SqlUtil {
     private static void parserQuery(SQLSelectQuery query) {
         if (query instanceof SQLSelectQueryBlock) {
             SQLSelectQueryBlock sqlSelectQueryBlock = ((SQLSelectQueryBlock) query);
-            List<SQLSelectItem> select = sqlSelectQueryBlock.getSelectList();
-            parsingSelectItem(select);
+            Param.parsingSQLSelectItem(sqlSelectQueryBlock);
 
             SQLTableSource from = sqlSelectQueryBlock.getFrom();
             parsingTableSource(from);
@@ -179,15 +170,23 @@ public class SqlUtil {
             SQLExpr where = sqlSelectQueryBlock.getWhere();
             parserSQLObject(where);
 
+            if (where != null) {
+                SQLObject parent = where.getParent();
+                if (parent instanceof SQLSelectQueryBlock) {
+                    where = ((SQLSelectQueryBlock) parent).getWhere();
+                }
 
-            SQLSelectGroupByClause groupBy = sqlSelectQueryBlock.getGroupBy();
-            if (groupBy != null) {
-                parserSQLObject(groupBy);
+                sqlSelectQueryBlock.setWhere(parsingWhereConstant(where));
+                SQLSelectGroupByClause groupBy = sqlSelectQueryBlock.getGroupBy();
+                if (groupBy != null) {
+                    parserSQLObject(groupBy);
+                }
             }
+
 
             SQLOrderBy order = sqlSelectQueryBlock.getOrderBy();
             if (order != null) {
-                parsingOrderItem(order.getItems());
+                Param.parsingSQLOrderBy(order);
             }
         } else if (query instanceof SQLUnionQuery) {
             parserQuery(((SQLUnionQuery) query).getLeft());
@@ -195,13 +194,13 @@ public class SqlUtil {
         }
     }
 
-    /**
-     * 处理查询字段
-     *
-     * @param select 查询字段集合
-     */
-    private static void parsingSelectItem(List<SQLSelectItem> select) {
-        select.removeIf(sqlSelectItem -> !parser(Collections.singletonList(sqlSelectItem.getExpr())));
+    private static SQLExpr parsingWhereConstant(SQLExpr sqlExpr) {
+        String where = SQLUtils.toSQLString(sqlExpr);
+        where = where.replaceAll("((OR|AND|LIKE)[\\s]+1[\\s]*=[\\s]*1)|(1[\\s]*=[\\s]*1[\\s]+(OR|AND|LIKE))|(^1[\\s]*=[\\s]*1)", "").trim();
+        if (StringUtil.isBlank(where) || "1 = 1".equals(where)) {
+            return null;
+        }
+        return SQLUtils.toSQLExpr(where);
     }
 
     /**
@@ -210,9 +209,7 @@ public class SqlUtil {
      * @param updateSetItems 更新字段集合
      */
     private static void parsingUpdateItem(List<SQLUpdateSetItem> updateSetItems) {
-        updateSetItems.removeIf(updateSetItem -> !parser(Collections.singletonList(updateSetItem.getValue())));
-        updateSetItems.stream().forEach(updateSetItem -> parsingBinaryToString(updateSetItem.getValue()));
-        updateSetItems.removeIf(updateSetItem -> !parser(Collections.singletonList(updateSetItem.getColumn())));
+        updateSetItems.removeIf(Param::unprocessed);
     }
 
     /**
@@ -221,15 +218,7 @@ public class SqlUtil {
      * @param orderByItems 更新排序字段集合
      */
     private static void parsingOrderItem(List<SQLSelectOrderByItem> orderByItems) {
-        orderByItems.removeIf(orderByItem -> !parser(Collections.singletonList(orderByItem.getExpr())));
-        orderByItems.forEach(SqlUtil::parsingOrderItem);
-    }
-
-    private static void parsingOrderItem(SQLSelectOrderByItem orderByItem) {
-        String sql = SQLUtils.toMySqlString(orderByItem);
-        if (sql.startsWith(Constant.RegularAbout.UP_COMMA) && sql.endsWith(Constant.RegularAbout.UP_COMMA)) {
-            orderByItem.setExpr(SQLUtils.toSQLExpr(sql.substring(Constant.NumberAbout.ONE, sql.length() - Constant.NumberAbout.TWO)));
-        }
+        orderByItems.removeIf(Param::unprocessed);
     }
 
     /**
@@ -297,46 +286,65 @@ public class SqlUtil {
             sqlPartInfo = getMuchPart(sqlObject);
         } else if (sqlObject instanceof SQLSelectGroupByClause) {
             SQLSelectGroupByClause proxy = ((SQLSelectGroupByClause) sqlObject);
+            Param.parsingSQLSelectGroupByClause(proxy);
             sqlPartInfo = getMuchPart(proxy.getHaving());
         }
         if (sqlPartInfo == null) {
             return;
         }
         for (SQLObject part : sqlPartInfo) {
-            if (part instanceof SQLInListExpr) {
-                parsingInList((SQLInListExpr) part);
-            } else if (part instanceof SQLInSubQueryExpr) {
-                parsingInSubQuery((SQLInSubQueryExpr) part);
-            } else if (part instanceof SQLBinaryOpExpr) {
-                parsingBinaryOp((SQLBinaryOpExpr) part);
+            parsingPart(part);
+        }
+        if (sqlObject instanceof SQLSelectGroupByClause) {
+            SQLSelectGroupByClause proxy = ((SQLSelectGroupByClause) sqlObject);
+            SQLExpr having = proxy.getHaving();
+
+            SQLObject parent = having.getParent();
+            if (parent instanceof SQLSelectGroupByClause) {
+                having = parsingWhereConstant(((SQLSelectGroupByClause) parent).getHaving());
+                proxy.setHaving(having);
             }
         }
     }
 
-    /**
-     * 直接处理sqlExpr中的占位参数，不符合的直接踢除
-     *
-     * @param items sqlExpr集合
-     * @return 返回是否处理成功
-     */
-    private static boolean parser(List<SQLExpr> items) {
-        for (SQLExpr item : items) {
-            String sql = SQLUtils.toMySqlString(item);
-            if (!unprocessed(sql)) {
-                return false;
-            }
+    private static void parsingPart(SQLObject part) {
+        if (part instanceof SQLInListExpr) {
+            Param.parsingSQLInListExpr((SQLInListExpr) part);
+        } else if (part instanceof SQLInSubQueryExpr) {
+            parsingInSubQuery((SQLInSubQueryExpr) part);
+        } else if (part instanceof SQLBinaryOpExpr) {
+            Param.parsingSQLBinaryOpExpr((SQLBinaryOpExpr) part);
+        } else if (part instanceof SQLPropertyExpr) {
+            parsingPart(part.getParent());
+        } else if (part instanceof SQLMethodInvokeExpr) {
+            parsingMethodInvoke((SQLMethodInvokeExpr) part);
         }
-        return true;
     }
 
-    /**
-     * 检查sql语句是否存在参数占位
-     *
-     * @param sql sql语句
-     * @return 是否
-     */
-    private static boolean unprocessed(String sql) {
-        return !sql.contains(NOT_FOUND_PARAM);
+    private static void parsingMethodInvoke(SQLMethodInvokeExpr methodInvokeExpr) {
+        if (!Param.unprocessed(methodInvokeExpr)) {
+            return;
+        }
+        SQLObject parent = methodInvokeExpr.getParent();
+        if (parent instanceof SQLBinaryOpExpr) {
+            ((SQLBinaryOpExpr) parent).setRight(SQLUtils.toSQLExpr("1"));
+            ((SQLBinaryOpExpr) parent).setLeft(SQLUtils.toSQLExpr("1"));
+            ((SQLBinaryOpExpr) parent).setOperator(Equality);
+        } else if (parent instanceof SQLInListExpr) {
+            ((SQLInListExpr) parent).getTargetList().remove(methodInvokeExpr);
+        } else if (parent instanceof SQLOrderBy) {
+            ((SQLOrderBy) parent).getItems().remove(methodInvokeExpr);
+        } else if (parent instanceof SQLUpdateSetItem) {
+            SQLObject updateStatement = parent.getParent();
+            if (updateStatement instanceof SQLUpdateStatement) {
+                ((SQLUpdateStatement) updateStatement).getItems().remove(parent);
+            }
+        } else if (parent instanceof SQLSelectItem) {
+            SQLObject selectQuery = parent.getParent();
+            if (selectQuery instanceof SQLSelectQueryBlock) {
+                ((SQLSelectQueryBlock) selectQuery).getSelectList().remove(parent);
+            }
+        }
     }
 
     /**
@@ -351,120 +359,14 @@ public class SqlUtil {
     }
 
     /**
-     * 处理where info in （list）类型条件
-     *
-     * @param c in的druid表达式
-     */
-    private static void parsingInList(SQLInListExpr c) {
-        List<SQLExpr> items = c.getTargetList();
-        if (items == null) {
-            return;
-        }
-        List<SQLExpr> list = new ArrayList<>();
-        for (SQLExpr item : items) {
-            String sql = SQLUtils.toMySqlString(item);
-            if (unprocessed(sql)) {
-                list.add(item);
-            }
-        }
-        if (list.size() > 0) {
-            c.setTargetList(list);
-        } else {
-            if (!(c.getParent() instanceof SQLReplaceable)) {
-                c.setNot(!c.isNot());
-                c.setTargetList(Collections.singletonList(SQLUtils.toSQLExpr(REPLACE_NULL)));
-            } else {
-                SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
-            }
-
-        }
-    }
-
-    /**
      * 处理普通where表达式
      *
      * @param c where表达式段
      */
     private static void parsingBinaryOp(SQLBinaryOpExpr c) {
-        parsingBinaryToString(c.getRight());
-        boolean isParsing = parser(SQLBinaryOpExpr.split(c));
-        if (!isParsing) {
-            if (!SQLUtils.replaceInParent(c, null)) {
-                SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
-            }
+        if (Param.unprocessed(c)) {
+            SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
         }
-    }
-
-    private static void parsingBinaryToString(SQLExpr sqlExpr) {
-        if (!(sqlExpr instanceof SQLIntegerExpr) && !(sqlExpr instanceof SQLNullExpr)) {
-            String cache = SQLUtils.toMySqlString(sqlExpr);
-            if (!cache.startsWith(Constant.RegularAbout.UP_COMMA) || !cache.endsWith(Constant.RegularAbout.UP_COMMA)) {
-                SQLExpr newSQLExpr = SQLUtils.toSQLExpr(String.format("'%s'", cache));
-                SQLUtils.replaceInParent(sqlExpr, newSQLExpr);
-            }
-        }
-    }
-
-    /**
-     * 处理参数占位
-     *
-     * @param sql    未处理的sql语句
-     * @param params 参数集合
-     * @return 处理过的sql
-     */
-    private static String parsingSqlString(String sql, Map<String, Object> params) {
-        return StringUtil.parsingPlaceholder("{", "}", ":", sql, params, NOT_FOUND_PARAM);
-    }
-
-    /**
-     * 处理参数集合
-     *
-     * @param params 参数集合
-     */
-    private static Map<String, Object> parsingParam(Map<String, Object> params) {
-        if (params == null) {
-            return null;
-        }
-        Map<String, Object> map = new HashMap<>(params.size());
-        for (Map.Entry<String, Object> entity : params.entrySet()) {
-            Object value = entity.getValue();
-            String sqlValue;
-            if (value == null || "".equals(value)) {
-                continue;
-            }
-            if (value.getClass().isArray()) {
-                if (((Object[]) value).length == 0) {
-                    sqlValue = null;
-                } else {
-                    List<String> s = Arrays.stream((Object[]) value).map(x -> String.format("'%s'", x.toString().replace("'", "''"))).collect(toList());
-                    sqlValue = StringUtil.join(s, ",");
-                }
-            } else if (value instanceof Collection) {
-                Collection<Object> objects = (Collection<Object>) value;
-                if (objects.size() == 0) {
-                    sqlValue = null;
-                } else {
-                    Object collection = objects.stream().map(x -> String.format("'%s'", x.toString().replace("'", "''"))).collect(toList());
-                    sqlValue = StringUtil.join((Collection) collection, ",");
-                }
-            } else {
-                if (String.valueOf(value).trim().length() == 0) {
-                    sqlValue = null;
-                } else {
-                    sqlValue = String.format("%s", value.toString().replace("'", "''"));
-                }
-
-            }
-            if (sqlValue != null) {
-                boolean is = PatternUtil.find("\\b(and|exec|insert|select|drop|grant|alter|delete|update|count|chr|mid|master|truncate|char|declare|or)", sqlValue.toLowerCase());
-                if (is) {
-                    throw new ParserException();
-                }
-                map.put(entity.getKey(), sqlValue);
-            }
-
-        }
-        return map;
     }
 
     /**
@@ -547,4 +449,37 @@ public class SqlUtil {
         return statement.getTableName().getSimpleName();
     }
 
+//    public static void main(String[] args) {
+//        String sql = "SELECT a,{column} as tt FROM tableA as ta LEFT JOIN (\n" +
+//                "SELECT d,e,f FROM tableB as tb where d = {d:d} and e like '%{e:e}' or f in ({f})\n" +
+//                ") ON ta.a = tb.d where ta.a = {a} and tb.b like '%{b}' or tb.c in ({c}) or tb.d in (select g from tableC where h in ({h}))\n" +
+//                "group by ta.a,ta.b,ta.c HAVING ta.a = {ga} and tb.b like '%{gb}' or tb.c in (select i from tableD where j in({j})) \n" +
+//                "ORDER BY {order}";
+//
+//        String sqlEsCount = "select  date_format(count_date, '{format}') as `key` ,  date_format(count_date, '{format}') as `name` , sum(es_eqpt_count) as `value` " +
+//                " from asset_count " +
+//                " where date_format(count_date, '{format}') >= date_format({startTime}, '{format}') " +
+//                " and date_format(count_date, '{format}') <= date_format({endTime}, '{format}')" +
+//                " group by `key`";
+//
+//        String update = "update sys_user set a={a},b={b} where a={a}";
+//        Map<String, Object> map = Maps.newHashMap();
+////        map.put("column", new String[]{"a", "b"});
+////        map.put("a", "'abc'");
+////        map.put("b", "b");
+////        map.put("c", new String[]{"c1", "c2"});
+////        map.put("d", "d");
+////        map.put("e", "e");
+////        map.put("f", new String[]{"f1", "f2"});
+////        map.put("g", "g");
+////        map.put("h", new String[]{"h1", "h2"});
+////        map.put("j", new String[]{"j1", "j2"});
+////        map.put("ga", "ga'''");
+////        map.put("gb", "gb");
+//        map.put("order", "ad desc");
+//
+//        map.put("format", "%Y/%m/%d");
+//
+//        parserSQL(sql, map);
+//    }
 }

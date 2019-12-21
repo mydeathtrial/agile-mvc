@@ -489,7 +489,7 @@ public final class StringUtil extends StringUtils {
                     }
 
                     if (o == null) {
-                        if (key.contains(":-")) {
+                        if (key.contains(equalToken)) {
                             //获取不到使用默认值   by nhApis 2018.12.24
                             value = keyObj[1].trim();
                         } else if (replaceNull != null) {
