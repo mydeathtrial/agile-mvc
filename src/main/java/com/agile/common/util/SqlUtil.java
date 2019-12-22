@@ -11,6 +11,7 @@ import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
+import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
@@ -103,9 +104,18 @@ public class SqlUtil {
             parserUpdate((SQLUpdateStatement) statement);
         } else if (statement instanceof SQLDeleteStatement) {
             parserDelete((SQLDeleteStatement) statement);
+        } else if (statement instanceof SQLInsertStatement) {
+            parserInsert((SQLInsertStatement) statement);
         }
 
         return statement.toString();
+    }
+
+    private static void parserInsert(SQLInsertStatement statement) {
+        SQLExprTableSource tableSource = statement.getTableSource();
+        parsingTableSource(tableSource);
+
+        Param.parsingSQLInsertStatement(statement);
     }
 
     private static void parserDelete(SQLDeleteStatement statement) {
@@ -443,6 +453,8 @@ public class SqlUtil {
 //                " group by `key`";
 //
 //        String update = "update sys_user set a={a},b={b} where a={a}";
+//
+//        String update2 = "INSERT INTO `ad_logical_exc_set_data` (type_id, create_time) VALUES ('{typeId}', '{time}')\n";
 //        Map<String, Object> map = Maps.newHashMap();
 ////        map.put("column", new String[]{"a", "b"});
 ////        map.put("a", "'abc'");
@@ -459,7 +471,9 @@ public class SqlUtil {
 //        map.put("order", "ad desc");
 //
 //        map.put("format", "%Y/%m/%d");
+//        map.put("typeId", "typeId");
+//        map.put("time", "123123123");
 //
-//        parserSQL(sql, map);
+//        parserSQL(update2, map);
 //    }
 }

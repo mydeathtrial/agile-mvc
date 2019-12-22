@@ -8,6 +8,7 @@ import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
+import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
@@ -185,6 +186,32 @@ public class Param {
             String newValue = parsingPlaceHolder(value, v -> String.format(FORMAT, v).replace(PREFIX, REPLACEMENT));
             node.setValue(SQLUtils.toSQLExpr(newValue));
         });
+    }
+
+    public static void parsingSQLInsertStatement(SQLInsertStatement statement) {
+        List<SQLExpr> columns = statement.getColumns();
+        List<SQLExpr> values = statement.getValues().getValues();
+
+        if (columns.size() != values.size()) {
+            throw new ParserException("插入的字段数量与值数量不一致");
+        }
+
+        for (int i = 0; i < columns.size(); i++) {
+            SQLExpr column = columns.get(i);
+            SQLExpr value = values.get(i);
+            if (unprocessed(column) || unprocessed(value)) {
+                columns.remove(column);
+                values.remove(value);
+                continue;
+            }
+            String newColumn = parsingPlaceHolder(SQLUtils.toSQLString(column), v -> v);
+            columns.remove(column);
+            columns.add(i, SQLUtils.toSQLExpr(newColumn));
+
+            String newValue = parsingPlaceHolder(SQLUtils.toSQLString(value), v -> v);
+            values.remove(value);
+            values.add(i, SQLUtils.toSQLExpr(newValue));
+        }
     }
 
     public static void parsingSQLInListExpr(SQLInListExpr sqlExpr) {
