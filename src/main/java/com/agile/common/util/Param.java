@@ -87,10 +87,13 @@ public class Param {
         }
         Map<String, Object> map = new HashMap<>(params.size());
 
-        params.entrySet().stream().filter(entry -> entry.getValue() != null).forEach(entry -> {
-            Param param = new Param(entry);
-            map.put(entry.getKey(), param.getPlaceHolder());
-        });
+        params.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() != null && !StringUtil.isBlank(entry.getValue().toString()))
+                .forEach(entry -> {
+                    Param param = new Param(entry);
+                    map.put(entry.getKey(), param.getPlaceHolder());
+                });
 
         return map;
     }
@@ -207,12 +210,12 @@ public class Param {
             SQLUtils.replaceInParent(sqlExpr, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
         } else {
             String right = SQLUtils.toSQLString(sqlExpr.getRight());
-            if (!right.startsWith(PREFIX)) {
-                right = PREFIX + right;
-            }
-            if (!right.endsWith(PREFIX)) {
-                right = right + PREFIX;
-            }
+//            if (!right.startsWith(PREFIX)) {
+//                right = PREFIX + right;
+//            }
+//            if (!right.endsWith(PREFIX)) {
+//                right = right + PREFIX;
+//            }
             String rightSql = parsingPlaceHolder(right, value -> String.format(FORMAT, value).replace(PREFIX, REPLACEMENT));
             sqlExpr.setRight(SQLUtils.toSQLExpr(rightSql));
             String sql = parsingPlaceHolder(SQLUtils.toSQLString(sqlExpr), value -> String.format(FORMAT, value));

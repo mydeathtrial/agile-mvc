@@ -48,9 +48,14 @@ import static com.alibaba.druid.sql.ast.expr.SQLBinaryOperator.Equality;
  * @since 1.0
  */
 public class SqlUtil {
-    private static final String REPLACE_NULL_CONDITION = " 1=1 ";
-    private static final String REPLACE_NULL = "null";
-
+    /**
+     * 常量表达式正则
+     */
+    public static final String CONSTANT_CONDITION_REGEX = "((OR|AND|LIKE)[\\s]+1[\\s]*=[\\s]*1)|(1[\\s]*=[\\s]*1[\\s]+(OR|AND|LIKE))|(^1[\\s]*=[\\s]*1)";
+    /**
+     * 常量表达式
+     */
+    public static final String CONSTANT_CONDITION = "1 = 1";
 
     /**
      * 根据给定参数动态生成完成参数占位的查询条数sql语句
@@ -103,56 +108,29 @@ public class SqlUtil {
         return statement.toString();
     }
 
-    private static SQLObject parserDelete(SQLDeleteStatement statement) {
+    private static void parserDelete(SQLDeleteStatement statement) {
         SQLTableSource from = statement.getFrom();
         parsingTableSource(from);
 
-        SQLExpr where = statement.getWhere();
-        parserSQLObject(where);
-
-        if (where != null) {
-            SQLObject parent = where.getParent();
-            if (parent instanceof SQLDeleteStatement) {
-                where = ((SQLDeleteStatement) parent).getWhere();
-            }
-
-            statement.setWhere(parsingWhereConstant(where));
-        }
-
-        return statement;
+        parsingWhere(statement);
     }
 
-    private static SQLObject parserUpdate(SQLUpdateStatement statement) {
+    private static void parserUpdate(SQLUpdateStatement statement) {
         Param.parsingSQLUpdateStatement(statement);
 
         SQLTableSource from = statement.getFrom();
         parsingTableSource(from);
 
-        SQLExpr where = statement.getWhere();
-        parserSQLObject(where);
-
-        if (where != null) {
-            SQLObject parent = where.getParent();
-            if (parent instanceof SQLUpdateStatement) {
-                where = ((SQLUpdateStatement) parent).getWhere();
-            }
-
-            statement.setWhere(parsingWhereConstant(where));
-        }
+        parsingWhere(statement);
 
         SQLOrderBy order = statement.getOrderBy();
-        if (order != null) {
-            parsingOrderItem(order.getItems());
-        }
-
-        return statement;
+        Param.parsingSQLOrderBy(order);
     }
 
     /**
      * 处理查询语句
      *
      * @param statement 查询statement
-     * @return 处理后的sql对象
      */
     private static void parserSelect(SQLSelectStatement statement) {
         SQLSelectQuery query = statement.getSelect().getQuery();
@@ -167,22 +145,12 @@ public class SqlUtil {
             SQLTableSource from = sqlSelectQueryBlock.getFrom();
             parsingTableSource(from);
 
-            SQLExpr where = sqlSelectQueryBlock.getWhere();
-            parserSQLObject(where);
+            parsingWhere(sqlSelectQueryBlock);
 
-            if (where != null) {
-                SQLObject parent = where.getParent();
-                if (parent instanceof SQLSelectQueryBlock) {
-                    where = ((SQLSelectQueryBlock) parent).getWhere();
-                }
-
-                sqlSelectQueryBlock.setWhere(parsingWhereConstant(where));
-                SQLSelectGroupByClause groupBy = sqlSelectQueryBlock.getGroupBy();
-                if (groupBy != null) {
-                    parserSQLObject(groupBy);
-                }
+            SQLSelectGroupByClause groupBy = sqlSelectQueryBlock.getGroupBy();
+            if (groupBy != null) {
+                parserSQLObject(groupBy);
             }
-
 
             SQLOrderBy order = sqlSelectQueryBlock.getOrderBy();
             if (order != null) {
@@ -194,31 +162,50 @@ public class SqlUtil {
         }
     }
 
+    /**
+     * 处理where条件
+     *
+     * @param expr where的父级表达式
+     * @param <T>  泛型
+     */
+    private static <T> void parsingWhere(T expr) {
+        SQLExpr where = null;
+        if (expr instanceof SQLSelectQueryBlock) {
+            where = ((SQLSelectQueryBlock) expr).getWhere();
+        } else if (expr instanceof SQLUpdateStatement) {
+            where = ((SQLUpdateStatement) expr).getWhere();
+        } else if (expr instanceof SQLDeleteStatement) {
+            where = ((SQLDeleteStatement) expr).getWhere();
+        }
+        if (where == null) {
+            return;
+        }
+        parserSQLObject(where);
+
+        SQLObject parent = where.getParent();
+
+        if (expr instanceof SQLSelectQueryBlock) {
+            where = ((SQLSelectQueryBlock) parent).getWhere();
+            SQLExpr newWhere = parsingWhereConstant(where);
+            ((SQLSelectQueryBlock) expr).setWhere(newWhere);
+        } else if (expr instanceof SQLUpdateStatement) {
+            where = ((SQLUpdateStatement) parent).getWhere();
+            SQLExpr newWhere = parsingWhereConstant(where);
+            ((SQLUpdateStatement) expr).setWhere(newWhere);
+        } else {
+            where = ((SQLDeleteStatement) parent).getWhere();
+            SQLExpr newWhere = parsingWhereConstant(where);
+            ((SQLDeleteStatement) expr).setWhere(newWhere);
+        }
+    }
+
     private static SQLExpr parsingWhereConstant(SQLExpr sqlExpr) {
         String where = SQLUtils.toSQLString(sqlExpr);
-        where = where.replaceAll("((OR|AND|LIKE)[\\s]+1[\\s]*=[\\s]*1)|(1[\\s]*=[\\s]*1[\\s]+(OR|AND|LIKE))|(^1[\\s]*=[\\s]*1)", "").trim();
-        if (StringUtil.isBlank(where) || "1 = 1".equals(where)) {
+        where = where.replaceAll(CONSTANT_CONDITION_REGEX, "").trim();
+        if (StringUtil.isBlank(where) || CONSTANT_CONDITION.equals(where)) {
             return null;
         }
         return SQLUtils.toSQLExpr(where);
-    }
-
-    /**
-     * 处理更新字段
-     *
-     * @param updateSetItems 更新字段集合
-     */
-    private static void parsingUpdateItem(List<SQLUpdateSetItem> updateSetItems) {
-        updateSetItems.removeIf(Param::unprocessed);
-    }
-
-    /**
-     * 处理排序字段
-     *
-     * @param orderByItems 更新排序字段集合
-     */
-    private static void parsingOrderItem(List<SQLSelectOrderByItem> orderByItems) {
-        orderByItems.removeIf(Param::unprocessed);
     }
 
     /**
@@ -332,8 +319,6 @@ public class SqlUtil {
             ((SQLBinaryOpExpr) parent).setOperator(Equality);
         } else if (parent instanceof SQLInListExpr) {
             ((SQLInListExpr) parent).getTargetList().remove(methodInvokeExpr);
-        } else if (parent instanceof SQLOrderBy) {
-            ((SQLOrderBy) parent).getItems().remove(methodInvokeExpr);
         } else if (parent instanceof SQLUpdateSetItem) {
             SQLObject updateStatement = parent.getParent();
             if (updateStatement instanceof SQLUpdateStatement) {
@@ -356,17 +341,6 @@ public class SqlUtil {
         SQLSelect sqlSelect = c.getSubQuery();
         SQLStatementParser sqlStatementParser = SQLParserUtils.createSQLStatementParser(parserSQL(sqlSelect.toString()), JdbcUtils.MYSQL);
         sqlSelect.setQuery(((SQLSelectStatement) sqlStatementParser.parseStatement()).getSelect().getQueryBlock());
-    }
-
-    /**
-     * 处理普通where表达式
-     *
-     * @param c where表达式段
-     */
-    private static void parsingBinaryOp(SQLBinaryOpExpr c) {
-        if (Param.unprocessed(c)) {
-            SQLUtils.replaceInParent(c, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
-        }
     }
 
     /**
@@ -412,7 +386,13 @@ public class SqlUtil {
         return sorts;
     }
 
-    public static String extract(String sql) {
+    /**
+     * 提取操作的sql语句中包含的目标表表名
+     *
+     * @param sql sql语句
+     * @return 表名字
+     */
+    public static String extractTableName(String sql) {
 
         // 新建 MySQL Parser
         SQLStatementParser parser = SQLParserUtils.createSQLStatementParser(sql, JdbcUtils.MYSQL);
