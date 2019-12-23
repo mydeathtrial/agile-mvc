@@ -8,6 +8,7 @@ import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.expr.SQLBetweenExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
@@ -30,6 +31,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.alibaba.druid.sql.ast.expr.SQLBinaryOperator.Equality;
 
 /**
  * @author 佟盟
@@ -332,6 +335,33 @@ public class Param {
             part.setBeginExpr(((SQLBetweenExpr) newSql).getBeginExpr());
             part.setEndExpr(((SQLBetweenExpr) newSql).getEndExpr());
             part.setTestExpr(((SQLBetweenExpr) newSql).getTestExpr());
+        }
+    }
+
+    public static void parsingMethodInvoke(SQLMethodInvokeExpr methodInvokeExpr) {
+        if (Param.unprocessed(methodInvokeExpr)) {
+            SQLObject parent = methodInvokeExpr.getParent();
+            if (parent instanceof SQLBinaryOpExpr) {
+                ((SQLBinaryOpExpr) parent).setRight(SQLUtils.toSQLExpr("1"));
+                ((SQLBinaryOpExpr) parent).setLeft(SQLUtils.toSQLExpr("1"));
+                ((SQLBinaryOpExpr) parent).setOperator(Equality);
+            } else if (parent instanceof SQLInListExpr) {
+                ((SQLInListExpr) parent).getTargetList().remove(methodInvokeExpr);
+            } else if (parent instanceof SQLUpdateSetItem) {
+                SQLObject updateStatement = parent.getParent();
+                if (updateStatement instanceof SQLUpdateStatement) {
+                    ((SQLUpdateStatement) updateStatement).getItems().remove(parent);
+                }
+            } else if (parent instanceof SQLSelectItem) {
+                SQLObject selectQuery = parent.getParent();
+                if (selectQuery instanceof SQLSelectQueryBlock) {
+                    ((SQLSelectQueryBlock) selectQuery).getSelectList().remove(parent);
+                }
+            }
+        } else {
+            String sql = parsingPlaceHolder(SQLUtils.toSQLString(methodInvokeExpr), value -> value);
+            SQLExpr newSql = SQLUtils.toSQLExpr(sql);
+            SQLUtils.replaceInParent(methodInvokeExpr, newSql);
         }
     }
 }

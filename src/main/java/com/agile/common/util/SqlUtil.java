@@ -11,13 +11,13 @@ import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLInsertStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
-import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
@@ -26,7 +26,6 @@ import com.alibaba.druid.sql.ast.statement.SQLSubqueryTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQueryTableSource;
-import com.alibaba.druid.sql.ast.statement.SQLUpdateSetItem;
 import com.alibaba.druid.sql.ast.statement.SQLUpdateStatement;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlSchemaStatVisitor;
 import com.alibaba.druid.sql.parser.SQLParserUtils;
@@ -38,8 +37,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static com.alibaba.druid.sql.ast.expr.SQLBinaryOperator.Equality;
 
 /**
  * 描述：
@@ -216,7 +213,12 @@ public class SqlUtil {
         if (StringUtil.isBlank(where) || CONSTANT_CONDITION.equals(where)) {
             return null;
         }
-        return SQLUtils.toSQLExpr(where);
+        sqlExpr = SQLUtils.toSQLExpr(where);
+        if (where.contains(CONSTANT_CONDITION)) {
+            return parsingWhereConstant(sqlExpr);
+        } else {
+            return sqlExpr;
+        }
     }
 
     /**
@@ -226,10 +228,11 @@ public class SqlUtil {
      */
     private static void parsingTableSource(SQLTableSource from) {
         if (from instanceof SQLSubqueryTableSource) {
-            String childSelect = ((SQLSubqueryTableSource) from).getSelect().toString();
-            childSelect = parserSQL(childSelect);
-            SQLStatement childSelectSQLStatement = SQLParserUtils.createSQLStatementParser(childSelect, JdbcUtils.MYSQL).parseStatement();
-            ((SQLSubqueryTableSource) from).setSelect(((SQLSelectStatement) childSelectSQLStatement).getSelect());
+            SQLSelect childSelect = ((SQLSubqueryTableSource) from).getSelect();
+            String sql = parserSQL(childSelect.toString());
+
+            SQLSelect select = new SQLSelect(((SQLQueryExpr) SQLUtils.toSQLExpr(sql)).getSubQuery().getQueryBlock());
+            ((SQLSubqueryTableSource) from).setSelect(select);
         } else if (from instanceof SQLJoinTableSource) {
             SQLTableSource left = ((SQLJoinTableSource) from).getLeft();
             parsingTableSource(left);
@@ -315,33 +318,9 @@ public class SqlUtil {
         } else if (part instanceof SQLPropertyExpr) {
             parsingPart(part.getParent());
         } else if (part instanceof SQLMethodInvokeExpr) {
-            parsingMethodInvoke((SQLMethodInvokeExpr) part);
+            Param.parsingMethodInvoke((SQLMethodInvokeExpr) part);
         } else if (part instanceof SQLBetweenExpr) {
             Param.parsingSQLBetweenExpr((SQLBetweenExpr) part);
-        }
-    }
-
-    private static void parsingMethodInvoke(SQLMethodInvokeExpr methodInvokeExpr) {
-        if (!Param.unprocessed(methodInvokeExpr)) {
-            return;
-        }
-        SQLObject parent = methodInvokeExpr.getParent();
-        if (parent instanceof SQLBinaryOpExpr) {
-            ((SQLBinaryOpExpr) parent).setRight(SQLUtils.toSQLExpr("1"));
-            ((SQLBinaryOpExpr) parent).setLeft(SQLUtils.toSQLExpr("1"));
-            ((SQLBinaryOpExpr) parent).setOperator(Equality);
-        } else if (parent instanceof SQLInListExpr) {
-            ((SQLInListExpr) parent).getTargetList().remove(methodInvokeExpr);
-        } else if (parent instanceof SQLUpdateSetItem) {
-            SQLObject updateStatement = parent.getParent();
-            if (updateStatement instanceof SQLUpdateStatement) {
-                ((SQLUpdateStatement) updateStatement).getItems().remove(parent);
-            }
-        } else if (parent instanceof SQLSelectItem) {
-            SQLObject selectQuery = parent.getParent();
-            if (selectQuery instanceof SQLSelectQueryBlock) {
-                ((SQLSelectQueryBlock) selectQuery).getSelectList().remove(parent);
-            }
         }
     }
 
@@ -459,6 +438,26 @@ public class SqlUtil {
 //
 //        String update2 = "INSERT INTO `ad_logical_exc_set_data` (type_id, create_time) VALUES ('{typeId}', '{time}')\n";
 //
+//        String sqlCommonStr = "select p.*, u.name as salt_key, c.content_id as content_id, c.event_create_time as event_create_time  " +
+//                " from process_apply p, sys_users u , process_approval a, process_apply_content c " +
+//                " where p.apply_user_id = u.sys_users_id " +
+//                " and  p.id = c.apply_id  " +
+//                " and p.id = a.apply_id " +
+//                " and ( unix_timestamp(p.apply_time)*1000 >={startTimeL} and unix_timestamp(p.apply_time)*1000 <= {endTimeL} ) " +
+//                " and p.approval_type ='{approvalType}' " +
+//                " and p.state in({state})  " +
+//                " and  (a.approval_type ='{approvalType2}') " +
+//                " and  (c.event_name like '%{condition}%' or p.id like '%{condition}%' or u.name like '%{condition}%' or p.apply_message like '%{condition}%' ) ";
+//
+//        sql = " select b.approval_type as `name`, b.approval_type as `key` , count(1) as `value` " +
+//                " from (" + sqlCommonStr + ") b " +
+//                " group by b.approval_type order by value desc limit 5 ";
+//
+//        sql = " select date_format(statistics_date, '{format}') as `key`, date_format(statistics_date, '{format}') as `name`," +
+//                "  start_score as startScore, min_score as minScore, max_score as maxScore , end_score  as endScore " +
+//                "from trend_score_day  " +
+//                "where date_format(statistics_date, '{format}') >= FROM_UNIXTIME({startTime}/1000,'{format}')  " +
+//                "and date_format(statistics_date, '{format}') <= FROM_UNIXTIME({endTime}/1000, '{format}') ";
 //        Map<String, Object> map = Maps.newHashMap();
 ////        map.put("column", new String[]{"a", "b"});
 ////        map.put("a", "'abc'");
@@ -481,6 +480,6 @@ public class SqlUtil {
 //        map.put("startTime", "11111111");
 //        map.put("endTime", "22222222");
 //
-//        parserSQL(sql2, map);
+//        parserSQL(sql, map);
 //    }
 }
