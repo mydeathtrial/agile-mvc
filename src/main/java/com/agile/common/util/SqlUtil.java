@@ -5,6 +5,7 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLStatement;
+import com.alibaba.druid.sql.ast.expr.SQLBetweenExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
@@ -315,6 +316,8 @@ public class SqlUtil {
             parsingPart(part.getParent());
         } else if (part instanceof SQLMethodInvokeExpr) {
             parsingMethodInvoke((SQLMethodInvokeExpr) part);
+        } else if (part instanceof SQLBetweenExpr) {
+            Param.parsingSQLBetweenExpr((SQLBetweenExpr) part);
         }
     }
 
@@ -455,6 +458,7 @@ public class SqlUtil {
 //        String update = "update sys_user set a={a},b={b} where a={a}";
 //
 //        String update2 = "INSERT INTO `ad_logical_exc_set_data` (type_id, create_time) VALUES ('{typeId}', '{time}')\n";
+//
 //        Map<String, Object> map = Maps.newHashMap();
 ////        map.put("column", new String[]{"a", "b"});
 ////        map.put("a", "'abc'");
@@ -474,6 +478,9 @@ public class SqlUtil {
 //        map.put("typeId", "typeId");
 //        map.put("time", "123123123");
 //
-//        parserSQL(update2, map);
+//        map.put("startTime", "11111111");
+//        map.put("endTime", "22222222");
+//
+//        parserSQL(sql2, map);
 //    }
 }

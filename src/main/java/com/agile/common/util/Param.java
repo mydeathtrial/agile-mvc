@@ -5,6 +5,7 @@ import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
+import com.alibaba.druid.sql.ast.expr.SQLBetweenExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
@@ -149,6 +150,9 @@ public class Param {
     }
 
     public static void parsingSQLSelectItem(SQLSelectQueryBlock sqlSelectQueryBlock) {
+        if (sqlSelectQueryBlock == null) {
+            return;
+        }
         List<SQLSelectItem> sqlSelectItems = sqlSelectQueryBlock.getSelectList();
         sqlSelectItems.removeIf(Param::unprocessed);
 
@@ -164,6 +168,9 @@ public class Param {
     }
 
     public static void parsingSQLUpdateStatement(SQLUpdateStatement sqlUpdateStatement) {
+        if (sqlUpdateStatement == null) {
+            return;
+        }
         List<SQLUpdateSetItem> items = sqlUpdateStatement.getItems();
         items.removeIf(Param::unprocessed);
 
@@ -189,6 +196,9 @@ public class Param {
     }
 
     public static void parsingSQLInsertStatement(SQLInsertStatement statement) {
+        if (statement == null) {
+            return;
+        }
         List<SQLExpr> columns = statement.getColumns();
         List<SQLExpr> values = statement.getValues().getValues();
 
@@ -215,6 +225,9 @@ public class Param {
     }
 
     public static void parsingSQLInListExpr(SQLInListExpr sqlExpr) {
+        if (sqlExpr == null) {
+            return;
+        }
         List<SQLExpr> targetList = sqlExpr.getTargetList();
         targetList.removeIf(Param::unprocessed);
 
@@ -233,6 +246,9 @@ public class Param {
     }
 
     public static void parsingSQLBinaryOpExpr(SQLBinaryOpExpr sqlExpr) {
+        if (sqlExpr == null) {
+            return;
+        }
         if (unprocessed(sqlExpr)) {
             SQLUtils.replaceInParent(sqlExpr, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
         } else {
@@ -252,6 +268,9 @@ public class Param {
     }
 
     public static void parsingSQLOrderBy(SQLOrderBy sqlExpr) {
+        if (sqlExpr == null) {
+            return;
+        }
         List<SQLSelectOrderByItem> orders = sqlExpr.getItems();
         orders.removeIf(Param::unprocessed);
 
@@ -270,6 +289,9 @@ public class Param {
     }
 
     public static void parsingSQLSelectGroupByClause(SQLSelectGroupByClause sqlExpr) {
+        if (sqlExpr == null) {
+            return;
+        }
         List<SQLExpr> items = sqlExpr.getItems();
         items.removeIf(Param::unprocessed);
 
@@ -294,5 +316,22 @@ public class Param {
      */
     public static boolean unprocessed(SQLObject sql) {
         return SQLUtils.toSQLString(sql).contains(NOT_FOUND_PARAM);
+    }
+
+    public static void parsingSQLBetweenExpr(SQLBetweenExpr part) {
+        if (unprocessed(part)) {
+            SQLUtils.replaceInParent(part, SQLUtils.toSQLExpr(REPLACE_NULL_CONDITION));
+            return;
+        }
+
+        String sql = parsingPlaceHolder(SQLUtils.toSQLString(part), value -> value);
+
+        SQLExpr newSql = SQLUtils.toSQLExpr(sql);
+        if (newSql instanceof SQLBetweenExpr) {
+            part.setNot(((SQLBetweenExpr) newSql).isNot());
+            part.setBeginExpr(((SQLBetweenExpr) newSql).getBeginExpr());
+            part.setEndExpr(((SQLBetweenExpr) newSql).getEndExpr());
+            part.setTestExpr(((SQLBetweenExpr) newSql).getTestExpr());
+        }
     }
 }
