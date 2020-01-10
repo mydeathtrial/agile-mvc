@@ -7,6 +7,8 @@ import com.agile.common.util.ClassUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.SqlUtil;
 import com.agile.common.util.StringUtil;
+import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
+import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.Level;
 import org.hibernate.engine.spi.SessionImplementor;
@@ -640,12 +642,33 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T> Page<T> findPageBySQL(String sql, String countSql, int page, int size, Class<T> clazz, Object... parameters) {
         validatePageInfo(page, size);
-        PageImpl pageDate = null;
+        PageImpl<T> pageDate = null;
         PageRequest pageable;
 
-        List<Sort.Order> sorts = SqlUtil.getSort(sql);
+        List<Sort.Order> sorts = Lists.newArrayList();
 
-        if (sorts != null && sorts.size() > 0) {
+        List<SQLSelectOrderByItem> items = SqlUtil.getSort(sql);
+        if (items != null) {
+            for (SQLSelectOrderByItem item : items) {
+                String column = item.getExpr().toString();
+                if (item.getType() == null) {
+                    sorts.add(Sort.Order.by(column));
+                } else {
+                    Sort.Direction des = Sort.Direction.fromString(item.getType().name_lcase);
+                    switch (des) {
+                        case ASC:
+                            sorts.add(Sort.Order.asc(column));
+                            break;
+                        case DESC:
+                            sorts.add(Sort.Order.desc(column));
+                            break;
+                        default:
+                    }
+                }
+            }
+        }
+
+        if (sorts.size() > 0) {
             pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.by(sorts));
         } else {
             pageable = PageRequest.of(page - Constant.NumberAbout.ONE, size, Sort.unsorted());
@@ -656,7 +679,7 @@ public class Dao {
 
         //取查询结果集
         if (count >= 0) {
-            List content;
+            List<T> content;
             if (clazz != null) {
                 content = findAll(sql, clazz, (page - Constant.NumberAbout.ONE) * size, size, parameters);
             } else {
@@ -667,7 +690,7 @@ public class Dao {
                 content = query.getResultList();
             }
 
-            pageDate = new PageImpl(content, pageable, count);
+            pageDate = new PageImpl<>(content, pageable, count);
         }
 
         return pageDate;

@@ -106,7 +106,7 @@ public enum ValidateType implements ValidateInterface {
 
     private String createMessage(Validate validate, String defaultMessage) {
         String result;
-        if (StringUtil.isBlank(validate.validateMsg()) && StringUtil.isBlank(validate.validateMsgKey())) {
+        if (StringUtil.isBlank(validate.validateMsg()) && StringUtil.isBlank(validate.validateMsgKey()) && defaultMessage == null) {
             result = String.format("不符合%s格式", info == null ? "自定义" : info);
         } else if (!StringUtil.isBlank(validate.validateMsg())) {
             result = validate.validateMsg();

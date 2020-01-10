@@ -1,2 +1,17 @@
 org.springframework.boot.SpringApplicationRunListener=\
 com.agile.common.listener.ListenerSpringApplicationRun
+
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.agile.common.config.AgileAutoConfiguration,\
+com.agile.common.config.DaoAutoConfiguration,\
+com.agile.common.config.EhCacheAutoConfiguration,\
+com.agile.common.config.GeneratorConfig,\
+com.agile.common.config.KaptchaAutoConfiguration,\
+com.agile.common.config.LoggerFactoryConfig,\
+com.agile.common.config.MessageResourceAutoConfiguration,\
+com.agile.common.config.MyBatisAutoConfiguration,\
+com.agile.common.config.SecurityAutoConfiguration,\
+com.agile.common.config.SpringMvcAutoConfiguration,\
+com.agile.common.config.Swagger2AutoConfiguration,\
+com.agile.common.config.TaskAutoConfiguration,\
+com.agile.common.config.WebSocketAutoConfiguration

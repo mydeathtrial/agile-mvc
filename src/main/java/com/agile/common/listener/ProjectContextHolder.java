@@ -34,7 +34,7 @@ public class ProjectContextHolder {
         System.out.println(AnsiOutput.toString(AnsiColor.GREEN, "启动状态: ", AnsiColor.BLUE, status.name()));
         System.out.println(AnsiOutput.toString(AnsiColor.GREEN, "启动时间: ", AnsiColor.BLUE, DateUtil.convertToString(startedTime, "yyyy年MM月dd日 HH:mm:ss")));
         System.out.println(AnsiOutput.toString(AnsiColor.GREEN, "启动端口: ", AnsiColor.BLUE, port));
-        System.out.println(AnsiOutput.toString(AnsiColor.GREEN, "启动耗时: ", AnsiColor.BLUE, consumeTime.toString()));
+        System.out.println(AnsiOutput.toString(AnsiColor.GREEN, "启动耗时: ", AnsiColor.BLUE, consumeTime));
     }
 
     static void setStatus(STATUS status) {

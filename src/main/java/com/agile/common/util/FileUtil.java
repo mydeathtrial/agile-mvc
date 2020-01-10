@@ -3,6 +3,8 @@ package com.agile.common.util;
 import com.agile.common.base.Constant;
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
+import com.agile.common.exception.CreateFileException;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.http.HttpHeaders;
@@ -37,6 +39,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -442,5 +445,111 @@ public class FileUtil extends FileUtils {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(text);
         writer.close();
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param files   文件集合
+     * @param dirName 父级文件目录名
+     * @return 文件存储的相对目录集合
+     * @throws IOException         异常
+     * @throws CreateFileException 无法生成文件异常
+     */
+    public static List<String> uploadFile(Collection<MultipartFile> files, String dirName) throws IOException, CreateFileException {
+        List<String> list = Lists.newArrayListWithExpectedSize(files.size());
+
+        for (MultipartFile file : files) {
+            list.add(uploadFile(file, dirName));
+        }
+
+        return list;
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file 文件
+     * @return 文件存储的绝对路径
+     * @throws CreateFileException 异常
+     * @throws IOException         无法生成文件异常
+     */
+    public static String uploadFile(MultipartFile file) throws CreateFileException, IOException {
+        return uploadFile(file, "");
+    }
+
+    /**
+     * 文件上传
+     *
+     * @param file    文件
+     * @param dirName 父级文件目录名
+     * @return 文件存储的绝对路径
+     * @throws CreateFileException 异常
+     * @throws IOException         无法生成文件异常
+     */
+    public static String uploadFile(MultipartFile file, String dirName) throws CreateFileException, IOException {
+        String dirPath;
+
+        if (isIllegalDirName(dirName)) {
+            throw new RuntimeException("非法目录结构，存在被攻击威胁");
+        } else {
+            dirPath = FileUtil.getTempPath() + dirName;
+        }
+
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                throw new CreateFileException(dir.getAbsolutePath());
+            }
+        }
+
+        try {
+            dirPath = dir.getCanonicalPath();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!dirPath.endsWith(File.separator)) {
+            dirPath += File.separator;
+        }
+
+        String absoluteFileName = dirPath + file.getOriginalFilename();
+        File uploadFile = new File(absoluteFileName);
+        if (!uploadFile.exists()) {
+            if (!uploadFile.createNewFile()) {
+                throw new CreateFileException(absoluteFileName);
+            }
+        }
+        file.transferTo(uploadFile);
+        return absoluteFileName;
+    }
+
+    /**
+     * 判断文件夹名是否非法
+     *
+     * @param dirName 文件夹名字
+     * @return 是（非法）否（合法）
+     */
+    public static boolean isIllegalDirName(String dirName) {
+        return dirName.matches("(.*)([\\\\/.~:*?\"<>|])(.*)");
+    }
+
+    /**
+     * 取文件
+     *
+     * @param fileName 文件名
+     * @return 文件
+     * @throws FileNotFoundException 文件没找到
+     */
+    public static File getFile(String fileName) throws FileNotFoundException {
+        File file;
+        if (fileName.startsWith(File.separator)) {
+            file = new File(fileName);
+        } else {
+            file = new File(FileUtil.getTempPath() + fileName);
+        }
+        if (file.exists()) {
+            return file;
+        }
+        throw new FileNotFoundException(file.getAbsolutePath());
     }
 }

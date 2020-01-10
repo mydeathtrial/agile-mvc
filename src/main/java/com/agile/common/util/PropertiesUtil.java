@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.context.MessageSource;
+import org.springframework.core.env.Environment;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -34,6 +35,19 @@ import java.util.stream.Collectors;
  * @author mydeathtrial on 2017/3/11
  */
 public final class PropertiesUtil extends com.agile.common.util.properties.PropertiesUtil {
+    private static Environment environment;
+
+    public static void setEnvironment(Environment environment) {
+        PropertiesUtil.environment = environment;
+    }
+
+    public static String getProperty(String key) {
+        String v = environment.getProperty(key);
+        if (v == null) {
+            return getProperties().getProperty(key);
+        }
+        return v;
+    }
 
     /**
      * 获取工程格式化响应文
@@ -110,7 +124,7 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
             StringBuilder stringBuffer = new StringBuilder();
             String oneLine;
             while ((oneLine = bufferedReader.readLine()) != null) {
-                stringBuffer.append(oneLine);
+                stringBuffer.append(oneLine).append("\n");
             }
             return stringBuffer.toString();
         } catch (IOException e) {

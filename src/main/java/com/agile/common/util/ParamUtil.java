@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Maps;
 import org.apache.commons.compress.utils.Lists;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -180,6 +181,32 @@ public class ParamUtil {
     }
 
     /**
+     * 入参里获取上传文件
+     *
+     * @param map 入参集和
+     * @param key key值
+     * @return 文件
+     */
+    public static MultipartFile getInParamOfFile(Map<String, Object> map, String key) {
+        List<MultipartFile> files = getInParamOfFiles(map, key);
+        if (files.size() > 0) {
+            return files.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 入参里获取上传文件
+     *
+     * @param map 入参集和
+     * @param key key值
+     * @return 文件
+     */
+    public static List<MultipartFile> getInParamOfFiles(Map<String, Object> map, String key) {
+        return (List<MultipartFile>) getInParam(map, key);
+    }
+
+    /**
      * 判断path key是否存在
      *
      * @param map 参数集合
@@ -228,13 +255,13 @@ public class ParamUtil {
      * @return 参数集和转换后的对象
      */
     public static <T> T getInParam(Map<String, Object> map, Class<T> clazz) {
-        T result = null;
+        T result;
         Object json = getInParam(map, Constant.ResponseAbout.BODY);
-        if (json != null) {
+
+        result = ObjectUtil.getObjectFromMap(clazz, map);
+
+        if (result == null || ObjectUtil.isAllNullValidity(result) && json != null) {
             result = JSONUtil.toBean(clazz, json.toString());
-        }
-        if (result == null || ObjectUtil.isAllNullValidity(result)) {
-            result = ObjectUtil.getObjectFromMap(clazz, map);
         }
         return result;
     }

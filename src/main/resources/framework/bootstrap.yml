@@ -1,13 +1,62 @@
 spring:
   application:
     # \u6CE8\u518C\u5230Nacos\u4E0A\u7684\u670D\u52A1\u540D\u79F0
-    name: argus-service-main
+    name: agile
   cloud:
     nacos:
       discovery:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.200.106:8848
       config:
-        server-addr: 127.0.0.1:8848
+        server-addr: 192.168.200.106:8848
+        namespace: 0255054a-fde2-44f0-a7ae-dfbc531f95d1
+        ext-config[0]:
+          data-id: application-agile.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[1]:
+          data-id: application-alibaba.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[2]:
+          data-id: application-cache.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[3]:
+          data-id: application-datasource.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[4]:
+          data-id: application-druid.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[5]:
+          data-id: application-ehcache.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[6]:
+          data-id: application-es.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[7]:
+          data-id: application-jpa.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[8]:
+          data-id: application-kafka.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[9]:
+          data-id: application-mvc.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[10]:
+          data-id: application-redis.yml
+          group: FRAMEWORK
+          refresh: true
+        ext-config[11]:
+          data-id: assembly.yaml
+          group: BUSSINESS
+          refresh: true
 logging:
   level:
     root: OFF

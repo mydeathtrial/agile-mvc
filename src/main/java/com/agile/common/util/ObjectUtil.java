@@ -267,7 +267,7 @@ public class ObjectUtil extends ObjectUtils {
                 }
 
                 field.setAccessible(true);
-                field.set(target, value);
+                setValue(target, field, value);
 
             } catch (IllegalAccessException ignored) {
 

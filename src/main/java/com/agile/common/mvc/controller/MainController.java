@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -445,6 +446,9 @@ public class MainController {
         } catch (NoSuchMethodException e) {
             throw new NoSuchRequestMethodException();
         }
+        if (!Modifier.isPublic(methodCache.getModifiers())) {
+            throw new NoSuchRequestMethodException();
+        }
         RequestMethod currentRequestMethod = RequestMethod.valueOf(request.get().getMethod());
         Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
         if (requestMapping != null && allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
@@ -454,7 +458,6 @@ public class MainController {
         if (apiMethod != null && allowRequestMethod(apiMethod.value(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
         }
-        methodCache.setAccessible(true);
         method.set(methodCache);
     }
 

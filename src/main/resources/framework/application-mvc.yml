@@ -11,7 +11,7 @@ spring:
       parameter-name: 'response-format'
     static-path-pattern: /static/**
     async:
-      request-timeout: 10s
+      request-timeout: 3m
   messages:
     encoding: UTF-8
     basename: 'message'
@@ -40,4 +40,4 @@ spring:
       period: 604800
     static-locations: classpath:com/agile/static/
 server:
-  port: 18080
+  port: 18081

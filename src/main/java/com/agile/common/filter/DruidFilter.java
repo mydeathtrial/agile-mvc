@@ -120,7 +120,7 @@ public class DruidFilter extends FilterEventAdapter {
      */
     private void businessLog(String sql) {
         BusinessLogService businessLogService = FactoryUtil.getBean(BusinessLogService.class);
-        String tableName = SqlUtil.extractTableName(sql);
+        String tableName = SqlUtil.getTableName(sql);
         if (businessLogService != null) {
 
             if (businessLogService.needPrintBusinessLog()) {

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -167,6 +168,26 @@ public class MainService implements ServiceInterface {
      */
     protected <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
         return ParamUtil.getInParam(getInParam(), key, clazz, defaultValue);
+    }
+
+    /**
+     * 获取上传文件
+     *
+     * @param key key值
+     * @return 文件
+     */
+    protected MultipartFile getInParamOfFile(String key) {
+        return ParamUtil.getInParamOfFile(getInParam(), key);
+    }
+
+    /**
+     * 获取上传文件
+     *
+     * @param key key值
+     * @return 文件
+     */
+    protected List<MultipartFile> getInParamOfFiles(String key) {
+        return ParamUtil.getInParamOfFiles(getInParam(), key);
     }
 
     /**

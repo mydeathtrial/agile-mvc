@@ -82,7 +82,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
 
         //解密
-        sourcePassword = AesUtil.aesDecrypt(sourcePassword, securityProperties.getAesKey(), securityProperties.getAesOffset(), securityProperties.getAlgorithmModel());
+        sourcePassword = AesUtil.aesDecrypt(sourcePassword, securityProperties.getPassword().getAesKey(), securityProperties.getPassword().getAesOffset(), securityProperties.getPassword().getAlgorithmModel());
 
         if (StringUtil.isEmpty(sourceUsername)) {
             throw new NoCompleteFormSign();
@@ -141,11 +141,11 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         AgileCache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
         Integer sessionIdLoginCount = cache.get(request.getSession().getId(), Integer.class);
         if (sessionIdLoginCount == null) {
-            CacheUtil.put(cache, request.getSession().getId(), 1, Integer.valueOf(Long.toString(securityProperties.getLoginErrorTimeout().getSeconds())));
-        } else if (sessionIdLoginCount >= securityProperties.getLoginErrorCount() - 1) {
-            throw new LoginErrorLockException(String.valueOf(securityProperties.getLoginLockTime().toMinutes()));
+            CacheUtil.put(cache, request.getSession().getId(), 1, Integer.parseInt(Long.toString(securityProperties.getSign().getErrorSignCountTimeout().getSeconds())));
+        } else if (sessionIdLoginCount >= securityProperties.getSign().getMaxErrorCount() - 1) {
+            throw new LoginErrorLockException(String.valueOf(securityProperties.getSign().getErrorSignLockTime().toMinutes()));
         } else {
-            CacheUtil.put(cache, request.getSession().getId(), ++sessionIdLoginCount, Integer.valueOf(Long.toString(securityProperties.getLoginErrorTimeout().getSeconds())));
+            CacheUtil.put(cache, request.getSession().getId(), ++sessionIdLoginCount, Integer.parseInt(Long.toString(securityProperties.getSign().getErrorSignCountTimeout().getSeconds())));
         }
     }
 

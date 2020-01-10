@@ -1,10 +1,12 @@
 package com.agile.common.properties;
 
 import com.agile.common.base.Constant;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.io.Serializable;
 import java.time.Duration;
 
 /**
@@ -13,7 +15,7 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "agile.security")
 @Setter
 @Getter
-public class SecurityProperties {
+public class SecurityProperties implements Serializable {
     /**
      * 开关
      */
@@ -61,36 +63,6 @@ public class SecurityProperties {
     private TokenType tokenType = TokenType.EASY;
 
     /**
-     * 密钥
-     */
-    private String aesKey = "idssinsightkey01";
-
-    /**
-     * 偏移量
-     */
-    private String aesOffset = "3612213421341234";
-
-    /**
-     * 算法模式
-     */
-    private String algorithmModel = "AES/CBC/PKCS5Padding";
-
-    /**
-     * 登录失败次数
-     */
-    private int loginErrorCount = Constant.NumberAbout.FIVE;
-
-    /**
-     * 登录失败锁定时间
-     */
-    private Duration loginLockTime = Duration.ofMinutes(Constant.NumberAbout.FIVE);
-
-    /**
-     * 登录失败信息超时
-     */
-    private Duration loginErrorTimeout = Duration.ofMinutes(Constant.NumberAbout.TWO);
-
-    /**
      * Token级别
      */
     public enum TokenType {
@@ -102,5 +74,67 @@ public class SecurityProperties {
          * 难
          */
         DIFFICULT
+    }
+
+    /**
+     * 密码
+     */
+    private Password password = new Password();
+
+    /**
+     * 登陆
+     */
+    private Sign sign = new Sign();
+
+    /**
+     * 密码
+     */
+    @Data
+    public static class Password implements Serializable {
+        /**
+         * 密码最低强度
+         */
+        private float strength = Constant.NumberAbout.FIVE;
+        /**
+         * 密码有效期
+         */
+        private Duration duration = Duration.ofDays(Constant.NumberAbout.THIRTY_ONE);
+        /**
+         * 过期是否锁定
+         */
+        private boolean lockForExpiration = true;
+        /**
+         * 密钥
+         */
+        private String aesKey = "idssinsightkey01";
+
+        /**
+         * 偏移量
+         */
+        private String aesOffset = "3612213421341234";
+
+        /**
+         * 算法模式
+         */
+        private String algorithmModel = "AES/CBC/PKCS5Padding";
+    }
+
+    /**
+     * 登陆
+     */
+    @Data
+    public static class Sign implements Serializable {
+        /**
+         * 最大登录失败次数
+         */
+        private int maxErrorCount = Constant.NumberAbout.FIVE;
+        /**
+         * 登录失败锁定时间
+         */
+        private Duration errorSignLockTime = Duration.ofMinutes(Constant.NumberAbout.TWO);
+        /**
+         * 登录失败计算超时
+         */
+        private Duration errorSignCountTimeout = Duration.ofMinutes(Constant.NumberAbout.TWO);
     }
 }
