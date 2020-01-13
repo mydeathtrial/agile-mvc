@@ -258,10 +258,14 @@ public class ParamUtil {
         T result;
         Object json = getInParam(map, Constant.ResponseAbout.BODY);
 
-        result = ObjectUtil.getObjectFromMap(clazz, map);
+        result = com.agile.common.util.object.ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
+        });
 
         if (result == null || ObjectUtil.isAllNullValidity(result) && json != null) {
             result = JSONUtil.toBean(clazz, json.toString());
+        }
+        if (result == null || ObjectUtil.isAllNullValidity(result)) {
+            return null;
         }
         return result;
     }
