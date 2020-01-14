@@ -1,7 +1,14 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
+import com.agile.common.properties.SecurityProperties;
+import com.agile.common.util.pattern.PatternUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static java.math.BigDecimal.ROUND_HALF_DOWN;
 
 /**
  * @author 佟盟
@@ -21,6 +28,7 @@ public class PasswordUtil {
 
     private static final BCryptPasswordEncoder B_CRYPT_PASSWORD_ENCODER = new BCryptPasswordEncoder(Constant.NumberAbout.FOUR);
 
+    private static final SecurityProperties.Strength STRENGTH_CONF = FactoryUtil.getBean(SecurityProperties.class).getPassword().getStrengthConf();
     private static final int MIN_NUM = 48;
     private static final int MAN_NUM = 57;
     private static final int MIN_CAPITAL_LETTER = 65;
@@ -39,11 +47,7 @@ public class PasswordUtil {
     private static final int CAPITAL_LETTER = Constant.NumberAbout.THREE;
     private static final int OTHER_CHAR = Constant.NumberAbout.FOUR;
 
-    /**
-     * 简单的密码字典
-     */
-    private static final String[] DICTIONARY = {"password", "iloveyou", "sunshine",
-            "1314", "520", "a1b2c3", "admin"};
+    private static double charLevel;
 
     /**
      * 检查字符类型，包括num、大写字母、小写字母和其他字符。
@@ -95,20 +99,7 @@ public class PasswordUtil {
         }
         double level;
 
-        /**
-         * 长度加分
-         */
-        level = parsingLength(password);
-
-        /**
-         * 特殊字符加分
-         */
-        level = parsingSpecialChar(password, level);
-
-        /**
-         * 内容长度加分
-         */
-        level = parsingContext(password, level);
+        level = init(password);
 
         /**
          * 减分
@@ -118,59 +109,35 @@ public class PasswordUtil {
         /**
          * 减分
          */
-        level = parsingBirthday(password, level);
-
-        /**
-         * 减分
-         */
         level = parsingKeyWord(password, level);
 
-        if (level < 0) {
-            level = 0;
+        return level;
+    }
+
+    private static double init(String password) {
+        // 长度最大得分
+        final int lengthLevel = 50;
+        assert STRENGTH_CONF != null;
+        final int maxLength = STRENGTH_CONF.getMaxLength();
+        charLevel = new BigDecimal(lengthLevel).divide(new BigDecimal(maxLength), 10, ROUND_HALF_DOWN).doubleValue();
+
+        double level = password.length() * charLevel;
+
+        // 种类得分
+        if (countLetter(password, NUM) > 0) {
+            level += 3.90625;
         }
-
+        if (countLetter(password, SMALL_LETTER) > 0) {
+            level += 10.15625;
+        }
+        if (countLetter(password, CAPITAL_LETTER) > 0) {
+            level += 10.15625;
+        }
+        if (countLetter(password, OTHER_CHAR) > 0) {
+            level += 25.78125;
+        }
         return level;
-    }
 
-    /**
-     * 处理特殊字符串
-     *
-     * @param password 密码
-     * @param level    强度
-     * @return 强度
-     */
-    private static double parsingSpecialChar(String password, double level) {
-        int other = countLetter(password, OTHER_CHAR);
-        return other + level;
-    }
-
-    /**
-     * 判断包含内容种类
-     *
-     * @param password 密码
-     * @param level    强度
-     * @return 强度
-     */
-    private static double parsingContext(String password, double level) {
-        int num = countLetter(password, NUM);
-        int small = countLetter(password, SMALL_LETTER);
-        int capital = countLetter(password, CAPITAL_LETTER);
-        int other = countLetter(password, OTHER_CHAR);
-        final double weight = 0.2;
-
-        level += (num + small + capital + other) * weight;
-        return level;
-    }
-
-    /**
-     * 处理长度
-     *
-     * @param password 密码
-     * @return 强度
-     */
-    private static double parsingLength(String password) {
-        final double weight = 0.2;
-        return password.length() * weight;
     }
 
     /**
@@ -181,30 +148,17 @@ public class PasswordUtil {
      * @return 强度
      */
     private static double parsingKeyWord(String password, double level) {
-        final double weight = 0.8;
-        if (null != DICTIONARY) {
-            for (String s : DICTIONARY) {
-                if (password.contains(s)) {
-                    level -= weight;
-                    break;
-                }
-            }
-        }
-        return level;
-    }
+        assert STRENGTH_CONF != null;
+        double weightOfKeyWord = STRENGTH_CONF.getWeightOfKeyWord();
+        List<String> keyWords = STRENGTH_CONF.getWeightOfKeyWords();
 
-    /**
-     * 验证生日
-     *
-     * @param password 密码
-     * @param level    强度
-     * @return 强度
-     */
-    private static double parsingBirthday(String password, double level) {
-        final String regex = Constant.RegularAbout.DATE_YYYYMMDD;
-        final double weight = 0.5;
-        if (StringUtil.findMatchedString(regex, password)) {
-            level -= weight;
+        BigDecimal countKewWords = new BigDecimal(keyWords.size());
+        for (String keyWord : keyWords) {
+            if (password.contains(keyWord)) {
+                // 计算当前正则的权重分数，每个字符的有效分数 * 关键字打分占比 * 当前关键字占比
+                double percentage = new BigDecimal(1).divide(countKewWords, 10, ROUND_HALF_DOWN).doubleValue() * (charLevel * weightOfKeyWord);
+                level -= keyWord.length() * percentage;
+            }
         }
         return level;
     }
@@ -217,68 +171,16 @@ public class PasswordUtil {
      * @return 强度
      */
     private static double parsingRegex(String password, double level) {
+        assert STRENGTH_CONF != null;
+        double weightOfRegex = STRENGTH_CONF.getWeightOfRegex();
+        List<SecurityProperties.WeightMap> weightMaps = STRENGTH_CONF.getWeightOfRegexMap();
+        double sum = weightMaps.stream().map(SecurityProperties.WeightMap::getWeight).mapToDouble(a -> a).sum();
 
-        /**
-         * 单字符 三至多次重复 aaa bbb ccccc
-         */
-        final String regex1 = "(?:([\\da-zA-Z])\\1{2,})";
-        if (StringUtil.findMatchedString(regex1, password)) {
-            final double weight = 3.0;
-            level -= weight;
-        }
-        /**
-         * 双至多重字符段 重复 aabbcc aaabbbccc
-         */
-        final String regex2 = "(?:([\\da-zA-Z])\\1+){2,}";
-        if (StringUtil.findMatchedString(regex2, password)) {
-            final double weight = 2.5;
-            level -= weight;
-        }
-        /**
-         * 二至多字符段 重复 abab abcabc
-         */
-        final String regex3 = "([\\da-zA-Z]{2,})\\1+";
-        if (StringUtil.findMatchedString(regex3, password)) {
-            final double weight = 2.0;
-            level -= weight;
-        }
-        /**
-         * 至少三位递增顺/逆数 123 567 3456
-         */
-        final String regex4 = "(?:0(?=1)|1(?=2)|2(?=3)|3(?=4)|4(?=5)|5(?=6)|6(?=7)|7(?=8)|8(?=9)){2,}+\\d";
-        final String regex5 = "(?:9(?=8)|8(?=7)|7(?=6)|6(?=5)|5(?=4)|4(?=3)|3(?=2)|2(?=1)|1(?=0)){2,}+\\d";
-        if (StringUtil.findMatchedString(regex4, password)
-                || StringUtil.findMatchedString(regex5, password)) {
-            final double weight = 2.2;
-            level -= weight;
-        }
-        /**
-         * 至少三位递增顺字母 abc bcde
-         */
-        final String regex6 = "(?:a(?=b)|b(?=c)|c(?=d)|d(?=e)|e(?=f)|f(?=g)|g(?=h)|h(?=i)|i(?=j)|j(?=k)|k(?=l)|l(?=m)|m(?=n)|n(?=o)|o(?=p)|p(?=q)|q(?=r)|r(?=s)|s(?=t)|t(?=u)|u(?=v)|v(?=w)|w(?=x)|x(?=y)|y(?=z)){2,}+[a-z]";
-        final String regex7 = "(?:A(?=B)|B(?=C)|C(?=D)|D(?=E)|E(?=F)|F(?=G)|G(?=H)|H(?=I)|I(?=J)|J(?=K)|K(?=L)|L(?=M)|M(?=N)|N(?=O)|O(?=P)|P(?=Q)|Q(?=R)|R(?=S)|S(?=T)|T(?=U)|U(?=V)|V(?=W)|W(?=X)|X(?=Y)|Y(?=Z)){2,}+[A-Z]";
-        if (StringUtil.findMatchedString(regex6, password)
-                || StringUtil.findMatchedString(regex7, password)) {
-            final double weight = 2.2;
-            level -= weight;
-        }
-        /**
-         * 至少三位递增顺键盘字母 qwe rtyu
-         */
-        final String regex8 = "(?:q(?=w)|w(?=e)|e(?=r)|r(?=t)|t(?=y)|y(?=u)|u(?=i)|i(?=o)|o(?=p)){2,}+[a-z]";
-        final String regex9 = "(?:Q(?=W)|W(?=E)|E(?=R)|R(?=T)|T(?=Y)|Y(?=U)|U(?=I)|I(?=O)|O(?=P)){2,}+[A-Z]";
-        final String regex10 = "(?:a(?=s)|s(?=d)|d(?=f)|f(?=g)|g(?=h)|h(?=j)|j(?=k)|k(?=l)){2,}+[a-z]";
-        final String regex11 = "(?:A(?=S)|S(?=D)|D(?=F)|F(?=G)|G(?=H)|H(?=J)|J(?=K)|K(?=L)){2,}+[A-Z]";
-        final String regex12 = "(?:z(?=x)|x(?=c)|c(?=v)|v(?=b)|b(?=n)|n(?=m)){2,}+[a-z]";
-        final String regex13 = "(?:Z(?=X)|X(?=C)|C(?=V)|V(?=B)|B(?=N)|N(?=M)){2,}+[A-Z]";
-        if (StringUtil.findMatchedString(regex8, password)
-                || StringUtil.findMatchedString(regex9, password)
-                || StringUtil.findMatchedString(regex10, password)
-                || StringUtil.findMatchedString(regex11, password)
-                || StringUtil.findMatchedString(regex12, password)
-                || StringUtil.findMatchedString(regex13, password)) {
-            final double weight = 2.2;
-            level -= weight;
+        for (SecurityProperties.WeightMap weightMap : weightMaps) {
+            double weight = weightMap.getWeight();
+            // 计算当前正则的权重分数，每个字符的有效分数 * 正则打分占比 * 当前正则占比
+            double percentage = new BigDecimal(weight).divide(new BigDecimal(sum), 10, ROUND_HALF_DOWN).doubleValue() * (charLevel * weightOfRegex);
+            level = regexScoring(weightMap.getRegex(), password, level, percentage);
         }
 
         return level;
@@ -324,5 +226,31 @@ public class PasswordUtil {
      */
     public static boolean decryption(String clear, String cipher) {
         return B_CRYPT_PASSWORD_ENCODER.matches(clear, cipher);
+    }
+
+    private static double regexScoring(String regex, String text, double level, double weight) {
+        List<String> matches = PatternUtil.getMatched(regex, text);
+
+        int sum = matches.stream().map(String::length).mapToInt(s -> s).sum();
+
+        level -= sum * (1 - weight);
+
+        return level;
+    }
+
+    public static void main(String[] args) {
+        PatternUtil.getGroups("(?:([\\da-zA-Z])\\1+){2,}", "tonmegaasdaabbdshjksdfccddss");
+        p("123456");
+        p("Idss@1234");
+        p("idss@1234");
+        p("qweasdzxc");
+        p("tongmeng");
+        p("admin");
+        p("145976");
+        p("145976aaq");
+    }
+
+    private static void p(String pa) {
+        System.out.println(String.format("[%s][%s]", pa, checkPasswordStrength(pa)));
     }
 }

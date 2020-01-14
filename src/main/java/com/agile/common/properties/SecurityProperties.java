@@ -8,6 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.io.Serializable;
 import java.time.Duration;
+import java.util.List;
 
 /**
  * @author by 佟盟 on 2018/2/1
@@ -117,6 +118,47 @@ public class SecurityProperties implements Serializable {
          * 算法模式
          */
         private String algorithmModel = "AES/CBC/PKCS5Padding";
+
+        /**
+         * 强度解析器配置
+         */
+        private Strength strengthConf = new Strength();
+
+    }
+    /**
+     * 强度权重配置
+     */
+    @Data
+    public static class Strength{
+        /**
+         * 最大允许密码长度
+         */
+        private int maxLength;
+        /**
+         * 正则权重
+         */
+        private double weightOfRegex;
+        /**
+         * 关键字权重
+         */
+        private double weightOfKeyWord;
+        /**
+         * 正则配置
+         */
+        private List<WeightMap> weightOfRegexMap;
+        /**
+         * 关键字配置
+         */
+        private List<String> weightOfKeyWords;
+    }
+
+    /**
+     * 正则权重映射
+     */
+    @Data
+    public static class WeightMap{
+        private String regex;
+        private double weight;
     }
 
     /**
