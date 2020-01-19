@@ -8,7 +8,6 @@ import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
-import com.agile.common.util.ServletUtil;
 import com.agile.common.util.StringUtil;
 import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
@@ -17,6 +16,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.cache.Cache;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -50,7 +50,6 @@ public class LoginCacheInfo implements Serializable {
 
     private static CustomerUserDetailsService customerUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
 
-    private static LogoutHandler logoutHandler = FactoryUtil.getBean(LogoutHandler.class);
 
     /**
      * 创建登录信息
@@ -125,33 +124,43 @@ public class LoginCacheInfo implements Serializable {
 
         LoginCacheInfo loginCacheInfo = cache.get(username, LoginCacheInfo.class);
 
-        //验证登陆账号信息合法性
-        validateCacheDate(loginCacheInfo);
-
-        //判断策略,复杂策略时，更新会话令牌
-        if (securityProperties != null && securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
-            //创建新会话令牌
-            long newSessionToken = IdUtil.generatorId();
-
-            //更新数据库登录信息
-            CustomerUserDetailsService securityUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
-            assert securityUserDetailsService != null;
-            securityUserDetailsService.updateLoginInfo(username, Long.toString(sessionToken), Long.toString(newSessionToken));
-
-            //删除旧的缓存会话令牌
-            loginCacheInfo.getSessionTokens().remove(sessionToken);
-
-            //生成新的会话令牌缓存
-            TokenInfo tokenInfo = new TokenInfo();
-            tokenInfo.setToken(token);
-            tokenInfo.setStart(new Date());
-            tokenInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
-
-            loginCacheInfo.getSessionTokens().put(newSessionToken, tokenInfo);
-            cache.put(username, loginCacheInfo);
-        }
-
         return new CurrentLoginInfo(sessionToken, loginCacheInfo);
+    }
+
+    /**
+     * 刷新身份令牌
+     *
+     * @param currentLoginInfo 当前登陆用户信息
+     * @return 新令牌
+     */
+    public static String refreshToken(CurrentLoginInfo currentLoginInfo) {
+        LoginCacheInfo loginCacheInfo = currentLoginInfo.getLoginCacheInfo();
+        Long oldSessionToken = currentLoginInfo.getSessionToken();
+
+        //创建新会话令牌
+        long newSessionToken = IdUtil.generatorId();
+
+        //删除旧的缓存会话令牌
+        loginCacheInfo.getSessionTokens().remove(oldSessionToken);
+
+        //生成新的会话令牌缓存
+        String token = TokenUtil.generateToken(currentLoginInfo.getLoginCacheInfo().getUsername(), newSessionToken, DateUtil.addYear(new Date(), 1));
+
+        TokenInfo tokenInfo = new TokenInfo();
+        tokenInfo.setToken(token);
+        tokenInfo.setStart(new Date());
+        tokenInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
+        loginCacheInfo.getSessionTokens().put(newSessionToken, tokenInfo);
+
+        //同步缓存
+        cache.put(loginCacheInfo.getUsername(), loginCacheInfo);
+
+        //更新数据库登录信息
+        CustomerUserDetailsService securityUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
+        assert securityUserDetailsService != null;
+        securityUserDetailsService.updateLoginInfo(loginCacheInfo.getUsername(), Long.toString(oldSessionToken), Long.toString(newSessionToken));
+
+        return token;
     }
 
     /**
@@ -159,16 +168,9 @@ public class LoginCacheInfo implements Serializable {
      *
      * @param loginCacheInfo 登陆信息
      */
-    private static void validateCacheDate(LoginCacheInfo loginCacheInfo) {
-        Optional<LoginCacheInfo> loginCacheInfoOptional = Optional.ofNullable(loginCacheInfo);
-        if (loginCacheInfoOptional.isPresent()) {
-            try {
-                customerUserDetailsService.validate((UserDetails) loginCacheInfo.getAuthentication().getDetails());
-            } catch (Exception e) {
-                logoutHandler.onLogoutSuccess(ServletUtil.getCurrentRequest(), ServletUtil.getCurrentResponse(), loginCacheInfo.getAuthentication());
-                throw e;
-            }
-        }
+    public static void validateCacheDate(LoginCacheInfo loginCacheInfo) {
+        LoginCacheInfo info = Optional.ofNullable(loginCacheInfo).orElseThrow(() -> new UsernameNotFoundException("Not Found Account"));
+        customerUserDetailsService.validate((UserDetails) info.getAuthentication().getDetails());
     }
 
     /**

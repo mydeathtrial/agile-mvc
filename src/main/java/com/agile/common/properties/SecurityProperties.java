@@ -125,11 +125,12 @@ public class SecurityProperties implements Serializable {
         private Strength strengthConf = new Strength();
 
     }
+
     /**
      * 强度权重配置
      */
     @Data
-    public static class Strength{
+    public static class Strength {
         /**
          * 最大允许密码长度
          */
@@ -156,7 +157,7 @@ public class SecurityProperties implements Serializable {
      * 正则权重映射
      */
     @Data
-    public static class WeightMap{
+    public static class WeightMap {
         private String regex;
         private double weight;
     }

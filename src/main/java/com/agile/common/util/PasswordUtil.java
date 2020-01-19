@@ -16,6 +16,11 @@ import static java.math.BigDecimal.ROUND_HALF_DOWN;
  * @since 1.0
  */
 public class PasswordUtil {
+
+    public static final double NUM_TYPE_WEIGHT = 3.90625;
+    public static final double LETTER_TYPE_WEIGHT = 10.15625;
+    public static final double OTHER_TYPE_WEIGHT = 25.78125;
+
     /**
      * 密码强度
      */
@@ -119,22 +124,22 @@ public class PasswordUtil {
         final int lengthLevel = 50;
         assert STRENGTH_CONF != null;
         final int maxLength = STRENGTH_CONF.getMaxLength();
-        charLevel = new BigDecimal(lengthLevel).divide(new BigDecimal(maxLength), 10, ROUND_HALF_DOWN).doubleValue();
+        charLevel = new BigDecimal(lengthLevel).divide(new BigDecimal(maxLength), Constant.NumberAbout.TEN, ROUND_HALF_DOWN).doubleValue();
 
         double level = password.length() * charLevel;
 
         // 种类得分
         if (countLetter(password, NUM) > 0) {
-            level += 3.90625;
+            level += NUM_TYPE_WEIGHT;
         }
         if (countLetter(password, SMALL_LETTER) > 0) {
-            level += 10.15625;
+            level += LETTER_TYPE_WEIGHT;
         }
         if (countLetter(password, CAPITAL_LETTER) > 0) {
-            level += 10.15625;
+            level += LETTER_TYPE_WEIGHT;
         }
         if (countLetter(password, OTHER_CHAR) > 0) {
-            level += 25.78125;
+            level += OTHER_TYPE_WEIGHT;
         }
         return level;
 
@@ -156,7 +161,7 @@ public class PasswordUtil {
         for (String keyWord : keyWords) {
             if (password.contains(keyWord)) {
                 // 计算当前正则的权重分数，每个字符的有效分数 * 关键字打分占比 * 当前关键字占比
-                double percentage = new BigDecimal(1).divide(countKewWords, 10, ROUND_HALF_DOWN).doubleValue() * (charLevel * weightOfKeyWord);
+                double percentage = new BigDecimal(1).divide(countKewWords, Constant.NumberAbout.TEN, ROUND_HALF_DOWN).doubleValue() * (charLevel * weightOfKeyWord);
                 level -= keyWord.length() * percentage;
             }
         }
@@ -179,7 +184,7 @@ public class PasswordUtil {
         for (SecurityProperties.WeightMap weightMap : weightMaps) {
             double weight = weightMap.getWeight();
             // 计算当前正则的权重分数，每个字符的有效分数 * 正则打分占比 * 当前正则占比
-            double percentage = new BigDecimal(weight).divide(new BigDecimal(sum), 10, ROUND_HALF_DOWN).doubleValue() * (charLevel * weightOfRegex);
+            double percentage = new BigDecimal(weight).divide(new BigDecimal(sum), Constant.NumberAbout.TEN, ROUND_HALF_DOWN).doubleValue() * (charLevel * weightOfRegex);
             level = regexScoring(weightMap.getRegex(), password, level, percentage);
         }
 
@@ -236,21 +241,5 @@ public class PasswordUtil {
         level -= sum * (1 - weight);
 
         return level;
-    }
-
-    public static void main(String[] args) {
-        PatternUtil.getGroups("(?:([\\da-zA-Z])\\1+){2,}", "tonmegaasdaabbdshjksdfccddss");
-        p("123456");
-        p("Idss@1234");
-        p("idss@1234");
-        p("qweasdzxc");
-        p("tongmeng");
-        p("admin");
-        p("145976");
-        p("145976aaq");
-    }
-
-    private static void p(String pa) {
-        System.out.println(String.format("[%s][%s]", pa, checkPasswordStrength(pa)));
     }
 }

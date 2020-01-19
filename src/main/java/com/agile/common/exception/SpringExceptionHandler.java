@@ -4,7 +4,6 @@ import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.FactoryUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,13 +35,11 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
         RETURN r = get(e, ERROR_MESSAGE_PREFIX);
         if (r == null) {
             r = get(e, EXCEPTION_MESSAGE_PREFIX);
-            LoggerFactory.COMMON_LOG.error("请求异常捕获", e);
         }
         if (r == null) {
             r = RETURN.EXPRESSION;
         }
 
-        assert r != null;
         Head head = new Head(r);
 
         AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
@@ -67,13 +64,13 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
     private static RETURN get(Throwable e, String prefix) {
         RETURN r = null;
         if (e instanceof AbstractCustomException) {
-            r = RETURN.getMessage(String.format(prefix, e.getClass().getSimpleName()), ((AbstractCustomException) e).getParams());
+            r = RETURN.getReturn(String.format(prefix, e.getClass().getSimpleName()), ((AbstractCustomException) e).getParams());
         } else {
             if (e.getCause() != null) {
-                r = RETURN.getMessage(String.format(prefix, e.getCause().getClass().getSimpleName()), e.getMessage());
+                r = RETURN.getReturn(String.format(prefix, e.getCause().getClass().getSimpleName()), e.getMessage());
             }
             if (r == null) {
-                r = RETURN.getMessage(String.format(prefix, e.getClass().getSimpleName()), e.getMessage());
+                r = RETURN.getReturn(String.format(prefix, e.getClass().getSimpleName()), e.getMessage());
             }
         }
         return r;

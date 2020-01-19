@@ -318,7 +318,4 @@ public final class PropertiesUtil extends com.agile.common.util.properties.Prope
         return list;
     }
 
-    public static void main(String[] args) {
-        getProperties();
-    }
 }

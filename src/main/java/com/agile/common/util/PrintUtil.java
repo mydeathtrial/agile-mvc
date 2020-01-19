@@ -1,112 +1,32 @@
 package com.agile.common.util;
 
+import org.springframework.boot.ansi.AnsiColor;
+import org.springframework.boot.ansi.AnsiOutput;
+
+import java.io.PrintStream;
+
 /**
  * @author 佟盟 on 2018/11/9
  */
 public class PrintUtil {
 
-    // 白色
-    public static final int WHITE = 30;
-    // 白色背景
-    public static final int WHITE_BACKGROUND = 40;
-    // 红色
-    public static final int RED = 31;
-    // 红色背景
-    public static final int RED_BACKGROUND = 41;
-    // 绿色
-    public static final int GREEN = 32;
-    // 绿色背景
-    public static final int GREEN_BACKGROUND = 42;
-    // 黄色
-    public static final int YELLOW = 33;
-    // 黄色背景
-    public static final int YELLOW_BACKGROUND = 43;
-    // 蓝色
-    public static final int BLUE = 34;
-    // 蓝色背景
-    public static final int BLUE_BACKGROUND = 44;
-    // 品红（洋红）
-    public static final int MAGENTA = 35;
-    // 品红背景
-    public static final int MAGENTA_BACKGROUND = 45;
-    // 蓝绿
-    public static final int CYAN = 36;
-    // 蓝绿背景
-    public static final int CYAN_BACKGROUND = 46;
-    // 黑色
-    public static final int BLACK = 37;
-    // 黑色背景
-    public static final int BLACK_BACKGROUND = 47;
-    // 粗体
-    public static final int BOLD = 1;
-    // 斜体
-    public static final int ITATIC = 3;
-    // 下划线
-    public static final int UNDERLINE = 4;
-    // 反转
-    public static final int REVERSE = 7;
-
-//    public static void main(String[] args) {
-//        PrintUtil.write("黑色", PrintUtil.BLACK);
-//        PrintUtil.write("白色", PrintUtil.WHITE);
-//        PrintUtil.write("红色", PrintUtil.RED);
-//        PrintUtil.write("绿色", PrintUtil.GREEN);
-//        PrintUtil.write("黄色", PrintUtil.YELLOW);
-//        PrintUtil.write("蓝色", PrintUtil.BLUE);
-//        PrintUtil.write("品红", PrintUtil.MAGENTA);
-//        PrintUtil.write("蓝绿", PrintUtil.CYAN);
-//        PrintUtil.write("黑底白字", PrintUtil.WHITE, PrintUtil.BLACK_BACKGROUND);
-//        PrintUtil.write("白底黑字", PrintUtil.BLACK, PrintUtil.WHITE_BACKGROUND);
-//        PrintUtil.write("蓝底红字", PrintUtil.RED, PrintUtil.BLUE_BACKGROUND);
-//        PrintUtil.write("加粗倾斜", PrintUtil.BOLD, PrintUtil.ITATIC);
-//        PrintUtil.write("黄底白字下划线", PrintUtil.WHITE, PrintUtil.YELLOW_BACKGROUND, PrintUtil.UNDERLINE);
-//        PrintUtil.write("红字颜色反转", PrintUtil.RED, PrintUtil.REVERSE);
-//    }
-
-    private static String fmt(String txt, int... codes) {
-        StringBuilder sb = new StringBuilder();
-        for (int code : codes) {
-            sb.append(code).append(";");
-        }
-        String code = sb.toString();
-        if (code.endsWith(";")) {
-            code = code.substring(0, code.length() - 1);
-        }
-        final int length = 27;
-        return (char) length + "[" + code + "m" + txt + (char) length + "[0m";
+    /**
+     * 打印颜色字符串
+     * @param color 颜色
+     * @param text 内容
+     */
+    public static void print(AnsiColor color, Object... text) {
+        PrintStream out = System.out;
+        out.print(AnsiOutput.toString(color, text));
     }
 
     /**
-     * 打印并换行
+     * 打印颜色字符串后换行
+     * @param text 内容
      */
-    public static void writeln(String txt, int... codes) {
-        System.out.println(fmt(txt, codes));
+    public static void println(String text) {
+        PrintStream out = System.out;
+        out.println(text);
     }
 
-    /**
-     * 打印不换行
-     */
-    public static void write(String txt, int... codes) {
-        System.out.print(fmt(txt, codes));
-    }
-
-    /**
-     * 默认打印红色文字
-     */
-    public static void write(String txt) {
-        System.out.println(fmt(txt, RED));
-    }
-
-    public static void writeMessage(String key, Object value) {
-        write(String.format(" :: %s :: ", key), PrintUtil.CYAN);
-        if (value != null) {
-            writeln(String.valueOf(value), PrintUtil.YELLOW);
-        } else {
-            System.out.println();
-        }
-    }
-
-    public static void writeMessage(String key) {
-        writeMessage(key, null);
-    }
 }

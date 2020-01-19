@@ -28,8 +28,29 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+
+        //返回
+        try {
+            processingExit(request, response);
+            ViewUtil.render(new Head(RETURN.LOGOUT_SUCCESS), null, request, response);
+        } catch (Exception e) {
+            LoggerFactory.AUTHORITY_LOG.debug(e);
+        }
+
+    }
+
+    /**
+     * 处理退出
+     *
+     * @param request  请求
+     * @param response 响应
+     */
+    public void processingExit(HttpServletRequest request, HttpServletResponse response) {
         //获取令牌
         String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
+        if (token == null) {
+            return;
+        }
 
         //执行前钩子
         before(token);
@@ -48,19 +69,12 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
         //清空header信息
         clearHeader(response);
 
-        //返回
-        try {
-            assert RETURN.LOGOUT_SUCCESS != null;
-            ViewUtil.render(new Head(RETURN.LOGOUT_SUCCESS), null, request, response);
-        } catch (Exception e) {
-            LoggerFactory.AUTHORITY_LOG.debug(e);
-        }
-        LoggerFactory.AUTHORITY_LOG.info(String.format("账号退出[username:%s][token：%s]", username, sessionToken));
-
-
         //执行后钩子
         after(token);
+
+        LoggerFactory.AUTHORITY_LOG.info(String.format("账号退出[username:%s][token：%s]", username, sessionToken));
     }
+
 
     /**
      * 清空头部信息

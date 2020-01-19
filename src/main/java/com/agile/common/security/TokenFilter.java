@@ -1,9 +1,7 @@
 package com.agile.common.security;
 
 import com.agile.common.exception.TokenIllegalException;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.DateUtil;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.TokenUtil;
 import org.springframework.security.core.AuthenticationException;
@@ -14,7 +12,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,7 +24,6 @@ public class TokenFilter extends OncePerRequestFilter {
     private List<RequestMatcher> matches;
 
     private SecurityProperties securityProperties;
-
 
     public TokenFilter(String[] immuneUrl, SecurityProperties securityProperties, FailureHandler failureHandler) {
         matches = ServletUtil.coverRequestMatcher(immuneUrl);
@@ -45,39 +41,28 @@ public class TokenFilter extends OncePerRequestFilter {
             //获取令牌
             String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
 
-            //获取当前登录信息
+            //根据令牌---提取当前登录信息
             CurrentLoginInfo currentLoginInfo = LoginCacheInfo.getCurrentLoginInfo(token);
 
-            //判断策略
-            if (securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
-                refreshToken(currentLoginInfo, response);
-            }
+            //验证当前登陆用户信息合法性
+            LoginCacheInfo.validateCacheDate(currentLoginInfo.getLoginCacheInfo());
 
+            //账户信息赋给业务层
             SecurityContextHolder.getContext().setAuthentication(currentLoginInfo.getLoginCacheInfo().getAuthentication());
 
+            //执行业务层程序
             filterChain.doFilter(request, response);
-        } catch (Exception e) {
-            if (e instanceof AuthenticationException) {
-                exceptionHandler(request, response, (AuthenticationException) e);
-            } else {
-                LoggerFactory.AUTHORITY_LOG.error("会话令牌解析异常", e);
-                exceptionHandler(request, response, new TokenIllegalException(null));
+
+            //判断策略，复杂令牌时刷新token
+            if (securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
+                String newToken = LoginCacheInfo.refreshToken(currentLoginInfo);
+                TokenUtil.notice(response, newToken);
             }
+        } catch (Exception e) {
+            if (!(e instanceof AuthenticationException)) {
+                e = new TokenIllegalException(e.getMessage());
+            }
+            failureHandler.onAuthenticationFailure(request, response, (AuthenticationException) e);
         }
-    }
-
-    private void exceptionHandler(HttpServletRequest req, HttpServletResponse res, AuthenticationException e) {
-        failureHandler.onAuthenticationFailure(req, res, e);
-    }
-
-    /**
-     * 刷新令牌
-     *
-     * @param currentLoginInfo    当前登录信息
-     * @param httpServletResponse 响应
-     */
-    private void refreshToken(CurrentLoginInfo currentLoginInfo, HttpServletResponse httpServletResponse) {
-        String token = TokenUtil.generateToken(currentLoginInfo.getLoginCacheInfo().getUsername(), currentLoginInfo.getSessionToken(), DateUtil.addYear(new Date(), 1));
-        TokenUtil.notice(httpServletResponse, token);
     }
 }

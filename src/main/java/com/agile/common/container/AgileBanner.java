@@ -40,9 +40,9 @@ public class AgileBanner implements Banner {
                     printStream.print(AnsiOutput.toString(AnsiColor.BLUE, cc));
                 }
             }
-            System.out.println();
+            printStream.println();
         }
-        System.out.println();
+        printStream.println();
         String version = PropertiesUtil.getProperty("agile.version");
         version = (version != null) ? " (version:" + version + ")" : "";
         StringBuilder padding = new StringBuilder();

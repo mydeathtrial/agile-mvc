@@ -116,6 +116,6 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     FailureHandler failureHandler() {
-        return new FailureHandler(securityProperties);
+        return new FailureHandler();
     }
 }

@@ -1,6 +1,7 @@
 package com.agile.common.base;
 
 import com.agile.common.util.PropertiesUtil;
+import org.springframework.context.NoSuchMessageException;
 
 /**
  * @author 佟盟 on 2017/1/9
@@ -28,6 +29,15 @@ public final class RETURN {
         this.msg = msg.trim();
     }
 
+    public static RETURN getReturn(String key, Object... params) {
+        String message = PropertiesUtil.getMessage(key, params);
+        if (message != null && message.contains(Constant.RegularAbout.COLON)) {
+            int splitIndex = message.indexOf(Constant.RegularAbout.COLON);
+            return new RETURN(message.substring(0, splitIndex), message.substring(splitIndex + 1));
+        }
+        return null;
+    }
+
     /**
      * 根据国际化文件当中的key值与占位参数，获取国际化文，返回RETURN
      *
@@ -36,16 +46,11 @@ public final class RETURN {
      * @return 返回RETURN结果
      */
     public static RETURN getMessage(String key, Object... params) {
-        try {
-            String message = PropertiesUtil.getMessage(key, params);
-            if (message != null && message.contains(Constant.RegularAbout.COLON)) {
-                int splitIndex = message.indexOf(Constant.RegularAbout.COLON);
-                return new RETURN(message.substring(0, splitIndex), message.substring(splitIndex + 1));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        RETURN r = getReturn(key, params);
+        if (r == null) {
+            throw new NoSuchMessageException(key);
         }
-        return null;
+        return r;
     }
 
     public String getCode() {
