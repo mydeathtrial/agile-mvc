@@ -82,16 +82,16 @@ public class TableModel {
         this.entityCenterLineName = StringUtil.camelToSpilt(javaName, Constant.RegularAbout.MINUS).toLowerCase();
     }
 
-    public void setImport(Set<Class> classes) {
+    public void setImport(Set<Class<?>> classes) {
         if (classes == null) {
             return;
         }
-        for (Class clazz : classes) {
+        for (Class<?> clazz : classes) {
             setImport(clazz);
         }
     }
 
-    public void setImport(Class clazz) {
+    public void setImport(Class<?> clazz) {
         if (clazz.getPackage().getName().startsWith("java.lang")) {
             return;
         }

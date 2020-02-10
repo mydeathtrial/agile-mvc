@@ -9,7 +9,6 @@ import com.agile.common.util.StringUtil;
 import com.alibaba.druid.sql.visitor.functions.Char;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Update;
@@ -44,7 +43,6 @@ import java.util.Set;
  * 描述： TODO
  * @since 1.0
  */
-@Setter
 @Getter
 @NoArgsConstructor
 public class ColumnModel {
@@ -77,11 +75,11 @@ public class ColumnModel {
     private String javaName;
     private String getMethod;
     private String setMethod;
-    private Class javaType;
+    private Class<?> javaType;
     private String javaTypeName;
     private String javaSimpleTypeName;
     private String defValue;
-    private Set<Class> imports = new HashSet<>();
+    private Set<Class<?>> imports = new HashSet<>();
     private Set<String> annotations = new HashSet<>();
     private GeneratorProperties properties = FactoryUtil.getBean(GeneratorProperties.class);
 
@@ -91,7 +89,7 @@ public class ColumnModel {
         if ("0".equals(nullable)) {
             temp.append(", nullable = false");
             if (javaType == String.class) {
-                if (Boolean.valueOf(isPrimaryKey)) {
+                if (Boolean.parseBoolean(isPrimaryKey)) {
                     if (javaType == String.class) {
                         setAnnotation("@NotBlank(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})", GeneratorProperties.AnnotationType.HibernateValidate);
                         setImport(Update.class, NotBlank.class, Delete.class);
@@ -101,7 +99,7 @@ public class ColumnModel {
                     setImport(Insert.class, NotBlank.class, Update.class);
                 }
             } else {
-                if (Boolean.valueOf(isPrimaryKey)) {
+                if (Boolean.parseBoolean(isPrimaryKey)) {
                     if (javaType == String.class) {
                         setAnnotation("@NotNull(message = \"唯一标识不能为空\", groups = {Update.class, Delete.class})", GeneratorProperties.AnnotationType.HibernateValidate);
                         setImport(Delete.class, NotNull.class, Update.class);
@@ -137,7 +135,7 @@ public class ColumnModel {
         }
         setAnnotation(String.format("@Column(%s)", temp), GeneratorProperties.AnnotationType.JPA);
 
-        if (Boolean.valueOf(isPrimaryKey)) {
+        if (Boolean.parseBoolean(isPrimaryKey)) {
             setAnnotation("@Id", GeneratorProperties.AnnotationType.JPA);
         } else {
             if ("byte[]".equals(javaTypeName) || "java.sql.Blob".equals(javaTypeName) || "java.sql.Clob".equals(javaTypeName)) {
@@ -154,7 +152,13 @@ public class ColumnModel {
 
 
     public void setColumnName(String columnName) {
-        this.columnName = columnName;
+        columnName = deleteHiddenCharacter(columnName);
+        if (properties.getKeywords().contains(columnName)) {
+            this.columnName = String.format("`%s`", columnName);
+        } else {
+            this.columnName = columnName;
+        }
+
         if (properties.isSensitive()) {
             this.javaName = StringUtil.toLowerName(columnName);
         } else {
@@ -219,8 +223,8 @@ public class ColumnModel {
     }
 
     public void setColumnDef(String columnDef) {
-        this.columnDef = columnDef;
-        if (columnDef == null || "null".equals(columnDef.toLowerCase())) {
+        this.columnDef = deleteHiddenCharacter(columnDef);
+        if (this.columnDef == null || "null".equals(columnDef.toLowerCase())) {
             return;
         }
 
@@ -242,14 +246,14 @@ public class ColumnModel {
     }
 
     public void setRemarks(String remarks) {
-        this.remarks = remarks.replaceAll("[\\s]+", " ");
+        this.remarks = deleteHiddenCharacter(remarks);
         if (!StringUtil.isEmpty(remarks)) {
             setImport(Remark.class);
         }
     }
 
-    public void setImport(Class... classes) {
-        for (Class clazz : classes) {
+    public void setImport(Class<?>... classes) {
+        for (Class<?> clazz : classes) {
             if (clazz.getPackage().getName().startsWith("java.lang")) {
                 continue;
             }
@@ -261,6 +265,129 @@ public class ColumnModel {
         if (!properties.getAnnotation().contains(GeneratorProperties.AnnotationType.NO) && properties.getAnnotation().contains(annotationType)) {
             this.annotations.add(annotation);
         }
+    }
+
+    public void setTableCat(String tableCat) {
+        this.tableCat = tableCat;
+    }
+
+    public void setBufferLength(String bufferLength) {
+        this.bufferLength = bufferLength;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public void setScopeCatalog(String scopeCatalog) {
+        this.scopeCatalog = scopeCatalog;
+    }
+
+    public void setTableSchem(String tableSchem) {
+        this.tableSchem = tableSchem;
+    }
+
+    public void setNumPrecRadix(String numPrecRadix) {
+        this.numPrecRadix = numPrecRadix;
+    }
+
+    public void setSqlDataType(String sqlDataType) {
+        this.sqlDataType = sqlDataType;
+    }
+
+    public void setScopeSchema(String scopeSchema) {
+        this.scopeSchema = scopeSchema;
+    }
+
+    public void setDataType(String dataType) {
+        this.dataType = dataType;
+    }
+
+    public void setColumnSize(int columnSize) {
+        this.columnSize = columnSize;
+    }
+
+    public void setScopeTable(String scopeTable) {
+        this.scopeTable = scopeTable;
+    }
+
+    public void setIsNullable(String isNullable) {
+        this.isNullable = isNullable;
+    }
+
+    public void setNullable(String nullable) {
+        this.nullable = nullable;
+    }
+
+    public void setDecimalDigits(int decimalDigits) {
+        this.decimalDigits = decimalDigits;
+    }
+
+    public void setSqlDatetimeSub(String sqlDatetimeSub) {
+        this.sqlDatetimeSub = sqlDatetimeSub;
+    }
+
+    public void setIsGeneratedcolumn(String isGeneratedcolumn) {
+        this.isGeneratedcolumn = isGeneratedcolumn;
+    }
+
+    public void setCharOctetLength(String charOctetLength) {
+        this.charOctetLength = charOctetLength;
+    }
+
+    public void setOrdinalPosition(String ordinalPosition) {
+        this.ordinalPosition = ordinalPosition;
+    }
+
+    public void setSourceDataType(String sourceDataType) {
+        this.sourceDataType = sourceDataType;
+    }
+
+    public void setJavaName(String javaName) {
+        this.javaName = javaName;
+    }
+
+    public void setGetMethod(String getMethod) {
+        this.getMethod = getMethod;
+    }
+
+    public void setSetMethod(String setMethod) {
+        this.setMethod = setMethod;
+    }
+
+    public void setJavaType(Class<?> javaType) {
+        this.javaType = javaType;
+    }
+
+    public void setJavaTypeName(String javaTypeName) {
+        this.javaTypeName = javaTypeName;
+    }
+
+    public void setJavaSimpleTypeName(String javaSimpleTypeName) {
+        this.javaSimpleTypeName = javaSimpleTypeName;
+    }
+
+    public void setDefValue(String defValue) {
+        this.defValue = defValue;
+    }
+
+    public void setImports(Set<Class<?>> imports) {
+        this.imports = imports;
+    }
+
+    public void setAnnotations(Set<String> annotations) {
+        this.annotations = annotations;
+    }
+
+    public void setProperties(GeneratorProperties properties) {
+        this.properties = properties;
+    }
+
+    private String deleteHiddenCharacter(String str) {
+        if (str == null) {
+            return null;
+        }
+        return str.replaceAll("[\\s]+", "");
     }
 
 }

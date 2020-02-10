@@ -2,9 +2,11 @@ package com.agile.common.properties;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.compress.utils.Lists;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,6 +71,8 @@ public class GeneratorProperties {
     private Map<String, String> columnType = new HashMap<>();
 
     private Set<AnnotationType> annotation;
+
+    private List<String> keywords = Lists.newArrayList();
 
     public String getJavaType(String type) {
         return columnType.get(type);

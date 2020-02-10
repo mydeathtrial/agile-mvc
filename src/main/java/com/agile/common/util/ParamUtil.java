@@ -261,7 +261,8 @@ public class ParamUtil {
         result = com.agile.common.util.object.ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
         });
 
-        if (result == null || ObjectUtil.isAllNullValidity(result) && json != null) {
+        boolean is = (result == null || ObjectUtil.isAllNullValidity(result)) && json != null;
+        if (is) {
             result = JSONUtil.toBean(clazz, json.toString());
         }
         if (result == null || ObjectUtil.isAllNullValidity(result)) {
