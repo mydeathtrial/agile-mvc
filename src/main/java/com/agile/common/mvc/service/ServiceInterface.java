@@ -90,10 +90,10 @@ public interface ServiceInterface {
     /**
      * 初始化入参
      */
-    void initInParam();
+    void clearInParam();
 
     /**
      * 初始化出参
      */
-    void initOutParam();
+    void clearOutParam();
 }

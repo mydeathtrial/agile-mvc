@@ -280,7 +280,6 @@ public class MainController {
         List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getService(), getMethod());
         Optional<List<ValidateMsg>> optionalValidateMsgList = ParamUtil.aggregation(validateMessages);
         if (optionalValidateMsgList.isPresent()) {
-            assert RETURN.PARAMETER_ERROR != null;
             return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
         }
 
@@ -316,6 +315,7 @@ public class MainController {
      * 由于线程池的使用与threadLocal冲突,前后需要清理缓存
      */
     private void clear() {
+        getService().clearInParam();
         service.remove();
         method.remove();
         request.remove();
@@ -465,7 +465,7 @@ public class MainController {
      * 根据servlet请求、认证信息、目标服务名、目标方法名处理入参
      */
     private void handleInParam() {
-        getService().initInParam();
+        getService().clearInParam();
         HttpServletRequest currentRequest = request.get();
 
         //将处理过的所有请求参数传入调用服务对象

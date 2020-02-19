@@ -96,6 +96,8 @@ public class LogAop {
             executionInfo.setOutParam(((MainService) apiInfo.getBean()).getOutParam());
             logging(executionInfo);
             printLog(executionInfo);
+
+            ((MainService) apiInfo.getBean()).clearOutParam();
             clearCurrentBusinessLog();
         }
     }

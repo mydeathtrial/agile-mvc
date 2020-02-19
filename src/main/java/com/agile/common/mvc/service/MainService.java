@@ -32,12 +32,12 @@ public class MainService implements ServiceInterface {
     /**
      * 入参
      */
-    private static ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
 
     /**
      * 输出
      */
-    private static ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
+    private static final ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
     @Autowired(required = false)
     protected Dao dao;
     protected Log logger = LoggerFactory.getServiceLog(this.getClass());
@@ -52,7 +52,7 @@ public class MainService implements ServiceInterface {
     @Transactional(rollbackFor = Exception.class)
     public Object executeMethod(Object object, Method method, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
 
-        initOutParam();
+        clearOutParam();
         try {
             Object returnData = method.invoke(object);
             if (returnData instanceof RETURN) {
@@ -274,7 +274,7 @@ public class MainService implements ServiceInterface {
      * 清理
      */
     @Override
-    public void initInParam() {
+    public void clearInParam() {
         inParam.remove();
     }
 
@@ -282,7 +282,7 @@ public class MainService implements ServiceInterface {
      * 清理
      */
     @Override
-    public void initOutParam() {
+    public void clearOutParam() {
         outParam.remove();
     }
 
