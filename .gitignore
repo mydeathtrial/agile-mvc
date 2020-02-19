@@ -64,3 +64,5 @@ $RECYCLE.BIN/
 .idea/
 *.iml
 target/
+-logs
+logs
