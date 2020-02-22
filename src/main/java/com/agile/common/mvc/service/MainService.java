@@ -32,12 +32,12 @@ public class MainService implements ServiceInterface {
     /**
      * 入参
      */
-    private static final ThreadLocal<Map<String, Object>> inParam = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, Object>> IN_PARAM = new ThreadLocal<>();
 
     /**
      * 输出
      */
-    private static final ThreadLocal<Map<String, Object>> outParam = ThreadLocal.withInitial(LinkedHashMap::new);
+    private static final ThreadLocal<Map<String, Object>> OUT_PARAM = ThreadLocal.withInitial(LinkedHashMap::new);
     @Autowired(required = false)
     protected Dao dao;
     protected Log logger = LoggerFactory.getServiceLog(this.getClass());
@@ -78,7 +78,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void setInParam(String key, Object o) {
-        inParam.get().put(key, o);
+        IN_PARAM.get().put(key, o);
     }
 
     /**
@@ -227,7 +227,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Map<String, Object> getInParam() {
-        Map<String, Object> map = inParam.get();
+        Map<String, Object> map = IN_PARAM.get();
         return ParamUtil.coverToMap(map);
     }
 
@@ -239,7 +239,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void setInParam(Map<String, Object> inParam) {
-        MainService.inParam.set(inParam);
+        MainService.IN_PARAM.set(inParam);
     }
 
     /**
@@ -249,14 +249,14 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Map<String, Object> getOutParam() {
-        return outParam.get();
+        return OUT_PARAM.get();
     }
 
     /**
      * 服务中调用该方法设置响应参数
      */
     public <V> void setOutParam(Map<? extends String, ? extends V> map) {
-        outParam.get().putAll(map);
+        OUT_PARAM.get().putAll(map);
     }
 
     /**
@@ -267,7 +267,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void setOutParam(String key, Object value) {
-        outParam.get().put(key, value);
+        OUT_PARAM.get().put(key, value);
     }
 
     /**
@@ -275,7 +275,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void clearInParam() {
-        inParam.remove();
+        IN_PARAM.remove();
     }
 
     /**
@@ -283,7 +283,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void clearOutParam() {
-        outParam.remove();
+        OUT_PARAM.remove();
     }
 
     /**

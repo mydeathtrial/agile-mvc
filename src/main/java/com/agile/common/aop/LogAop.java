@@ -17,6 +17,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @Aspect
+@Order
 public class LogAop {
     @Autowired(required = false)
     private BusinessLogService logService;
@@ -49,12 +51,11 @@ public class LogAop {
     private static final String ERROR_LOG_TEMPLATE = "%n状    态: %s%n异常类型: %s%n异常信息: %s%nIP  地址: %s%nURL 地址: %s%n服    务: %s%n方    法: %s%n入    参: %n%s%n耗    时: %sms%n---------------------------------------------------------------------------";
     private static final String SUCCESS = "SUCCESS";
     private static final String ERROR = "ERROR";
-    private static final String DETAIL_ERROR_INFO = "详细错误信息：\n";
 
     /**
      * 日志线程池
      */
-    private static ThreadPoolExecutor pool = PoolFactory.pool(CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
+    private static final ThreadPoolExecutor pool = PoolFactory.pool(CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 
     /**
      * 服务切面
@@ -97,7 +98,8 @@ public class LogAop {
             logging(executionInfo);
             printLog(executionInfo);
 
-            ((MainService) apiInfo.getBean()).clearOutParam();
+            ((MainService) apiInfo.getBean()).clearInParam();
+
             clearCurrentBusinessLog();
         }
     }

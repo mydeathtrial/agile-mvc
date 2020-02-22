@@ -112,9 +112,12 @@ public class BusinessService<T> extends MainService {
             if (column != null) {
                 idLength = column.length();
             }
-            idValueTemp = Long.toString(IdUtil.generatorId());
+            idValueTemp = IdUtil.generatorId().toString();
 
-            idValueTemp = idValueTemp.substring(idValueTemp.length() - idLength);
+            if (idLength < idValueTemp.length()) {
+                idValueTemp = idValueTemp.substring(idValueTemp.length() - idLength);
+            }
+
             idField.set(entity, ObjectUtil.cast(idField.getType(), idValueTemp));
         }
         return dao.saveAndReturn(entity);

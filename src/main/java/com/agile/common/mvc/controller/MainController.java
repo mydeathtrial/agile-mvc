@@ -315,7 +315,6 @@ public class MainController {
      * 由于线程池的使用与threadLocal冲突,前后需要清理缓存
      */
     private void clear() {
-        getService().clearInParam();
         service.remove();
         method.remove();
         request.remove();
