@@ -54,7 +54,8 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     private String name;
     @Remark("字典值是否固定")
     private Boolean isFixed;
-
+    @Remark("备注")
+    private String comment;
 
     private List<DictionaryDataEntity> children = new ArrayList<>();
 
@@ -145,6 +146,12 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         return isFixed;
     }
 
+    @NotBlank(message = "备注", groups = {Insert.class, Update.class})
+    @Basic
+    @Column(name = "comment", nullable = false, length = 1000)
+    public String getComment() {
+        return comment;
+    }
 
     @Override
     public DictionaryDataEntity clone() {

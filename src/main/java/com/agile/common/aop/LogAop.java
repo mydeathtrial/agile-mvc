@@ -55,7 +55,7 @@ public class LogAop {
     /**
      * 日志线程池
      */
-    private static final ThreadPoolExecutor pool = PoolFactory.pool(CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
+    private static final ThreadPoolExecutor POOL = PoolFactory.pool(CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), new ThreadPoolExecutor.DiscardPolicy());
 
     /**
      * 服务切面
@@ -187,7 +187,7 @@ public class LogAop {
      * @param executionInfo 服务执行信息
      */
     private void printLog(ServiceExecutionInfo executionInfo) {
-        pool.execute(new LogThread(executionInfo));
+        POOL.execute(new LogThread(executionInfo));
     }
 
 
