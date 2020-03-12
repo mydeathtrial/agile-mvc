@@ -146,9 +146,8 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         return isFixed;
     }
 
-    @NotBlank(message = "备注", groups = {Insert.class, Update.class})
     @Basic
-    @Column(name = "comment", nullable = false, length = 1000)
+    @Column(name = "comment", length = 1000)
     public String getComment() {
         return comment;
     }
