@@ -1,10 +1,16 @@
 package com.agile.common.util;
 
+import com.agile.common.base.Head;
+import com.agile.common.base.RETURN;
 import com.agile.common.properties.SecurityProperties;
+import com.google.common.collect.Maps;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.SneakyThrows;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
@@ -58,11 +64,31 @@ public class TokenUtil {
     /**
      * 通知前端
      *
-     * @param httpServletResponse 响应
-     * @param token               令牌
+     * @param response 响应
+     * @param token    令牌
      */
-    public static void notice(HttpServletResponse httpServletResponse, String token) {
-        httpServletResponse.setHeader(securityProperties.getTokenHeader(), token);
+    @SneakyThrows
+    public static void notice(HttpServletRequest request, HttpServletResponse response, String token, Map<String, Object> extension) {
+        SecurityProperties.TransmissionMode[] modes = securityProperties.getTokenTransmissionMode();
+        for (SecurityProperties.TransmissionMode mode : modes) {
+            switch (mode) {
+                case COOKIE:
+                    response.addCookie(new Cookie(securityProperties.getTokenHeader(), token));
+                    break;
+                case HEADER:
+                    response.setHeader(securityProperties.getTokenHeader(), token);
+                    break;
+                case PARAM:
+                    if (extension == null) {
+                        extension = Maps.newHashMap();
+                    }
+                    extension.put(securityProperties.getTokenHeader(), token);
+                    ViewUtil.render(new Head(RETURN.SUCCESS), extension, request, response);
+                    break;
+                default:
+            }
+        }
+
     }
 
     /**

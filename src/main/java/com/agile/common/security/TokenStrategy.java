@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author 佟盟
@@ -26,7 +28,7 @@ import java.util.Date;
 public class TokenStrategy implements SessionAuthenticationStrategy {
     private final CustomerUserDetailsService securityUserDetailsService;
     private final SecurityProperties securityProperties;
-    private AgileCache cache;
+    private final AgileCache cache;
 
     public TokenStrategy(CustomerUserDetailsService securityUserDetailsService, SecurityProperties securityProperties) {
         this.securityUserDetailsService = securityUserDetailsService;
@@ -53,6 +55,11 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         securityUserDetailsService.loadLoginInfo(userDetails, ServletUtil.getRequestIP(httpServletRequest), Long.toString(sessionToken));
 
         //通知前端
-        TokenUtil.notice(httpServletResponse, token);
+        Map<String, Object> extension = new HashMap<String, Object>(Constant.NumberAbout.THREE) {{
+            put("token", token);
+            put("realName", ((CustomerUserDetails) authentication.getDetails()).getName());
+            put("detail", authentication);
+        }};
+        TokenUtil.notice(httpServletRequest, httpServletResponse, token, extension);
     }
 }

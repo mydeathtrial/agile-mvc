@@ -50,6 +50,10 @@ public class SecurityProperties implements Serializable {
      */
     private String tokenHeader = "AGILE_TOKEN";
     /**
+     * token传输模式
+     */
+    private TransmissionMode[] tokenTransmissionMode = new TransmissionMode[]{TransmissionMode.HEADER, TransmissionMode.PARAM};
+    /**
      * 登录账号表单名
      */
     private String loginUsername = "username";
@@ -62,6 +66,24 @@ public class SecurityProperties implements Serializable {
      * token类型
      */
     private TokenType tokenType = TokenType.EASY;
+
+    /**
+     * token传输模式
+     */
+    public enum TransmissionMode {
+        /**
+         * cookie
+         */
+        COOKIE,
+        /**
+         * head传输
+         */
+        HEADER,
+        /**
+         * 参数中传输
+         */
+        PARAM
+    }
 
     /**
      * Token级别

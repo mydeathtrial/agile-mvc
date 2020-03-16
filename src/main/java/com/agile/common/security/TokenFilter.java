@@ -56,7 +56,7 @@ public class TokenFilter extends OncePerRequestFilter {
             //判断策略，复杂令牌时刷新token
             if (securityProperties.getTokenType() == SecurityProperties.TokenType.DIFFICULT) {
                 String newToken = LoginCacheInfo.refreshToken(currentLoginInfo);
-                TokenUtil.notice(response, newToken);
+                TokenUtil.notice(request, response, newToken, null);
             }
         } catch (Exception e) {
             if (!(e instanceof AuthenticationException)) {
