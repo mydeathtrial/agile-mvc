@@ -1,14 +1,19 @@
 package com.agile.common.util;
 
+import com.agile.common.annotation.Dictionary;
 import com.agile.common.base.Constant;
 import com.agile.common.cache.AgileCache;
 import com.agile.mvc.entity.DictionaryDataEntity;
+import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author 佟盟
@@ -21,6 +26,7 @@ public class DictionaryUtil {
     private static final String DEFAULT_CACHE_NAME = "dictionary-cache";
     private static final String NAME_FORMAT = "%s%s";
     private static final String CODE_FORMAT = "%s.%s";
+    private static final String SPLIT_CHAR = "[./\\\\]";
 
     /**
      * 集合类型转换字典码工具，转换为List/Map类型
@@ -50,7 +56,7 @@ public class DictionaryUtil {
 
     public static <T> Map<String, Object> coverMapDictionary(T o, String[] dictionaryCodes, String suffix, String[] columns) throws NoSuchFieldException, IllegalAccessException {
         Map<String, Field> cache;
-        Class clazz = o.getClass();
+        Class<?> clazz = o.getClass();
         if (Map.class.isAssignableFrom(clazz)) {
             Map map = ((Map) o);
             for (int i = 0; i < columns.length; i++) {
@@ -91,7 +97,7 @@ public class DictionaryUtil {
 
     public static <T> T coverBeanDictionary(T o, String[] dictionaryCodes, String[] columns, String[] textColumns, String[] defaultValues) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         Map<String, Field> cache;
-        Class clazz = o.getClass();
+        Class<?> clazz = o.getClass();
         if (Map.class.isAssignableFrom(clazz)) {
             Map map = ((Map) o);
             for (int i = 0; i < columns.length; i++) {
@@ -223,7 +229,7 @@ public class DictionaryUtil {
     public static String coverDicCode(String code, String name) {
         DictionaryDataEntity dic = coverDicBean(code, name);
         if (dic == null) {
-            return StringUtil.getSplitLastAtomic(code, "[.]");
+            return StringUtil.getSplitLastAtomic(code, SPLIT_CHAR);
         }
         return dic.getCode();
     }
@@ -249,17 +255,14 @@ public class DictionaryUtil {
         DictionaryDataEntity targetEntity = null;
         String parentCode = code;
 
-        if (code.contains(Constant.RegularAbout.SPOT)) {
-            parentCode = StringUtil.getSplitAtomic(code, "[.]", Constant.NumberAbout.ZERO);
+        if (StringUtil.findMatchedString(SPLIT_CHAR, code)) {
+            parentCode = StringUtil.getSplitAtomic(code, SPLIT_CHAR, Constant.NumberAbout.ZERO);
             if (parentCode != null) {
                 rootEntity = coverRootDicBean(parentCode.trim());
                 targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
             }
         } else {
             targetEntity = coverRootDicBean(parentCode);
-        }
-        if (targetEntity == null) {
-            return null;
         }
         return targetEntity;
     }
@@ -273,7 +276,7 @@ public class DictionaryUtil {
     public static String coverDicName(String code) {
         DictionaryDataEntity targetEntity = coverDicBean(code);
         if (targetEntity == null) {
-            return StringUtil.getSplitLastAtomic(code, "[.]");
+            return StringUtil.getSplitLastAtomic(code, SPLIT_CHAR);
         }
         return targetEntity.getName();
     }
@@ -321,7 +324,7 @@ public class DictionaryUtil {
      * @param clazz   类型
      * @param columns 字段名集合
      */
-    private static Map<String, Field> initField(Class clazz, String... columns) throws NoSuchFieldException {
+    private static Map<String, Field> initField(Class<?> clazz, String... columns) throws NoSuchFieldException {
         Map<String, Field> cache = new HashMap<>(columns.length);
         for (String column : columns) {
             if (!cache.containsKey(column)) {
@@ -335,5 +338,60 @@ public class DictionaryUtil {
 
     public static AgileCache getCache() {
         return CacheUtil.getCache(DEFAULT_CACHE_NAME);
+    }
+
+    /**
+     * 字典自动转换，针对Dictionary注解进行解析
+     *
+     * @param o   目标数据
+     * @param <T> 泛型
+     */
+    public static <T> void cover(T o) {
+        if (ObjectUtil.isEmpty(o)) {
+            return;
+        }
+        cover(Lists.newArrayList(o));
+    }
+
+    /**
+     * 字典自动转换，针对Dictionary注解进行解析
+     *
+     * @param list 目标数据集
+     * @param <T>  泛型
+     */
+    public static <T> void cover(List<T> list) {
+        if (ObjectUtil.isEmpty(list)) {
+            return;
+        }
+        Class<?> clazz = list.get(0).getClass();
+        Set<ObjectUtil.Target<Dictionary>> targets = ObjectUtil.getAllEntityAnnotation(clazz, Dictionary.class);
+
+        targets.forEach(target -> {
+            Dictionary dictionary = target.getAnnotation();
+            Member member = target.getMember();
+            String parentDicCode = dictionary.dicCode();
+            String linkColumn = dictionary.fieldName();
+            Field field;
+            if (member instanceof Method) {
+                String fieldName = StringUtil.toLowerName(member.getName().substring(3));
+                field = ObjectUtil.getField(clazz, fieldName);
+                if (ObjectUtil.isEmpty(field)) {
+                    return;
+                }
+            } else {
+                field = (Field) member;
+            }
+
+            list.forEach(node -> {
+                Object code = ObjectUtil.getFieldValue(node, linkColumn);
+                if (code instanceof String) {
+                    if (ObjectUtil.isEmpty(parentDicCode)) {
+                        ObjectUtil.setValue(node, field, coverDicName((String) code));
+                    } else {
+                        ObjectUtil.setValue(node, field, coverDicName(parentDicCode, (String) code));
+                    }
+                }
+            });
+        });
     }
 }

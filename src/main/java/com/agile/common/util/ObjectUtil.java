@@ -1,6 +1,9 @@
 package com.agile.common.util;
 
 import com.agile.common.base.Constant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
@@ -17,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,7 +100,7 @@ public class ObjectUtil extends ObjectUtils {
             return result;
         }
         Set<String> sameField = getSameField(source, target);
-        if (sameField == null || sameField.size() == 0) {
+        if (sameField.size() == 0) {
             return result;
         }
 
@@ -687,7 +689,7 @@ public class ObjectUtil extends ObjectUtils {
      * @param fieldName 属性名
      * @return 属性
      */
-    public static Field getField(Class clazz, String fieldName) {
+    public static Field getField(Class<?> clazz, String fieldName) {
         Set<Field> fields = getAllField(clazz);
         Map<String, Field> targetFields = new HashMap<>(Constant.NumberAbout.ONE);
         String targetFieldName = StringUtil.camelToUrlRegex(fieldName);
@@ -719,10 +721,32 @@ public class ObjectUtil extends ObjectUtils {
         if (field == null) {
             return null;
         }
-        try {
-            return field.get(o);
-        } catch (IllegalAccessException e) {
+        return getFieldValue(o, field);
+    }
+
+    /**
+     * 取属性值
+     *
+     * @param o     对象
+     * @param field 属性
+     * @return 值
+     */
+    public static Object getFieldValue(Object o, Field field) {
+        if (field == null) {
             return null;
+        }
+        try {
+            String getMethodName = "get" + StringUtil.toLowerName(field.getName());
+            Method getMethod = o.getClass().getMethod(getMethodName);
+            getMethod.setAccessible(true);
+            return getMethod.invoke(o);
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            try {
+                field.setAccessible(true);
+                return field.get(o);
+            } catch (IllegalAccessException ex) {
+                return null;
+            }
         }
     }
 
@@ -732,12 +756,12 @@ public class ObjectUtil extends ObjectUtils {
      * @param clazz
      * @return
      */
-    public static Set<Field> getAllField(Class clazz) {
+    public static Set<Field> getAllField(Class<?> clazz) {
         Set<Field> fields = new HashSet<>();
         try {
             Field[] selfFields = clazz.getDeclaredFields();
             Field[] extendFields = clazz.getFields();
-            Class superClass = clazz.getSuperclass();
+            Class<?> superClass = clazz.getSuperclass();
             if (superClass != null) {
                 fields.addAll(getAllField(superClass));
             }
@@ -748,12 +772,12 @@ public class ObjectUtil extends ObjectUtils {
         return fields;
     }
 
-    public static Set<Method> getAllMethod(Class clazz) {
+    public static Set<Method> getAllMethod(Class<?> clazz) {
         Set<Method> fields = new HashSet<>();
         try {
             Method[] selfFields = clazz.getDeclaredMethods();
             Method[] extendFields = clazz.getMethods();
-            Class superClass = clazz.getSuperclass();
+            Class<?> superClass = clazz.getSuperclass();
             if (superClass != null) {
                 fields.addAll(getAllMethod(superClass));
             }
@@ -764,29 +788,25 @@ public class ObjectUtil extends ObjectUtils {
         return fields;
     }
 
-    public static Set<Target> getAllFieldAnnotation(Class clazz, Class annotationClass) {
+    public static <A extends Annotation> Set<Target<A>> getAllFieldAnnotation(Class<?> clazz, Class<A> annotationClass) {
         Set<Field> fields = getAllField(clazz);
-        Set<Target> set = new HashSet<>();
-        Iterator<Field> it = fields.iterator();
-        while (it.hasNext()) {
-            Field field = it.next();
-            Annotation annotation = field.getAnnotation(annotationClass);
+        Set<Target<A>> set = new HashSet<>();
+        for (Field field : fields) {
+            A annotation = field.getAnnotation(annotationClass);
             if (annotation != null) {
-                set.add(new Target(field, annotation));
+                set.add(new Target<>(field, annotation));
             }
         }
         return set;
     }
 
-    public static Set<Target> getAllMethodAnnotation(Class clazz, Class annotationClass) {
+    public static <A extends Annotation> Set<Target<A>> getAllMethodAnnotation(Class<?> clazz, Class<A> annotationClass) {
         Set<Method> fields = getAllMethod(clazz);
-        Set<Target> set = new HashSet<>();
-        Iterator<Method> it = fields.iterator();
-        while (it.hasNext()) {
-            Method method = it.next();
-            Annotation annotation = method.getAnnotation(annotationClass);
+        Set<Target<A>> set = new HashSet<>();
+        for (Method method : fields) {
+            A annotation = method.getAnnotation(annotationClass);
             if (annotation != null) {
-                set.add(new Target(method, annotation));
+                set.add(new Target<>(method, annotation));
             }
         }
         return set;
@@ -798,17 +818,15 @@ public class ObjectUtil extends ObjectUtils {
      * @param clazz 类
      * @return 注解结果集
      */
-    public static Set<Target> getAllEntityAnnotation(Class clazz, Class annotation) {
-        Set<Target> fieldAnnotation = getAllFieldAnnotation(clazz, annotation);
-        Set<Target> methodAnnotation = getAllMethodAnnotation(clazz, annotation);
-        Iterator<Target> it = methodAnnotation.iterator();
-        while (it.hasNext()) {
-            Target target = it.next();
+    public static <A extends Annotation> Set<Target<A>> getAllEntityAnnotation(Class<?> clazz, Class<A> annotation) {
+        Set<Target<A>> fieldAnnotation = getAllFieldAnnotation(clazz, annotation);
+        Set<Target<A>> methodAnnotation = getAllMethodAnnotation(clazz, annotation);
+        for (Target<A> target : methodAnnotation) {
             String name = target.getMember().getName();
             if (name.startsWith("get")) {
                 final int length = 3;
                 Field targetField = getField(clazz, StringUtil.toLowerName(name.substring(length)));
-                fieldAnnotation.add(new Target(targetField, target.getAnnotation()));
+                fieldAnnotation.add(new Target<A>(targetField, target.getAnnotation()));
             }
         }
         return fieldAnnotation;
@@ -1047,30 +1065,12 @@ public class ObjectUtil extends ObjectUtils {
     /**
      * 目标
      */
-    public static class Target {
+    @Data
+    @EqualsAndHashCode
+    @AllArgsConstructor
+    public static class Target<A extends Annotation> {
         private Member member;
-        private Annotation annotation;
-
-        public Target(Member member, Annotation annotation) {
-            this.member = member;
-            this.annotation = annotation;
-        }
-
-        public Member getMember() {
-            return member;
-        }
-
-        public void setMember(Member member) {
-            this.member = member;
-        }
-
-        public Annotation getAnnotation() {
-            return annotation;
-        }
-
-        public void setAnnotation(Annotation annotation) {
-            this.annotation = annotation;
-        }
+        private A annotation;
     }
 
     /**
@@ -1081,7 +1081,7 @@ public class ObjectUtil extends ObjectUtils {
      * @return 字符串
      */
     public static String objectToString(Object o, String... exclude) {
-        Class clazz = o.getClass();
+        Class<?> clazz = o.getClass();
         StringBuilder target = new StringBuilder(clazz.getSimpleName()).append("{");
         Set<Field> fields = ObjectUtil.getAllField(clazz);
         int i = 0;

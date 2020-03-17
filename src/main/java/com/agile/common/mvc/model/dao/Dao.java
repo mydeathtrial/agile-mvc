@@ -4,6 +4,7 @@ import com.agile.common.base.Constant;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ClassUtil;
+import com.agile.common.util.DictionaryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.SqlUtil;
 import com.agile.common.util.StringUtil;
@@ -28,7 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -43,8 +43,8 @@ import java.util.Map;
  * @author 佟盟 on 2017/11/15
  */
 public class Dao {
-    private static Map<String, SimpleJpaRepository> map = new HashMap<>();
-    private Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);
+    private static final Map<Class<?>, SimpleJpaRepository> map = new HashMap<>();
+    private final Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -56,11 +56,12 @@ public class Dao {
      * @param <ID>       主键类型
      * @return 对应的数据库表的JpaRepository对象
      */
-    public <T, ID extends Serializable> SimpleJpaRepository getRepository(Class<T> tableClass) {
-        SimpleJpaRepository repository = map.get(tableClass.getName());
+    @SuppressWarnings("unchecked")
+    public <T, ID> SimpleJpaRepository<T, ID> getRepository(Class<T> tableClass) {
+        SimpleJpaRepository<T, ID> repository = map.get(tableClass);
         if (ObjectUtil.isEmpty(repository)) {
-            repository = new SimpleJpaRepository<T, ID>(tableClass, getEntityManager());
-            map.put(tableClass.getName(), repository);
+            repository = new SimpleJpaRepository<>(tableClass, getEntityManager());
+            map.put(tableClass, repository);
         }
         return repository;
     }
@@ -90,12 +91,14 @@ public class Dao {
      * @param <T>  表对应的实体类型
      * @return 是否保存成功
      */
+    @SuppressWarnings("unchecked")
     public <T> boolean save(Iterable<T> list) {
         boolean isTrue = false;
         Iterator<T> iterator = list.iterator();
         if (iterator.hasNext()) {
             T obj = iterator.next();
-            getRepository(obj.getClass()).saveAll(list);
+            Class<T> tClass = (Class<T>) obj.getClass();
+            getRepository(tClass).saveAll(list);
             isTrue = true;
 
         }
@@ -133,12 +136,15 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T> T saveAndReturn(T o, boolean isFlush) {
+        T e;
+        Class<T> clazz = (Class<T>) o.getClass();
         if (isFlush) {
-            return (T) getRepository(o.getClass()).saveAndFlush(o);
+            e = getRepository(clazz).saveAndFlush(o);
         } else {
-            return (T) getRepository(o.getClass()).save(o);
+            e = getRepository(clazz).save(o);
         }
-
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -148,7 +154,6 @@ public class Dao {
      * @param <T> 泛型
      * @return 保存后的对象
      */
-    @SuppressWarnings("unchecked")
     public <T> T saveAndReturn(T o) {
         return saveAndReturn(o, Boolean.FALSE);
     }
@@ -165,7 +170,8 @@ public class Dao {
         Iterator<T> iterator = list.iterator();
         if (iterator.hasNext()) {
             T obj = iterator.next();
-            return getRepository(obj.getClass()).saveAll(list);
+            Class<T> clazz = (Class<T>) obj.getClass();
+            return getRepository(clazz).saveAll(list);
         }
         return new ArrayList<>(0);
     }
@@ -177,8 +183,7 @@ public class Dao {
      * @param id         数据主键
      * @return 是否存在
      */
-    @SuppressWarnings("unchecked")
-    public boolean existsById(Class tableClass, Object id) {
+    public boolean existsById(Class<?> tableClass, Object id) {
         return getRepository(tableClass).existsById(id);
     }
 
@@ -194,7 +199,6 @@ public class Dao {
     /**
      * 刷新数据库中全部表
      */
-    @SuppressWarnings("unchecked")
     public void flush() {
         getEntityManager().flush();
     }
@@ -205,7 +209,6 @@ public class Dao {
      *
      * @param o 表对应的实体类型的对象
      */
-    @SuppressWarnings("unchecked")
     public void refresh(Object o) {
         getEntityManager().refresh(o);
     }
@@ -218,7 +221,9 @@ public class Dao {
      * @return 返回更新后的数据
      */
     public <T> T update(T o) {
-        return getEntityManager().merge(o);
+        T e = getEntityManager().merge(o);
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -230,13 +235,16 @@ public class Dao {
      * @throws NoSuchIDException      异常
      * @throws IllegalAccessException 异常
      */
+    @SuppressWarnings("unchecked")
     public <T> T updateOfNotNull(T o) throws NoSuchIDException, IllegalAccessException {
-        Class<?> clazz = o.getClass();
+        Class<T> clazz = (Class<T>) o.getClass();
         Field idField = getIdField(clazz);
         idField.setAccessible(true);
-        T old = (T) findOne(clazz, idField.get(o));
+        T old = findOne(clazz, idField.get(o));
         ObjectUtil.copyProperties(o, old, ObjectUtil.Compare.DIFF_SOURCE_NOT_NULL);
-        return getEntityManager().merge(old);
+        T e = getEntityManager().merge(old);
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -256,7 +264,6 @@ public class Dao {
      * @param id         删除的主键标识
      * @param <T>        查询的目标表对应实体类型
      */
-    @SuppressWarnings("unchecked")
     public <T> boolean deleteById(Class<T> tableClass, Object id) {
         try {
             getRepository(tableClass).deleteById(id);
@@ -273,7 +280,6 @@ public class Dao {
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @param <T>        查询的目标表对应实体类型
      */
-    @SuppressWarnings("unchecked")
     public <T> void deleteAll(Class<T> tableClass) {
         getRepository(tableClass).deleteAll();
     }
@@ -284,7 +290,6 @@ public class Dao {
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @param <T>        查询的目标表对应实体类型
      */
-    @SuppressWarnings("unchecked")
     public <T> void deleteAllInBatch(Class<T> tableClass) {
         getRepository(tableClass).deleteAllInBatch();
     }
@@ -302,12 +307,12 @@ public class Dao {
     private <T, ID> List<T> createObjectList(Class<T> tableClass, ID[] ids) throws NoSuchIDException {
         ArrayList<T> list = new ArrayList<>();
         Field idField = getIdField(tableClass);
-        for (int i = 0; i < ids.length; i++) {
+        for (ID id : ids) {
             try {
-                Object instance = tableClass.newInstance();
+                T instance = tableClass.newInstance();
                 idField.setAccessible(true);
-                idField.set(instance, ObjectUtil.cast(idField.getType(), ids[i]));
-                list.add((T) instance);
+                idField.set(instance, ObjectUtil.cast(idField.getType(), id));
+                list.add(instance);
             } catch (IllegalAccessException | InstantiationException e) {
                 logger.error("主键数组转换ORM对象列表失败", e);
             }
@@ -326,18 +331,15 @@ public class Dao {
      * @return 主键属性
      * @throws NoSuchIDException tableClass实体类型中没有找到@ID的注解，识别成主键字段
      */
-    public Field getIdField(Class clazz) throws NoSuchIDException {
+    public Field getIdField(Class<?> clazz) throws NoSuchIDException {
         Method[] methods = clazz.getDeclaredMethods();
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
+        for (Method method : methods) {
             method.setAccessible(true);
             Id id = method.getAnnotation(Id.class);
             if (!ObjectUtil.isEmpty(id)) {
                 try {
                     Field field = clazz.getDeclaredField(StringUtil.toLowerName(method.getName().replaceFirst("get", "")));
-                    if (field != null) {
-                        field.setAccessible(true);
-                    }
+                    field.setAccessible(true);
                     return field;
                 } catch (RuntimeException e) {
                     e.printStackTrace();
@@ -347,8 +349,7 @@ public class Dao {
             }
         }
         Field[] fields = clazz.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            Field field = fields[i];
+        for (Field field : fields) {
             field.setAccessible(true);
             Id id = field.getAnnotation(Id.class);
             if (!ObjectUtil.isEmpty(id)) {
@@ -365,25 +366,23 @@ public class Dao {
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @param <T>        查询的目标表对应实体类型
      * @param ids        主键数组
-     * @param <ID>       主键类型
      */
-    @SuppressWarnings("unchecked")
-    public <T, ID> void deleteInBatch(Class<T> tableClass, ID[] ids) {
+    public <T> void deleteInBatch(Class<T> tableClass, Object[] ids) {
         if (ArrayUtil.isEmpty(ids) || ids.length < 1) {
             return;
         }
-        SimpleJpaRepository repository = getRepository(tableClass);
-        for (ID id : ids) {
+        SimpleJpaRepository<T, Object> repository = getRepository(tableClass);
+        for (Object id : ids) {
             repository.deleteById(id);
         }
     }
 
-    public <T, ID> void deleteInBatch(Class<T> tableClass, Iterable<ID> ids) {
+    public <T> void deleteInBatch(Class<T> tableClass, Iterable<Object> ids) {
         if (ids == null) {
             return;
         }
-        SimpleJpaRepository repository = getRepository(tableClass);
-        for (ID id : ids) {
+        SimpleJpaRepository<T, Object> repository = getRepository(tableClass);
+        for (Object id : ids) {
             repository.deleteById(id);
         }
     }
@@ -394,7 +393,6 @@ public class Dao {
      * @param list 需要删除的对象列表
      * @param <T>  删除对象集合的对象类型，用于生成sql语句时与对应的表进行绑定
      */
-    @SuppressWarnings("unchecked")
     public <T> void deleteInBatch(Iterable<T> list) {
         for (T obj : list) {
             try {
@@ -414,7 +412,9 @@ public class Dao {
      * @return clazz类型对象
      */
     public <T> T findOne(Class<T> clazz, Object id) {
-        return getEntityManager().find(clazz, id);
+        T e = getEntityManager().find(clazz, id);
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -427,11 +427,10 @@ public class Dao {
     @SuppressWarnings("unchecked")
     public <T> T findOne(T object) {
         Example<T> example = Example.of(object);
-        try {
-            return (T) this.getRepository(object.getClass()).findOne(example).get();
-        } catch (Exception ignored) {
-        }
-        return null;
+        Class<T> clazz = (Class<T>) object.getClass();
+        T e = (T) this.getRepository(clazz).findOne(example).orElse(null);
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -447,7 +446,7 @@ public class Dao {
     public <T> T findOne(String sql, Class<T> clazz, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         queryCoverMap(query);
-        List result = query.getResultList();
+        List<?> result = query.getResultList();
 
         if (result.size() == 0) {
             return null;
@@ -456,7 +455,9 @@ public class Dao {
             throw new NonUniqueResultException(String.format("Call to stored procedure [%s] returned multiple results", sql));
         }
         Map<String, Object> o = (Map<String, Object>) result.get(0);
-        return ObjectUtil.cast(clazz, o);
+        T e = ObjectUtil.cast(clazz, o);
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -469,7 +470,9 @@ public class Dao {
      * @return 查询的结果
      */
     public <T> T findOne(String sql, Class<T> clazz, Map<String, Object> parameters) {
-        return findOne(SqlUtil.parserSQL(sql, parameters), clazz);
+        T e = findOne(SqlUtil.parserSQL(sql, parameters), clazz);
+        DictionaryUtil.cover(e);
+        return e;
     }
 
     /**
@@ -480,7 +483,9 @@ public class Dao {
      * @return 查询结果数据集合
      */
     public <T> List<T> findAll(T object) {
-        return findAll(object, Sort.unsorted());
+        List<T> list = findAll(object, Sort.unsorted());
+        DictionaryUtil.cover(list);
+        return list;
     }
 
     /**
@@ -491,9 +496,37 @@ public class Dao {
      * @param sort   排序对象
      * @return 查询结果数据集合
      */
+    @SuppressWarnings("unchecked")
     public <T> List<T> findAll(T object, Sort sort) {
         Example<T> example = Example.of(object);
-        List<T> result = this.getRepository(object.getClass()).findAll(example, sort);
+        Class<T> clazz = (Class<T>) object.getClass();
+        List<T> result = this.getRepository(clazz).findAll(example, sort);
+        DictionaryUtil.cover(result);
+        return result;
+    }
+
+    /**
+     * 根据例子查询列表
+     *
+     * @param example 例子
+     * @param <T>     泛型
+     * @return 列表
+     */
+    public <T> List<T> findAllByExample(Example<T> example) {
+        return findAllByExample(example, Sort.unsorted());
+    }
+
+    /**
+     * 根据例子查询列表
+     *
+     * @param example 例子
+     * @param sort    排序
+     * @param <T>     泛型
+     * @return 列表
+     */
+    public <T> List<T> findAllByExample(Example<T> example, Sort sort) {
+        List<T> result = this.getRepository(example.getProbeType()).findAll(example, sort);
+        DictionaryUtil.cover(result);
         return result;
     }
 
@@ -513,8 +546,8 @@ public class Dao {
     /**
      * 按照例子对象查询多条分页
      *
-     * @param object 例子对象
      * @param <T>    查询的表的映射实体类型
+     * @param object 例子对象
      * @param page   第几页
      * @param size   每页条数
      * @param sort   排序对象
@@ -525,13 +558,16 @@ public class Dao {
         return findAll(object, PageRequest.of(page - Constant.NumberAbout.ONE, size, sort));
     }
 
+    @SuppressWarnings("unchecked")
     public <T> Page<T> findAll(T object, PageRequest pageRequest) {
-        if (object.getClass() == Class.class) {
-            return this.getRepository((Class) object).findAll(pageRequest);
+        if (object instanceof Class) {
+            return this.getRepository((Class<T>) object).findAll(pageRequest);
         }
         Example<T> example = Example.of(object);
-        return this.getRepository(object.getClass()).findAll(example, pageRequest);
-
+        Class<T> clazz = (Class<T>) object.getClass();
+        Page<T> page = this.getRepository(clazz).findAll(example, pageRequest);
+        DictionaryUtil.cover(page.getContent());
+        return page;
     }
 
     /**
@@ -543,14 +579,13 @@ public class Dao {
      * @param parameters 对象数组类型的参数集合
      * @return 结果集
      */
-    @SuppressWarnings("unchecked")
     public <T> List<T> findAll(String sql, Class<T> clazz, Object... parameters) {
         return findAll(sql, clazz, null, null, parameters);
     }
 
     private void queryCoverMap(Query query) {
         if (query instanceof NativeQueryImpl) {
-            ((NativeQueryImpl) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
+            ((NativeQueryImpl<?>) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
         } else if (Proxy.isProxyClass(query.getClass())) {
             try {
                 String setResultTransformer = "setResultTransformer";
@@ -583,7 +618,7 @@ public class Dao {
         if (maxResults != null) {
             query.setMaxResults(maxResults);
         }
-        List<Map> list = query.getResultList();
+        List<Map<String, Object>> list = query.getResultList();
 
         if (list != null && list.size() > 0) {
             List<T> result = new ArrayList<>();
@@ -602,6 +637,7 @@ public class Dao {
                     }
                 }
             }
+            DictionaryUtil.cover(result);
             return result;
         }
         return new ArrayList<>(0);
@@ -690,6 +726,8 @@ public class Dao {
                 content = query.getResultList();
             }
 
+            //字典转换
+            DictionaryUtil.cover(content);
             pageDate = new PageImpl<>(content, pageable, count);
         }
 
@@ -707,7 +745,7 @@ public class Dao {
      * @return 分页Page类型结果
      */
     public Page<Map<String, Object>> findPageBySQL(String sql, String countSql, int page, int size, Map<String, Object> parameters) {
-        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserSQL(countSql, parameters), page, size, null, null);
+        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserSQL(countSql, parameters), page, size, null, (Object) null);
     }
 
     /**
@@ -759,7 +797,7 @@ public class Dao {
      * @return 分页Page类型结果
      */
     public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Map<String, Object> parameters) {
-        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz, null);
+        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz, (Object) null);
     }
 
     /**
@@ -783,7 +821,7 @@ public class Dao {
      * @param parameters 对象数组形式参数集合
      * @return 完成设置参数的Query对象
      */
-    private Query creatClassQuery(String sql, Class clazz, Object... parameters) {
+    private Query creatClassQuery(String sql, Class<?> clazz, Object... parameters) {
         Query query = getEntityManager().createNativeQuery(sql, clazz);
         setParameter(query, parameters);
         return query;
@@ -815,7 +853,7 @@ public class Dao {
     public List<Map<String, Object>> findAllBySQL(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         queryCoverMap(query);
-        List result = query.getResultList();
+        List<Map<String, Object>> result = query.getResultList();
         if (result != null) {
             return result;
         }
@@ -840,7 +878,6 @@ public class Dao {
      * @param parameters 对象数组形式参数集合
      * @return 结果为一个查询字段值
      */
-    @SuppressWarnings("unchecked")
     public Object findParameter(String sql, Object... parameters) {
         Query query = creatQuery(sql, parameters);
         return getSingleResult(query, sql);
@@ -858,7 +895,7 @@ public class Dao {
     }
 
     private Object getSingleResult(Query query, String sql) {
-        List list = query.getResultList();
+        List<?> list = query.getResultList();
         if (list.size() == 0) {
             return null;
         } else if (list.size() > 1) {
@@ -908,16 +945,12 @@ public class Dao {
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @param ids        主键值集合
      * @param <T>        目标表对应实体类型
-     * @param <ID>       主键类型
      * @return 返回查询出的实体列表
      */
-    @SuppressWarnings("unchecked")
-    public <T, ID> List<T> findAllById(Class<T> tableClass, Iterable<ID> ids) {
-        List result = getRepository(tableClass).findAllById(ids);
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>(0);
+    public <T> List<T> findAllById(Class<T> tableClass, Iterable<Object> ids) {
+        List<T> result = getRepository(tableClass).findAllById(ids);
+        DictionaryUtil.cover(result);
+        return result;
     }
 
     /**
@@ -926,16 +959,12 @@ public class Dao {
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @param ids        主键值集合，数组类型
      * @param <T>        目标表对应实体类型
-     * @param <ID>       主键类型
      * @return 返回查询出的实体列表
      */
-    @SuppressWarnings("unchecked")
-    public <T, ID> List<T> findAllByArrayId(Class<T> tableClass, ID... ids) {
-        List result = getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>(0);
+    public <T> List<T> findAllByArrayId(Class<T> tableClass, Object... ids) {
+        List<T> result = getRepository(tableClass).findAllById(ArrayUtil.asList(ids));
+        DictionaryUtil.cover(result);
+        return result;
     }
 
     /**
@@ -947,10 +976,11 @@ public class Dao {
      * @param <T>        目标表对应实体类型
      * @return 内容为实体的Page类型分页结果
      */
-    @SuppressWarnings("unchecked")
     public <T> Page<T> findAll(Class<T> tableClass, int page, int size) {
         validatePageInfo(page, size);
-        return getRepository(tableClass).findAll(PageRequest.of(page - Constant.NumberAbout.ONE, size));
+        Page<T> pageInfo = getRepository(tableClass).findAll(PageRequest.of(page - Constant.NumberAbout.ONE, size));
+        DictionaryUtil.cover(pageInfo.getContent());
+        return pageInfo;
     }
 
     /**
@@ -960,13 +990,10 @@ public class Dao {
      * @param <T>        目标表对应实体类型
      * @return 内容为实体的List类型结果集
      */
-    @SuppressWarnings("unchecked")
     public <T> List<T> findAll(Class<T> tableClass) {
-        List result = getRepository(tableClass).findAll();
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>(0);
+        List<T> result = getRepository(tableClass).findAll();
+        DictionaryUtil.cover(result);
+        return result;
     }
 
     /**
@@ -977,13 +1004,10 @@ public class Dao {
      * @param <T>        目标表对应实体类型
      * @return 内容为实体的List类型结果集
      */
-    @SuppressWarnings("unchecked")
     public <T> List<T> findAll(Class<T> tableClass, Sort sort) {
-        List result = getRepository(tableClass).findAll(sort);
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>(0);
+        List<T> result = getRepository(tableClass).findAll(sort);
+        DictionaryUtil.cover(result);
+        return result;
     }
 
     /**
@@ -992,8 +1016,7 @@ public class Dao {
      * @param tableClass 查询的目标表对应实体类型，Entity
      * @return 查询条数
      */
-    @SuppressWarnings("unchecked")
-    public long count(Class tableClass) {
+    public long count(Class<?> tableClass) {
         return getRepository(tableClass).count();
     }
 }

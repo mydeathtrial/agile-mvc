@@ -45,7 +45,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -472,12 +471,10 @@ public class CustomResultSetHandler implements ResultSetHandler {
         ResultSet resultSet = rsw.getResultSet();
         Object entity = metaObject.getOriginalObject();
         Class<?> clazz = entity.getClass();
-        Set<ObjectUtil.Target> columnSet = ObjectUtil.getAllEntityAnnotation(clazz, Column.class);
-        Iterator<ObjectUtil.Target> it = columnSet.iterator();
-        while (it.hasNext()) {
-            ObjectUtil.Target target = it.next();
+        Set<ObjectUtil.Target<Column>> columnSet = ObjectUtil.getAllEntityAnnotation(clazz, Column.class);
+        for (ObjectUtil.Target<Column> target : columnSet) {
             if (target != null) {
-                String name = ((Column) target.getAnnotation()).name();
+                String name = target.getAnnotation().name();
                 Object value = resultSet.getObject(name);
                 Member member = target.getMember();
                 if (member instanceof Field) {
