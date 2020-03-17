@@ -373,7 +373,7 @@ public class DictionaryUtil {
             String linkColumn = dictionary.fieldName();
             Field field;
             if (member instanceof Method) {
-                String fieldName = StringUtil.toLowerName(member.getName().substring(3));
+                String fieldName = StringUtil.toLowerName(member.getName().substring(Constant.NumberAbout.THREE));
                 field = ObjectUtil.getField(clazz, fieldName);
                 if (ObjectUtil.isEmpty(field)) {
                     return;

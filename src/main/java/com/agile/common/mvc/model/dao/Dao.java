@@ -43,7 +43,7 @@ import java.util.Map;
  * @author 佟盟 on 2017/11/15
  */
 public class Dao {
-    private static final Map<Class<?>, SimpleJpaRepository> map = new HashMap<>();
+    private static final Map<Class<?>, SimpleJpaRepository> REPOSITORY_CACHE = new HashMap<>();
     private final Log logger = com.agile.common.factory.LoggerFactory.createLogger("sql", Dao.class, Level.DEBUG, Level.ERROR);
     @PersistenceContext
     private EntityManager entityManager;
@@ -58,10 +58,10 @@ public class Dao {
      */
     @SuppressWarnings("unchecked")
     public <T, ID> SimpleJpaRepository<T, ID> getRepository(Class<T> tableClass) {
-        SimpleJpaRepository<T, ID> repository = map.get(tableClass);
+        SimpleJpaRepository<T, ID> repository = REPOSITORY_CACHE.get(tableClass);
         if (ObjectUtil.isEmpty(repository)) {
             repository = new SimpleJpaRepository<>(tableClass, getEntityManager());
-            map.put(tableClass, repository);
+            REPOSITORY_CACHE.put(tableClass, repository);
         }
         return repository;
     }

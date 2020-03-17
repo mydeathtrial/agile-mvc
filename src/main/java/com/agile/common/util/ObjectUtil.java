@@ -1064,6 +1064,7 @@ public class ObjectUtil extends ObjectUtils {
 
     /**
      * 目标
+     * @param <A> 注解类型
      */
     @Data
     @EqualsAndHashCode
