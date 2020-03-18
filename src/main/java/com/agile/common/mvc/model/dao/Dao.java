@@ -735,20 +735,6 @@ public class Dao {
     }
 
     /**
-     * 分页查询，自提供条数汇总sql语句
-     *
-     * @param sql        原生sql，使用{Map的key值}形式占位
-     * @param countSql   统计总数语句sql
-     * @param page       第几页
-     * @param size       页大小
-     * @param parameters Map类型参数集合
-     * @return 分页Page类型结果
-     */
-    public Page<Map<String, Object>> findPageBySQL(String sql, String countSql, int page, int size, Map<String, Object> parameters) {
-        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserSQL(countSql, parameters), page, size, null, (Object) null);
-    }
-
-    /**
      * 分页查询，自动生成条数汇总sql语句
      *
      * @param sql        原生sql，参数使用{Map的key值}形式占位
@@ -797,7 +783,7 @@ public class Dao {
      * @return 分页Page类型结果
      */
     public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Map<String, Object> parameters) {
-        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz, (Object) null);
+        return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz);
     }
 
     /**
