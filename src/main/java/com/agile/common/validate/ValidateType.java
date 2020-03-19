@@ -6,6 +6,7 @@ import com.agile.common.util.NumberUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
+import org.apache.commons.compress.utils.Lists;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -65,6 +66,8 @@ public enum ValidateType implements ValidateInterface {
     IP(Constant.RegularAbout.IP, "IP地址"),
     NUMBER(Constant.RegularAbout.NUMBER, "数字"),
     FLOAT(Constant.RegularAbout.FLOAT, "浮点数"),
+    INT(Constant.RegularAbout.INT, "证书"),
+    DOUBLE(Constant.RegularAbout.DOUBLE, "双精度"),
     ENGLISH_NUMBER(Constant.RegularAbout.ENGLISH_NUMBER, "英文数字"),
     MAC(Constant.RegularAbout.MAC, "MAC地址");
 
@@ -88,13 +91,15 @@ public enum ValidateType implements ValidateInterface {
     @Override
     @NotNull
     public List<ValidateMsg> validateArray(String key, List<Object> value, Validate validate) {
-
-        List<ValidateMsg> list = value.stream().map(node -> validate(key, node, validate)).reduce((all, a) -> {
-            if (a != null) {
-                all.addAll(a);
+        List<ValidateMsg> list = Lists.newArrayList();
+        for (int i = 0; i < value.size(); i++) {
+            Object node = value.get(i);
+            List<ValidateMsg> vs = validate(String.format("%s.%s", key, i), node, validate);
+            if (ObjectUtil.isEmpty(vs)) {
+                continue;
             }
-            return all;
-        }).orElse(new ArrayList<>());
+            list.addAll(vs);
+        }
 
         int size = value.size();
         if (!(validate.min_size() <= size && size <= validate.max_size())) {
@@ -166,17 +171,25 @@ public enum ValidateType implements ValidateInterface {
                 if (!state) {
                     v.setState(false);
                     v.setMessage(createMessage(validate));
-                } else {
-                    if (validate.validateType() == NUMBER || validate.validateType() == FLOAT) {
-                        Number n = "".equals(value) ? 0 : NumberUtil.createNumber(String.valueOf(value));
-                        if (!(validate.min() <= n.doubleValue() && n.doubleValue() <= validate.max())) {
-                            v.setState(false);
-                            v.setMessage(createMessage(validate, "值超出阈值"));
-                        }
-                    }
                 }
             }
-
+            if (validate.validateType() != NO) {
+                state = StringUtil.containMatchedString(validate.validateType().regex, String.valueOf(value));
+                if (!state) {
+                    v.setState(false);
+                    v.setMessage(createMessage(validate));
+                }
+            }
+            if (validate.validateType() == NUMBER
+                    || validate.validateType() == FLOAT
+                    || validate.validateType() == INT
+                    || validate.validateType() == DOUBLE) {
+                Number n = "".equals(value) ? 0 : NumberUtil.createNumber(String.valueOf(value));
+                if (!(validate.min() <= n.doubleValue() && n.doubleValue() <= validate.max())) {
+                    v.setState(false);
+                    v.setMessage(createMessage(validate, "值超出阈值"));
+                }
+            }
             int size = String.valueOf(value).length();
             if (!(validate.min_size() <= size && size <= validate.max_size())) {
                 v.setState(false);

@@ -37,7 +37,7 @@ public @interface Validate {
 
     double max() default Double.MAX_VALUE;
 
-    double min() default Double.MIN_VALUE;
+    double min() default Integer.MIN_VALUE;
 
     int max_size() default Integer.MAX_VALUE;
 

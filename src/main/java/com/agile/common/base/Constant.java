@@ -129,8 +129,10 @@ public class Constant {
         public static final String QQ = "[1-9][0-9]{4,}";
         public static final String MAIL_NO = "[1-9]\\d{5}(?!\\d)";
         public static final String IP = "((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))";
-        public static final String NUMBER = "^[0-9]*$";
-        public static final String FLOAT = "^-?([1-9]\\d*\\.\\d*|0\\.\\d*[1-9]\\d*|0?\\.0+|0)$";
+        public static final String INT = "^[-]?[0-9]*$";
+        public static final String NUMBER = "^[-+]?[0-9]*[.]?[0-9]*[fFL]?$";
+        public static final String DOUBLE = "^[-+]?[0-9]*[.]?[0-9]*$";
+        public static final String FLOAT = "^[-+]?[0-9]*[.]?[0-9]*[fFL]$";
         public static final String ENGLISH_NUMBER = "^[A-Za-z0-9]+$";
         public static final String MAC = "(([A-Fa-f0-9]{2}:)|([A-Fa-f0-9]{2}-)){5}[A-Fa-f0-9]{2}";
 

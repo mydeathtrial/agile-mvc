@@ -1,5 +1,6 @@
 package com.agile.common.validate;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 /**
@@ -22,6 +23,11 @@ public class ValidateMsg {
     public ValidateMsg(String paramKey, Object paramValue) {
         this.item = paramKey;
         this.itemValue = paramValue;
+    }
+
+    @JsonIgnore
+    public boolean isState() {
+        return state;
     }
 
     public void addMessage(String msg) {

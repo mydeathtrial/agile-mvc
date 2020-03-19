@@ -259,6 +259,9 @@ public class DictionaryUtil {
             parentCode = StringUtil.getSplitAtomic(code, SPLIT_CHAR, Constant.NumberAbout.ZERO);
             if (parentCode != null) {
                 rootEntity = coverRootDicBean(parentCode.trim());
+                if (rootEntity == null) {
+                    return null;
+                }
                 targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
             }
         } else {
