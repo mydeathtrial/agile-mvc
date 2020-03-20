@@ -3,6 +3,7 @@ package com.agile.common.util;
 import com.agile.common.annotation.Dictionary;
 import com.agile.common.base.Constant;
 import com.agile.common.cache.AgileCache;
+import com.agile.common.util.clazz.TypeReference;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.google.common.collect.Lists;
 
@@ -387,12 +388,19 @@ public class DictionaryUtil {
 
             list.forEach(node -> {
                 Object code = ObjectUtil.getFieldValue(node, linkColumn);
+                String codeStr;
                 if (code instanceof String) {
-                    if (ObjectUtil.isEmpty(parentDicCode)) {
-                        ObjectUtil.setValue(node, field, coverDicName((String) code));
-                    } else {
-                        ObjectUtil.setValue(node, field, coverDicName(parentDicCode, (String) code));
-                    }
+                    codeStr = (String) code;
+                } else if (code instanceof Boolean) {
+                    codeStr = (Boolean) code ? "1" : "0";
+                } else {
+                    codeStr = com.agile.common.util.object.ObjectUtil.to(code, new TypeReference<String>() {
+                    });
+                }
+                if (ObjectUtil.isEmpty(parentDicCode)) {
+                    ObjectUtil.setValue(node, field, coverDicName(codeStr));
+                } else {
+                    ObjectUtil.setValue(node, field, coverDicName(parentDicCode, codeStr));
                 }
             });
         });
