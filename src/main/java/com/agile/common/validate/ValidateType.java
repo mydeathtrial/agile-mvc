@@ -152,6 +152,7 @@ public enum ValidateType implements ValidateInterface {
         list.add(v);
         if (value != null) {
             boolean state;
+            // 验证空字符串
             if (!validate.isBlank()) {
                 state = !StringUtil.isBlank(value.toString());
                 if (!state) {
@@ -159,37 +160,36 @@ public enum ValidateType implements ValidateInterface {
                     v.setMessage(createMessage(validate, "不允许为空值"));
                 }
             }
-            if (!StringUtil.isBlank(value.toString()) && validate.validateType() != NO) {
-                state = StringUtil.containMatchedString(regex, String.valueOf(value));
-                if (!state) {
-                    v.setState(false);
-                    v.setMessage(createMessage(validate));
+
+            // 非空时验证正则
+            if (!StringUtil.isBlank(value.toString())) {
+                if (validate.validateType() != NO) {
+                    state = StringUtil.containMatchedString(regex, String.valueOf(value));
+                    if (!state) {
+                        v.setState(false);
+                        v.setMessage(createMessage(validate));
+                    }
+                }
+                if (!StringUtil.isEmpty(validate.validateRegex())) {
+                    state = StringUtil.containMatchedString(validate.validateRegex(), String.valueOf(value));
+                    if (!state) {
+                        v.setState(false);
+                        v.setMessage(createMessage(validate));
+                    }
+                }
+
+                if (validate.validateType() == NUMBER
+                        || validate.validateType() == FLOAT
+                        || validate.validateType() == INT
+                        || validate.validateType() == DOUBLE) {
+                    Number n = "".equals(value) ? 0 : NumberUtil.createNumber(String.valueOf(value));
+                    if (!(validate.min() <= n.doubleValue() && n.doubleValue() <= validate.max())) {
+                        v.setState(false);
+                        v.setMessage(createMessage(validate, "值超出阈值"));
+                    }
                 }
             }
-            if (!StringUtil.isEmpty(validate.validateRegex())) {
-                state = StringUtil.containMatchedString(validate.validateRegex(), String.valueOf(value));
-                if (!state) {
-                    v.setState(false);
-                    v.setMessage(createMessage(validate));
-                }
-            }
-            if (validate.validateType() != NO) {
-                state = StringUtil.containMatchedString(validate.validateType().regex, String.valueOf(value));
-                if (!state) {
-                    v.setState(false);
-                    v.setMessage(createMessage(validate));
-                }
-            }
-            if (validate.validateType() == NUMBER
-                    || validate.validateType() == FLOAT
-                    || validate.validateType() == INT
-                    || validate.validateType() == DOUBLE) {
-                Number n = "".equals(value) ? 0 : NumberUtil.createNumber(String.valueOf(value));
-                if (!(validate.min() <= n.doubleValue() && n.doubleValue() <= validate.max())) {
-                    v.setState(false);
-                    v.setMessage(createMessage(validate, "值超出阈值"));
-                }
-            }
+
             int size = String.valueOf(value).length();
             if (!(validate.min_size() <= size && size <= validate.max_size())) {
                 v.setState(false);

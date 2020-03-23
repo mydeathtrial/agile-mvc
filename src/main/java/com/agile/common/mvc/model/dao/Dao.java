@@ -8,6 +8,7 @@ import com.agile.common.util.DictionaryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.SqlUtil;
 import com.agile.common.util.StringUtil;
+import com.agile.common.util.clazz.TypeReference;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
@@ -311,7 +312,7 @@ public class Dao {
             try {
                 T instance = tableClass.newInstance();
                 idField.setAccessible(true);
-                idField.set(instance, ObjectUtil.cast(idField.getType(), id));
+                idField.set(instance, com.agile.common.util.object.ObjectUtil.to(id, new TypeReference<>(idField.getType())));
                 list.add(instance);
             } catch (IllegalAccessException | InstantiationException e) {
                 logger.error("主键数组转换ORM对象列表失败", e);
@@ -455,7 +456,7 @@ public class Dao {
             throw new NonUniqueResultException(String.format("Call to stored procedure [%s] returned multiple results", sql));
         }
         Map<String, Object> o = (Map<String, Object>) result.get(0);
-        T e = ObjectUtil.cast(clazz, o);
+        T e = com.agile.common.util.object.ObjectUtil.to(o, new TypeReference<>(clazz));
         DictionaryUtil.cover(e);
         return e;
     }
@@ -624,14 +625,14 @@ public class Dao {
             List<T> result = new ArrayList<>();
             if (ClassUtil.canCastClass(clazz)) {
                 for (Map<String, Object> entity : list) {
-                    T node = ObjectUtil.cast(clazz, ArrayUtil.getLast(entity.values().toArray()));
+                    T node = com.agile.common.util.object.ObjectUtil.to(ArrayUtil.getLast(entity.values().toArray()), new TypeReference<>(clazz));
                     if (node != null) {
                         result.add(node);
                     }
                 }
             } else {
                 for (Map<String, Object> entity : list) {
-                    T node = ObjectUtil.getObjectFromMap(clazz, entity);
+                    T node = com.agile.common.util.object.ObjectUtil.to(entity, new TypeReference<>(clazz));
                     if (node != null) {
                         result.add(node);
                     }
