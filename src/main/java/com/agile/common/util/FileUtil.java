@@ -4,7 +4,6 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
 import com.agile.common.exception.CreateFileException;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +43,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -447,23 +448,37 @@ public class FileUtil extends FileUtils {
         writer.close();
     }
 
+    public static List<String> uploadFile(Collection<MultipartFile> files, String dirName) {
+        return uploadFile(files, dirName, null);
+    }
+
     /**
      * 文件上传
      *
      * @param files   文件集合
      * @param dirName 父级文件目录名
      * @return 文件存储的相对目录集合
-     * @throws IOException         异常
-     * @throws CreateFileException 无法生成文件异常
      */
-    public static List<String> uploadFile(Collection<MultipartFile> files, String dirName) throws IOException, CreateFileException {
-        List<String> list = Lists.newArrayListWithExpectedSize(files.size());
-
-        for (MultipartFile file : files) {
-            list.add(uploadFile(file, dirName));
+    public static List<String> uploadFile(Collection<MultipartFile> files, String dirName, String fileName) {
+        if (StringUtil.isEmpty(fileName)) {
+            return files.stream().map(file -> {
+                try {
+                    return uploadFile(file, dirName);
+                } catch (CreateFileException | IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+        } else {
+            return IterablesUtil.map(Constant.NumberAbout.ONE, files, (index, file) -> {
+                try {
+                    return uploadFile(file, dirName, String.format("%s(%s)", fileName, index));
+                } catch (CreateFileException | IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
         }
-
-        return list;
     }
 
     /**
@@ -475,7 +490,11 @@ public class FileUtil extends FileUtils {
      * @throws IOException         无法生成文件异常
      */
     public static String uploadFile(MultipartFile file) throws CreateFileException, IOException {
-        return uploadFile(file, "");
+        return uploadFile(file, null);
+    }
+
+    public static String uploadFile(MultipartFile file, String dirName) throws CreateFileException, IOException {
+        return uploadFile(file, dirName, null);
     }
 
     /**
@@ -487,9 +506,10 @@ public class FileUtil extends FileUtils {
      * @throws CreateFileException 异常
      * @throws IOException         无法生成文件异常
      */
-    public static String uploadFile(MultipartFile file, String dirName) throws CreateFileException, IOException {
+    public static String uploadFile(MultipartFile file, String dirName, String fileName) throws CreateFileException, IOException {
         String dirPath;
 
+        dirName = StringUtil.isEmpty(dirName) ? "" : dirName;
         if (isIllegalDirName(dirName)) {
             throw new RuntimeException("非法目录结构，存在被攻击威胁");
         } else {
@@ -512,7 +532,8 @@ public class FileUtil extends FileUtils {
             dirPath += File.separator;
         }
 
-        String absoluteFileName = dirPath + file.getOriginalFilename();
+        fileName = StringUtil.isEmpty(fileName) ? file.getOriginalFilename() : fileName;
+        String absoluteFileName = dirPath + fileName;
         File uploadFile = new File(absoluteFileName);
         if (!uploadFile.exists()) {
             if (!uploadFile.createNewFile()) {
@@ -551,5 +572,15 @@ public class FileUtil extends FileUtils {
             return file;
         }
         throw new FileNotFoundException(file.getAbsolutePath());
+    }
+
+    /**
+     * 绝对路径转相对路径
+     *
+     * @param absolutelyPath 绝对路径
+     * @return 针对缓存目录的相对路径
+     */
+    public static String toRelativePath(String absolutelyPath) {
+        return absolutelyPath.replace(getTempPath(), "").replace(File.separator, "/");
     }
 }
