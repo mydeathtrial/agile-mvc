@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -470,7 +471,10 @@ public class Dao {
      * @param parameters Map形式参数集合
      * @return 查询的结果
      */
-    public <T> T findOne(String sql, Class<T> clazz, Map<String, Object> parameters) {
+    public <T> T findOne(String sql, Class<T> clazz, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findOne(sql, clazz, new Object[]{parameters});
+        }
         T e = findOne(SqlUtil.parserSQL(sql, parameters), clazz);
         DictionaryUtil.cover(e);
         return e;
@@ -571,19 +575,6 @@ public class Dao {
         return page;
     }
 
-    /**
-     * 根据sql语句查询指定类型clazz列表
-     *
-     * @param sql        查询的sql语句，参数使用？占位
-     * @param clazz      希望查询结果映射成的实体类型
-     * @param <T>        指定返回类型
-     * @param parameters 对象数组类型的参数集合
-     * @return 结果集
-     */
-    public <T> List<T> findAll(String sql, Class<T> clazz, Object... parameters) {
-        return findAll(sql, clazz, null, null, parameters);
-    }
-
     private void queryCoverMap(Query query) {
         if (query instanceof NativeQueryImpl) {
             ((NativeQueryImpl<?>) query).setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP);
@@ -645,6 +636,19 @@ public class Dao {
     }
 
     /**
+     * 根据sql语句查询指定类型clazz列表
+     *
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param clazz      希望查询结果映射成的实体类型
+     * @param <T>        指定返回类型
+     * @param parameters 对象数组类型的参数集合
+     * @return 结果集
+     */
+    public <T> List<T> findAll(String sql, Class<T> clazz, Object... parameters) {
+        return findAll(sql, clazz, null, null, parameters);
+    }
+
+    /**
      * 根据sql查询结果为List<clazz>类型的结果集
      *
      * @param sql        查询sql语句，使用{Map的key值}形式占位
@@ -653,7 +657,10 @@ public class Dao {
      * @param <T>        查询结果需要映射的实体类型
      * @return 类型的结果集
      */
-    public <T> List<T> findAll(String sql, Class<T> clazz, Map<String, Object> parameters) {
+    public <T> List<T> findAll(String sql, Class<T> clazz, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findAll(sql, clazz, null, null, parameters);
+        }
         return findAll(SqlUtil.parserSQL(sql, parameters), clazz);
     }
 
@@ -744,7 +751,10 @@ public class Dao {
      * @param parameters Map类型参数集合
      * @return 分页Page类型结果
      */
-    public Page<Map<String, Object>> findPageBySQL(String sql, int page, int size, Map<String, Object> parameters) {
+    public Page<Map<String, Object>> findPageBySQL(String sql, int page, int size, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, null, parameters);
+        }
         return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, null);
     }
 
@@ -783,7 +793,10 @@ public class Dao {
      * @param parameters Map类型参数集合
      * @return 分页Page类型结果
      */
-    public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Map<String, Object> parameters) {
+    public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, clazz, parameters);
+        }
         return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz);
     }
 
@@ -854,23 +867,17 @@ public class Dao {
      * @param parameters Map类型参数集合
      * @return 结果类型为List套Map的查询结果
      */
-    public List<Map<String, Object>> findAllBySQL(String sql, Map<String, Object> parameters) {
+    public List<Map<String, Object>> findAllBySQL(String sql, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findAllBySQL(sql, new Object[]{parameters});
+        }
         return findAllBySQL(SqlUtil.parserSQL(sql, parameters));
     }
 
-    /**
-     * 查询结果预判为一个字段值
-     *
-     * @param sql        查询的sql语句，参数使用？占位
-     * @param parameters 对象数组形式参数集合
-     * @return 结果为一个查询字段值
-     */
-    public Object findParameter(String sql, Object... parameters) {
-        Query query = creatQuery(sql, parameters);
-        return getSingleResult(query, sql);
-    }
-
-    public Map<String, Object> findOneToMap(String sql, Map<String, Object> parameters) {
+    public Map<String, Object> findOneToMap(String sql, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findOneToMap(sql, new Object[]{parameters});
+        }
         return findOneToMap(SqlUtil.parserSQL(sql, parameters));
     }
 
@@ -895,11 +902,26 @@ public class Dao {
     /**
      * 查询结果预判为一个字段值
      *
+     * @param sql        查询的sql语句，参数使用？占位
+     * @param parameters 对象数组形式参数集合
+     * @return 结果为一个查询字段值
+     */
+    public Object findParameter(String sql, Object... parameters) {
+        Query query = creatQuery(sql, parameters);
+        return getSingleResult(query, sql);
+    }
+
+    /**
+     * 查询结果预判为一个字段值
+     *
      * @param sql        查询sql语句，参数使用{Map的key值}形式占位
      * @param parameters Map类型参数集合
      * @return 结果为一个查询字段值
      */
-    public Object findParameter(String sql, Map<String, Object> parameters) {
+    public Object findParameter(String sql, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return findParameter(sql, new Object[]{parameters});
+        }
         return findParameter(SqlUtil.parserSQL(sql, parameters));
     }
 
@@ -922,7 +944,10 @@ public class Dao {
      * @param parameters Map类型参数集合
      * @return 影响条数
      */
-    public int updateBySQL(String sql, Map<String, Object> parameters) {
+    public int updateBySQL(String sql, Object parameters) {
+        if (ClassUtil.isWrapOrPrimitive(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+            return updateBySQL(sql, new Object[]{parameters});
+        }
         return updateBySQL(SqlUtil.parserSQL(sql, parameters));
     }
 
