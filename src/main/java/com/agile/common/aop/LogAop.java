@@ -51,6 +51,7 @@ public class LogAop {
     private static final String ERROR_LOG_TEMPLATE = "%n状    态: %s%n异常类型: %s%n异常信息: %s%nIP  地址: %s%nURL 地址: %s%n服    务: %s%n方    法: %s%n入    参: %n%s%n耗    时: %sms%n---------------------------------------------------------------------------";
     private static final String SUCCESS = "SUCCESS";
     private static final String ERROR = "ERROR";
+    private static final String ERROR_TITLE = "详细错误信息";
 
     /**
      * 日志线程池
@@ -226,6 +227,7 @@ public class LogAop {
                         serviceExecutionInfo.getMethodName(),
                         serviceExecutionInfo.getInParamToJson(),
                         serviceExecutionInfo.getTimeConsuming()));
+                logger.error(ERROR_TITLE, serviceExecutionInfo.getE());
             }
         }
     }
