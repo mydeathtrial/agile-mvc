@@ -236,6 +236,21 @@ public class DictionaryUtil {
     }
 
     /**
+     * 根据父级树形字典码与name获取code
+     * @param defaultValue 默认值
+     * @param name 子字典明文
+     * @param code 父级字典码
+     * @return bean
+     */
+    public static String coverDicCode(String code, String name, String defaultValue) {
+        DictionaryDataEntity dic = coverDicBean(code, name);
+        if (dic == null) {
+            return defaultValue;
+        }
+        return dic.getCode();
+    }
+
+    /**
      * 获取缓存根字典对象
      *
      * @param code 字典码
@@ -252,6 +267,9 @@ public class DictionaryUtil {
      * @return bean
      */
     public static DictionaryDataEntity coverDicBean(String code) {
+        if (StringUtil.isEmpty(code)) {
+            return null;
+        }
         DictionaryDataEntity rootEntity;
         DictionaryDataEntity targetEntity = null;
         String parentCode = code;
