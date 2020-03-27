@@ -135,7 +135,14 @@ public class DictionaryUtil {
         }
     }
 
-    private static String coverDicName(String parentCode, String codes, String defaultValue) {
+    /**
+     * 根据父级字典与子字典，转换字典值
+     * @param parentCode 父级字典码
+     * @param codes 子字典码
+     * @param defaultValue 默认值
+     * @return 明文
+     */
+    public static String coverDicName(String parentCode, String codes, String defaultValue) {
         if (StringUtil.isBlank(parentCode) || StringUtil.isBlank(codes)) {
             return defaultValue;
         }
