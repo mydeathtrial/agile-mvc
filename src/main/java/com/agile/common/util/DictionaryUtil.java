@@ -137,8 +137,9 @@ public class DictionaryUtil {
 
     /**
      * 根据父级字典与子字典，转换字典值
-     * @param parentCode 父级字典码
-     * @param codes 子字典码
+     *
+     * @param parentCode   父级字典码
+     * @param codes        子字典码
      * @param defaultValue 默认值
      * @return 明文
      */
@@ -181,15 +182,10 @@ public class DictionaryUtil {
      */
     public static DictionaryDataEntity coverDicBean(String code, String name) {
         List<DictionaryDataEntity> list = coverDicList(code);
-        if (list == null) {
+        if (list == null || name == null) {
             return null;
         }
-        for (DictionaryDataEntity entity : list) {
-            if (name.equals(entity.getName())) {
-                return entity;
-            }
-        }
-        return null;
+        return list.stream().filter(entity -> name.equals(entity.getName())).findFirst().orElse(null);
     }
 
     /**
@@ -244,9 +240,10 @@ public class DictionaryUtil {
 
     /**
      * 根据父级树形字典码与name获取code
+     *
      * @param defaultValue 默认值
-     * @param name 子字典明文
-     * @param code 父级字典码
+     * @param name         子字典明文
+     * @param code         父级字典码
      * @return bean
      */
     public static String coverDicCode(String code, String name, String defaultValue) {

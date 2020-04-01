@@ -15,6 +15,7 @@ import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import org.apache.commons.logging.Log;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -143,7 +144,20 @@ public class TaskService {
      * @param method 方法
      */
     public void addTask(Task task, Method method) {
+        Class<?> beanClass = method.getDeclaringClass();
+        Object bean = FactoryUtil.getBean(beanClass);
+        if (bean == null) {
+            throw new NoSuchBeanDefinitionException(beanClass);
+        }
+
         taskManager.save(task, method);
+
+        // 目标方法信息放到内存中，任务执行时使用
+        apiBaseMap.put(method.toGenericString(),
+                new ApiBase(bean,
+                        method,
+                        FactoryUtil.getApplicationContext().getBeanNamesForType(beanClass)[0])
+        );
         addTask(task);
     }
 

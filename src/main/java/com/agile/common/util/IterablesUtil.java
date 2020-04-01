@@ -26,7 +26,7 @@ public class IterablesUtil {
      * @param <R>        出参
      * @return 出参流
      */
-    public static <T, R> Stream<? extends R> map(Integer startIndex, Iterable<? extends T> node, BiFunction<Integer, ? super T, R> action) {
+    public static <T, R> Stream<R> map(Integer startIndex, Iterable<T> node, BiFunction<Integer, T, R> action) {
         Objects.requireNonNull(node);
         Objects.requireNonNull(action);
         ArrayList<R> list = Lists.newArrayList();
@@ -44,7 +44,7 @@ public class IterablesUtil {
      * @param action     动作
      * @param <T>        入参
      */
-    public static <T> void forEach(Integer startIndex, Iterable<? extends T> node, BiConsumer<Integer, ? super T> action) {
+    public static <T> void forEach(Integer startIndex, Iterable<T> node, BiConsumer<Integer, T> action) {
         Objects.requireNonNull(node);
         Objects.requireNonNull(action);
         for (T element : node) {
