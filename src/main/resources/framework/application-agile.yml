@@ -103,10 +103,11 @@ agile:
         weight-of-regex: 0.65
         weight-of-key-word: 0.35
         max-length: 32
-    sign:
+    error-sign:
       max-error-count: 5
       error-sign-lock-time: 2m
       error-sign-count-timeout: 1m
+      enable: false
   cors:
     allow-credentials: true
     allow-headers: Content-Type,X-CSRF-TOKEN,JSESSIONID

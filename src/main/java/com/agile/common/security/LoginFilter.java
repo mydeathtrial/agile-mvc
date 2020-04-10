@@ -132,20 +132,19 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
      * 判断登录失败锁
      *
      * @param request 请求
-     * @return 是否
      */
     private void judgeLoginErrorLock(HttpServletRequest request) throws LoginErrorLockException {
-        if (!ServletUtil.matcherRequest(request, securityProperties.getLoginUrl())) {
+        if (!ServletUtil.matcherRequest(request, securityProperties.getLoginUrl()) || !securityProperties.getErrorSign().isEnable()) {
             return;
         }
         AgileCache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
         Integer sessionIdLoginCount = cache.get(request.getSession().getId(), Integer.class);
         if (sessionIdLoginCount == null) {
-            CacheUtil.put(cache, request.getSession().getId(), 1, Integer.parseInt(Long.toString(securityProperties.getSign().getErrorSignCountTimeout().getSeconds())));
-        } else if (sessionIdLoginCount >= securityProperties.getSign().getMaxErrorCount() - 1) {
-            throw new LoginErrorLockException(String.valueOf(securityProperties.getSign().getErrorSignLockTime().toMinutes()));
+            cache.put(request.getSession().getId(), 1, securityProperties.getErrorSign().getErrorSignCountTimeout());
+        } else if (sessionIdLoginCount >= securityProperties.getErrorSign().getMaxErrorCount() - 1) {
+            throw new LoginErrorLockException(String.valueOf(securityProperties.getErrorSign().getErrorSignLockTime().toMinutes()));
         } else {
-            CacheUtil.put(cache, request.getSession().getId(), ++sessionIdLoginCount, Integer.parseInt(Long.toString(securityProperties.getSign().getErrorSignCountTimeout().getSeconds())));
+            cache.put(request.getSession().getId(), ++sessionIdLoginCount, securityProperties.getErrorSign().getErrorSignCountTimeout());
         }
     }
 

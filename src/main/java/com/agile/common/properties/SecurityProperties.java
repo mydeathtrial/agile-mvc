@@ -107,7 +107,7 @@ public class SecurityProperties implements Serializable {
     /**
      * 登陆
      */
-    private Sign sign = new Sign();
+    private ErrorSign errorSign = new ErrorSign();
 
     /**
      * 密码
@@ -188,7 +188,8 @@ public class SecurityProperties implements Serializable {
      * 登陆
      */
     @Data
-    public static class Sign implements Serializable {
+    public static class ErrorSign implements Serializable {
+        private boolean enable = true;
         /**
          * 最大登录失败次数
          */
