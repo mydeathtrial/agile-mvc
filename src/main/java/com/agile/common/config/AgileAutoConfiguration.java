@@ -5,6 +5,7 @@ import com.agile.common.properties.ApplicationProperties;
 import com.agile.common.properties.CorsFilterProperties;
 import com.agile.common.properties.GeneratorProperties;
 import com.agile.common.properties.LoggerProperties;
+import com.agile.common.properties.SimulationProperties;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
@@ -20,7 +21,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author 佟盟 on 2017/9/26
  */
 @Configuration
-@EnableConfigurationProperties({ApplicationProperties.class, LoggerProperties.class, CorsFilterProperties.class, GeneratorProperties.class})
+@EnableConfigurationProperties({ApplicationProperties.class, LoggerProperties.class, CorsFilterProperties.class, GeneratorProperties.class, SimulationProperties.class})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableAsync
 @EnableCaching

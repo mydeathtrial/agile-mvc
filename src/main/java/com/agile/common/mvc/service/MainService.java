@@ -5,7 +5,9 @@ import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
+import com.agile.common.properties.SimulationProperties;
 import com.agile.common.security.CustomerUserDetails;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.ParamUtil;
 import com.alibaba.fastjson.TypeReference;
@@ -290,6 +292,13 @@ public class MainService implements ServiceInterface {
      * 获取当前用户信息
      */
     public CustomerUserDetails getUser() {
+        // 判断模拟配置
+        SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
+        if (simulation != null && simulation.isEnable()) {
+            return com.agile.common.util.object.ObjectUtil.to(simulation.getUser(),
+                    new com.agile.common.util.clazz.TypeReference<>(simulation.getUserClass()));
+        }
+        // 非模拟情况
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");

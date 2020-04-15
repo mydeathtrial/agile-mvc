@@ -61,7 +61,6 @@ public class SecurityProperties implements Serializable {
      * 登录密码表单名
      */
     private String loginPassword = "password";
-
     /**
      * token类型
      */
