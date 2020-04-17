@@ -8,12 +8,10 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RequestWrapper;
 import com.agile.common.mvc.service.ServiceInterface;
+import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Maps;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.web.multipart.MultipartFile;
@@ -181,6 +179,41 @@ public class ParamUtil {
     }
 
     /**
+     * 根据path key获取参数,并转换成指定类型，取空时返回默认值
+     *
+     * @param map           参数集合
+     * @param key           path key
+     * @param typeReference 指定转换的类型
+     * @param <T>           泛型
+     * @return 参数
+     */
+    public static <T> T getInParam(Map<String, Object> map, String key, TypeReference<T> typeReference) {
+        return getInParam(map, key, typeReference, null);
+    }
+
+    /**
+     * 根据path key获取参数,并转换成指定类型，取空时返回默认值
+     *
+     * @param map           参数集合
+     * @param key           path key
+     * @param typeReference 指定转换的类型
+     * @param defaultValue  默认值
+     * @param <T>           泛型
+     * @return 参数
+     */
+    public static <T> T getInParam(Map<String, Object> map, String key, TypeReference<T> typeReference, T defaultValue) {
+
+        Object value = getInParam(map, key);
+
+        if (value != null) {
+            T v = com.agile.common.util.object.ObjectUtil.to(value, typeReference);
+            return v == null ? defaultValue : v;
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
      * 入参里获取上传文件
      *
      * @param map 入参集和
@@ -255,16 +288,18 @@ public class ParamUtil {
      * @return 参数集和转换后的对象
      */
     public static <T> T getInParam(Map<String, Object> map, Class<T> clazz) {
-        T result;
-        Object json = getInParam(map, Constant.ResponseAbout.BODY);
-
-        result = com.agile.common.util.object.ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
+        T result = com.agile.common.util.object.ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
         });
 
-        boolean is = (result == null || ObjectUtil.isAllNullValidity(result)) && json != null;
-        if (is) {
-            result = JSONUtil.toBean(clazz, json.toString());
+        if (result == null || ObjectUtil.isAllNullValidity(result)) {
+            return null;
         }
+        return result;
+    }
+
+    public static <T> T getInParam(Map<String, Object> map, com.agile.common.util.clazz.TypeReference<T> typeReference) {
+        T result = com.agile.common.util.object.ObjectUtil.to(map, typeReference);
+
         if (result == null || ObjectUtil.isAllNullValidity(result)) {
             return null;
         }
@@ -272,12 +307,7 @@ public class ParamUtil {
     }
 
     public static <T> T getInParam(Map<String, Object> map, String key, Class<T> clazz) {
-        Object result = getInParamOfBody(map, key, clazz);
-        if (result == null) {
-            result = ObjectUtil.cast(clazz, ObjectUtil.pathGet(key, map));
-        }
-
-        return (T) result;
+        return (T) com.agile.common.util.object.ObjectUtil.to(ObjectUtil.pathGet(key, map), new com.agile.common.util.clazz.TypeReference<>(clazz));
     }
 
     public static <T> List<T> getInParamOfArray(Map<String, Object> map, String key, Class<T> clazz) {
@@ -291,47 +321,6 @@ public class ParamUtil {
             result = ArrayUtil.cast(clazz, new ArrayList<Object>() {{
                 add(value);
             }});
-        }
-        return result;
-    }
-
-    public static <T> T getInParamOfBody(Map<String, Object> map, String key, TypeReference<T> reference) {
-        T result = null;
-        Object value = getInParamOfBody(map, key);
-        if (value != null && JSON.class.isAssignableFrom(value.getClass())) {
-            result = JSONUtil.parseObject(JSONUtil.toJSONString(value), reference);
-        }
-        return result;
-    }
-
-    public static <T> T getInParamOfBody(Map<String, Object> map, String key, Class<T> clazz) {
-        T result;
-        Object value = getInParamOfBody(map, key);
-        if (value != null && JSON.class.isAssignableFrom(value.getClass())) {
-            result = JSONUtil.toJavaObject((JSON) value, clazz);
-        } else {
-            result = ObjectUtil.cast(clazz, value);
-        }
-        return result;
-    }
-
-    /**
-     * 从body参数中获取path参数
-     *
-     * @param map 入参集合
-     * @param key path
-     * @return 数据
-     */
-    private static Object getInParamOfBody(Map<String, Object> map, String key) {
-        Object result = null;
-        if (map.containsKey(Constant.ResponseAbout.BODY)) {
-            Object jsonString = map.get(Constant.ResponseAbout.BODY);
-            JSON json = JSONUtil.toJSON(jsonString);
-            String prefix = Constant.ResponseAbout.BODY + Constant.RegularAbout.SPOT;
-            if (key.startsWith(prefix)) {
-                key = key.replaceFirst(prefix, Constant.RegularAbout.BLANK);
-            }
-            result = JSONPath.eval(json, key);
         }
         return result;
     }

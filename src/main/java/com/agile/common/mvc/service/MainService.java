@@ -10,7 +10,7 @@ import com.agile.common.security.CustomerUserDetails;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.ParamUtil;
-import com.alibaba.fastjson.TypeReference;
+import com.agile.common.util.clazz.TypeReference;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -159,7 +159,7 @@ public class MainService implements ServiceInterface {
      * @return 转换后的入参
      */
     public <T> T getInParam(String key, TypeReference<T> reference) {
-        return ParamUtil.getInParamOfBody(getInParam(), key, reference);
+        return ParamUtil.getInParam(getInParam(), key, reference);
     }
 
     /**
