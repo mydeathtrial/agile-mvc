@@ -5,6 +5,7 @@ import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
+import org.slf4j.Logger;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.lang.Nullable;
@@ -23,15 +24,16 @@ import java.util.Set;
  * @author 佟盟 on 2018/11/4
  */
 public class AgileHandlerMapping extends RequestMappingHandlerMapping {
+    private final Logger logger = org.slf4j.LoggerFactory.getLogger(AgileHandlerMapping.class);
+
     private boolean useSuffixPatternMatch = true;
     private boolean useRegisteredSuffixPatternMatch = false;
     private boolean useTrailingSlashMatch = true;
-    private Map<String, RequestMappingInfo> cache = new HashMap<>();
+    private final Map<String, RequestMappingInfo> cache = new HashMap<>();
 
     private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
     private RequestMappingInfo createMappingInfo(Mapping mapping, RequestCondition<?> condition) {
-
         RequestMappingInfo.Builder builder = RequestMappingInfo
                 .paths(this.resolveEmbeddedValuesInPatterns(mapping.path()))
                 .methods(mapping.method())
@@ -49,7 +51,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     @Nullable
     private RequestMappingInfo createMappingInfo(AnnotatedElement element) {
         Mapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, Mapping.class);
-        RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class) element) : this.getCustomMethodCondition((Method) element);
+        RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class<?>) element) : this.getCustomMethodCondition((Method) element);
         return requestMapping != null ? this.createMappingInfo(requestMapping, condition) : null;
     }
 
@@ -68,7 +70,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     private String createDefaultMappingPath(AnnotatedElement element) {
         StringBuilder path = new StringBuilder();
         if (element instanceof Class) {
-            path.append(String.format("/api/%s", StringUtil.camelToSpilt(((Class) element).getSimpleName(), Constant.RegularAbout.MINUS).toLowerCase()));
+            path.append(String.format("/api/%s", StringUtil.camelToSpilt(((Class<?>) element).getSimpleName(), Constant.RegularAbout.MINUS).toLowerCase()));
             //path.append(String.format("/api/{service:%s}", StringUtil.camelToUrlRegex(((Class) element).getSimpleName())));
         } else if (element instanceof Method) {
             path.append(String.format("/%s", StringUtil.camelToSpilt(((Method) element).getName(), Constant.RegularAbout.MINUS).toLowerCase()));
@@ -86,19 +88,15 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     }
 
     private RequestMappingInfo createDefaultMappingInfo(AnnotatedElement element) {
-        RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class) element) : this.getCustomMethodCondition((Method) element);
+        RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class<?>) element) : this.getCustomMethodCondition((Method) element);
         return this.createDefaultMappingInfo(element, condition);
     }
 
     public RequestMappingInfo getDefaultFroMethod(Method method, Class<?> handlerType) {
 
         RequestMappingInfo defaultMappingInfo = this.createDefaultMappingInfo(method);
-        if (defaultMappingInfo != null) {
-            RequestMappingInfo defaultTypeInfo = this.createDefaultMappingInfo(handlerType);
-            if (defaultTypeInfo != null) {
-                defaultMappingInfo = defaultTypeInfo.combine(defaultMappingInfo);
-            }
-        }
+        RequestMappingInfo defaultTypeInfo = this.createDefaultMappingInfo(handlerType);
+        defaultMappingInfo = defaultTypeInfo.combine(defaultMappingInfo);
         return defaultMappingInfo;
     }
 
@@ -115,27 +113,28 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
 
     @Override
     public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-        if (mapping == null) {
-            return;
-        }
-        if (mapping.getPatternsCondition() != null) {
-            for (String path : mapping.getPatternsCondition().getPatterns()) {
-                RequestMappingInfo cacheMapping = cache.get(path);
+        for (String path : mapping.getPatternsCondition().getPatterns()) {
+            RequestMappingInfo cacheMapping = cache.get(path);
 
-                if (ObjectUtil.isEmpty(cacheMapping)) {
-                    cache.put(path, mapping);
-                } else {
-                    Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
-                    for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
-                        if (methods.contains(requestMethod)) {
-                            LoggerFactory.COMMON_LOG.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
-                            throw new IllegalStateException();
-                        }
+            if (!ObjectUtil.isEmpty(cacheMapping)) {
+                Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
+                for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
+                    if (methods.contains(requestMethod)) {
+                        LoggerFactory.COMMON_LOG.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
+                        throw new IllegalStateException();
                     }
-                    cache.put(path, mapping);
                 }
             }
+
+            cache.put(path, mapping);
         }
         super.registerHandlerMethod(handler, method, mapping);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("[class:%s][method:%s][url:%s]",
+                    ProxyUtils.getUserClass(handler.getClass()).getCanonicalName(),
+                    method.getName(),
+                    String.join(",", mapping.getPatternsCondition().getPatterns())));
+        }
     }
 }

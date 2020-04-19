@@ -3,13 +3,11 @@ package com.agile.common.util;
 import com.agile.common.annotation.NotAPI;
 import com.agile.common.base.ApiInfo;
 import com.agile.common.container.AgileHandlerMapping;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.ServiceInterface;
 import com.google.common.collect.Maps;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
-import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,13 +15,12 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author 佟盟 on 2018/8/23
  */
 public class ApiUtil {
-    private static Map<String, ApiInfo> apiInfoCache = new HashMap<>();
+    private static final Map<String, ApiInfo> API_INFO_CACHE = new HashMap<>();
     private static AgileHandlerMapping mappingHandlerMapping;
 
     public static ApiInfo getApiCache(HttpServletRequest request) {
@@ -48,19 +45,6 @@ public class ApiUtil {
         }
 
         addApiInfoCache(bean, method, beanName, requestMappingInfo);
-    }
-
-    public static void printLog() {
-        getApiInfoCache().forEach(apiInfo -> apiInfo.getRequestMappingInfos().forEach(requestMappingInfo -> {
-            PatternsRequestCondition patternsRequestCondition = requestMappingInfo.getPatternsCondition();
-            Optional.of(patternsRequestCondition)
-                    .ifPresent(condition ->
-                            condition.getPatterns()
-                                    .forEach(path ->
-                                            LoggerFactory.COMMON_LOG.debug(String.format("[Mapping:%s][Service:%s][method:%s]", path, apiInfo.getBeanName(), apiInfo.getMethod().getName()))
-                                    )
-                    );
-        }));
     }
 
     /**
@@ -127,25 +111,25 @@ public class ApiUtil {
         String key = method.toGenericString();
 
         ApiInfo apiInfo;
-        if (apiInfoCache.containsKey(key)) {
-            apiInfo = apiInfoCache.get(key);
+        if (API_INFO_CACHE.containsKey(key)) {
+            apiInfo = API_INFO_CACHE.get(key);
             apiInfo.add(requestMappingInfo);
         } else {
             apiInfo = new ApiInfo(bean, method, beanName, requestMappingInfo);
         }
-        apiInfoCache.put(key, apiInfo);
+        API_INFO_CACHE.put(key, apiInfo);
     }
 
     public static ApiInfo getApiInfoCache(Method method) {
-        return apiInfoCache.get(method.toGenericString());
+        return API_INFO_CACHE.get(method.toGenericString());
     }
 
     public static Collection<ApiInfo> getApiInfoCache() {
-        return apiInfoCache.values();
+        return API_INFO_CACHE.values();
     }
 
     public static HashMap<String, ApiInfo> getApiInfos() {
-        return Maps.newHashMap(apiInfoCache);
+        return Maps.newHashMap(API_INFO_CACHE);
     }
 
     public static AgileHandlerMapping getMappingHandlerMapping() {
