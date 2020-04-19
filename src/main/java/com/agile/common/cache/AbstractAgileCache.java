@@ -1,6 +1,7 @@
 package com.agile.common.cache;
 
 import org.springframework.cache.Cache;
+import org.springframework.data.redis.serializer.SerializationException;
 
 import java.util.concurrent.Callable;
 
@@ -40,7 +41,12 @@ public abstract class AbstractAgileCache implements AgileCache {
 
     @Override
     public <T> T get(Object key, Class<T> clazz) {
-        return cache.get(key, clazz);
+        try {
+            return cache.get(key, clazz);
+        } catch (SerializationException e) {
+            cache.evict(key);
+            return null;
+        }
     }
 
     @Override
