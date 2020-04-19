@@ -2,19 +2,6 @@ agile:
   version: ${project.version}
   title: ${project.description}
   module-name: 'sys'
-  generator:
-    entity-prefix: ''
-    entity-suffix: Entity
-    entity-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\entity\systerm
-    service-prefix: ''
-    service-suffix: Service
-    service-url: D:\workspace-idss\agile\src\main\java\com\agile\mvc\service
-    test-prefix: ''
-    test-suffix: ServiceTest
-    test-url: D:\workspace-idss\agile\test\main\java\com\agile\mvc\service
-    table-name: 'network_domain,topo_node_pos,topo_line'
-    annotation: HibernateValidate,JPA,Swagger
-    keywords: order,dec,desc
   kaptcha:
     enable: true
     token-header: authCode
