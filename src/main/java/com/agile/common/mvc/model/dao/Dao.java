@@ -472,7 +472,7 @@ public class Dao {
      * @return 查询的结果
      */
     public <T> T findOne(String sql, Class<T> clazz, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findOne(sql, clazz, new Object[]{parameters});
         }
         T e = findOne(SqlUtil.parserSQL(sql, parameters), clazz);
@@ -658,7 +658,7 @@ public class Dao {
      * @return 类型的结果集
      */
     public <T> List<T> findAll(String sql, Class<T> clazz, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findAll(sql, clazz, null, null, parameters);
         }
         return findAll(SqlUtil.parserSQL(sql, parameters), clazz);
@@ -752,7 +752,7 @@ public class Dao {
      * @return 分页Page类型结果
      */
     public Page<Map<String, Object>> findPageBySQL(String sql, int page, int size, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, null, parameters);
         }
         return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, null);
@@ -794,7 +794,7 @@ public class Dao {
      * @return 分页Page类型结果
      */
     public <T> Page<T> findPageBySQL(String sql, int page, int size, Class<T> clazz, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findPageBySQL(sql, SqlUtil.parserCountSQL(sql), page, size, clazz, parameters);
         }
         return findPageBySQL(SqlUtil.parserSQL(sql, parameters), SqlUtil.parserCountSQL(sql, parameters), page, size, clazz);
@@ -868,14 +868,14 @@ public class Dao {
      * @return 结果类型为List套Map的查询结果
      */
     public List<Map<String, Object>> findAllBySQL(String sql, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findAllBySQL(sql, new Object[]{parameters});
         }
         return findAllBySQL(SqlUtil.parserSQL(sql, parameters));
     }
 
     public Map<String, Object> findOneToMap(String sql, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findOneToMap(sql, new Object[]{parameters});
         }
         return findOneToMap(SqlUtil.parserSQL(sql, parameters));
@@ -919,7 +919,7 @@ public class Dao {
      * @return 结果为一个查询字段值
      */
     public Object findParameter(String sql, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return findParameter(sql, new Object[]{parameters});
         }
         return findParameter(SqlUtil.parserSQL(sql, parameters));
@@ -945,7 +945,7 @@ public class Dao {
      * @return 影响条数
      */
     public int updateBySQL(String sql, Object parameters) {
-        if (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection) {
+        if (parameters != null && (ClassUtil.canCastClass(parameters.getClass()) || parameters.getClass().isArray() || parameters instanceof Collection)) {
             return updateBySQL(sql, new Object[]{parameters});
         }
         return updateBySQL(SqlUtil.parserSQL(sql, parameters));
