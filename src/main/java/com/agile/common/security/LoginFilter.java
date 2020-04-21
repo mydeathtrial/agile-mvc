@@ -73,9 +73,10 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         //获取用户名密码
         Map<String, Object> params = ParamUtil.handleInParam(request);
-        String sourceUsername = ParamUtil.getInParam(params, this.username, String.class);
-        String sourcePassword = ParamUtil.getInParam(params, this.password, String.class);
-        String validateCode = ParamUtil.getInParam(params, this.code, String.class);
+        Map<String, Object> map = ParamUtil.coverToMap(params);
+        String sourceUsername = ParamUtil.getInParam(map, this.username, String.class);
+        String sourcePassword = ParamUtil.getInParam(map, this.password, String.class);
+        String validateCode = ParamUtil.getInParam(map, this.code, String.class);
 
         LoggerFactory.AUTHORITY_LOG.info(String.format("正在登陆...[账号：%s][密码：%s][验证码：%s]", sourceUsername, sourcePassword, validateCode));
         judgeLoginErrorLock(request);
