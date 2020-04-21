@@ -2,6 +2,7 @@ package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
 import com.agile.common.base.Constant;
+import com.agile.common.util.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -42,7 +43,7 @@ import java.util.Map;
 @Table(name = "dictionary_data")
 @Remark("[系统管理]字典数据表")
 public class DictionaryDataEntity implements Serializable, Cloneable {
-
+    private static final String SPLIT_CHAR = "[./\\\\]";
     private static final long serialVersionUID = 1L;
     @Remark("主键")
     private String dictionaryDataId;
@@ -58,6 +59,11 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     private String comment;
 
     private List<DictionaryDataEntity> children = new ArrayList<>();
+
+    @Transient
+    public static String getSplitChar() {
+        return SPLIT_CHAR;
+    }
 
     @Transient
     public List<DictionaryDataEntity> getChildren() {
@@ -76,8 +82,8 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     public DictionaryDataEntity getCodeCache(String code) {
         DictionaryDataEntity entity;
         String parentCode = code.trim();
-        if (code.contains(Constant.RegularAbout.SPOT)) {
-            String[] codes = code.split("[.]");
+        if (StringUtil.findMatchedString(SPLIT_CHAR, code)) {
+            String[] codes = code.split(SPLIT_CHAR);
             parentCode = codes[Constant.NumberAbout.ZERO].trim();
             if (codes.length > Constant.NumberAbout.ONE) {
                 DictionaryDataEntity re = codeCache.get(parentCode);
