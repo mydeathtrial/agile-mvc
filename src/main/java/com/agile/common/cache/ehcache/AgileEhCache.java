@@ -1,7 +1,8 @@
 package com.agile.common.cache.ehcache;
 
 import com.agile.common.cache.AbstractAgileCache;
-import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -36,8 +37,10 @@ public class AgileEhCache extends AbstractAgileCache {
     public void put(Object key, Object value, Duration timeout) {
         Ehcache ehCache = getEhCache();
         Element element = new Element(key, value);
-        element.setTimeToLive(ObjectUtil.cast(Integer.class, timeout.getSeconds()));
-        element.setTimeToIdle(ObjectUtil.cast(Integer.class, timeout.getSeconds()));
+        element.setTimeToLive(ObjectUtil.to(timeout.getSeconds(), new TypeReference<Integer>() {
+        }));
+        element.setTimeToIdle(ObjectUtil.to(timeout.getSeconds(), new TypeReference<Integer>() {
+        }));
         element.setEternal(true);
         ehCache.put(element);
     }

@@ -8,9 +8,9 @@ import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.properties.SimulationProperties;
 import com.agile.common.security.CustomerUserDetails;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.ParamUtil;
 import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -63,7 +63,7 @@ public class MainService implements ServiceInterface {
             } else {
                 //其他类型数据直接放入返回参数
                 if (returnData != null) {
-                    setOutParam(Constant.ResponseAbout.RETURN, returnData);
+                    setOutParam(returnData);
                 }
             }
             return returnData;
@@ -257,8 +257,19 @@ public class MainService implements ServiceInterface {
     /**
      * 服务中调用该方法设置响应参数
      */
-    public <V> void setOutParam(Map<? extends String, ? extends V> map) {
-        OUT_PARAM.get().putAll(map);
+    @SuppressWarnings("unchecked")
+    public void setOutParam(Object outParam) {
+        if (Map.class.isAssignableFrom(outParam.getClass())) {
+            OUT_PARAM.get().putAll((Map<? extends String, ?>) outParam);
+        } else {
+            Map<String, Object> map = ObjectUtil.to(outParam, new TypeReference<Map<String, Object>>() {
+            });
+            if (map == null) {
+                OUT_PARAM.get().put(Constant.ResponseAbout.RESULT, outParam);
+            } else {
+                OUT_PARAM.get().putAll(map);
+            }
+        }
     }
 
     /**
@@ -295,7 +306,7 @@ public class MainService implements ServiceInterface {
         // 判断模拟配置
         SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
         if (simulation != null && simulation.isEnable()) {
-            return com.agile.common.util.object.ObjectUtil.to(simulation.getUser(),
+            return ObjectUtil.to(simulation.getUser(),
                     new com.agile.common.util.clazz.TypeReference<>(simulation.getUserClass()));
         }
         // 非模拟情况

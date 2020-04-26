@@ -2,6 +2,8 @@ package com.agile.common.util;
 
 import com.agile.common.base.poi.Cell;
 import com.agile.common.base.poi.SheetData;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -102,7 +104,8 @@ public class POIUtil {
         }
         if (rowData instanceof Map) {
             for (Object cell : ((Map) rowData).values()) {
-                row.createCell(currentColumnIndex++).setCellValue(ObjectUtil.cast(String.class, cell));
+                row.createCell(currentColumnIndex++).setCellValue(ObjectUtil.to(cell, new TypeReference<String>() {
+                }));
             }
         } else {
             Field[] fields = rowData.getClass().getDeclaredFields();
@@ -110,7 +113,8 @@ public class POIUtil {
                 field.setAccessible(true);
                 String currentCellData;
                 try {
-                    currentCellData = ObjectUtil.cast(String.class, field.get(rowData));
+                    currentCellData = ObjectUtil.to(field.get(rowData), new TypeReference<String>() {
+                    });
                 } catch (Exception e) {
                     currentCellData = null;
                 }
@@ -135,7 +139,8 @@ public class POIUtil {
             Cell cell = headerColumnsIt.next();
             String currentCellData = null;
             if (rowData instanceof Map) {
-                currentCellData = ObjectUtil.cast(String.class, ((Map) rowData).get(cell.getKey()));
+                currentCellData = ObjectUtil.to(((Map) rowData).get(cell.getKey()), new TypeReference<String>() {
+                });
             } else if (rowData instanceof List) {
                 Object o = ((List) rowData).get(currentColumnIndex);
                 if (o instanceof Cell) {
@@ -148,7 +153,8 @@ public class POIUtil {
                     try {
                         Field field = rowData.getClass().getDeclaredField(cell.getKey());
                         field.setAccessible(true);
-                        currentCellData = ObjectUtil.cast(String.class, field.get(rowData));
+                        currentCellData = ObjectUtil.to(field.get(rowData), new TypeReference<String>() {
+                        });
                     } catch (IllegalAccessException | NoSuchFieldException e) {
                         currentCellData = null;
                     }

@@ -9,6 +9,7 @@ import com.agile.common.base.Head;
 import com.agile.common.base.RequestWrapper;
 import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
@@ -139,7 +140,7 @@ public class ParamUtil {
      * @return 参数
      */
     public static Object getInParam(Map<String, Object> map, String key) {
-        return ObjectUtil.pathGet(key, map);
+        return com.agile.common.util.json.JSONUtil.pathGet(key, map);
     }
 
     /**
@@ -153,7 +154,7 @@ public class ParamUtil {
     public static <T> T getInParam(Map<String, Object> map, String key, T defaultValue) {
         Object value = getInParam(map, key);
         if (value != null) {
-            return (T) ObjectUtil.cast(defaultValue.getClass(), value);
+            return (T) ObjectUtil.to(value, new TypeReference<>(defaultValue.getClass()));
         } else {
             return defaultValue;
         }
@@ -206,7 +207,7 @@ public class ParamUtil {
         Object value = getInParam(map, key);
 
         if (value != null) {
-            T v = com.agile.common.util.object.ObjectUtil.to(value, typeReference);
+            T v = ObjectUtil.to(value, typeReference);
             return v == null ? defaultValue : v;
         } else {
             return defaultValue;
@@ -288,7 +289,7 @@ public class ParamUtil {
      * @return 参数集和转换后的对象
      */
     public static <T> T getInParam(Map<String, Object> map, Class<T> clazz) {
-        T result = com.agile.common.util.object.ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
+        T result = ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
         });
 
         if (result == null || ObjectUtil.isAllNullValidity(result)) {
@@ -298,7 +299,7 @@ public class ParamUtil {
     }
 
     public static <T> T getInParam(Map<String, Object> map, com.agile.common.util.clazz.TypeReference<T> typeReference) {
-        T result = com.agile.common.util.object.ObjectUtil.to(map, typeReference);
+        T result = ObjectUtil.to(map, typeReference);
 
         if (result == null || ObjectUtil.isAllNullValidity(result)) {
             return null;
@@ -307,12 +308,12 @@ public class ParamUtil {
     }
 
     public static <T> T getInParam(Map<String, Object> map, String key, Class<T> clazz) {
-        return (T) com.agile.common.util.object.ObjectUtil.to(ObjectUtil.pathGet(key, map), new com.agile.common.util.clazz.TypeReference<>(clazz));
+        return (T) ObjectUtil.to(com.agile.common.util.json.JSONUtil.pathGet(key, map), new com.agile.common.util.clazz.TypeReference<>(clazz));
     }
 
     public static <T> List<T> getInParamOfArray(Map<String, Object> map, String key, Class<T> clazz) {
         List<T> result;
-        Object value = ObjectUtil.pathGet(key, map);
+        Object value = com.agile.common.util.json.JSONUtil.pathGet(key, map);
         if (value != null && Iterable.class.isAssignableFrom(value.getClass())) {
             result = ArrayUtil.cast(clazz, (Iterable) value);
         } else if (value != null && value.getClass().isArray()) {

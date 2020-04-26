@@ -3,11 +3,11 @@ package com.agile.common.annotation;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.util.CollectionsUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ObjectUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +30,7 @@ public class ParsingInit implements ParsingMethodAfter {
     @Override
     public void parsing(String beanName, Method method) {
         Init init = (Init) method.getAnnotation(getAnnotation());
-        if (!ObjectUtil.isEmpty(init)) {
+        if (!ObjectUtils.isEmpty(init)) {
             inits.add(InitApiInfo.builder().order(init.order()).beanName(beanName).method(method).build());
         }
     }
@@ -51,7 +51,7 @@ public class ParsingInit implements ParsingMethodAfter {
 
         method.setAccessible(true);
         Init init = (Init) method.getAnnotation(getAnnotation());
-        if (!ObjectUtil.isEmpty(init)) {
+        if (!ObjectUtils.isEmpty(init)) {
             try {
                 LoggerFactory.COMMON_LOG.info(String.format("启动初始化方法:%s\n", method.toGenericString()));
                 method.invoke(bean);

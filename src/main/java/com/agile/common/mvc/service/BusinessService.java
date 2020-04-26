@@ -4,20 +4,25 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.IdUtil;
-import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.validate.ValidateMsg;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.ObjectUtils;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -96,7 +101,7 @@ public class BusinessService<T> extends MainService {
     }
 
     public T saveAndReturn(T entity) throws NoSuchIDException, NoSuchMethodException, IllegalAccessException {
-        if (validateInParam(entity) || !ObjectUtil.isValidity(entity)) {
+        if (validateInParam(entity) || !isValidity(entity)) {
             return null;
         }
         Field idField = dao.getIdField(entityClass);
@@ -118,7 +123,7 @@ public class BusinessService<T> extends MainService {
                 idValueTemp = idValueTemp.substring(idValueTemp.length() - idLength);
             }
 
-            idField.set(entity, ObjectUtil.cast(idField.getType(), idValueTemp));
+            idField.set(entity, ObjectUtil.to(idValueTemp, new TypeReference<>(idField.getType())));
         }
         return dao.saveAndReturn(entity);
     }
@@ -133,13 +138,13 @@ public class BusinessService<T> extends MainService {
     public RETURN delete(T entity) throws NoSuchIDException {
 
         boolean require = this.containsKey(ID);
-        if (require && ObjectUtil.isEmpty(entity)) {
+        if (require && ObjectUtils.isEmpty(entity)) {
             dao.deleteInBatch(entityClass, getIds().toArray());
             return RETURN.SUCCESS;
-        } else if (!require && !ObjectUtil.isEmpty(entity)) {
+        } else if (!require && !ObjectUtils.isEmpty(entity)) {
             dao.delete(entity);
             return RETURN.SUCCESS;
-        } else if (require && !ObjectUtil.isEmpty(entity)) {
+        } else if (require && !ObjectUtils.isEmpty(entity)) {
             List<T> entityList = dao.findAllById(entityClass, getIds());
             for (T o : entityList) {
                 if (ObjectUtil.compareOfNotNull(entity, o)) {
@@ -172,7 +177,7 @@ public class BusinessService<T> extends MainService {
     }
 
     public T updateAndReturn(T entity) throws NoSuchIDException, IllegalAccessException {
-        if (validateInParam(entity) || ObjectUtil.isEmpty(entity)) {
+        if (validateInParam(entity) || ObjectUtils.isEmpty(entity)) {
             return null;
         }
 
@@ -212,11 +217,11 @@ public class BusinessService<T> extends MainService {
      */
     public RETURN query(T entity) throws NoSuchIDException {
         boolean require = this.containsKey(ID);
-        if (require && ObjectUtil.isEmpty(entity)) {
+        if (require && ObjectUtils.isEmpty(entity)) {
             setOutParam(Constant.ResponseAbout.RESULT, dao.findAllById(entityClass, getIds()));
-        } else if (!require && !ObjectUtil.isEmpty(entity)) {
+        } else if (!require && !ObjectUtils.isEmpty(entity)) {
             setOutParam(Constant.ResponseAbout.RESULT, dao.findAll(entity, getSort()));
-        } else if (require && !ObjectUtil.isEmpty(entity)) {
+        } else if (require && !ObjectUtils.isEmpty(entity)) {
             List<T> entityList = dao.findAllById(entityClass, getIds());
             entityList.removeIf(o -> !ObjectUtil.compareOfNotNull(entity, o));
 
@@ -241,10 +246,10 @@ public class BusinessService<T> extends MainService {
                 if (v.contains(Constant.RegularAbout.COMMA)) {
                     String[] s = v.split(Constant.RegularAbout.COMMA);
                     for (String child : s) {
-                        list.add(ObjectUtil.cast(type, child));
+                        list.add(ObjectUtil.to(child, new TypeReference<>(type)));
                     }
                 } else {
-                    list.add(ObjectUtil.cast(type, v));
+                    list.add(ObjectUtil.to(v, new TypeReference<>(type)));
                 }
             } else {
                 list.add(idValue);
@@ -295,6 +300,35 @@ public class BusinessService<T> extends MainService {
 
         setOutParam(Constant.ResponseAbout.RESULT, target);
         return RETURN.SUCCESS;
+    }
+
+    /**
+     * 判断对象非空属性是否存值（排除主键）
+     * 判断对象非空属性是否存值（排除主键）
+     */
+    public static boolean isValidity(Object object) {
+        boolean result = true;
+        if (object == null) {
+            return false;
+        }
+        Class<?> clazz = object.getClass();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (int i = 0; i < methods.length; i++) {
+            Method method = methods[i];
+            if (!method.getName().startsWith("get")) {
+                continue;
+            }
+            try {
+                if (ObjectUtils.isEmpty(method.getAnnotation(Id.class))) {
+                    Column columInfo = method.getAnnotation(Column.class);
+                    if (!ObjectUtils.isEmpty(columInfo) && !columInfo.nullable() && ObjectUtils.isEmpty(method.invoke(object))) {
+                        result = false;
+                    }
+                }
+            } catch (IllegalAccessException | InvocationTargetException ignored) {
+            }
+        }
+        return result;
     }
 
 }

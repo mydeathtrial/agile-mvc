@@ -1,6 +1,6 @@
 package com.agile.common.task;
 
-import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.object.ObjectUtil;
 import lombok.Getter;
 import lombok.Setter;
 

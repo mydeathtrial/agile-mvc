@@ -1,5 +1,7 @@
 package com.agile.common.util;
 
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class ArrayUtil extends ArrayUtils {
     public static <T> List<T> cast(Class<T> clazz, Iterable objects) {
         List<T> result = new ArrayList<>();
         for (Object object : objects) {
-            T node = ObjectUtil.cast(clazz, object);
+            T node = ObjectUtil.to(object, new TypeReference<>(clazz));
             if (node == null) {
                 continue;
             }

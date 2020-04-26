@@ -12,8 +12,9 @@ public class PrintUtil {
 
     /**
      * 打印颜色字符串
+     *
      * @param color 颜色
-     * @param text 内容
+     * @param text  内容
      */
     public static void print(AnsiColor color, Object... text) {
         PrintStream out = System.out;
@@ -22,6 +23,7 @@ public class PrintUtil {
 
     /**
      * 打印颜色字符串后换行
+     *
      * @param text 内容
      */
     public static void println(String text) {

@@ -1,6 +1,7 @@
 package com.agile.common.mybatis;
 
-import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.clazz.ClassUtil;
+import com.agile.common.util.object.ObjectUtil;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.cursor.Cursor;
@@ -471,8 +472,8 @@ public class CustomResultSetHandler implements ResultSetHandler {
         ResultSet resultSet = rsw.getResultSet();
         Object entity = metaObject.getOriginalObject();
         Class<?> clazz = entity.getClass();
-        Set<ObjectUtil.Target<Column>> columnSet = ObjectUtil.getAllEntityAnnotation(clazz, Column.class);
-        for (ObjectUtil.Target<Column> target : columnSet) {
+        Set<ClassUtil.Target<Column>> columnSet = ClassUtil.getAllEntityAnnotation(clazz, Column.class);
+        for (ClassUtil.Target<Column> target : columnSet) {
             if (target != null) {
                 String name = target.getAnnotation().name();
                 Object value = resultSet.getObject(name);

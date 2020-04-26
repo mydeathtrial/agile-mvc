@@ -13,7 +13,6 @@ import com.agile.common.task.TaskProxy;
 import com.agile.common.task.TaskTrigger;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ObjectUtil;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +23,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -220,11 +220,11 @@ public class TaskService {
 
     public void stopTask(long id) throws NotFoundTaskException {
         TaskInfo taskInfo = taskInfoMap.get(id);
-        if (ObjectUtil.isEmpty(taskInfo)) {
+        if (ObjectUtils.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
         ScheduledFuture<?> future = taskInfo.getScheduledFuture();
-        if (ObjectUtil.isEmpty(future)) {
+        if (ObjectUtils.isEmpty(future)) {
             return;
         }
         future.cancel(Boolean.TRUE);
@@ -240,11 +240,11 @@ public class TaskService {
 
     public void startTask(long id) throws NotFoundTaskException {
         TaskInfo taskInfo = taskInfoMap.get(id);
-        if (ObjectUtil.isEmpty(taskInfo)) {
+        if (ObjectUtils.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
         ScheduledFuture<?> future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
-        if (ObjectUtil.isEmpty(future)) {
+        if (ObjectUtils.isEmpty(future)) {
             return;
         }
         taskInfo.setScheduledFuture(future);

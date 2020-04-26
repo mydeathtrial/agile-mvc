@@ -3,12 +3,12 @@ package com.agile.common.container;
 import com.agile.common.annotation.Mapping;
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -26,9 +26,9 @@ import java.util.Set;
 public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     private final Logger logger = org.slf4j.LoggerFactory.getLogger(AgileHandlerMapping.class);
 
-    private boolean useSuffixPatternMatch = true;
-    private boolean useRegisteredSuffixPatternMatch = false;
-    private boolean useTrailingSlashMatch = true;
+    private final boolean useSuffixPatternMatch = true;
+    private final boolean useRegisteredSuffixPatternMatch = false;
+    private final boolean useTrailingSlashMatch = true;
     private final Map<String, RequestMappingInfo> cache = new HashMap<>();
 
     private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
@@ -116,7 +116,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
         for (String path : mapping.getPatternsCondition().getPatterns()) {
             RequestMappingInfo cacheMapping = cache.get(path);
 
-            if (!ObjectUtil.isEmpty(cacheMapping)) {
+            if (!ObjectUtils.isEmpty(cacheMapping)) {
                 Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
                 for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
                     if (methods.contains(requestMethod)) {

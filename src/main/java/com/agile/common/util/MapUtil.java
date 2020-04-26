@@ -2,6 +2,8 @@ package com.agile.common.util;
 
 import com.agile.common.base.ResponseFile;
 import com.agile.common.base.poi.ExcelFile;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.MapUtils;
 import org.springframework.validation.BindingResult;
@@ -84,7 +86,7 @@ public class MapUtil extends MapUtils {
      */
     public static <T> T getValue(Map<String, Object> map, String key, Class<T> clazz) {
         if (map.get(key) != null) {
-            return ObjectUtil.cast(clazz, map.get(key));
+            return ObjectUtil.to(map.get(key), new TypeReference<>(clazz));
         }
         return null;
     }

@@ -3,10 +3,12 @@ package com.agile.common.validate;
 import com.agile.common.annotation.Validate;
 import com.agile.common.base.Constant;
 import com.agile.common.util.NumberUtil;
-import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.PropertiesUtil;
 import com.agile.common.util.StringUtil;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import org.apache.commons.compress.utils.Lists;
+import org.springframework.util.ObjectUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -95,7 +97,7 @@ public enum ValidateType implements ValidateInterface {
         for (int i = 0; i < value.size(); i++) {
             Object node = value.get(i);
             List<ValidateMsg> vs = validate(String.format("%s.%s", key, i), node, validate);
-            if (ObjectUtil.isEmpty(vs)) {
+            if (ObjectUtils.isEmpty(vs)) {
                 continue;
             }
             list.addAll(vs);
@@ -132,7 +134,7 @@ public enum ValidateType implements ValidateInterface {
 
         Class<?> beanClass = validate.beanClass();
         if (beanClass != Class.class) {
-            Object bean = ObjectUtil.cast(beanClass, value);
+            Object bean = ObjectUtil.to(value, new TypeReference<>(beanClass));
             if (bean == null) {
                 list.add(new ValidateMsg(value == null ? "参数不允许为空" : "非法参数", false, key, value));
             } else {

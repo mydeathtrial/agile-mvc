@@ -1,6 +1,7 @@
 package com.agile.common.task;
 
-import com.agile.common.util.ObjectUtil;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +21,7 @@ public class TaskProxy {
         method.setAccessible(true);
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == 1) {
-            method.invoke(apiInfo.getBean(), ObjectUtil.cast(parameterTypes[0], task.getCode()));
+            method.invoke(apiInfo.getBean(), ObjectUtil.to(task.getCode(), new TypeReference<>(parameterTypes[0])));
         } else {
             method.invoke(apiInfo.getBean());
         }

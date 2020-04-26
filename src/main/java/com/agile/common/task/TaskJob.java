@@ -4,7 +4,6 @@ import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
-import com.agile.common.util.ObjectUtil;
 import com.agile.common.util.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +11,7 @@ import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -128,7 +128,7 @@ public class TaskJob implements Serializable, Runnable {
     }
 
     private void running(RunDetail runDetail) {
-        if (ObjectUtil.isEmpty(targets)) {
+        if (ObjectUtils.isEmpty(targets)) {
             String log = String.format(NO_API_TASK, task.getCode());
             runDetail.addLog(log);
             if (logger.isErrorEnabled()) {

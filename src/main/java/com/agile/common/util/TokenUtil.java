@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.SneakyThrows;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -107,7 +108,7 @@ public class TokenUtil {
 
     public static boolean validateToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        if (ObjectUtil.isEmpty(claims)) {
+        if (ObjectUtils.isEmpty(claims)) {
             return false;
         }
         return claims.getExpiration().after(DateUtil.getCurrentDate());

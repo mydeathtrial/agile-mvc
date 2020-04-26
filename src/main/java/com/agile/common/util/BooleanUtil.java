@@ -1,6 +1,8 @@
 package com.agile.common.util;
 
 
+import com.agile.common.util.object.ObjectUtil;
+
 /**
  * @author mydeathtrial on 2017/4/19
  */

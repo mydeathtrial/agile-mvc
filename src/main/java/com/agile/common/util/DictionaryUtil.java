@@ -3,9 +3,12 @@ package com.agile.common.util;
 import com.agile.common.annotation.Dictionary;
 import com.agile.common.base.Constant;
 import com.agile.common.cache.AgileCache;
+import com.agile.common.util.clazz.ClassUtil;
 import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.google.common.collect.Lists;
+import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
@@ -373,7 +376,7 @@ public class DictionaryUtil {
      * @param <T> 泛型
      */
     public static <T> void cover(T o) {
-        if (ObjectUtil.isEmpty(o)) {
+        if (ObjectUtils.isEmpty(o)) {
             return;
         }
         cover(Lists.newArrayList(o));
@@ -386,11 +389,11 @@ public class DictionaryUtil {
      * @param <T>  泛型
      */
     public static <T> void cover(List<T> list) {
-        if (ObjectUtil.isEmpty(list)) {
+        if (ObjectUtils.isEmpty(list)) {
             return;
         }
         Class<?> clazz = list.get(0).getClass();
-        Set<ObjectUtil.Target<Dictionary>> targets = ObjectUtil.getAllEntityAnnotation(clazz, Dictionary.class);
+        Set<ClassUtil.Target<Dictionary>> targets = ClassUtil.getAllEntityAnnotation(clazz, Dictionary.class);
 
         targets.forEach(target -> {
             Dictionary dictionary = target.getAnnotation();
@@ -400,14 +403,13 @@ public class DictionaryUtil {
             Field field;
             if (member instanceof Method) {
                 String fieldName = StringUtil.toLowerName(member.getName().substring(Constant.NumberAbout.THREE));
-                field = ObjectUtil.getField(clazz, fieldName);
-                if (ObjectUtil.isEmpty(field)) {
+                field = ClassUtil.getField(clazz, fieldName);
+                if (ObjectUtils.isEmpty(field)) {
                     return;
                 }
             } else {
                 field = (Field) member;
             }
-
             list.forEach(node -> {
                 Object code = ObjectUtil.getFieldValue(node, linkColumn);
                 String codeStr;
@@ -416,10 +418,10 @@ public class DictionaryUtil {
                 } else if (code instanceof Boolean) {
                     codeStr = (Boolean) code ? "1" : "0";
                 } else {
-                    codeStr = com.agile.common.util.object.ObjectUtil.to(code, new TypeReference<String>() {
+                    codeStr = ObjectUtil.to(code, new TypeReference<String>() {
                     });
                 }
-                if (ObjectUtil.isEmpty(parentDicCode)) {
+                if (ObjectUtils.isEmpty(parentDicCode)) {
                     ObjectUtil.setValue(node, field, coverDicName(codeStr));
                 } else {
                     ObjectUtil.setValue(node, field, coverDicName(parentDicCode, codeStr));
