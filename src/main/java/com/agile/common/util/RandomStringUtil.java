@@ -1,7 +1,7 @@
 package com.agile.common.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
-
+import com.agile.common.util.string.StringUtil;
 import java.util.UUID;
 
 /**

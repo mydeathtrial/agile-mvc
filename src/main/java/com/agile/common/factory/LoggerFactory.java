@@ -7,7 +7,7 @@ import com.agile.common.properties.LoggerProperties;
 import com.agile.common.security.TokenFilter;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.common.util.array.ArrayUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;

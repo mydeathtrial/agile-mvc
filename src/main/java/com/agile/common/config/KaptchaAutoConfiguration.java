@@ -4,7 +4,7 @@ import com.agile.common.factory.LoggerFactory;
 import com.agile.common.kaptcha.KaptchaServlet;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.google.code.kaptcha.text.TextProducer;
 import com.google.code.kaptcha.util.Config;

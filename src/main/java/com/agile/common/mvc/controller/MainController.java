@@ -17,7 +17,7 @@ import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ParamUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.common.validate.ValidateMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
@@ -49,17 +49,17 @@ public class MainController {
     /**
      * 服务缓存变量
      */
-    private static ThreadLocal<ServiceInterface> service = new ThreadLocal<>();
+    private static final ThreadLocal<ServiceInterface> SERVICE = new ThreadLocal<>();
 
     /**
      * 方法缓存变量
      */
-    private static ThreadLocal<Method> method = new ThreadLocal<>();
+    private static final ThreadLocal<Method> METHOD = new ThreadLocal<>();
 
     /**
      * request缓存变量
      */
-    private static ThreadLocal<HttpServletRequest> request = new ThreadLocal<>();
+    private static final ThreadLocal<HttpServletRequest> REQUEST = new ThreadLocal<>();
 
     @Autowired
     private WebMvcProperties webMvcProperties;
@@ -79,7 +79,7 @@ public class MainController {
                 clear();
 
                 //设置当前request
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
 
                 if (initApiInfoByRequestMapping()) {
                     throw new UnlawfulRequestException();
@@ -95,7 +95,7 @@ public class MainController {
     public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
                 }
@@ -110,7 +110,7 @@ public class MainController {
     public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("id", id);
@@ -127,7 +127,7 @@ public class MainController {
     public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("page", page);
@@ -145,7 +145,7 @@ public class MainController {
     public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
                 }
@@ -160,7 +160,7 @@ public class MainController {
     public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("id", id);
@@ -177,7 +177,7 @@ public class MainController {
     public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
                 }
@@ -192,7 +192,7 @@ public class MainController {
     public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
         return asyncProcessor(() -> {
             try {
-                request.set(currentRequest);
+                REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("id", id);
@@ -251,7 +251,7 @@ public class MainController {
         clear();
 
         //设置当前request
-        request.set(currentRequest);
+        REQUEST.set(currentRequest);
 
         //处理目标API
         if (initApiInfoByRequestMapping()) {
@@ -315,9 +315,9 @@ public class MainController {
      * 由于线程池的使用与threadLocal冲突,前后需要清理缓存
      */
     private void clear() {
-        service.remove();
-        method.remove();
-        request.remove();
+        SERVICE.remove();
+        METHOD.remove();
+        REQUEST.remove();
     }
 
     /**
@@ -379,7 +379,7 @@ public class MainController {
      * @return 成功/失败
      */
     private boolean initApiInfoByRequestMapping() {
-        HttpServletRequest currentRequest = request.get();
+        HttpServletRequest currentRequest = REQUEST.get();
         ApiInfo info = ApiUtil.getApiCache(currentRequest);
         if (info != null) {
             Object bean = info.getBean();
@@ -403,7 +403,7 @@ public class MainController {
      */
     private void initServiceByObject(Object o) throws NoSuchRequestServiceException {
         try {
-            service.set((ServiceInterface) o);
+            SERVICE.set((ServiceInterface) o);
         } catch (Exception e) {
             throw new NoSuchRequestServiceException();
         }
@@ -420,7 +420,7 @@ public class MainController {
         if (o == null || !ServiceInterface.class.isAssignableFrom(o.getClass())) {
             throw new NoSuchRequestServiceException();
         }
-        service.set((ServiceInterface) o);
+        SERVICE.set((ServiceInterface) o);
     }
 
     /**
@@ -429,7 +429,7 @@ public class MainController {
      * @param o 方法
      */
     private void initMethodByObject(Method o) {
-        method.set(o);
+        METHOD.set(o);
     }
 
     /**
@@ -448,7 +448,7 @@ public class MainController {
         if (!Modifier.isPublic(methodCache.getModifiers())) {
             throw new NoSuchRequestMethodException();
         }
-        RequestMethod currentRequestMethod = RequestMethod.valueOf(request.get().getMethod());
+        RequestMethod currentRequestMethod = RequestMethod.valueOf(REQUEST.get().getMethod());
         Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
         if (requestMapping != null && allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
@@ -457,7 +457,7 @@ public class MainController {
         if (apiMethod != null && allowRequestMethod(apiMethod.value(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
         }
-        method.set(methodCache);
+        METHOD.set(methodCache);
     }
 
     /**
@@ -465,7 +465,7 @@ public class MainController {
      */
     private void handleInParam() {
         getService().clearInParam();
-        HttpServletRequest currentRequest = request.get();
+        HttpServletRequest currentRequest = REQUEST.get();
 
         //将处理过的所有请求参数传入调用服务对象
         getService().setInParam(ParamUtil.handleInParam(currentRequest));
@@ -477,7 +477,7 @@ public class MainController {
      * @return 服务
      */
     private ServiceInterface getService() {
-        return service.get();
+        return SERVICE.get();
     }
 
     /**
@@ -486,6 +486,6 @@ public class MainController {
      * @return 方法
      */
     private Method getMethod() {
-        return method.get();
+        return METHOD.get();
     }
 }

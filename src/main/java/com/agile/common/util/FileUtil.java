@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-
+import com.agile.common.util.string.StringUtil;
 import javax.activation.MimetypesFileTypeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -397,7 +397,7 @@ public class FileUtil extends FileUtils {
     public static void zipFile(List fileList, ZipOutputStream out) throws IOException {
         if (fileList != null && fileList.size() > 0) {
             for (Object fileObject : fileList) {
-                if (StringUtil.isString(fileObject)) {
+                if (fileObject  instanceof String) {
                     String fileAllName = (String) fileObject;
                     //文件读取到文件流中
                     URL url = new URL(fileAllName);

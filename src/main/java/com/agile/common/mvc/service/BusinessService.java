@@ -4,7 +4,6 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.util.IdUtil;
-import com.agile.common.util.StringUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.validate.ValidateMsg;
@@ -241,7 +240,7 @@ public class BusinessService<T> extends MainService {
         List<Object> list = new ArrayList<>();
         List<String> ids = this.getInParamOfArray(ID);
         for (Object idValue : ids) {
-            if (StringUtil.isString(idValue)) {
+            if (idValue instanceof String) {
                 String v = idValue.toString();
                 if (v.contains(Constant.RegularAbout.COMMA)) {
                     String[] s = v.split(Constant.RegularAbout.COMMA);

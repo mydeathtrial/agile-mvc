@@ -13,7 +13,7 @@ import com.agile.common.util.AesUtil;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.ParamUtil;
 import com.agile.common.util.ServletUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

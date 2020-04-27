@@ -172,7 +172,7 @@ public class DataBaseUtil {
         if (db == null) {
             return null;
         }
-        Map<String, String> map = StringUtil.getParamByRegex(db.parsingUrlRegx, url.replace(" ", ""));
+        Map<String, String> map = PatternUtil.getGroups(db.parsingUrlRegx, url.replace(" ", ""));
         if (map == null) {
             return null;
         }

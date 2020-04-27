@@ -8,7 +8,7 @@ import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
 import lombok.Data;

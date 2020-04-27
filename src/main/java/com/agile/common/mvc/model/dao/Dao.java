@@ -6,7 +6,7 @@ import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.DictionaryUtil;
 import com.agile.common.util.SqlUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;

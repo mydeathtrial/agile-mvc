@@ -4,7 +4,7 @@ import com.agile.common.base.Constant;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.pattern.PatternUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
+import com.agile.common.util.string.StringUtil;
 import java.math.BigDecimal;
 import java.util.List;
 

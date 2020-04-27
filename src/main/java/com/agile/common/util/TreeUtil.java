@@ -3,7 +3,7 @@ package com.agile.common.util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.agile.common.util.string.StringUtil;
 /**
  * @author 佟盟
  * @version 1.0

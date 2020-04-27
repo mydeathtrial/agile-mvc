@@ -4,9 +4,10 @@ import com.agile.common.annotation.Validate;
 import com.agile.common.base.Constant;
 import com.agile.common.util.NumberUtil;
 import com.agile.common.util.PropertiesUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
+import com.agile.common.util.pattern.PatternUtil;
 import org.apache.commons.compress.utils.Lists;
 import org.springframework.util.ObjectUtils;
 
@@ -166,14 +167,14 @@ public enum ValidateType implements ValidateInterface {
             // 非空时验证正则
             if (!StringUtil.isBlank(value.toString())) {
                 if (validate.validateType() != NO) {
-                    state = StringUtil.containMatchedString(regex, String.valueOf(value));
+                    state = PatternUtil.matches(regex, String.valueOf(value));
                     if (!state) {
                         v.setState(false);
                         v.setMessage(createMessage(validate));
                     }
                 }
                 if (!StringUtil.isEmpty(validate.validateRegex())) {
-                    state = StringUtil.containMatchedString(validate.validateRegex(), String.valueOf(value));
+                    state = PatternUtil.matches(validate.validateRegex(), String.valueOf(value));
                     if (!state) {
                         v.setState(false);
                         v.setMessage(createMessage(validate));

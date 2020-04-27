@@ -2,7 +2,7 @@ package com.agile.common.util;
 
 import com.agile.common.factory.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
-
+import com.agile.common.util.string.StringUtil;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;

@@ -4,7 +4,7 @@ import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.DateUtil;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.string.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -109,7 +109,7 @@ public class TaskJob implements Serializable, Runnable {
     }
 
     private void exception(Throwable e, RunDetail runDetail) {
-        runDetail.addLog(StringUtil.coverToString(e));
+        runDetail.addLog(StringUtil.exceptionToString(e));
         runDetail.setEnding(false);
         if (logger.isErrorEnabled()) {
             logger.error(String.format(EXCEPTION_API_TASK, runDetail.getTaskCode()), e);

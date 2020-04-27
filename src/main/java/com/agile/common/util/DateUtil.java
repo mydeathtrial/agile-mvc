@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-
+import com.agile.common.util.string.StringUtil;
 /**
  * @author 佟盟 on TWO017/7/13
  */

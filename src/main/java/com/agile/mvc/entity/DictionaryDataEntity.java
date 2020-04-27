@@ -2,7 +2,7 @@ package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
 import com.agile.common.base.Constant;
-import com.agile.common.util.StringUtil;
+import com.agile.common.util.pattern.PatternUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -82,7 +82,7 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     public DictionaryDataEntity getCodeCache(String code) {
         DictionaryDataEntity entity;
         String parentCode = code.trim();
-        if (StringUtil.findMatchedString(SPLIT_CHAR, code)) {
+        if (PatternUtil.find(SPLIT_CHAR, code)) {
             String[] codes = code.split(SPLIT_CHAR);
             parentCode = codes[Constant.NumberAbout.ZERO].trim();
             if (codes.length > Constant.NumberAbout.ONE) {

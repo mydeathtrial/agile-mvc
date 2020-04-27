@@ -6,10 +6,11 @@ import com.agile.common.cache.AgileCache;
 import com.agile.common.util.clazz.ClassUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
+import com.agile.common.util.pattern.PatternUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.google.common.collect.Lists;
 import org.springframework.util.ObjectUtils;
-
+import com.agile.common.util.string.StringUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -281,7 +282,7 @@ public class DictionaryUtil {
         DictionaryDataEntity targetEntity = null;
         String parentCode = code;
 
-        if (StringUtil.findMatchedString(SPLIT_CHAR, code)) {
+        if (PatternUtil.find(SPLIT_CHAR, code)) {
             parentCode = StringUtil.getSplitAtomic(code, SPLIT_CHAR, Constant.NumberAbout.ZERO);
             if (parentCode != null) {
                 rootEntity = coverRootDicBean(parentCode.trim());

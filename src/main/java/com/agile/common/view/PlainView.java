@@ -3,7 +3,6 @@ package com.agile.common.view;
 import com.agile.common.base.Constant;
 import com.agile.common.util.ClassUtil;
 import com.agile.common.util.MapUtil;
-import com.agile.common.util.StringUtil;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,11 +30,11 @@ public class PlainView extends AbstractView {
             Object r = model.get(Constant.ResponseAbout.RESULT);
             if (MapUtil.isMap(r)) {
                 for (Object value : ((Map<String, Object>) r).values()) {
-                    if (ClassUtil.isPrimitiveOrWrapper(value.getClass()) || StringUtil.isString(value)) {
+                    if (ClassUtil.isPrimitiveOrWrapper(value.getClass()) || value instanceof String) {
                         baos.write(value.toString().getBytes(response.getCharacterEncoding()));
                     }
                 }
-            } else if (StringUtil.isString(r)) {
+            } else if (r instanceof String) {
                 baos.write(r.toString().getBytes(response.getCharacterEncoding()));
             }
         }
