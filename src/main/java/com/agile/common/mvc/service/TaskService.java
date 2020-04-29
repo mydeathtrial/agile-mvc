@@ -4,20 +4,22 @@ import com.agile.common.annotation.Init;
 import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.task.ApiBase;
+import com.agile.common.task.CycleTaskInfo;
+import com.agile.common.task.FixedTaskInfo;
 import com.agile.common.task.Target;
 import com.agile.common.task.Task;
-import com.agile.common.task.TaskInfo;
+import com.agile.common.task.TaskInfoInterface;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskManager;
 import com.agile.common.task.TaskProxy;
 import com.agile.common.task.TaskTrigger;
+import com.agile.common.task.TimerTaskJob;
 import com.agile.common.util.DateUtil;
 import com.agile.common.util.FactoryUtil;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -26,11 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 import java.util.concurrent.ScheduledFuture;
 
 /**
@@ -42,13 +44,13 @@ public class TaskService {
     private static final String INIT_TASK = "任务:[%s][完成初始化][下次执行时间%s]";
     private static final String INIT_TASKS = "检测出定时任务%s条";
 
-    private static Map<Long, TaskInfo> taskInfoMap = new HashMap<>();
-    private static Map<String, ApiBase> apiBaseMap = new HashMap<>();
+    private static final Map<Long, TaskInfoInterface> TASK_INFO_MAP = new HashMap<>();
+    private static final Map<String, ApiBase> API_BASE_MAP = new HashMap<>();
 
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
-    private TaskManager taskManager;
-    private TaskProxy taskProxy;
+    private final TaskManager taskManager;
+    private final TaskProxy taskProxy;
 
     public TaskService(ThreadPoolTaskScheduler threadPoolTaskScheduler, ApplicationContext applicationContext, TaskManager taskManager, TaskProxy taskProxy) {
         this.threadPoolTaskScheduler = threadPoolTaskScheduler;
@@ -91,7 +93,7 @@ public class TaskService {
                     continue;
                 }
 
-                apiBaseMap.put(method.toGenericString(), new ApiBase(bean, method, beanName));
+                API_BASE_MAP.put(method.toGenericString(), new ApiBase(bean, method, beanName));
             }
         }
     }
@@ -103,7 +105,7 @@ public class TaskService {
      * @return 方法信息
      */
     public static ApiBase getApi(String generic) {
-        return apiBaseMap.get(generic);
+        return API_BASE_MAP.get(generic);
     }
 
     /**
@@ -153,7 +155,7 @@ public class TaskService {
         taskManager.save(task, method);
 
         // 目标方法信息放到内存中，任务执行时使用
-        apiBaseMap.put(method.toGenericString(),
+        API_BASE_MAP.put(method.toGenericString(),
                 new ApiBase(bean,
                         method,
                         FactoryUtil.getApplicationContext().getBeanNamesForType(beanClass)[0])
@@ -184,70 +186,88 @@ public class TaskService {
         //获取定时任务详情列表
         List<Target> targets = taskManager.getApisByTaskCode(task.getCode());
 
-        if (targets.size() == 0) {
+        if (ObjectUtils.isEmpty(targets)) {
             return;
         }
 
-        //新建定时任务触发器
-        TaskTrigger trigger = new TaskTrigger(task.getCron(), task.getSync());
+        //下一次执行时间
+        Date nextRunTime;
 
-        //新建任务
-        TaskJob job = new TaskJob(taskManager, taskProxy, task, trigger, targets);
+        // 如果表达式位时间戳，则执行固定时间执行任务,否则执行周期任务
+        if (NumberUtils.isCreatable(task.getCron())) {
+            long executeTime = NumberUtils.toLong(task.getCron());
+            Timer timer = null;
+            //新建任务
+            TimerTaskJob job = new TimerTaskJob(taskManager, taskProxy, task, targets);
 
-        ScheduledFuture<?> scheduledFuture = null;
-        if (task.getEnable()) {
-            scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
+            if (task.getEnable() != null && task.getEnable()) {
+                timer = new Timer();
+                timer.schedule(job, new Date(executeTime));
+            }
+
+            nextRunTime = new Date(executeTime);
+
+            //定时任务装入缓冲区
+            TASK_INFO_MAP.put(task.getCode(), new FixedTaskInfo(timer, job, nextRunTime));
+        } else {
+            //新建定时任务触发器
+            TaskTrigger trigger = new TaskTrigger(task.getCron(), task.getSync());
+
+            //新建任务
+            TaskJob job = new TaskJob(taskManager, taskProxy, task, trigger, targets);
+
+            ScheduledFuture<?> scheduledFuture = null;
+            if (task.getEnable() != null && task.getEnable()) {
+                scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
+            }
+
+            nextRunTime = trigger.nextExecutionTime(new SimpleTriggerContext());
+            //定时任务装入缓冲区
+            TASK_INFO_MAP.put(task.getCode(), new CycleTaskInfo(scheduledFuture, job, threadPoolTaskScheduler, trigger));
         }
 
-        //定时任务装入缓冲区
-        taskInfoMap.put(task.getCode(), new TaskInfo(task, trigger, job, scheduledFuture));
-
         if (logger.isDebugEnabled()) {
-            Date date = trigger.nextExecutionTime(new SimpleTriggerContext());
-            logger.debug(String.format(INIT_TASK, task.getCode(), DateUtil.convertToString(date, "yyyy-MM-dd HH:mm:ss")));
+            logger.debug(String.format(INIT_TASK, task.getCode(), DateUtil.convertToString(nextRunTime, "yyyy-MM-dd HH:mm:ss")));
         }
     }
 
-
+    /**
+     * 删除定时任务
+     *
+     * @param id 任务标识
+     * @throws NotFoundTaskException 没找到
+     */
     public void removeTask(long id) throws NotFoundTaskException {
-        if (taskInfoMap.containsKey(id)) {
+        if (TASK_INFO_MAP.containsKey(id)) {
             stopTask(id);
-            taskInfoMap.remove(id);
+            TASK_INFO_MAP.remove(id);
         }
         taskManager.remove(id);
     }
 
-
+    /**
+     * 停止定时任务
+     *
+     * @param id 任务标识
+     * @throws NotFoundTaskException 没找到
+     */
     public void stopTask(long id) throws NotFoundTaskException {
-        TaskInfo taskInfo = taskInfoMap.get(id);
+        TaskInfoInterface taskInfo = TASK_INFO_MAP.get(id);
         if (ObjectUtils.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
-        ScheduledFuture<?> future = taskInfo.getScheduledFuture();
-        if (ObjectUtils.isEmpty(future)) {
-            return;
-        }
-        future.cancel(Boolean.TRUE);
+        //任务取消
+        taskInfo.cancel();
 
-        //清锁
-        RedisConnectionFactory redisConnectionFactory = FactoryUtil.getBean(RedisConnectionFactory.class);
-        if (redisConnectionFactory != null) {
-            RedisConnection connection = redisConnectionFactory.getConnection();
-            connection.expire(Long.toString(id).getBytes(StandardCharsets.UTF_8), 0);
-        }
 
     }
 
     public void startTask(long id) throws NotFoundTaskException {
-        TaskInfo taskInfo = taskInfoMap.get(id);
+        TaskInfoInterface taskInfo = TASK_INFO_MAP.get(id);
         if (ObjectUtils.isEmpty(taskInfo)) {
             throw new NotFoundTaskException(String.format("未找到主键为%s的定时任务", id));
         }
-        ScheduledFuture<?> future = this.threadPoolTaskScheduler.schedule(taskInfo.getJob(), taskInfo.getTrigger());
-        if (ObjectUtils.isEmpty(future)) {
-            return;
-        }
-        taskInfo.setScheduledFuture(future);
+        taskInfo.reStart();
     }
 
 
