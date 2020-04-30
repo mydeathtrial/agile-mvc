@@ -1,5 +1,7 @@
 package com.agile.common.task;
 
+import java.util.Date;
+
 /**
  * @author 佟盟
  * 日期 2020/4/29 18:47
@@ -7,7 +9,7 @@ package com.agile.common.task;
  * @version 1.0
  * @since 1.0
  */
-public interface TaskInfoInterface {
+public interface TaskActuatorInterface {
     /**
      * 取消执行
      */
@@ -15,6 +17,13 @@ public interface TaskInfoInterface {
 
     /**
      * 重启
+     * @param job 运行的任务
      */
-    void reStart();
+    void reStart(TaskJob job);
+
+    /**
+     * 取近期执行时间
+     * @return 时间
+     */
+    Date nextExecutionTime();
 }

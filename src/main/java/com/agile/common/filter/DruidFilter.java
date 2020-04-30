@@ -89,9 +89,9 @@ public class DruidFilter extends FilterEventAdapter {
         if (statement instanceof ClientPreparedStatement) {
             try {
                 businessLog(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
-                LoggerFactory.DAO_LOG.info(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
+//                LoggerFactory.DAO_LOG.debug(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
             } catch (SQLException e) {
-                e.printStackTrace();
+                LoggerFactory.DAO_LOG.error("SQL执行错误", e);
             }
         }
     }
@@ -106,9 +106,9 @@ public class DruidFilter extends FilterEventAdapter {
         if (statement instanceof ClientPreparedStatement) {
             try {
                 businessLog(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "));
-                LoggerFactory.DAO_LOG.error(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "), error);
+//                LoggerFactory.DAO_LOG.debug(((ClientPreparedStatement) statement).asSql().replaceAll("\\s", " "), error);
             } catch (SQLException e) {
-                e.printStackTrace();
+                LoggerFactory.DAO_LOG.error("SQL执行错误", e);
             }
         }
     }

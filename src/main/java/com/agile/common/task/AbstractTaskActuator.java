@@ -10,7 +10,7 @@ import com.agile.common.util.CacheUtil;
  * @version 1.0
  * @since 1.0
  */
-public abstract class AbstractTaskInfo<T> implements TaskInfoInterface {
+public abstract class AbstractTaskActuator<T> implements TaskActuatorInterface {
     /**
      * 任务标识
      */
@@ -22,9 +22,9 @@ public abstract class AbstractTaskInfo<T> implements TaskInfoInterface {
     /**
      * 执行的任务
      */
-    private final AbstractJob job;
+    private final TaskJob job;
 
-    public AbstractTaskInfo(T actuator, AbstractJob job) {
+    public AbstractTaskActuator(T actuator, TaskJob job) {
         this.code = job.getTask().getCode().toString();
         this.actuator = actuator;
         this.job = job;
@@ -48,7 +48,7 @@ public abstract class AbstractTaskInfo<T> implements TaskInfoInterface {
         this.actuator = actuator;
     }
 
-    public AbstractJob getJob() {
+    public TaskJob getJob() {
         return job;
     }
 }

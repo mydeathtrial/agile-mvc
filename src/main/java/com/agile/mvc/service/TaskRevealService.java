@@ -37,7 +37,7 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
             @Validate(beanClass = SysTaskEntity.class),
             @Validate(value = "apiNames", isBlank = false, nullable = false)
     })
-    public RETURN updateTask() throws NotFoundTaskException {
+    public RETURN updateTask() throws NotFoundTaskException, CloneNotSupportedException {
         List<Method> methods = getInParamOfArray("apiNames", String.class).stream().map(TaskService::getApi).collect(Collectors.toList());
         taskService.updateTask(getInParam(SysTaskEntity.class), methods);
         return SUCCESS;
