@@ -38,26 +38,9 @@ public interface TaskManager {
      * 保存任务和对应的任务列表
      *
      * @param task   任务
-     * @param method 目标
+     * @param methods 目标
      */
-    void save(Task task, Method method);
-
-    /**
-     * 保存任务目标
-     *
-     * @param method 任务目标方法
-     * @param type   是否对外开放
-     * @return 标识
-     */
-    Long save(Method method, boolean type);
-
-    /**
-     * 保存任务
-     *
-     * @param task 任务
-     * @return 任务标识
-     */
-    Long save(Task task);
+    void save(Task task, List<Method> methods);
 
     /**
      * 删除定时任务

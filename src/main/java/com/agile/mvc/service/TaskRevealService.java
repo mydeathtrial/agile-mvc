@@ -1,11 +1,16 @@
 package com.agile.mvc.service;
 
+import com.agile.common.annotation.Validate;
+import com.agile.common.annotation.Validates;
 import com.agile.common.base.RETURN;
-import com.agile.common.exception.NoSuchIDException;
 import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.mvc.service.BusinessService;
 import com.agile.common.mvc.service.TaskService;
 import com.agile.mvc.entity.SysTaskEntity;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.agile.common.base.RETURN.SUCCESS;
 
@@ -28,13 +33,13 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否添加成功
      */
-    public RETURN addTask() throws IllegalAccessException, NoSuchIDException, NoSuchMethodException {
-
-        SysTaskEntity task = super.saveAndReturn();
-        if (task == null) {
-            return RETURN.PARAMETER_ERROR;
-        }
-        taskService.addTask(task);
+    @Validates({
+            @Validate(beanClass = SysTaskEntity.class),
+            @Validate(value = "apiNames", isBlank = false, nullable = false)
+    })
+    public RETURN updateTask() throws NotFoundTaskException {
+        List<Method> methods = getInParamOfArray("apiNames", String.class).stream().map(TaskService::getApi).collect(Collectors.toList());
+        taskService.updateTask(getInParam(SysTaskEntity.class), methods);
         return SUCCESS;
     }
 
@@ -89,18 +94,6 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
         SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
         entity.setEnable(true);
         dao.update(entity);
-
-        return SUCCESS;
-    }
-
-    /**
-     * 更新定时任务
-     *
-     * @return 是否成功
-     */
-    public RETURN updateTask() throws NotFoundTaskException, IllegalAccessException, NoSuchIDException {
-        SysTaskEntity entity = super.updateAndReturn();
-        taskService.updateTask(entity);
 
         return SUCCESS;
     }

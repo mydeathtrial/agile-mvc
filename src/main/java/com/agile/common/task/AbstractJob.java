@@ -1,7 +1,6 @@
 package com.agile.common.task;
 
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.mvc.service.TaskService;
 import com.agile.common.util.CacheUtil;
 import com.agile.common.util.string.StringUtil;
 import lombok.Getter;
@@ -11,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +31,8 @@ public abstract class AbstractJob extends TimerTask implements Runnable {
     static final String NO_API_TASK = "任务:[%s][非法任务，未绑定任何api信息，任务结束]";
     static final String ILLEGAL_API_TASK = "任务:[%s][非法任务，入参大于1个，任务结束]";
     static final String EXCEPTION_API_TASK = "任务:[%s][任务异常]";
-    static final String RUN_TASK_API = "任务:[%s][%s][执行]";
-    static final String EXCEPTION_RUN_TASK_API = "任务:[%s][%s][任务异常]";
+    static final String RUN_TASK_API = "任务:[%s][执行]";
+    static final String EXCEPTION_RUN_TASK_API = "任务:[%s][任务异常]";
     static final String END_TASK = "任务:[%s][任务完成]";
     static final String NEXT_TASK = "任务:[%s][下次执行时间%s]";
 
@@ -42,17 +42,17 @@ public abstract class AbstractJob extends TimerTask implements Runnable {
      */
     private TaskManager taskManager;
     private Task task;
-    private List<Target> targets;
+    private List<Method> methods;
     /**
      * 任务执行代理
      */
     private TaskProxy taskProxy;
 
-    public AbstractJob(TaskManager taskManager, TaskProxy taskProxy, Task task, List<Target> targets) {
+    public AbstractJob(TaskManager taskManager, TaskProxy taskProxy, Task task, List<Method> methods) {
         this.taskManager = taskManager;
         this.taskProxy = taskProxy;
         this.task = task;
-        this.targets = targets;
+        this.methods = methods;
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class AbstractJob extends TimerTask implements Runnable {
     }
 
     private void running(RunDetail runDetail) {
-        if (ObjectUtils.isEmpty(getTargets())) {
+        if (ObjectUtils.isEmpty(getMethods())) {
             String log = String.format(NO_API_TASK, getTask().getCode());
             runDetail.addLog(log);
             if (logger.isErrorEnabled()) {
@@ -142,35 +142,27 @@ public abstract class AbstractJob extends TimerTask implements Runnable {
             return;
         }
 
-        getTargets().forEach(target -> {
+        getMethods().forEach(method -> {
             String log;
-            ApiBase apiInfo = TaskService.getApi(target.getCode());
-            if (apiInfo == null) {
-                log = String.format(NO_API_TASK, getTask().getCode());
+            String code = method.toGenericString();
+            if (method.getParameterCount() > 1) {
+                log = String.format(ILLEGAL_API_TASK, code);
                 runDetail.addLog(log);
                 if (logger.isErrorEnabled()) {
-                    logger.error(String.format(log, target.getCode()));
-                }
-                return;
-            }
-            if (apiInfo.getMethod().getParameterCount() > 1) {
-                log = String.format(ILLEGAL_API_TASK, target.getCode());
-                runDetail.addLog(log);
-                if (logger.isErrorEnabled()) {
-                    logger.error(String.format(log, target.getCode()));
+                    logger.error(String.format(log, code));
                 }
                 return;
             }
 
-            Optional.ofNullable(taskProxy).ifPresent((proxy) -> {
+            Optional.ofNullable(taskProxy).ifPresent(proxy -> {
                 try {
                     if (logger.isDebugEnabled()) {
-                        logger.debug(String.format(RUN_TASK_API, target.getCode(), apiInfo.getMethod().toGenericString()));
+                        logger.debug(String.format(RUN_TASK_API, code));
                     }
-                    proxy.invoke(apiInfo, getTask());
+                    proxy.invoke(method, getTask());
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     if (logger.isErrorEnabled()) {
-                        logger.error(String.format(EXCEPTION_RUN_TASK_API, target.getCode(), apiInfo.getMethod().toGenericString()), e);
+                        logger.error(String.format(EXCEPTION_RUN_TASK_API, code), e);
                     }
                     exception(e, runDetail);
                 }

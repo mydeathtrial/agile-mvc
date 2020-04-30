@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
@@ -22,8 +23,8 @@ public class TaskJob extends AbstractJob {
 
     private TaskTrigger trigger;
 
-    public TaskJob(TaskManager taskManager, TaskProxy taskProxy, Task task, TaskTrigger trigger, List<Target> targets) {
-        super(taskManager, taskProxy, task, targets);
+    public TaskJob(TaskManager taskManager, TaskProxy taskProxy, Task task, TaskTrigger trigger, List<Method> methods) {
+        super(taskManager, taskProxy, task, methods);
         this.trigger = trigger;
     }
 

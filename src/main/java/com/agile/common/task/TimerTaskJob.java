@@ -3,6 +3,7 @@ package com.agile.common.task;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
@@ -17,8 +18,8 @@ import java.util.List;
 @Getter
 public class TimerTaskJob extends AbstractJob {
 
-    public TimerTaskJob(TaskManager taskManager, TaskProxy taskProxy, Task task, List<Target> targets) {
-        super(taskManager, taskProxy, task, targets);
+    public TimerTaskJob(TaskManager taskManager, TaskProxy taskProxy, Task task, List<Method> methods) {
+        super(taskManager, taskProxy, task, methods);
     }
 
     @Override

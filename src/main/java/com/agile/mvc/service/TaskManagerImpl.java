@@ -59,10 +59,8 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
         return new ArrayList<>(list);
     }
 
-    @Override
-    public Long save(Method method, boolean type) {
-        String methodGenericString = method.toGenericString();
-        SysApiEntity api = dao.findOne(SysApiEntity.builder().name(methodGenericString).build());
+    private Long save(String targetCode, boolean type) {
+        SysApiEntity api = dao.findOne(SysApiEntity.builder().name(targetCode).build());
         if (api != null) {
             return api.getSysApiId();
         } else {
@@ -71,7 +69,7 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
                             .builder()
                             .type(type)
                             .sysApiId(IdUtil.generatorId())
-                            .name(methodGenericString)
+                            .name(targetCode)
                             .build()
             );
             return entity.getSysApiId();
@@ -80,21 +78,29 @@ public class TaskManagerImpl extends BusinessService<SysTaskEntity> implements T
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void save(Task task, Method method) {
+    public void save(Task task, List<Method> methods) {
         Long taskCode = save(task);
-        Long targetCode = save(method, false);
-        dao.saveAndReturn(SysBtTaskApiEntity.builder()
-                .sysBtTaskApiId(IdUtil.generatorId())
-                .sysTaskId(taskCode)
-                .sysApiId(targetCode)
-                .order(Constant.NumberAbout.ONE)
-                .build()
-        );
+
+        for (Method method : methods) {
+            Long sysApiId = save(method.toGenericString(), false);
+            SysBtTaskApiEntity bt = dao.findOne(SysBtTaskApiEntity.builder()
+                    .sysTaskId(taskCode)
+                    .sysApiId(sysApiId)
+                    .build());
+            if (bt == null) {
+                dao.saveAndReturn(SysBtTaskApiEntity.builder()
+                        .sysBtTaskApiId(IdUtil.generatorId())
+                        .sysTaskId(taskCode)
+                        .sysApiId(sysApiId)
+                        .order(Constant.NumberAbout.ONE)
+                        .build()
+                );
+            }
+        }
+
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public Long save(Task task) {
+    private Long save(Task task) {
         if (task instanceof SysTaskEntity && task.getCode() == null) {
             ((SysTaskEntity) task).setSysTaskId(IdUtil.generatorId());
         }

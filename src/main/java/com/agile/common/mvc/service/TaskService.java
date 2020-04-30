@@ -3,7 +3,6 @@ package com.agile.common.mvc.service;
 import com.agile.common.annotation.Init;
 import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.task.ApiBase;
 import com.agile.common.task.CycleTaskInfo;
 import com.agile.common.task.FixedTaskInfo;
 import com.agile.common.task.Target;
@@ -15,10 +14,8 @@ import com.agile.common.task.TaskProxy;
 import com.agile.common.task.TaskTrigger;
 import com.agile.common.task.TimerTaskJob;
 import com.agile.common.util.DateUtil;
-import com.agile.common.util.FactoryUtil;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.scheduling.annotation.Async;
@@ -32,8 +29,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.concurrent.ScheduledFuture;
+import java.util.stream.Collectors;
 
 /**
  * @author 佟盟 on 2018/2/2
@@ -45,7 +44,7 @@ public class TaskService {
     private static final String INIT_TASKS = "检测出定时任务%s条";
 
     private static final Map<Long, TaskInfoInterface> TASK_INFO_MAP = new HashMap<>();
-    private static final Map<String, ApiBase> API_BASE_MAP = new HashMap<>();
+    private static final Map<String, Method> API_BASE_MAP = new HashMap<>();
 
     private final ThreadPoolTaskScheduler threadPoolTaskScheduler;
     private final ApplicationContext applicationContext;
@@ -65,7 +64,7 @@ public class TaskService {
     @Init
     @Async(value = "applicationTaskExecutor")
     @Transactional(rollbackFor = Exception.class)
-    public void init() {
+    public void init() throws NotFoundTaskException {
         initTaskTarget();
         //获取持久层定时任务数据集
         List<Task> list = taskManager.getTask();
@@ -73,7 +72,16 @@ public class TaskService {
             logger.debug(String.format(INIT_TASKS, list.size()));
         }
         for (Task task : list) {
-            addTask(task);
+            //获取定时任务详情列表
+            List<Target> targets = taskManager.getApisByTaskCode(task.getCode());
+            if (ObjectUtils.isEmpty(targets)) {
+                continue;
+            }
+            List<Method> methods = targets.stream()
+                    .map(n -> API_BASE_MAP.get(n.getCode()))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            updateTask(task, methods);
         }
     }
 
@@ -93,7 +101,7 @@ public class TaskService {
                     continue;
                 }
 
-                API_BASE_MAP.put(method.toGenericString(), new ApiBase(bean, method, beanName));
+                API_BASE_MAP.put(method.toGenericString(), method);
             }
         }
     }
@@ -104,90 +112,28 @@ public class TaskService {
      * @param generic 根据方法的toGenericString检索
      * @return 方法信息
      */
-    public static ApiBase getApi(String generic) {
+    public static Method getApi(String generic) {
         return API_BASE_MAP.get(generic);
     }
 
     /**
-     * 判断是否是合法的定时任务方法
-     *
-     * @param method 方法对象
-     * @return 是否
-     */
-    private static boolean isTaskMethod(Method method) {
-        if (method == null) {
-            return false;
-        }
-        if (method.getParameterCount() > 1 || method.getGenericReturnType() != void.class) {
-            new IllegalArgumentException(String.format("[Method:%s][Reason:Must be an empty argument method with a return value of void]", method.toGenericString())).printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * 判断是否是合法的定时任务方法
-     *
-     * @param target 定时任务目标，包含方法信息
-     * @return 是否
-     */
-    private static boolean isTaskMethod(Target target) {
-        ApiBase apiBase = getApi(target.getCode());
-        if (apiBase == null) {
-            return false;
-        }
-        return isTaskMethod(apiBase.getMethod());
-    }
-
-    /**
-     * 添加定时任务
-     *
-     * @param task   任务信息
-     * @param method 方法
-     */
-    public void addTask(Task task, Method method) {
-        Class<?> beanClass = method.getDeclaringClass();
-        Object bean = FactoryUtil.getBean(beanClass);
-        if (bean == null) {
-            throw new NoSuchBeanDefinitionException(beanClass);
-        }
-
-        taskManager.save(task, method);
-
-        // 目标方法信息放到内存中，任务执行时使用
-        API_BASE_MAP.put(method.toGenericString(),
-                new ApiBase(bean,
-                        method,
-                        FactoryUtil.getApplicationContext().getBeanNamesForType(beanClass)[0])
-        );
-        addTask(task);
-    }
-
-    /**
-     * 添加定时任务
-     *
-     * @param task   定时任务信息
-     * @param target 目标方法信息
-     */
-    public void addTask(Task task, Target target) {
-        ApiBase apiBase = getApi(target.getCode());
-        if (apiBase == null) {
-            return;
-        }
-        addTask(task, apiBase.getMethod());
-    }
-
-    /**
-     * 添加定时任务
+     * 添加/更新定时任务
      *
      * @param task 定时任务信息
      */
-    public void addTask(Task task) {
-        //获取定时任务详情列表
-        List<Target> targets = taskManager.getApisByTaskCode(task.getCode());
-
-        if (ObjectUtils.isEmpty(targets)) {
+    public void updateTask(Task task, List<Method> methods) throws NotFoundTaskException {
+        if (ObjectUtils.isEmpty(methods)) {
             return;
+        }
+
+        for (Method method : methods) {
+            // 目标方法信息放到内存中，任务执行时使用
+            API_BASE_MAP.put(method.toGenericString(), method);
+        }
+
+        // 当任务已经存在时，删掉旧的过时任务，再重新定义任务
+        if (TASK_INFO_MAP.get(task.getCode()) != null) {
+            removeTask(task.getCode());
         }
 
         //下一次执行时间
@@ -198,7 +144,7 @@ public class TaskService {
             long executeTime = NumberUtils.toLong(task.getCron());
             Timer timer = null;
             //新建任务
-            TimerTaskJob job = new TimerTaskJob(taskManager, taskProxy, task, targets);
+            TimerTaskJob job = new TimerTaskJob(taskManager, taskProxy, task, methods);
 
             if (task.getEnable() != null && task.getEnable()) {
                 timer = new Timer();
@@ -214,7 +160,7 @@ public class TaskService {
             TaskTrigger trigger = new TaskTrigger(task.getCron(), task.getSync());
 
             //新建任务
-            TaskJob job = new TaskJob(taskManager, taskProxy, task, trigger, targets);
+            TaskJob job = new TaskJob(taskManager, taskProxy, task, trigger, methods);
 
             ScheduledFuture<?> scheduledFuture = null;
             if (task.getEnable() != null && task.getEnable()) {
@@ -225,6 +171,9 @@ public class TaskService {
             //定时任务装入缓冲区
             TASK_INFO_MAP.put(task.getCode(), new CycleTaskInfo(scheduledFuture, job, threadPoolTaskScheduler, trigger));
         }
+
+        // 同步更新持久层数据
+        taskManager.save(task, methods);
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format(INIT_TASK, task.getCode(), DateUtil.convertToString(nextRunTime, "yyyy-MM-dd HH:mm:ss")));
@@ -258,8 +207,6 @@ public class TaskService {
         }
         //任务取消
         taskInfo.cancel();
-
-
     }
 
     public void startTask(long id) throws NotFoundTaskException {
@@ -270,14 +217,7 @@ public class TaskService {
         taskInfo.reStart();
     }
 
-
-    public void updateTask(Task task) throws NotFoundTaskException {
-        removeTask(task.getCode());
-        addTask(task);
-        taskManager.save(task);
-    }
-
-    public void removeTask(Method method) throws NotFoundTaskException {
+    public void removeTaskByMethod(Method method) throws NotFoundTaskException {
         List<Task> tasks = taskManager.getTasksByApiCode(method.toGenericString());
         if (tasks == null) {
             return;
