@@ -16,7 +16,6 @@ import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.TimerTask;
 
 /**
  * @author 佟盟
@@ -27,7 +26,8 @@ import java.util.TimerTask;
  */
 @Setter
 @Getter
-public class TaskJob extends TimerTask implements Runnable, Cloneable {
+public class TaskJob implements Runnable {
+
     static final String START_TASK = "任务:[%s][开始执行]";
     static final String NO_API_TASK = "任务:[%s][非法任务，未绑定任何api信息，任务结束]";
     static final String ILLEGAL_API_TASK = "任务:[%s][非法任务，入参大于1个，任务结束]";
@@ -152,9 +152,7 @@ public class TaskJob extends TimerTask implements Runnable, Cloneable {
         if (ObjectUtils.isEmpty(getMethods())) {
             String log = String.format(NO_API_TASK, getTask().getCode());
             runDetail.addLog(log);
-            if (logger.isErrorEnabled()) {
-                logger.error(String.format(log, runDetail.getTaskCode()));
-            }
+            logger.error(String.format(log, runDetail.getTaskCode()));
             return;
         }
 
@@ -164,30 +162,19 @@ public class TaskJob extends TimerTask implements Runnable, Cloneable {
             if (method.getParameterCount() > 1) {
                 log = String.format(ILLEGAL_API_TASK, code);
                 runDetail.addLog(log);
-                if (logger.isErrorEnabled()) {
-                    logger.error(String.format(log, code));
-                }
+                logger.error(String.format(log, code));
                 return;
             }
 
             Optional.ofNullable(taskProxy).ifPresent(proxy -> {
                 try {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(String.format(RUN_TASK_API, code));
-                    }
+                    logger.debug(String.format(RUN_TASK_API, code));
                     proxy.invoke(method, getTask());
                 } catch (InvocationTargetException | IllegalAccessException e) {
-                    if (logger.isErrorEnabled()) {
-                        logger.error(String.format(EXCEPTION_RUN_TASK_API, code), e);
-                    }
+                    logger.error(String.format(EXCEPTION_RUN_TASK_API, code), e);
                     exception(e, runDetail);
                 }
             });
         });
-    }
-
-    @Override
-    public TaskJob clone() throws CloneNotSupportedException {
-        return (TaskJob) super.clone();
     }
 }

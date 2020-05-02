@@ -33,6 +33,7 @@ spring:
     execution:
       pool:
         core-size: 8
+      thread-name-prefix: '定时任务-'
   resources:
     cache:
       cachecontrol:

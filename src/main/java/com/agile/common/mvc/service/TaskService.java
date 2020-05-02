@@ -4,8 +4,7 @@ import com.agile.common.annotation.Init;
 import com.agile.common.base.Constant;
 import com.agile.common.exception.NotFoundTaskException;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.task.CycleActuator;
-import com.agile.common.task.FixedActuator;
+import com.agile.common.task.InstantActuator;
 import com.agile.common.task.Target;
 import com.agile.common.task.Task;
 import com.agile.common.task.TaskActuatorInterface;
@@ -13,7 +12,7 @@ import com.agile.common.task.TaskInfo;
 import com.agile.common.task.TaskJob;
 import com.agile.common.task.TaskManager;
 import com.agile.common.task.TaskProxy;
-import com.agile.common.task.TaskTrigger;
+import com.agile.common.task.TriggerActuator;
 import com.agile.common.util.DateUtil;
 import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -22,17 +21,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
 import java.util.concurrent.ScheduledFuture;
 import java.util.stream.Collectors;
 
@@ -127,7 +127,7 @@ public class TaskService {
      *
      * @param task 定时任务信息
      */
-    public void updateTask(Task task, List<Method> methods) throws NotFoundTaskException, CloneNotSupportedException {
+    public void updateTask(Task task, List<Method> methods) throws NotFoundTaskException {
         if (ObjectUtils.isEmpty(methods)) {
             logger.error(String.format(NO_SUCH_TARGETS_ERROR, task.getCode()));
             return;
@@ -156,30 +156,31 @@ public class TaskService {
 
         //新建任务
         TaskJob job = new TaskJob(taskManager, taskProxy, task, methods);
+        if (task.getEnable() != null && task.getEnable()) {
+            for (String cron : crones) {
+                cron = cron.trim();
+                ScheduledFuture<?> scheduledFuture;
+                // 如果表达式位时间戳，则执行固定时间执行任务,否则执行周期任务
+                if (NumberUtils.isCreatable(cron)) {
+                    long executeTime = NumberUtils.toLong(cron);
+                    Instant instant;
 
-        for (String cron : crones) {
-            // 如果表达式位时间戳，则执行固定时间执行任务,否则执行周期任务
-            if (NumberUtils.isCreatable(cron)) {
-                long executeTime = NumberUtils.toLong(cron);
-                Timer timer = null;
+                    if (executeTime <= System.currentTimeMillis()) {
+                        continue;
+                    }
+                    instant = Instant.ofEpochMilli(executeTime);
 
-                if (task.getEnable() != null && task.getEnable() && executeTime > System.currentTimeMillis()) {
-                    timer = new Timer();
-                    timer.schedule(job.clone(), new Date(executeTime));
-                }
+                    scheduledFuture = threadPoolTaskScheduler.schedule(job, instant);
 
-                actuators.add(new FixedActuator(timer, new Date(executeTime)));
-            } else {
-                //新建定时任务触发器
-                TaskTrigger trigger = new TaskTrigger(cron, task.getSync());
+                    actuators.add(new InstantActuator(scheduledFuture, instant, threadPoolTaskScheduler));
+                } else {
+                    //新建定时任务触发器
+                    CronTrigger trigger = new CronTrigger(cron);
 
-
-                ScheduledFuture<?> scheduledFuture = null;
-                if (task.getEnable() != null && task.getEnable()) {
                     scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
-                }
 
-                actuators.add(new CycleActuator(scheduledFuture, trigger, threadPoolTaskScheduler));
+                    actuators.add(new TriggerActuator(scheduledFuture, trigger, threadPoolTaskScheduler));
+                }
             }
         }
 

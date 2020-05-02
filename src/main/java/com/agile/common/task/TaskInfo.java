@@ -13,6 +13,7 @@ import java.util.List;
  * @since 1.0
  */
 public class TaskInfo {
+
     /**
      * 任务标识
      */
@@ -44,14 +45,9 @@ public class TaskInfo {
     /**
      * 启动
      */
-    public void start() {
-        actuators.forEach(n -> {
-            try {
-                n.reStart(job.clone());
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-            }
-        });
+    public synchronized void start() {
+        actuators.forEach(n -> n.reStart(job));
+        nextExecutionTime();
     }
 
     public String getCode() {

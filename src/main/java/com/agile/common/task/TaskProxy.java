@@ -28,7 +28,8 @@ public class TaskProxy {
             bean = ClassUtil.newInstance(method.getDeclaringClass());
         }
         if (parameterTypes.length == 1) {
-            method.invoke(bean, ObjectUtil.to(task.getCode(), new TypeReference<>(parameterTypes[0])));
+            Object obj = ObjectUtil.to(task.getCode(), new TypeReference<>(parameterTypes[0]));
+            method.invoke(bean, obj);
         } else {
             method.invoke(bean);
         }
