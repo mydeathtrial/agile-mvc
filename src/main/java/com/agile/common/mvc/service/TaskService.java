@@ -69,7 +69,7 @@ public class TaskService {
     @Init
     @Async(value = "applicationTaskExecutor")
     @Transactional(rollbackFor = Exception.class)
-    public void init() throws NotFoundTaskException, CloneNotSupportedException {
+    public void init() throws NotFoundTaskException {
         initTaskTarget();
         //获取持久层定时任务数据集
         List<Task> list = taskManager.getTask();
@@ -156,33 +156,37 @@ public class TaskService {
 
         //新建任务
         TaskJob job = new TaskJob(taskManager, taskProxy, task, methods);
-        if (task.getEnable() != null && task.getEnable()) {
-            for (String cron : crones) {
-                cron = cron.trim();
-                ScheduledFuture<?> scheduledFuture;
-                // 如果表达式位时间戳，则执行固定时间执行任务,否则执行周期任务
-                if (NumberUtils.isCreatable(cron)) {
-                    long executeTime = NumberUtils.toLong(cron);
-                    Instant instant;
 
-                    if (executeTime <= System.currentTimeMillis()) {
-                        continue;
-                    }
-                    instant = Instant.ofEpochMilli(executeTime);
+        for (String cron : crones) {
+            cron = cron.trim();
+            ScheduledFuture<?> scheduledFuture = null;
+            // 如果表达式位时间戳，则执行固定时间执行任务,否则执行周期任务
+            if (NumberUtils.isCreatable(cron)) {
+                long executeTime = NumberUtils.toLong(cron);
+                Instant instant;
 
-                    scheduledFuture = threadPoolTaskScheduler.schedule(job, instant);
-
-                    actuators.add(new InstantActuator(scheduledFuture, instant, threadPoolTaskScheduler));
-                } else {
-                    //新建定时任务触发器
-                    CronTrigger trigger = new CronTrigger(cron);
-
-                    scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
-
-                    actuators.add(new TriggerActuator(scheduledFuture, trigger, threadPoolTaskScheduler));
+                if (executeTime <= System.currentTimeMillis()) {
+                    continue;
                 }
+                instant = Instant.ofEpochMilli(executeTime);
+
+                if (task.getEnable() != null && task.getEnable()) {
+                    scheduledFuture = threadPoolTaskScheduler.schedule(job, instant);
+                }
+
+                actuators.add(new InstantActuator(scheduledFuture, instant, threadPoolTaskScheduler));
+            } else {
+                //新建定时任务触发器
+                CronTrigger trigger = new CronTrigger(cron);
+
+                if (task.getEnable() != null && task.getEnable()) {
+                    scheduledFuture = threadPoolTaskScheduler.schedule(job, trigger);
+                }
+
+                actuators.add(new TriggerActuator(scheduledFuture, trigger, threadPoolTaskScheduler));
             }
         }
+
 
         TaskInfo taskInfo = new TaskInfo(actuators, job);
         //定时任务装入缓冲区
