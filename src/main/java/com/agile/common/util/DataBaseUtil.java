@@ -163,7 +163,7 @@ public class DataBaseUtil {
         return list;
     }
 
-    private static DBInfo parseDBUrl(String url) {
+    public static DBInfo parseDBUrl(String url) {
         DB db = Stream.of(DB.values())
                 .filter(node -> PatternUtil.matches(node.parsingUrlRegx, url))
                 .findFirst()

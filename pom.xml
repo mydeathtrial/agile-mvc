@@ -5,7 +5,7 @@
     <groupId>com.agileframework</groupId>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.7.25</version>
+    <version>1.0.7.26</version>
 
     <name>AgileFramework</name>
     <description>Agile API平台</description>
