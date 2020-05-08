@@ -379,7 +379,7 @@ public class Dao {
         }
     }
 
-    public <T> void deleteInBatch(Class<T> tableClass, Iterable<Object> ids) {
+    public <T> void deleteInBatch(Class<T> tableClass, Iterable<?> ids) {
         if (ids == null) {
             return;
         }

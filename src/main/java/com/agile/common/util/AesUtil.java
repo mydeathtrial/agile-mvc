@@ -1,6 +1,5 @@
 package com.agile.common.util;
 
-import com.agile.common.factory.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
@@ -98,7 +97,8 @@ public class AesUtil {
      * @param decryptKey   解密密钥
      * @return 解密后的String
      */
-    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIv, String algorithmstr) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
+    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIv, String algorithmstr)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         byte[] raw = decryptKey.getBytes(StandardCharsets.US_ASCII);
         SecretKeySpec skeySpec = new SecretKeySpec(raw, ALGORITHM);
 
@@ -106,11 +106,7 @@ public class AesUtil {
         IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIv.getBytes(StandardCharsets.UTF_8));
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivParameterSpec);
         byte[] decryptBytes;
-        try {
-            decryptBytes = cipher.doFinal(encryptBytes);
-        } catch (Exception e) {
-            decryptBytes = encryptBytes;
-        }
+        decryptBytes = cipher.doFinal(encryptBytes);
 
         return new String(decryptBytes, StandardCharsets.UTF_8);
     }
@@ -121,7 +117,7 @@ public class AesUtil {
     }
 
     public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIv)
-            throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
+            throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
         return aesDecryptByBytes(encryptBytes, decryptKey, encryptIv, AES_CBC_PKCS_5_PADDING);
     }
 
@@ -140,7 +136,6 @@ public class AesUtil {
         try {
             return StringUtils.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIv, algorithmstr);
         } catch (Exception e) {
-            LoggerFactory.COMMON_LOG.error("解密失败", e);
             return encryptStr;
         }
     }

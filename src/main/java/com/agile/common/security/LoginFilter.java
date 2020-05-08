@@ -1,7 +1,6 @@
 package com.agile.common.security;
 
 import com.agile.common.base.Constant;
-import com.agile.common.cache.AgileCache;
 import com.agile.common.exception.AuthenticationException;
 import com.agile.common.exception.LoginErrorLockException;
 import com.agile.common.exception.NoCompleteFormSign;
@@ -31,7 +30,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -50,7 +48,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     private final SessionAuthenticationStrategy tokenStrategy;
     private final KaptchaConfigProperties kaptchaConfigProperties;
     private final SecurityProperties securityProperties;
-    private final AgileCache cache;
     private final CustomerUserDetailsService customerUserDetailsService;
 
     public LoginFilter(AuthenticationProvider loginStrategyProvider,
@@ -73,7 +70,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         setAllowSessionCreation(false);
         afterPropertiesSet();
         this.kaptchaConfigProperties = kaptchaConfigProperties;
-        this.cache = CacheUtil.getCache(securityProperties.getTokenHeader());
     }
 
     @Override
@@ -161,15 +157,15 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
         String lockObject = lockObject(request, sourceUsername);
 
-        Integer errorCount = cache.get(lockObject, Integer.class);
+        Integer errorCount = securityProperties.getCache().get(lockObject, Integer.class);
         if (errorCount == null) {
-            cache.put(lockObject, 1, securityProperties.getErrorSign().getErrorSignCountTimeout());
-        } else if (errorCount < maxErrorCount() - 1) {
-            cache.put(lockObject, ++errorCount, securityProperties.getErrorSign().getErrorSignCountTimeout());
+            securityProperties.getCache().put(lockObject, 1, securityProperties.getErrorSign().getErrorSignCountTimeout());
+        } else if (errorCount < securityProperties.maxErrorCount() - 1) {
+            securityProperties.getCache().put(lockObject, ++errorCount, securityProperties.getErrorSign().getErrorSignCountTimeout());
         } else {
-            cache.put(lockObject, ++errorCount, errorSignLockTime());
+            securityProperties.getCache().put(lockObject, ++errorCount, securityProperties.errorSignLockTime());
             notice(request, sourceUsername, lockObject);
-            throw new LoginErrorLockException(String.valueOf(errorSignLockTime().toMinutes()));
+            throw new LoginErrorLockException(String.valueOf(securityProperties.errorSignLockTime().toMinutes()));
         }
     }
 
@@ -197,40 +193,11 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     /**
-     * 取最大失败次数
-     *
-     * @return 次数
-     */
-    private Integer maxErrorCount() {
-        final String key = "MaxErrorCount";
-        Integer maxErrorCount = cache.get(key, Integer.class);
-        if (maxErrorCount == null) {
-            maxErrorCount = securityProperties.getErrorSign().getMaxErrorCount();
-            cache.put(key, maxErrorCount);
-        }
-        return maxErrorCount;
-    }
-
-    /**
-     * 取锁定时长
-     *
-     * @return 时长
-     */
-    private Duration errorSignLockTime() {
-        Duration maxErrorCount = cache.get("ErrorSignLockTime", Duration.class);
-        if (maxErrorCount == null) {
-            maxErrorCount = securityProperties.getErrorSign().getErrorSignLockTime();
-            cache.put("ErrorSignLockTime", maxErrorCount);
-        }
-        return maxErrorCount;
-    }
-
-    /**
      * 通知持久层
      */
     private void notice(HttpServletRequest request, String sourceUsername, String lockObject) {
         Date lockTime = new Date();
-        Date timeOut = DateUtil.add(errorSignLockTime());
+        Date timeOut = DateUtil.add(securityProperties.errorSignLockTime());
 
         ErrorSignInfo errorSignInfo = ErrorSignInfo.builder()
                 .account(sourceUsername)

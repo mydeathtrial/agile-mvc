@@ -1,6 +1,8 @@
 package com.agile.common.properties;
 
 import com.agile.common.base.Constant;
+import com.agile.common.cache.AgileCache;
+import com.agile.common.util.CacheUtil;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,6 +19,8 @@ import java.util.List;
 @Setter
 @Getter
 public class SecurityProperties implements Serializable {
+    private final String errorSignLockTimeCacheKey = "ErrorSignLockTime";
+    private final String maxErrorCountCacheKey = "MaxErrorCount";
     /**
      * 开关
      */
@@ -221,5 +225,45 @@ public class SecurityProperties implements Serializable {
          * 锁定类型
          */
         private LockType[] lockType = new LockType[]{LockType.SESSION_ID};
+    }
+
+    /**
+     * 取最大失败次数
+     *
+     * @return 次数
+     */
+    public Integer maxErrorCount() {
+        Integer maxErrorCount = getCache().get(maxErrorCountCacheKey, Integer.class);
+        if (maxErrorCount == null) {
+            maxErrorCount = getErrorSign().getMaxErrorCount();
+            getCache().put(maxErrorCountCacheKey, maxErrorCount);
+        }
+        return maxErrorCount;
+    }
+
+    public void maxErrorCount(int maxErrorCount) {
+        getCache().put(maxErrorCountCacheKey, maxErrorCount);
+    }
+
+    /**
+     * 取锁定时长
+     *
+     * @return 时长
+     */
+    public Duration errorSignLockTime() {
+        Duration errorSignLockTime = getCache().get(this.errorSignLockTimeCacheKey, Duration.class);
+        if (errorSignLockTime == null) {
+            errorSignLockTime = getErrorSign().getErrorSignLockTime();
+            getCache().put(this.errorSignLockTimeCacheKey, errorSignLockTime);
+        }
+        return errorSignLockTime;
+    }
+
+    public void errorSignLockTime(Duration errorSignLockTime) {
+        getCache().put(this.errorSignLockTimeCacheKey, errorSignLockTime);
+    }
+
+    public AgileCache getCache() {
+        return CacheUtil.getCache(getTokenHeader());
     }
 }
