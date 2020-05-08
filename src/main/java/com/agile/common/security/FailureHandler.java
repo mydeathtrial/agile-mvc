@@ -42,7 +42,7 @@ public class FailureHandler implements AuthenticationFailureHandler, AccessDenie
         render(request, response, exception);
     }
 
-    private void render(HttpServletRequest request, HttpServletResponse response, Exception exception) {
+    public void render(HttpServletRequest request, HttpServletResponse response, Exception exception) {
         try {
             LoggerFactory.AUTHORITY_LOG.debug(exception);
             ModelAndView view = SpringExceptionHandler.createModelAndView(exception);

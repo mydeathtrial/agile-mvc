@@ -47,4 +47,10 @@ public interface CustomerUserDetailsService extends UserDetailsService {
      * @return 新密码
      */
     String refreshPassword(String userName, String newPassword) throws NoSuchDataException;
+
+    /**
+     * 失败登陆锁定
+     * @param errorSignInfo 失败登陆信息
+     */
+    void errorSignLock(LoginFilter.ErrorSignInfo errorSignInfo);
 }

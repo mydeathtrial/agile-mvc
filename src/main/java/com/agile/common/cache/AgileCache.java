@@ -109,6 +109,14 @@ public interface AgileCache extends Cache {
     Object getFromMap(Object mapKey, Object key);
 
     /**
+     * 查询Map中索引key对应的value数据
+     *
+     * @param mapKey map索引
+     * @param key    key
+     * @return 值
+     */
+    <T> T getFromMap(Object mapKey, Object key, Class<T> clazz);
+    /**
      * 从Map中删除索引key
      *
      * @param mapKey map索引
@@ -132,6 +140,15 @@ public interface AgileCache extends Cache {
      * @return 值
      */
     Object getFromList(Object listKey, int index);
+
+    /**
+     * 从List中获取下标为inde下的节点数据
+     *
+     * @param listKey list索引
+     * @param index   节点下标
+     * @return 值
+     */
+    <T> T getFromList(Object listKey, int index, Class<T> clazz);
 
     /**
      * 从List中删除下标节点

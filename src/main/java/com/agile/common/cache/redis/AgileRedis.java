@@ -58,7 +58,7 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void put(Object key, Object value, Duration timeout) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\nvalue值:%s\n", cache.getName(), String.valueOf(key), String.valueOf(value)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:存%n区域：%s%nkey值：%s%nvalue值:%s%n", cache.getName(), String.valueOf(key), String.valueOf(value)));
         execute(name, connection -> connection.set(createAndConvertCacheKey(key), serializeCacheValue(value), Expiration.seconds(timeout.getSeconds()), RedisStringCommands.SetOption.UPSERT));
     }
 
@@ -69,7 +69,7 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void addToMap(Object mapKey, Object key, Object value) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\nvalue值:%s\n", cache.getName(), String.valueOf(key), String.valueOf(value)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:存%n区域：%s%nkey值：%s%nvalue值:%s%n", cache.getName(), String.valueOf(key), String.valueOf(value)));
         executeConsumer(name, connection -> connection.hSet(createAndConvertCacheKey(mapKey), serializeCacheValue(key), serializeCacheValue(value)));
     }
 
@@ -84,14 +84,24 @@ public class AgileRedis extends AbstractAgileCache {
     }
 
     @Override
+    public <T> T getFromMap(Object mapKey, Object key, Class<T> clazz) {
+        Object value = getFromMap(mapKey, key);
+        if (value != null && clazz != null && !clazz.isInstance(value)) {
+            throw new IllegalStateException(
+                    "Cached value is not of required type [" + clazz.getName() + "]: " + value);
+        }
+        return (T) value;
+    }
+
+    @Override
     public void removeFromMap(Object mapKey, Object key) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:删除\n区域：%s\nkey值：%s\n", cache.getName(), String.valueOf(key)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:删除%n区域：%s%nkey值：%s%n", cache.getName(), String.valueOf(key)));
         executeConsumer(name, connection -> connection.hDel(createAndConvertCacheKey(mapKey), serializeCacheValue(key)));
     }
 
     @Override
     public void addToList(Object listKey, Object node) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\nvalue值:%s\n", cache.getName(), String.valueOf(listKey), String.valueOf(node)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:存%n区域：%s%nkey值：%s%nvalue值:%s%n", cache.getName(), String.valueOf(listKey), String.valueOf(node)));
         executeConsumer(name, connection -> connection.rPush(createAndConvertCacheKey(listKey), serializeCacheValue(node)));
     }
 
@@ -105,20 +115,30 @@ public class AgileRedis extends AbstractAgileCache {
     }
 
     @Override
+    public <T> T getFromList(Object listKey, int index, Class<T> clazz) {
+        Object value = getFromList(listKey, index);
+        if (value != null && clazz != null && !clazz.isInstance(value)) {
+            throw new IllegalStateException(
+                    "Cached value is not of required type [" + clazz.getName() + "]: " + value);
+        }
+        return (T) value;
+    }
+
+    @Override
     public void removeFromList(Object listKey, int index) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:删\n区域：%s\nkey值：%s\n", cache.getName(), String.valueOf(listKey)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:删%n区域：%s%nkey值：%s%n", cache.getName(), listKey));
         executeConsumer(name, connection -> connection.lRem(createAndConvertCacheKey(listKey), 0, serializeCacheValue(getFromList(listKey, index))));
     }
 
     @Override
     public void addToSet(Object setKey, Object node) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\nvalue值:%s\n", cache.getName(), String.valueOf(setKey), String.valueOf(node)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:存%n区域：%s%nkey值：%s%nvalue值:%s%n", cache.getName(), setKey, node));
         executeConsumer(name, connection -> connection.sAdd(createAndConvertCacheKey(setKey), serializeCacheValue(node)));
     }
 
     @Override
     public void removeFromSet(Object setKey, Object node) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:删\n区域：%s\nkey值：%s\n", cache.getName(), String.valueOf(setKey)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:删%n区域：%s%nkey值：%s%n", cache.getName(), setKey));
         executeConsumer(name, connection -> connection.sRem(createAndConvertCacheKey(setKey), serializeCacheValue(node)));
     }
 
@@ -302,7 +322,7 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public void put(Object key, Object value) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:存\n区域：%s\nkey值：%s\nvalue值：%s\n", cache.getName(), key, value));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:存%n区域：%s%nkey值：%s%nvalue值：%s%n", cache.getName(), key, value));
         if (Map.class.isAssignableFrom(value.getClass())) {
             evict(key);
             Map<byte[], byte[]> map = Maps.newHashMapWithExpectedSize(((Map<?, ?>) value).size());
@@ -336,7 +356,7 @@ public class AgileRedis extends AbstractAgileCache {
 
     @Override
     public <T> T get(Object key, Class<T> clazz) {
-        LoggerFactory.CACHE_LOG.info(String.format("操作:取\n区域：%s\nkey值：%s\n", cache.getName(), String.valueOf(key)));
+        LoggerFactory.CACHE_LOG.info(String.format("操作:取%n区域：%s%nkey值：%s%n", cache.getName(), String.valueOf(key)));
         if (Map.class.isAssignableFrom(clazz)) {
             Map<byte[], byte[]> map = execute(name, connection -> connection.hGetAll(createAndConvertCacheKey(key)));
             HashMap<Object, Object> res = Maps.newHashMapWithExpectedSize(map.size());

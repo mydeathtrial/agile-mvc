@@ -49,7 +49,6 @@ agile:
       aes-key: idssinsightkey01
       aes-offset: 3612213421341234
       algorithm-model: 'AES/CBC/PKCS5Padding'
-      lock-for-expiration: true
       strength-conf:
         weight-of-key-words:
           - password
@@ -91,6 +90,7 @@ agile:
         weight-of-key-word: 0.35
         max-length: 32
     error-sign:
+      lock-for-expiration: true
       max-error-count: 5
       error-sign-lock-time: 2m
       error-sign-count-timeout: 1m

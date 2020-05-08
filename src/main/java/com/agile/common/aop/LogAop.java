@@ -227,7 +227,6 @@ public class LogAop {
                         serviceExecutionInfo.getMethodName(),
                         serviceExecutionInfo.getInParamToJson(),
                         serviceExecutionInfo.getTimeConsuming()));
-                logger.error(ERROR_TITLE, serviceExecutionInfo.getE());
             }
         }
     }

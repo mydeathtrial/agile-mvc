@@ -7,10 +7,12 @@ import com.agile.common.util.clazz.ClassUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.util.pattern.PatternUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
-import com.agile.common.util.string.StringUtil;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -27,11 +29,15 @@ import java.util.Set;
  * 描述 字典工具
  * @since 1.0
  */
-public class DictionaryUtil {
+public final class DictionaryUtil {
     private static final String DEFAULT_CACHE_NAME = "dictionary-cache";
     private static final String NAME_FORMAT = "%s%s";
     private static final String CODE_FORMAT = "%s.%s";
     private static final String SPLIT_CHAR = "[./\\\\]";
+    private static ThreadLocal<Map<String, DictionaryDataEntity>> threadLocal = ThreadLocal.withInitial(HashMap::new);
+
+    private DictionaryUtil() {
+    }
 
     /**
      * 集合类型转换字典码工具，转换为List/Map类型
@@ -148,7 +154,7 @@ public class DictionaryUtil {
      * @return 明文
      */
     public static String coverDicName(String parentCode, String codes, String defaultValue) {
-        if (StringUtil.isBlank(parentCode) || StringUtil.isBlank(codes)) {
+        if (StringUtils.isBlank(parentCode) || StringUtils.isBlank(codes)) {
             return defaultValue;
         }
         StringBuilder nameCache = new StringBuilder();
@@ -216,7 +222,7 @@ public class DictionaryUtil {
         if (entity != null) {
             if (entity.containsKey(targetCode)) {
                 result = entity.getCodeCache(targetCode);
-            } else if (entity.getChildren().size() > 0) {
+            } else if (!entity.getChildren().isEmpty()) {
                 for (DictionaryDataEntity dic : entity.getChildren()) {
                     DictionaryDataEntity c = coverDicBeanByRecursive(dic, targetCode);
                     if (c != null) {
@@ -265,7 +271,12 @@ public class DictionaryUtil {
      * @return bean
      */
     public static DictionaryDataEntity coverRootDicBean(String code) {
-        return getCache().get(code, DictionaryDataEntity.class);
+        DictionaryDataEntity dictionaryDataEntity = threadLocal.get().get(code);
+        if (dictionaryDataEntity == null) {
+            dictionaryDataEntity = getCache().getFromMap("dic", code, DictionaryDataEntity.class);
+            threadLocal.get().put(code, dictionaryDataEntity);
+        }
+        return dictionaryDataEntity;
     }
 
     /**
@@ -275,7 +286,7 @@ public class DictionaryUtil {
      * @return bean
      */
     public static DictionaryDataEntity coverDicBean(String code) {
-        if (StringUtil.isEmpty(code)) {
+        if (StringUtils.isEmpty(code)) {
             return null;
         }
         DictionaryDataEntity rootEntity;
@@ -429,5 +440,6 @@ public class DictionaryUtil {
                 }
             });
         });
+        threadLocal.remove();
     }
 }

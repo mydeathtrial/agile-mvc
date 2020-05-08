@@ -10,7 +10,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Optional;
@@ -19,7 +18,7 @@ import java.util.Optional;
  * @author 佟盟 on 2017/1/13
  */
 public class JwtAuthenticationProvider implements AuthenticationProvider {
-    private CustomerUserDetailsService userDetailsService;
+    private final CustomerUserDetailsService userDetailsService;
 
     public JwtAuthenticationProvider(CustomerUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -29,7 +28,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      * 登录验证
      */
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) {
         if (authentication.getDetails() instanceof UserDetails) {
             return authentication;
         }

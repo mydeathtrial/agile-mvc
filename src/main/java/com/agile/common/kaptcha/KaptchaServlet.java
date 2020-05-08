@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.Duration;
 
 /**
  * @author 佟盟 on 2018/9/6
@@ -24,7 +25,7 @@ import java.io.IOException;
 public class KaptchaServlet extends HttpServlet implements Servlet {
     private Producer kaptchaProducer;
 
-    private KaptchaConfigProperties kaptchaConfigProperties = FactoryUtil.getBean(KaptchaConfigProperties.class);
+    private final KaptchaConfigProperties kaptchaConfigProperties = FactoryUtil.getBean(KaptchaConfigProperties.class);
 
     @Override
     public void init(ServletConfig conf) {
@@ -56,7 +57,7 @@ public class KaptchaServlet extends HttpServlet implements Servlet {
         if (codeToken == null) {
             codeToken = RandomStringUtil.getRandom(length, RandomStringUtil.Random.LETTER_UPPER);
         }
-        CacheUtil.put(codeToken, capText, kaptchaConfigProperties.getLiveTime());
+        CacheUtil.getCache().put(codeToken, capText, Duration.ofSeconds(kaptchaConfigProperties.getLiveTime()));
         setOutParam(kaptchaConfigProperties.getTokenHeader(), codeToken, resp);
         return capText;
     }

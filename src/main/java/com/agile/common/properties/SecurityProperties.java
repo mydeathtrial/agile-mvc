@@ -65,6 +65,10 @@ public class SecurityProperties implements Serializable {
      * token类型
      */
     private TokenType tokenType = TokenType.EASY;
+    /**
+     * 真实IP头名
+     */
+    private String realIpHeader = "X-Real-Ip";
 
     /**
      * token传输模式
@@ -122,10 +126,6 @@ public class SecurityProperties implements Serializable {
          */
         private Duration duration = Duration.ofDays(Constant.NumberAbout.THIRTY_ONE);
         /**
-         * 过期是否锁定
-         */
-        private boolean lockForExpiration = true;
-        /**
          * 密钥
          */
         private String aesKey = "idssinsightkey01";
@@ -148,10 +148,22 @@ public class SecurityProperties implements Serializable {
     }
 
     /**
+     * 锁定类型
+     */
+    public enum LockType {
+        // ip
+        IP,
+        // sessionId
+        SESSION_ID,
+        // 帐号
+        ACCOUNT
+    }
+
+    /**
      * 强度权重配置
      */
     @Data
-    public static class Strength {
+    public static class Strength implements Serializable {
         /**
          * 最大允许密码长度
          */
@@ -178,7 +190,7 @@ public class SecurityProperties implements Serializable {
      * 正则权重映射
      */
     @Data
-    public static class WeightMap {
+    public static class WeightMap implements Serializable {
         private String regex;
         private double weight;
     }
@@ -201,5 +213,13 @@ public class SecurityProperties implements Serializable {
          * 登录失败计算超时
          */
         private Duration errorSignCountTimeout = Duration.ofMinutes(Constant.NumberAbout.TWO);
+        /**
+         * 过期是否锁定
+         */
+        private boolean lockForExpiration = true;
+        /**
+         * 锁定类型
+         */
+        private LockType[] lockType = new LockType[]{LockType.SESSION_ID};
     }
 }

@@ -176,6 +176,17 @@ public class CacheUtil {
     }
 
     /**
+     * 查询Map中索引key对应的value数据
+     *
+     * @param mapKey map索引
+     * @param key    key
+     * @return 值
+     */
+    public static <T> T getFromMap(Object mapKey, Object key, Class<T> tClass) {
+        return getCache(DEFAULT_CACHE_NAME).getFromMap(mapKey, key, tClass);
+    }
+
+    /**
      * 从Map中删除索引key
      *
      * @param mapKey map索引
@@ -196,7 +207,7 @@ public class CacheUtil {
     }
 
     /**
-     * 从List中获取下标为inde下的节点数据
+     * 从List中获取下标为index下的节点数据
      *
      * @param listKey list索引
      * @param index   节点下标
@@ -204,6 +215,17 @@ public class CacheUtil {
      */
     public static Object getFromList(Object listKey, int index) {
         return getCache(DEFAULT_CACHE_NAME).getFromList(listKey, index);
+    }
+
+    /**
+     * 从List中获取下标为index下的节点数据
+     *
+     * @param listKey list索引
+     * @param index   节点下标
+     * @return 值
+     */
+    public static <T> T getFromList(Object listKey, int index, Class<T> tClass) {
+        return getCache(DEFAULT_CACHE_NAME).getFromList(listKey, index, tClass);
     }
 
     /**

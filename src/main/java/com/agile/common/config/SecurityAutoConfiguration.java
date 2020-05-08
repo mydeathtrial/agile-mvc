@@ -78,7 +78,7 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     LoginFilter loginFilter() {
-        return new LoginFilter(jwtAuthenticationProvider(), tokenStrategy(), securityProperties, kaptchaConfigProperties, successHandler(), failureHandler());
+        return new LoginFilter(jwtAuthenticationProvider(), tokenStrategy(), securityProperties, kaptchaConfigProperties, successHandler(), failureHandler(), customerUserDetailsService);
     }
 
     @Bean

@@ -112,6 +112,16 @@ public class AgileEhCache extends AbstractAgileCache {
     }
 
     @Override
+    public <T> T getFromMap(Object mapKey, Object key, Class<T> clazz) {
+        Object value = getFromMap(mapKey, key);
+        if (value != null && clazz != null && !clazz.isInstance(value)) {
+            throw new IllegalStateException(
+                    "Cached value is not of required type [" + clazz.getName() + "]: " + value);
+        }
+        return (T) value;
+    }
+
+    @Override
     public void removeFromMap(Object mapKey, Object key) {
         Map<Object, Object> map = getMap(mapKey, false);
         map.remove(key);
@@ -127,6 +137,16 @@ public class AgileEhCache extends AbstractAgileCache {
     public Object getFromList(Object listKey, int index) {
         List<Object> list = getList(listKey, false);
         return list.get(index);
+    }
+
+    @Override
+    public <T> T getFromList(Object listKey, int index, Class<T> clazz) {
+        Object value = getFromList(listKey, index);
+        if (value != null && clazz != null && !clazz.isInstance(value)) {
+            throw new IllegalStateException(
+                    "Cached value is not of required type [" + clazz.getName() + "]: " + value);
+        }
+        return (T) value;
     }
 
     @Override

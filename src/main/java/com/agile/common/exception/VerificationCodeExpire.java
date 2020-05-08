@@ -1,17 +1,9 @@
 package com.agile.common.exception;
 
-import org.springframework.security.core.AuthenticationException;
+import javax.servlet.ServletException;
 
 /**
  * @author 佟盟 on 2018/9/6
  */
-public class VerificationCodeExpire extends AuthenticationException {
-
-    public VerificationCodeExpire(String message) {
-        super(message);
-    }
-
-    public VerificationCodeExpire(String message, Throwable cause) {
-        super(message, cause);
-    }
+public class VerificationCodeExpire extends ServletException {
 }

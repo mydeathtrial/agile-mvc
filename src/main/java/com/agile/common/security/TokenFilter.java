@@ -1,6 +1,5 @@
 package com.agile.common.security;
 
-import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.TokenUtil;
@@ -21,9 +20,9 @@ import java.util.List;
  */
 public class TokenFilter extends OncePerRequestFilter {
     private final FailureHandler failureHandler;
-    private List<RequestMatcher> matches;
+    private final List<RequestMatcher> matches;
 
-    private SecurityProperties securityProperties;
+    private final SecurityProperties securityProperties;
 
     public TokenFilter(String[] immuneUrl, SecurityProperties securityProperties, FailureHandler failureHandler) {
         matches = ServletUtil.coverRequestMatcher(immuneUrl);
@@ -58,11 +57,10 @@ public class TokenFilter extends OncePerRequestFilter {
                 String newToken = LoginCacheInfo.refreshToken(currentLoginInfo);
                 TokenUtil.notice(request, response, newToken, null);
             }
+        } catch (AuthenticationException e) {
+            failureHandler.onAuthenticationFailure(request, response, e);
         } catch (Exception e) {
-            if (!(e instanceof AuthenticationException)) {
-                e = new TokenIllegalException(e.getMessage());
-            }
-            failureHandler.onAuthenticationFailure(request, response, (AuthenticationException) e);
+            failureHandler.render(request, response, e);
         }
     }
 }

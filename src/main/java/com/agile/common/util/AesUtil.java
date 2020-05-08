@@ -2,12 +2,19 @@ package com.agile.common.util;
 
 import com.agile.common.factory.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
-import com.agile.common.util.string.StringUtil;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author 佟盟
@@ -19,6 +26,7 @@ public class AesUtil {
      * 密钥算法
      */
     private static final String ALGORITHM = "AES";
+    private static final String AES_CBC_PKCS_5_PADDING = "AES/CBC/PKCS5Padding";
 
     /**
      * 将byte[]转为各种进制的字符串
@@ -49,7 +57,7 @@ public class AesUtil {
      * @return 解码后的byte[]
      */
     public static byte[] base64Decode(String base64Code) {
-        return StringUtil.isEmpty(base64Code) ? null : Base64.decodeBase64(base64Code);
+        return StringUtils.isEmpty(base64Code) ? null : Base64.decodeBase64(base64Code);
     }
 
 
@@ -59,13 +67,13 @@ public class AesUtil {
      * @param content    待加密的内容
      * @param encryptKey 加密密钥
      * @return 加密后的byte[]
-     * @throws Exception
      */
-    public static byte[] aesEncryptToBytes(String content, String encryptKey, String encryptIV, String algorithmstr) throws Exception {
+    public static byte[] aesEncryptToBytes(String content, String encryptKey, String encryptIv, String algorithmstr)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] raw = encryptKey.getBytes(StandardCharsets.UTF_8);
         SecretKeySpec secretKeySpec = new SecretKeySpec(raw, ALGORITHM);
         Cipher cipher = Cipher.getInstance(algorithmstr);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIV.getBytes(StandardCharsets.UTF_8));
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIv.getBytes(StandardCharsets.UTF_8));
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
         return cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
     }
@@ -77,10 +85,10 @@ public class AesUtil {
      * @param content    待加密的内容
      * @param encryptKey 加密密钥
      * @return 加密后的base 64 code
-     * @throws Exception
      */
-    public static String aesEncrypt(String content, String encryptKey, String encryptIV, String algorithmstr) throws Exception {
-        return StringUtil.isEmpty(content) ? null : base64Encode(aesEncryptToBytes(content, encryptKey, encryptIV, algorithmstr));
+    public static String aesEncrypt(String content, String encryptKey, String encryptIv, String algorithmstr)
+            throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        return StringUtils.isEmpty(content) ? null : base64Encode(aesEncryptToBytes(content, encryptKey, encryptIv, algorithmstr));
     }
 
     /**
@@ -89,30 +97,36 @@ public class AesUtil {
      * @param encryptBytes 待解密的byte[]
      * @param decryptKey   解密密钥
      * @return 解密后的String
-     * @throws Exception
      */
-    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIV, String algorithmstr) throws Exception {
+    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIv, String algorithmstr) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException {
         byte[] raw = decryptKey.getBytes(StandardCharsets.US_ASCII);
         SecretKeySpec skeySpec = new SecretKeySpec(raw, ALGORITHM);
 
         Cipher cipher = Cipher.getInstance(algorithmstr);
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIV.getBytes(StandardCharsets.UTF_8));
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(encryptIv.getBytes(StandardCharsets.UTF_8));
         cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivParameterSpec);
-        byte[] decryptBytes = cipher.doFinal(encryptBytes);
+        byte[] decryptBytes;
+        try {
+            decryptBytes = cipher.doFinal(encryptBytes);
+        } catch (Exception e) {
+            decryptBytes = encryptBytes;
+        }
 
         return new String(decryptBytes, StandardCharsets.UTF_8);
     }
 
-    public static String aesEncrypt(String content, String encryptKey, String encryptIV) throws Exception {
-        return aesEncrypt(content, encryptKey, encryptIV, "AES/CBC/PKCS5Padding");
+    public static String aesEncrypt(String content, String encryptKey, String encryptIv)
+            throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+        return aesEncrypt(content, encryptKey, encryptIv, AES_CBC_PKCS_5_PADDING);
     }
 
-    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIV) throws Exception {
-        return aesDecryptByBytes(encryptBytes, decryptKey, encryptIV, "AES/CBC/PKCS5Padding");
+    public static String aesDecryptByBytes(byte[] encryptBytes, String decryptKey, String encryptIv)
+            throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException {
+        return aesDecryptByBytes(encryptBytes, decryptKey, encryptIv, AES_CBC_PKCS_5_PADDING);
     }
 
-    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIV) {
-        return aesDecrypt(encryptStr, decryptKey, encryptIV, "AES/CBC/PKCS5Padding");
+    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIv) {
+        return aesDecrypt(encryptStr, decryptKey, encryptIv, AES_CBC_PKCS_5_PADDING);
     }
 
     /**
@@ -122,9 +136,9 @@ public class AesUtil {
      * @param decryptKey 解密密钥
      * @return 解密后的string
      */
-    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIV, String algorithmstr) {
+    public static String aesDecrypt(String encryptStr, String decryptKey, String encryptIv, String algorithmstr) {
         try {
-            return StringUtil.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIV, algorithmstr);
+            return StringUtils.isEmpty(encryptStr) ? null : aesDecryptByBytes(base64Decode(encryptStr), decryptKey, encryptIv, algorithmstr);
         } catch (Exception e) {
             LoggerFactory.COMMON_LOG.error("解密失败", e);
             return encryptStr;
