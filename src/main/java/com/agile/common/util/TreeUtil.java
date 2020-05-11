@@ -1,9 +1,17 @@
 package com.agile.common.util;
 
+import com.agile.common.base.Constant;
+import com.agile.common.util.clazz.ClassUtil;
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import com.agile.common.util.string.StringUtil;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 /**
  * @author 佟盟
  * @version 1.0
@@ -21,45 +29,58 @@ public class TreeUtil {
      * @param list 构建源数据
      * @return 树形结构数据集
      */
-    public static <T> List<T> createTree(List<T> list, String key, String parentKey, String childrenKey, String sortKey, String rootValue) throws NoSuchFieldException, IllegalAccessException {
+    public static <T> List<T> createTree(List<T> list, String key, String parentKey, String childrenKey, String sortKey, String rootValue, String... fullFields) throws NoSuchFieldException, IllegalAccessException {
         List<T> roots = new ArrayList<>();
-        Field keyField = null;
-        Field parentKeyField = null;
-        Field childrenKeyField = null;
-        for (T entity : list) {
-            if (keyField == null) {
-                keyField = entity.getClass().getDeclaredField(key);
-                keyField.setAccessible(true);
-            }
-            if (parentKeyField == null) {
-                parentKeyField = entity.getClass().getDeclaredField(parentKey);
-                parentKeyField.setAccessible(true);
-            }
-            if (childrenKeyField == null) {
-                childrenKeyField = entity.getClass().getDeclaredField(childrenKey);
-                childrenKeyField.setAccessible(true);
-            }
-            if (rootValue.equals(parentKeyField.get(entity))) {
-                childrenKeyField.set(entity, createChildren(entity, list, keyField, parentKeyField, childrenKeyField, sortKey));
-                roots.add(entity);
-            }
+
+        if (!list.isEmpty()) {
+            T entity = list.get(0);
+            Class<T> tClass = (Class<T>) entity.getClass();
+
+            Field keyField = tClass.getDeclaredField(key);
+            keyField.setAccessible(true);
+            Field parentKeyField = tClass.getDeclaredField(parentKey);
+            parentKeyField.setAccessible(true);
+            Field childrenKeyField = tClass.getDeclaredField(childrenKey);
+            childrenKeyField.setAccessible(true);
+
+            Set<Field> fullFieldSet = Stream.of(fullFields).map(fieldName -> {
+                Field fullField;
+                try {
+                    fullField = tClass.getDeclaredField(fieldName);
+                } catch (NoSuchFieldException e) {
+                    return null;
+                }
+                fullField.setAccessible(true);
+                return fullField;
+            }).filter(Objects::nonNull).collect(Collectors.toSet());
+
+            // 创建虚拟根节点
+            T parent = ClassUtil.newInstance(tClass);
+            keyField.set(parent, rootValue);
+
+            return createChildren(parent, list, keyField, parentKeyField, childrenKeyField, sortKey, fullFieldSet);
         }
-        if (StringUtil.isBlank(sortKey)) {
-            return roots;
-        }
-        CollectionsUtil.sort(roots, sortKey);
+
         return roots;
     }
 
-    private static <T> List<T> createChildren(T parent, List<T> list, Field keyField, Field parentKeyField, Field childrenKeyField, String sortKey) throws IllegalAccessException {
+    private static <T> List<T> createChildren(T parentNode, List<T> list, Field keyField, Field parentKeyField, Field childrenKeyField, String sortKey, Set<Field> fullFieldSet) throws IllegalAccessException {
         List<T> children = new ArrayList<>();
-        for (T entity : list) {
-            if (keyField.get(parent).equals(parentKeyField.get(entity))) {
-                childrenKeyField.set(entity, createChildren(entity, list, keyField, parentKeyField, childrenKeyField, sortKey));
-                children.add(entity);
+        for (T currentNode : list) {
+            if (keyField.get(parentNode).equals(parentKeyField.get(currentNode))) {
+                children.add(currentNode);
+
+                for (Field field : fullFieldSet) {
+                    Object parentValue = field.get(parentNode);
+                    if (parentValue == null) {
+                        continue;
+                    }
+                    field.set(currentNode, parentValue + Constant.RegularAbout.SPOT + field.get(currentNode));
+                }
+                childrenKeyField.set(currentNode, createChildren(currentNode, list, keyField, parentKeyField, childrenKeyField, sortKey, fullFieldSet));
             }
         }
-        if (StringUtil.isBlank(sortKey)) {
+        if (StringUtils.isBlank(sortKey) || children.isEmpty()) {
             return children;
         }
         CollectionsUtil.sort(children, sortKey);

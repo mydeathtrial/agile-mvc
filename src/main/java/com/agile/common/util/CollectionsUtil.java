@@ -20,7 +20,7 @@ public class CollectionsUtil extends CollectionUtils {
                     Field field = clazz.getDeclaredField(propertiy);
                     field.setAccessible(true);
 
-                    return Integer.parseInt(field.get(o1).toString()) - Integer.parseInt(field.get(o2).toString());
+                    return field.get(o1).toString().compareTo(field.get(o2).toString());
                 }
 
             } catch (IllegalAccessException | NoSuchFieldException e) {

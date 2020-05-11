@@ -29,6 +29,10 @@ public final class RETURN {
         this.msg = msg.trim();
     }
 
+    public static RETURN of(String code, String msg) {
+        return new RETURN(code, msg);
+    }
+
     public static RETURN getReturn(String key, Object... params) {
         String message = PropertiesUtil.getMessage(key, params);
         if (message != null && message.contains(Constant.RegularAbout.COLON)) {

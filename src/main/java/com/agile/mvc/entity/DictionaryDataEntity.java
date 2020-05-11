@@ -70,6 +70,34 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
         return children;
     }
 
+    /**
+     * 全路径名
+     */
+    private String fullName;
+    /**
+     * 全路径Code
+     */
+    private String fullCode;
+
+    @Transient
+    public String getFullName() {
+        return fullName;
+    }
+
+    @Transient
+    public String getFullCode() {
+        return fullCode;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+        this.fullCode = code;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        this.fullName = name;
+    }
 
     private Map<String, DictionaryDataEntity> codeCache = new HashMap<>();
 

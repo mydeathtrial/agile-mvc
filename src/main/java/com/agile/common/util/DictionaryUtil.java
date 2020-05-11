@@ -4,7 +4,6 @@ import com.agile.common.annotation.Dictionary;
 import com.agile.common.base.Constant;
 import com.agile.common.cache.AgileCache;
 import com.agile.common.util.clazz.ClassUtil;
-import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.util.pattern.PatternUtil;
 import com.agile.common.util.string.StringUtil;
@@ -146,12 +145,12 @@ public final class DictionaryUtil {
     }
 
     /**
-     * 根据父级字典与子字典，转换字典值
+     * 根据父级字典与子字典(多，逗号分隔)，转换字典值
      *
      * @param parentCode   父级字典码
      * @param codes        子字典码
      * @param defaultValue 默认值
-     * @return 明文
+     * @return 逗号分隔字典值
      */
     public static String coverDicName(String parentCode, String codes, String defaultValue) {
         if (StringUtils.isBlank(parentCode) || StringUtils.isBlank(codes)) {
@@ -185,7 +184,7 @@ public final class DictionaryUtil {
     }
 
     /**
-     * 根据父级树形字典码与name获取字典
+     * 根据父级树形字典码与子树形name获取字典
      *
      * @param code 字典
      * @return bean
@@ -195,8 +194,122 @@ public final class DictionaryUtil {
         if (list == null || name == null) {
             return null;
         }
+
+        String parentName;
+        if (PatternUtil.find(SPLIT_CHAR, name)) {
+            parentName = StringUtil.getSplitAtomic(name, SPLIT_CHAR, Constant.NumberAbout.ZERO);
+            if (parentName != null) {
+                DictionaryDataEntity parentEntity = coverDicBeanByChildName(code, parentName);
+                if (parentEntity == null) {
+                    return null;
+                }
+                return coverDicBean(code + Constant.RegularAbout.SPOT + parentEntity.getCode(), name.replaceFirst(parentName + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
+            }
+            return null;
+        } else {
+            return coverDicBeanByChildName(code, name);
+        }
+    }
+
+    /**
+     * 根据子名字与树形父级字典码，获取该子对象
+     *
+     * @param code 树形父级字典码
+     * @param name 子名字
+     * @return 子
+     */
+    public static DictionaryDataEntity coverDicBeanByChildName(String code, String name) {
+        List<DictionaryDataEntity> list = coverDicList(code);
+        if (list == null || name == null) {
+            return null;
+        }
         return list.stream().filter(entity -> name.equals(entity.getName())).findFirst().orElse(null);
     }
+
+    public static String coverDicFullCode(String rootCode, String fullName) {
+        return coverDicFullCode(rootCode, null, fullName, Constant.RegularAbout.SPOT);
+    }
+
+    public static String coverDicFullCode(String rootCode, String fullName, String splitStr) {
+        return coverDicFullCode(rootCode, null, fullName, splitStr);
+    }
+
+    public static String coverDicFullCode(String rootCode, StringBuilder builder, String fullName, String splitStr) {
+        if (builder == null) {
+            builder = new StringBuilder();
+        }
+        if (PatternUtil.find(SPLIT_CHAR, fullName)) {
+
+            if (builder.length() != 0) {
+                builder.insert(0, splitStr);
+            }
+            builder.insert(0, coverDicCode(rootCode, fullName));
+
+            String parentCode = fullName.substring(0, PatternUtil.lastIndexOf(SPLIT_CHAR, fullName));
+            return coverDicFullCode(rootCode, builder, parentCode, splitStr);
+        } else {
+
+            String parentCode = coverDicCode(rootCode, fullName);
+            if (rootCode.equals(parentCode)) {
+                return builder.toString();
+            }
+            if (builder.length() != 0) {
+                builder.insert(0, splitStr);
+            }
+            return builder.insert(0, parentCode).insert(0, splitStr).insert(0, rootCode).toString();
+        }
+    }
+
+    /**
+     * 根据字典码转换名字
+     *
+     * @param fullCode 树形字典码
+     * @return 树形字典值
+     */
+    public static String coverDicFullName(String fullCode) {
+        return coverDicFullName(null, fullCode, Constant.RegularAbout.SPOT);
+    }
+
+    /**
+     * 根据字典码转换名字
+     *
+     * @param code     树形字典码
+     * @param splitStr 分隔符
+     * @return 树形字典值
+     */
+    public static String coverDicFullName(String code, String splitStr) {
+        return coverDicFullName(null, code, splitStr);
+    }
+
+    /**
+     * 尾递归
+     *
+     * @param builder  结果容器
+     * @param code     转换的编码
+     * @param splitStr 分隔符
+     * @return 结果
+     */
+    public static String coverDicFullName(StringBuilder builder, String code, String splitStr) {
+        if (builder == null) {
+            builder = new StringBuilder();
+        }
+        if (PatternUtil.find(SPLIT_CHAR, code)) {
+
+            if (builder.length() != 0) {
+                builder.insert(0, splitStr);
+            }
+            builder.insert(0, coverDicName(code));
+
+            String parentCode = code.substring(0, PatternUtil.lastIndexOf(SPLIT_CHAR, code));
+            return coverDicFullName(builder, parentCode, splitStr);
+        } else {
+            if (builder.length() != 0) {
+                builder.insert(0, splitStr);
+            }
+            return builder.insert(0, coverDicName(code)).toString();
+        }
+    }
+
 
     /**
      * 递归获取字典码对应实体下n层中，code = targetCode的首个实例
@@ -265,21 +378,6 @@ public final class DictionaryUtil {
     }
 
     /**
-     * 获取缓存根字典对象
-     *
-     * @param code 字典码
-     * @return bean
-     */
-    public static DictionaryDataEntity coverRootDicBean(String code) {
-        DictionaryDataEntity dictionaryDataEntity = threadLocal.get().get(code);
-        if (dictionaryDataEntity == null) {
-            dictionaryDataEntity = getCache().getFromMap("dic", code, DictionaryDataEntity.class);
-            threadLocal.get().put(code, dictionaryDataEntity);
-        }
-        return dictionaryDataEntity;
-    }
-
-    /**
      * 转换字典对象
      *
      * @param code 字典码
@@ -289,23 +387,14 @@ public final class DictionaryUtil {
         if (StringUtils.isEmpty(code)) {
             return null;
         }
-        DictionaryDataEntity rootEntity;
-        DictionaryDataEntity targetEntity = null;
-        String parentCode = code;
-
-        if (PatternUtil.find(SPLIT_CHAR, code)) {
-            parentCode = StringUtil.getSplitAtomic(code, SPLIT_CHAR, Constant.NumberAbout.ZERO);
-            if (parentCode != null) {
-                rootEntity = coverRootDicBean(parentCode.trim());
-                if (rootEntity == null) {
-                    return null;
-                }
-                targetEntity = rootEntity.getCodeCache(code.replaceFirst(parentCode + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
-            }
+        if (threadLocal.get().containsKey(code)) {
+            return threadLocal.get().get(code);
         } else {
-            targetEntity = coverRootDicBean(parentCode);
+            code = code.replaceAll(SPLIT_CHAR, Constant.RegularAbout.SPOT);
+            DictionaryDataEntity entity = getCache().getFromMap("codeMap", code, DictionaryDataEntity.class);
+            threadLocal.get().put(entity.getFullCode(), entity);
+            return entity;
         }
-        return targetEntity;
     }
 
     /**
@@ -354,7 +443,7 @@ public final class DictionaryUtil {
     public static List<DictionaryDataEntity> coverDicList(String code) {
         DictionaryDataEntity targetEntity = coverDicBean(code);
         if (targetEntity == null) {
-            return null;
+            return Lists.newArrayList();
         }
         return targetEntity.getChildren();
     }
@@ -422,7 +511,7 @@ public final class DictionaryUtil {
             } else {
                 field = (Field) member;
             }
-            list.forEach(node -> {
+            list.parallelStream().forEach(node -> {
                 Object code = ObjectUtil.getFieldValue(node, linkColumn);
                 String codeStr;
                 if (code instanceof String) {
@@ -430,8 +519,7 @@ public final class DictionaryUtil {
                 } else if (code instanceof Boolean) {
                     codeStr = (Boolean) code ? "1" : "0";
                 } else {
-                    codeStr = ObjectUtil.to(code, new TypeReference<String>() {
-                    });
+                    codeStr = code.toString();
                 }
                 if (ObjectUtils.isEmpty(parentDicCode)) {
                     ObjectUtil.setValue(node, field, coverDicName(codeStr));
