@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * @author 佟盟
  * 日期 2020/3/17 11:16
- * 描述 TODO
+ * 描述 字典翻译注解
  * @version 1.0
  * @since 1.0
  */
@@ -26,4 +26,14 @@ public @interface Dictionary {
      * 指向字典字段
      */
     String fieldName();
+
+    /**
+     * 是否翻译出全路径字典值
+     */
+    boolean isFull() default false;
+
+    /**
+     * 全路径字典值分隔符
+     */
+    String split() default ".";
 }

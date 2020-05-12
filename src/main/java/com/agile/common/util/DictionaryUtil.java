@@ -10,6 +10,8 @@ import com.agile.common.util.string.StringUtil;
 import com.agile.mvc.entity.DictionaryDataEntity;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
 
 import java.lang.reflect.Field;
@@ -29,11 +31,12 @@ import java.util.Set;
  * @since 1.0
  */
 public final class DictionaryUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryUtil.class);
     private static final String DEFAULT_CACHE_NAME = "dictionary-cache";
     private static final String NAME_FORMAT = "%s%s";
     private static final String CODE_FORMAT = "%s.%s";
     private static final String SPLIT_CHAR = "[./\\\\]";
-    private static ThreadLocal<Map<String, DictionaryDataEntity>> threadLocal = ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<Map<String, DictionaryDataEntity>> THREAD_LOCAL = ThreadLocal.withInitial(HashMap::new);
 
     private DictionaryUtil() {
     }
@@ -387,12 +390,16 @@ public final class DictionaryUtil {
         if (StringUtils.isEmpty(code)) {
             return null;
         }
-        if (threadLocal.get().containsKey(code)) {
-            return threadLocal.get().get(code);
+        if (THREAD_LOCAL.get().containsKey(code)) {
+            return THREAD_LOCAL.get().get(code);
         } else {
             code = code.replaceAll(SPLIT_CHAR, Constant.RegularAbout.SPOT);
             DictionaryDataEntity entity = getCache().getFromMap("codeMap", code, DictionaryDataEntity.class);
-            threadLocal.get().put(entity.getFullCode(), entity);
+            if (entity == null) {
+                LOGGER.error("not found dictionary of code {}", code);
+                return null;
+            }
+            THREAD_LOCAL.get().put(entity.getFullCode(), entity);
             return entity;
         }
     }
@@ -501,6 +508,8 @@ public final class DictionaryUtil {
             Member member = target.getMember();
             String parentDicCode = dictionary.dicCode();
             String linkColumn = dictionary.fieldName();
+            boolean isFull = dictionary.isFull();
+            String split = dictionary.split();
             Field field;
             if (member instanceof Method) {
                 String fieldName = StringUtil.toLowerName(member.getName().substring(Constant.NumberAbout.THREE));
@@ -511,23 +520,50 @@ public final class DictionaryUtil {
             } else {
                 field = (Field) member;
             }
-            list.parallelStream().forEach(node -> {
-                Object code = ObjectUtil.getFieldValue(node, linkColumn);
-                String codeStr;
-                if (code instanceof String) {
-                    codeStr = (String) code;
-                } else if (code instanceof Boolean) {
-                    codeStr = (Boolean) code ? "1" : "0";
-                } else {
-                    codeStr = code.toString();
-                }
-                if (ObjectUtils.isEmpty(parentDicCode)) {
-                    ObjectUtil.setValue(node, field, coverDicName(codeStr));
-                } else {
-                    ObjectUtil.setValue(node, field, coverDicName(parentDicCode, codeStr));
-                }
-            });
+            list.parallelStream().forEach(node -> parseNodeField(parentDicCode, linkColumn, isFull, split, field, node));
         });
-        threadLocal.remove();
+        THREAD_LOCAL.remove();
+    }
+
+    /**
+     * 翻译一个对象的一个字段
+     *
+     * @param parentDicCode 父级字典码
+     * @param linkColumn    关联的存储字典码的字段
+     * @param isFull        是否需要全路径字典值
+     * @param field         翻译后存储字典值的字段
+     * @param node          对象
+     * @param <T>           对象类型
+     */
+    private static <T> void parseNodeField(String parentDicCode, String linkColumn, boolean isFull, String split, Field field, T node) {
+        Object code = ObjectUtil.getFieldValue(node, linkColumn);
+
+        // 处理布尔类型
+        String codeStr;
+        if (code instanceof Boolean) {
+            codeStr = Boolean.getBoolean(code.toString()) ? "1" : "0";
+        } else {
+            codeStr = code.toString();
+        }
+
+        // 全路径字典码
+        String fullCode;
+        if (ObjectUtils.isEmpty(parentDicCode)) {
+            fullCode = codeStr;
+        } else {
+            fullCode = parentDicCode + Constant.RegularAbout.SPOT + codeStr;
+
+        }
+
+        // 全路径字典值
+        String targetName;
+        if (isFull) {
+            targetName = coverDicFullName(fullCode, split);
+        } else {
+            targetName = coverDicName(fullCode);
+        }
+
+        // 赋值
+        ObjectUtil.setValue(node, field, targetName);
     }
 }
