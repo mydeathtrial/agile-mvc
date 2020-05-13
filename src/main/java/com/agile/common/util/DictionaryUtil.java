@@ -540,7 +540,9 @@ public final class DictionaryUtil {
 
         // 处理布尔类型
         String codeStr;
-        if (code instanceof Boolean) {
+        if (ObjectUtils.isEmpty(code)) {
+            return;
+        } else if (code instanceof Boolean) {
             codeStr = Boolean.getBoolean(code.toString()) ? "1" : "0";
         } else {
             codeStr = code.toString();

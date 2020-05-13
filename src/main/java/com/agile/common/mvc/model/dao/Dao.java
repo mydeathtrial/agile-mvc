@@ -959,8 +959,8 @@ public class Dao {
      * @param <T>        目标表对应实体类型
      * @return 返回查询出的实体列表
      */
-    public <T> List<T> findAllById(Class<T> tableClass, Iterable<Object> ids) {
-        List<T> result = getRepository(tableClass).findAllById(ids);
+    public <T> List<T> findAllById(Class<T> tableClass, Iterable<?> ids) {
+        List<T> result = getRepository(tableClass).findAllById((Iterable<Object>) ids);
         DictionaryUtil.cover(result);
         return result;
     }
