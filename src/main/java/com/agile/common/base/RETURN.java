@@ -13,18 +13,19 @@ public final class RETURN {
     public static final RETURN EXPRESSION = getMessage("agile.exception.expression");
     public static final RETURN PARAMETER_ERROR = getMessage("agile.error.paramError");
     public static final RETURN XML_SERIALIZER_ERROR = getMessage("agile.error.xmlSerializerError");
+    public static final RETURN FAIL = getMessage("agile.error.Fail");
 
     /**
      * 响应状态码
      */
-    private String code;
+    private final String code;
 
     /**
      * 响应信息
      */
-    private String msg;
+    private final String msg;
 
-    public RETURN(String code, String msg) {
+    private RETURN(String code, String msg) {
         this.code = code.trim();
         this.msg = msg.trim();
     }
@@ -60,20 +61,7 @@ public final class RETURN {
     public String getCode() {
         return code;
     }
-
-    @Deprecated
-    public RETURN setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
     public String getMsg() {
         return msg;
-    }
-
-    @Deprecated
-    public RETURN setMsg(String msg) {
-        this.msg = msg;
-        return this;
     }
 }

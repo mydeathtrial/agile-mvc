@@ -11,6 +11,7 @@ import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ParamUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -262,13 +263,19 @@ public class MainService implements ServiceInterface {
         if (Map.class.isAssignableFrom(outParam.getClass())) {
             OUT_PARAM.get().putAll((Map<? extends String, ?>) outParam);
         } else {
-            Map<String, Object> map = ObjectUtil.to(outParam, new TypeReference<Map<String, Object>>() {
-            });
-            if (map == null) {
+
+            if (outParam instanceof String && !JSON.isValid((String) outParam)) {
                 OUT_PARAM.get().put(Constant.ResponseAbout.RESULT, outParam);
             } else {
-                OUT_PARAM.get().putAll(map);
+                Map<String, Object> map = ObjectUtil.to(outParam, new TypeReference<Map<String, Object>>() {
+                });
+                if (map == null) {
+                    OUT_PARAM.get().put(Constant.ResponseAbout.RESULT, outParam);
+                } else {
+                    OUT_PARAM.get().putAll(map);
+                }
             }
+
         }
     }
 

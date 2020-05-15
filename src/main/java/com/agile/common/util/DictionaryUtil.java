@@ -156,12 +156,30 @@ public final class DictionaryUtil {
      * @return 逗号分隔字典值
      */
     public static String coverDicName(String parentCode, String codes, String defaultValue) {
+        return coverDicName(parentCode, codes, defaultValue, false);
+    }
+
+    /**
+     * 根据父级字典与子字典(多，逗号分隔)，转换字典值
+     *
+     * @param parentCode   父级字典码
+     * @param codes        子字典码
+     * @param defaultValue 默认值
+     * @param isFull       是否全路径模式翻译
+     * @return 逗号分隔字典值
+     */
+    public static String coverDicName(String parentCode, String codes, String defaultValue, boolean isFull) {
         if (StringUtils.isBlank(parentCode) || StringUtils.isBlank(codes)) {
             return defaultValue;
         }
         StringBuilder nameCache = new StringBuilder();
         for (String code : codes.split(Constant.RegularAbout.COMMA)) {
-            nameCache.append(coverDicName(String.format(CODE_FORMAT, parentCode, code))).append(Constant.RegularAbout.COMMA);
+            if (isFull) {
+                nameCache.append(coverDicFullName(String.format(CODE_FORMAT, parentCode, code)));
+            } else {
+                nameCache.append(coverDicName(String.format(CODE_FORMAT, parentCode, code)));
+            }
+            nameCache.append(Constant.RegularAbout.COMMA);
         }
         if (nameCache.length() > 0) {
             return nameCache.substring(0, nameCache.length() - 1);
@@ -296,6 +314,22 @@ public final class DictionaryUtil {
         if (builder == null) {
             builder = new StringBuilder();
         }
+        String[] codes;
+        if (PatternUtil.find(code, Constant.RegularAbout.COMMA)) {
+            codes = code.split(Constant.RegularAbout.COMMA);
+        } else {
+            codes = new String[]{code};
+        }
+        for (String c : codes) {
+            if (builder.length() > 0) {
+                builder.append(Constant.RegularAbout.COMMA);
+            }
+            toFullName(builder, c, splitStr);
+        }
+        return builder.toString();
+    }
+
+    private static String toFullName(StringBuilder builder, String code, String splitStr) {
         if (PatternUtil.find(SPLIT_CHAR, code)) {
 
             if (builder.length() != 0) {
@@ -411,11 +445,29 @@ public final class DictionaryUtil {
      * @return 字典名
      */
     public static String coverDicName(String code) {
-        DictionaryDataEntity targetEntity = coverDicBean(code);
-        if (targetEntity == null) {
-            return StringUtil.getSplitLastAtomic(code, SPLIT_CHAR);
+        if (code == null) {
+            return null;
         }
-        return targetEntity.getName();
+        StringBuilder builder = new StringBuilder();
+        String[] codes;
+        if (PatternUtil.find(Constant.RegularAbout.COMMA, code)) {
+            codes = code.split(Constant.RegularAbout.COMMA);
+        } else {
+            codes = new String[]{code};
+        }
+        for (String c : codes) {
+            DictionaryDataEntity targetEntity = coverDicBean(c);
+            if (builder.length() > 0) {
+                builder.append(Constant.RegularAbout.COMMA);
+            }
+            if (targetEntity == null) {
+                builder.append(StringUtil.getSplitLastAtomic(c, SPLIT_CHAR));
+            } else {
+                builder.append(targetEntity.getName());
+            }
+        }
+
+        return builder.toString();
     }
 
     /**
@@ -543,7 +595,7 @@ public final class DictionaryUtil {
         if (ObjectUtils.isEmpty(code)) {
             return;
         } else if (code instanceof Boolean) {
-            codeStr = Boolean.getBoolean(code.toString()) ? "1" : "0";
+            codeStr = (Boolean) code ? "1" : "0";
         } else {
             codeStr = code.toString();
         }
@@ -554,7 +606,6 @@ public final class DictionaryUtil {
             fullCode = codeStr;
         } else {
             fullCode = parentDicCode + Constant.RegularAbout.SPOT + codeStr;
-
         }
 
         // 全路径字典值
