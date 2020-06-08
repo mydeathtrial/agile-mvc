@@ -1,5 +1,6 @@
 package com.agile.common.base;
 
+import com.agile.common.param.AgileReturn;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.LinkedHashMap;
@@ -9,6 +10,9 @@ import java.util.Map;
  * @author 佟盟 on 2018/11/2
  */
 public abstract class AbstractResponseFormat extends LinkedHashMap<String, Object> {
+    private Head sourceHead;
+    private Object sourceResult;
+
     /**
      * 构建返回数据
      *
@@ -27,9 +31,10 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
      */
     public ModelAndView buildResponse(Head head, Object result) {
         if (head == null) {
-            assert RETURN.SUCCESS != null;
             head = new Head(RETURN.SUCCESS);
         }
+        sourceHead = head;
+        sourceResult = result;
         ModelAndView modelAndView = new ModelAndView();
         if (result == null) {
             modelAndView.addAllObjects(buildResponseData(head, null));
@@ -45,5 +50,9 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
         }
         modelAndView.addAllObjects(buildResponseData(head, result));
         return modelAndView;
+    }
+
+    public AgileReturn toAgileReturn() {
+        return new AgileReturn(sourceHead, sourceResult);
     }
 }

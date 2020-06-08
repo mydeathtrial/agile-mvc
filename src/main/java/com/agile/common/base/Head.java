@@ -1,6 +1,7 @@
 package com.agile.common.base;
 
 import com.agile.common.util.ServletUtil;
+import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;
 
@@ -9,14 +10,16 @@ import java.io.Serializable;
  */
 public class Head implements Serializable {
     private static final long serialVersionUID = 97555324631150979L;
-    private String ip;
-    private String code;
-    private String msg;
+    private final String ip;
+    private final String code;
+    private final String msg;
+    private final HttpStatus status;
 
     public Head(RETURN returnState) {
         this.code = returnState.getCode();
         this.msg = returnState.getMsg();
         this.ip = ServletUtil.getLocalIP();
+        this.status = returnState.getStatus();
     }
 
     public String getIp() {
@@ -25,6 +28,10 @@ public class Head implements Serializable {
 
     public String getCode() {
         return code;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
     }
 
     public String getMsg() {

@@ -13,6 +13,8 @@ import com.agile.common.exception.NoSuchRequestServiceException;
 import com.agile.common.exception.SpringExceptionHandler;
 import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.mvc.service.ServiceInterface;
+import com.agile.common.param.AgileParam;
+import com.agile.common.param.AgileReturn;
 import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ArrayUtil;
 import com.agile.common.util.FactoryUtil;
@@ -72,7 +74,7 @@ public class MainController {
      * @return 视图
      */
     @RequestMapping(value = {"/", "/*", "/*/*/*/**"})
-    public Object othersProcessor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) {
+    public Object othersProcessor(AgileParam agileParam, HttpServletRequest currentRequest, HttpServletResponse currentResponse) {
         return asyncProcessor(() -> {
             try {
                 //清理缓存
@@ -84,7 +86,7 @@ public class MainController {
                 if (initApiInfoByRequestMapping()) {
                     throw new UnlawfulRequestException();
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -92,14 +94,14 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.GET)
-    public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+    public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
-                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
+                    return processor(agileParam, currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -107,16 +109,16 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.GET)
-    public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+    public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("id", id);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "queryById");
+                    return processor(agileParam, requestWrapper, currentResponse, StringUtil.removeExtension(resource), "queryById");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -124,7 +126,7 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}/page/{page}/{size}"}, method = RequestMethod.GET)
-    public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) {
+    public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
@@ -132,9 +134,9 @@ public class MainController {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("page", page);
                     requestWrapper.addParameter("size", size);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "pageQuery");
+                    return processor(agileParam, requestWrapper, currentResponse, StringUtil.removeExtension(resource), "pageQuery");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -142,14 +144,14 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.POST)
-    public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+    public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
-                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
+                    return processor(agileParam, currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -157,16 +159,16 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.PUT)
-    public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+    public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("id", id);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "update");
+                    return processor(agileParam, requestWrapper, currentResponse, StringUtil.removeExtension(resource), "update");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -174,14 +176,14 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.DELETE)
-    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
-                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
+                    return processor(agileParam, currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -189,16 +191,16 @@ public class MainController {
     }
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.DELETE)
-    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id, AgileParam agileParam) {
         return asyncProcessor(() -> {
             try {
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
                     requestWrapper.addParameter("id", id);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "delete");
+                    return processor(agileParam, requestWrapper, currentResponse, StringUtil.removeExtension(resource), "delete");
                 }
-                return processor(currentRequest, currentResponse);
+                return processor(agileParam, currentRequest, currentResponse);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -218,12 +220,13 @@ public class MainController {
     public Object proxyProcessor(
             HttpServletRequest currentRequest,
             HttpServletResponse currentResponse,
-            @PathVariable String service,
-            @PathVariable String method
+            @PathVariable("service") String service,
+            @PathVariable("method") String method,
+            AgileParam agileParam
     ) {
         return asyncProcessor(() -> {
             try {
-                return processor(currentRequest, currentResponse, service, method);
+                return processor(agileParam, currentRequest, currentResponse, service, method);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
@@ -242,6 +245,7 @@ public class MainController {
      * @throws Throwable 所有异常
      */
     public ModelAndView processor(
+            AgileParam agileParam,
             HttpServletRequest currentRequest,
             HttpServletResponse currentResponse,
             String service,
@@ -259,7 +263,7 @@ public class MainController {
             initMethod(StringUtil.toLowerName(method));
         }
 
-        return processor(currentRequest, currentResponse);
+        return processor(agileParam, currentRequest, currentResponse);
     }
 
     private WebAsyncTask<ModelAndView> asyncProcessor(Callable<ModelAndView> callable) {
@@ -271,20 +275,16 @@ public class MainController {
         return asyncTask;
     }
 
-    private ModelAndView processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
-
-        //处理入参
-        handleInParam();
-
+    private ModelAndView processor(AgileParam agileParam, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
         //入参验证
-        List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getService(), getMethod());
+        List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getService(), getMethod(), agileParam);
         Optional<List<ValidateMsg>> optionalValidateMsgList = ParamUtil.aggregation(validateMessages);
         if (optionalValidateMsgList.isPresent()) {
             return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
         }
 
         //调用目标方法
-        Object returnData = getService().executeMethod(getService(), getMethod(), currentRequest, currentResponse);
+        Object returnData = getService().executeMethod(getService(), getMethod(), agileParam, currentRequest, currentResponse);
 
         //获取出参
         Map<String, Object> outParam = getService().getOutParam();
@@ -299,16 +299,14 @@ public class MainController {
 
         //获取格式化后的报文
         if (returnData instanceof AbstractResponseFormat) {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.addAllObjects((AbstractResponseFormat) returnData);
-            return modelAndView;
+            return ((AbstractResponseFormat) returnData).toAgileReturn().build();
         }
-        ModelAndView modelAndView = ParamUtil.getResponseFormatData(returnData instanceof RETURN ? new Head((RETURN) returnData) : null, getService().getOutParam());
+        AgileReturn agileReturn = new AgileReturn(returnData instanceof RETURN ? (RETURN) returnData : null, getService().getOutParam());
 
         //清理缓存
         clear();
 
-        return modelAndView;
+        return agileReturn.build();
     }
 
     /**
@@ -461,22 +459,11 @@ public class MainController {
     }
 
     /**
-     * 根据servlet请求、认证信息、目标服务名、目标方法名处理入参
-     */
-    private void handleInParam() {
-        getService().clearInParam();
-        HttpServletRequest currentRequest = REQUEST.get();
-
-        //将处理过的所有请求参数传入调用服务对象
-        getService().setInParam(ParamUtil.handleInParam(currentRequest));
-    }
-
-    /**
      * 获取当前线程下Service缓存
      *
      * @return 服务
      */
-    private ServiceInterface getService() {
+    public ServiceInterface getService() {
         return SERVICE.get();
     }
 
@@ -485,7 +472,7 @@ public class MainController {
      *
      * @return 方法
      */
-    private Method getMethod() {
+    public Method getMethod() {
         return METHOD.get();
     }
 }

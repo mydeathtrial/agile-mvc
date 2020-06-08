@@ -116,15 +116,8 @@ public class LoginCacheInfo implements Serializable {
         if (claims == null) {
             throw new TokenIllegalException("身份令牌验证失败");
         } else {
-            validateTimeOut(claims);
+            return refreshTimeOut(claims);
         }
-
-        Long sessionToken = claims.get(TokenUtil.AUTHENTICATION_SESSION_TOKEN, Long.class);
-        String username = claims.get(TokenUtil.AUTHENTICATION_USER_NAME, String.class);
-
-        LoginCacheInfo loginCacheInfo = cache.get(username, LoginCacheInfo.class);
-
-        return new CurrentLoginInfo(sessionToken, loginCacheInfo);
     }
 
     /**
@@ -174,11 +167,12 @@ public class LoginCacheInfo implements Serializable {
     }
 
     /**
-     * 验证token过期
+     * 刷新token过期时间
      *
      * @param claims 令牌信息
+     * @return 当前登陆信息
      */
-    private static void validateTimeOut(Claims claims) {
+    private static CurrentLoginInfo refreshTimeOut(Claims claims) {
         Long sessionToken = claims.get(TokenUtil.AUTHENTICATION_SESSION_TOKEN, Long.class);
         String username = claims.get(TokenUtil.AUTHENTICATION_USER_NAME, String.class);
 
@@ -193,6 +187,8 @@ public class LoginCacheInfo implements Serializable {
         }
         sessionInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
         cache.put(username, loginCacheInfo);
+
+        return new CurrentLoginInfo(sessionToken, loginCacheInfo);
     }
 
     /**

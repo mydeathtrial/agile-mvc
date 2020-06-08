@@ -1,5 +1,7 @@
 package com.agile.common.mvc.service;
 
+import com.agile.common.param.AgileParam;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
@@ -11,13 +13,6 @@ import java.util.Map;
  * @author 佟盟
  */
 public interface ServiceInterface {
-    /**
-     * 设置请求参数
-     *
-     * @param key   key值
-     * @param value value值
-     */
-    void setInParam(String key, Object value);
 
     /**
      * 设置响应参数
@@ -54,7 +49,7 @@ public interface ServiceInterface {
      *
      * @param inParam 入参集合
      */
-    void setInParam(Map<String, Object> inParam);
+    void setInParam(AgileParam inParam);
 
     /**
      * 从入参中提取对象
@@ -80,12 +75,13 @@ public interface ServiceInterface {
      *
      * @param object          service
      * @param method          method
+     * @param agileParam      入参
      * @param currentRequest  请求
      * @param currentResponse 响应
      * @return 结果
      * @throws Throwable 异常
      */
-    Object executeMethod(Object object, Method method, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable;
+    Object executeMethod(Object object, Method method, AgileParam agileParam, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable;
 
     /**
      * 初始化入参

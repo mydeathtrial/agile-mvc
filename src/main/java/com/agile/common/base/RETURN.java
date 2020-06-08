@@ -1,7 +1,9 @@
 package com.agile.common.base;
 
 import com.agile.common.util.PropertiesUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.http.HttpStatus;
 
 /**
  * @author 佟盟 on 2017/1/9
@@ -25,9 +27,15 @@ public final class RETURN {
      */
     private final String msg;
 
+    /**
+     * 状态码
+     */
+    private HttpStatus status;
+
     private RETURN(String code, String msg) {
         this.code = code.trim();
         this.msg = msg.trim();
+        parseState();
     }
 
     public static RETURN of(String code, String msg) {
@@ -61,7 +69,27 @@ public final class RETURN {
     public String getCode() {
         return code;
     }
+
     public String getMsg() {
         return msg;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    void parseState() {
+        if (StringUtils.isEmpty(code)) {
+            return;
+        }
+        String firstCode = code.substring(Constant.NumberAbout.ZERO, Constant.NumberAbout.ONE);
+        if ("2".equals(firstCode)) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        } else {
+            status = HttpStatus.OK;
+        }
+        if ("100002".equals(code) || "100003".equals(code)) {
+            status = HttpStatus.NOT_FOUND;
+        }
     }
 }

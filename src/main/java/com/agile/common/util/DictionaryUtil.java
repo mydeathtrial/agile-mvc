@@ -216,6 +216,7 @@ public final class DictionaryUtil {
             return null;
         }
 
+        DictionaryDataEntity result = null;
         String parentName;
         if (PatternUtil.find(SPLIT_CHAR, name)) {
             parentName = StringUtil.getSplitAtomic(name, SPLIT_CHAR, Constant.NumberAbout.ZERO);
@@ -224,12 +225,15 @@ public final class DictionaryUtil {
                 if (parentEntity == null) {
                     return null;
                 }
-                return coverDicBean(code + Constant.RegularAbout.SPOT + parentEntity.getCode(), name.replaceFirst(parentName + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
+                result = coverDicBean(code + Constant.RegularAbout.SPOT + parentEntity.getCode(), name.replaceFirst(parentName + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
             }
-            return null;
+            if (result == null) {
+                result = coverDicBeanByChildName(code, name);
+            }
         } else {
-            return coverDicBeanByChildName(code, name);
+            result = coverDicBeanByChildName(code, name);
         }
+        return result;
     }
 
     /**

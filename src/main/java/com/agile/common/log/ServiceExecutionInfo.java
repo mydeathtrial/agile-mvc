@@ -1,11 +1,11 @@
 package com.agile.common.log;
 
 import com.agile.common.base.Constant;
-import com.agile.common.util.AopUtil;
 import com.agile.common.util.JSONUtil;
 import com.agile.common.util.MapUtil;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.util.ProxyUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.lang.reflect.Method;
@@ -57,7 +57,7 @@ public class ServiceExecutionInfo {
     }
 
     public String getBeanName() {
-        return AopUtil.getTargetClass(bean).getSimpleName();
+        return ProxyUtils.getUserClass(bean).getSimpleName();
     }
 
     public String getMethodName() {

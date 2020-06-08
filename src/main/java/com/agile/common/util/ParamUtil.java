@@ -8,23 +8,28 @@ import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RequestWrapper;
 import com.agile.common.mvc.service.ServiceInterface;
+import com.agile.common.param.AgileParam;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
+import com.agile.common.util.string.StringUtil;
 import com.agile.common.validate.ValidateMsg;
 import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
 import com.google.common.collect.Maps;
 import org.apache.commons.compress.utils.Lists;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import com.agile.common.util.string.StringUtil;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,13 +48,58 @@ import java.util.stream.Stream;
  * @since 1.0
  */
 public class ParamUtil {
+
     /**
      * 根据servlet请求、认证信息、目标服务名、目标方法名处理入参
      */
     public static Map<String, Object> handleInParam(HttpServletRequest currentRequest) {
         final int length = 16;
         Map<String, Object> inParam = new HashMap<>(length);
+        if (currentRequest == null) {
+            return inParam;
+        }
 
+        inParam = parseOrdinaryVariable(currentRequest);
+
+        combine(inParam, parseUriVariable(currentRequest));
+
+        //将处理过的所有请求参数传入调用服务对象
+        return inParam;
+    }
+
+    /**
+     * 合并两个map结构，相同key时value合并成数组
+     *
+     * @param from 从
+     * @param to   到
+     */
+    private static void combine(Map<String, Object> from, Map<String, Object> to) {
+        to.forEach((key, value) -> {
+            Object old = from.get(key);
+            if (old == null) {
+                from.put(key, value);
+            } else {
+                if (Collection.class.isAssignableFrom(old.getClass())) {
+                    ((Collection<Object>) old).add(value);
+                } else if (old.getClass().isArray()) {
+                    Object[] temp = new Object[Array.getLength(old) + 1];
+                    for (int i = 0; i < Array.getLength(old); i++) {
+                        temp[i] = Array.get(old, i);
+                    }
+                    temp[Array.getLength(old)] = value;
+                    from.put(key, temp);
+                } else {
+                    Object[] temp = new Object[Constant.NumberAbout.TWO];
+                    temp[0] = old;
+                    temp[1] = value;
+                    from.put(key, temp);
+                }
+            }
+        });
+    }
+
+    public static Map<String, Object> parseOrdinaryVariable(HttpServletRequest currentRequest) {
+        Map<String, Object> inParam = Maps.newHashMap();
         Map<String, String[]> parameterMap = currentRequest.getParameterMap();
         if (parameterMap.size() > 0) {
             for (Map.Entry<String, String[]> map : parameterMap.entrySet()) {
@@ -63,7 +113,7 @@ public class ParamUtil {
         }
 
         if (currentRequest instanceof RequestWrapper) {
-            Map<String, String[]> forwardMap = ((RequestWrapper) currentRequest).getForwardParameterMap();
+            Map<String, String[]> forwardMap = currentRequest.getParameterMap();
             for (Map.Entry<String, String[]> map : forwardMap.entrySet()) {
                 inParam.put(map.getKey(), map.getValue());
             }
@@ -95,6 +145,17 @@ public class ParamUtil {
                 inParam.put(key.replace(prefix, ""), currentRequest.getAttribute(key));
             }
         }
+        return coverToMap(inParam);
+    }
+
+    /**
+     * 处理路径变量
+     *
+     * @param currentRequest 请求
+     * @return 返回变量集合
+     */
+    private static Map<String, Object> parseUriVariable(HttpServletRequest currentRequest) {
+        Map<String, Object> uriVariables = Maps.newHashMap();
 
         //处理Mapping参数
         String uri = currentRequest.getRequestURI();
@@ -113,23 +174,15 @@ public class ParamUtil {
                     mappingCache.addAll(requestMappingInfo.getPatternsCondition().getPatterns());
                 }
                 for (String mapping : mappingCache) {
-                    String[] uris = StringUtil.split(uri, Constant.RegularAbout.SLASH);
-                    String[] targetParams = StringUtil.split(mapping, Constant.RegularAbout.SLASH);
-                    if (uris.length == targetParams.length) {
-                        for (int i = 0; i < targetParams.length; i++) {
-                            String targetParam = targetParams[i];
-                            String value = uris[i];
-                            Map<String, String> params = StringUtil.getParamFromMapping(value, targetParam);
-                            if (params != null && params.size() > 0) {
-                                inParam.putAll(params);
-                            }
-                        }
+                    try {
+                        uriVariables.putAll(new AntPathMatcher().extractUriTemplateVariables(mapping, uri));
+                    } catch (Exception ignored) {
                     }
                 }
             }
         }
-        //将处理过的所有请求参数传入调用服务对象
-        return inParam;
+
+        return uriVariables;
     }
 
     /**
@@ -259,25 +312,24 @@ public class ParamUtil {
      * @return 处理过后的入参集合
      */
     public static Map<String, Object> coverToMap(Map<String, Object> map) {
+        Map<String, Object> result = new HashMap<>(map);
+
         Object body = map.get(Constant.ResponseAbout.BODY);
         if (body != null) {
-            Map<String, Object> result = new HashMap<>(map);
-
-            String bodyString = body.toString();
-            if (bodyString != null) {
-                Object json = JSONUtil.jsonCover(JSONUtil.toJSON(bodyString));
-                if (json == null) {
-                    return null;
-                }
-                if (Map.class.isAssignableFrom(json.getClass())) {
-                    result.putAll((Map<? extends String, ?>) json);
-                } else if (List.class.isAssignableFrom(json.getClass())) {
-                    result.put(Constant.ResponseAbout.BODY, json);
-                }
+            Object json = JSONUtil.jsonCover(JSONUtil.toJSON(body.toString()));
+            if (json == null) {
+                return null;
             }
-            return result;
+            if (Map.class.isAssignableFrom(json.getClass())) {
+                combine(result, (Map<String, Object>) json);
+                result.remove(Constant.ResponseAbout.BODY);
+            } else if (List.class.isAssignableFrom(json.getClass())) {
+                result.put(Constant.ResponseAbout.BODY, json);
+            }
+        } else {
+            result.remove(Constant.ResponseAbout.BODY);
         }
-        return map;
+        return result;
     }
 
     /**
@@ -358,7 +410,7 @@ public class ParamUtil {
      * @param method  方法
      * @return 验证信息集
      */
-    public static List<ValidateMsg> handleInParamValidate(ServiceInterface service, Method method) {
+    public static List<ValidateMsg> handleInParamValidate(ServiceInterface service, Method method, AgileParam agileParam) {
         Optional<Validates> validatesOptional = Optional.ofNullable(method.getAnnotation(Validates.class));
         Optional<Validate> validateOptional = Optional.ofNullable(method.getAnnotation(Validate.class));
 
@@ -366,7 +418,7 @@ public class ParamUtil {
         validatesOptional.ifPresent(validates -> validateList.addAll(Stream.of(validates.value()).collect(Collectors.toList())));
         validateOptional.ifPresent(validateList::add);
 
-        return validateList.stream().map(validate -> handleValidateAnnotation(service, validate)).reduce((all, validateMsgList) -> {
+        return validateList.stream().map(validate -> handleValidateAnnotation(agileParam, validate)).reduce((all, validateMsgList) -> {
             all.addAll(validateMsgList);
             return all;
         }).orElse(Lists.newArrayList());
@@ -378,7 +430,7 @@ public class ParamUtil {
      * @param v Validate注解
      * @return 验证信息集
      */
-    private static List<ValidateMsg> handleValidateAnnotation(ServiceInterface service, Validate v) {
+    private static List<ValidateMsg> handleValidateAnnotation(AgileParam agileParam, Validate v) {
         List<ValidateMsg> list = new ArrayList<>();
 
         if (v == null) {
@@ -388,9 +440,9 @@ public class ParamUtil {
         String key = v.value().trim();
         Object value;
         if (StringUtil.isBlank(key)) {
-            value = service.getInParam();
+            value = agileParam.getInParam();
         } else {
-            value = service.getInParam(key);
+            value = agileParam.getInParam(key);
         }
 
         ValidateType validateType = v.validateType();

@@ -2,20 +2,15 @@ package com.agile.common.mvc.service;
 
 import com.agile.common.base.Constant;
 import com.agile.common.base.RETURN;
-import com.agile.common.exception.NoSignInException;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
-import com.agile.common.properties.SimulationProperties;
+import com.agile.common.param.AgileParam;
 import com.agile.common.security.CustomerUserDetails;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ParamUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONValidator;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +30,7 @@ public class MainService implements ServiceInterface {
     /**
      * 入参
      */
-    private static final ThreadLocal<Map<String, Object>> IN_PARAM = new ThreadLocal<>();
+    private static final ThreadLocal<AgileParam> IN_PARAM = new ThreadLocal<>();
 
     /**
      * 输出
@@ -53,8 +48,9 @@ public class MainService implements ServiceInterface {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Object executeMethod(Object object, Method method, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
+    public Object executeMethod(Object object, Method method, AgileParam agileParam, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
 
+        setInParam(agileParam);
         clearOutParam();
         try {
             Object returnData = method.invoke(object);
@@ -74,17 +70,6 @@ public class MainService implements ServiceInterface {
     }
 
     /**
-     * 控制层中调用该方法设置服务入参
-     *
-     * @param key 参数key
-     * @param o   参数value
-     */
-    @Override
-    public void setInParam(String key, Object o) {
-        IN_PARAM.get().put(key, o);
-    }
-
-    /**
      * 服务中调用该方法获取入参
      *
      * @param key 入参索引字符串
@@ -92,7 +77,8 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Object getInParam(String key) {
-        return ParamUtil.getInParam(getInParam(), key);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam(key);
     }
 
 
@@ -104,7 +90,8 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(Class<T> clazz) {
-        return ParamUtil.getInParam(getInParam(), clazz);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam(clazz);
     }
 
     /**
@@ -115,7 +102,8 @@ public class MainService implements ServiceInterface {
      * @return 入参映射对象
      */
     protected <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
-        return ObjectUtil.getObjectFromMap(clazz, this.getInParam(), prefix);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParamByPrefix(clazz, prefix);
     }
 
     /**
@@ -127,7 +115,8 @@ public class MainService implements ServiceInterface {
      * @return 入参映射对象
      */
     protected <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
-        return ObjectUtil.getObjectFromMap(clazz, this.getInParam(), prefix, suffix);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParamByPrefixAndSuffix(clazz, prefix, suffix);
     }
 
     /**
@@ -137,7 +126,8 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected String getInParam(String key, String defaultValue) {
-        return ParamUtil.getInParam(getInParam(), key, defaultValue);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam(key, defaultValue);
     }
 
     /**
@@ -148,7 +138,8 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(String key, Class<T> clazz) {
-        return ParamUtil.getInParam(getInParam(), key, clazz);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam(key, clazz);
     }
 
     /**
@@ -160,7 +151,8 @@ public class MainService implements ServiceInterface {
      * @return 转换后的入参
      */
     public <T> T getInParam(String key, TypeReference<T> reference) {
-        return ParamUtil.getInParam(getInParam(), key, reference);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam(key, reference);
     }
 
     /**
@@ -170,7 +162,8 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
-        return ParamUtil.getInParam(getInParam(), key, clazz, defaultValue);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam(key, clazz, defaultValue);
     }
 
     /**
@@ -180,7 +173,8 @@ public class MainService implements ServiceInterface {
      * @return 文件
      */
     protected MultipartFile getInParamOfFile(String key) {
-        return ParamUtil.getInParamOfFile(getInParam(), key);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParamOfFile(key);
     }
 
     /**
@@ -190,7 +184,8 @@ public class MainService implements ServiceInterface {
      * @return 文件
      */
     protected List<MultipartFile> getInParamOfFiles(String key) {
-        return ParamUtil.getInParamOfFiles(getInParam(), key);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParamOfFiles(key);
     }
 
     /**
@@ -200,7 +195,8 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected List<String> getInParamOfArray(String key) {
-        return getInParamOfArray(key, String.class);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParamOfArray(key);
     }
 
     /**
@@ -210,7 +206,8 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
-        return ParamUtil.getInParamOfArray(getInParam(), key, clazz);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParamOfArray(key, clazz);
     }
 
     /**
@@ -220,7 +217,8 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected boolean containsKey(String key) {
-        return ParamUtil.containsKey(getInParam(), key);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.containsKey(key);
     }
 
     /**
@@ -230,8 +228,8 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Map<String, Object> getInParam() {
-        Map<String, Object> map = IN_PARAM.get();
-        return ParamUtil.coverToMap(map);
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getInParam();
     }
 
 
@@ -241,7 +239,7 @@ public class MainService implements ServiceInterface {
      * @param inParam 参数集
      */
     @Override
-    public void setInParam(Map<String, Object> inParam) {
+    public void setInParam(AgileParam inParam) {
         MainService.IN_PARAM.set(inParam);
     }
 
@@ -264,7 +262,7 @@ public class MainService implements ServiceInterface {
             OUT_PARAM.get().putAll((Map<? extends String, ?>) outParam);
         } else {
 
-            if (outParam instanceof String && !JSON.isValid((String) outParam)) {
+            if (outParam instanceof String && !JSONValidator.from((String) outParam).validate()) {
                 OUT_PARAM.get().put(Constant.ResponseAbout.RESULT, outParam);
             } else {
                 Map<String, Object> map = ObjectUtil.to(outParam, new TypeReference<Map<String, Object>>() {
@@ -310,19 +308,8 @@ public class MainService implements ServiceInterface {
      * 获取当前用户信息
      */
     public CustomerUserDetails getUser() {
-        // 判断模拟配置
-        SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
-        if (simulation != null && simulation.isEnable()) {
-            return ObjectUtil.to(simulation.getUser(),
-                    new com.agile.common.util.clazz.TypeReference<>(simulation.getUserClass()));
-        }
-        // 非模拟情况
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");
-        } else {
-            return (CustomerUserDetails) authentication.getDetails();
-        }
+        AgileParam agileParam = IN_PARAM.get();
+        return agileParam.getUser();
     }
 
     public Log getLogger() {

@@ -1,53 +1,46 @@
 package com.agile.common.base;
 
 import com.agile.common.util.ArrayUtil;
-import org.springframework.data.domain.Page;
-import org.springframework.validation.BeanPropertyBindingResult;
+import com.agile.common.util.stream.StreamUtil;
+import com.google.common.collect.Maps;
 
+import javax.servlet.ReadListener;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Map;
 
 /**
  * @author 佟盟 on 2018/3/26
- * HttpServletRequest扩展对象，用于跳转视图中参数传递
+ * HttpServletRequest扩展对象
  */
 public class RequestWrapper extends HttpServletRequestWrapper {
 
-    private Map<String, String[]> params;
+    private final Map<String, String[]> params;
+    private final ByteArrayOutputStream outputStream;
 
     public RequestWrapper(HttpServletRequest request) {
-        this(request, new HashMap<>());
-    }
-
-    private RequestWrapper(HttpServletRequest request, Map<String, String[]> extendParams) {
         super(request);
-        if (extendParams != null) {
-            extendParams.remove(Constant.ResponseAbout.SERVICE);
-            extendParams.remove(Constant.ResponseAbout.METHOD);
+        this.params = Maps.newHashMap();
+        params.remove(Constant.ResponseAbout.SERVICE);
+        params.remove(Constant.ResponseAbout.METHOD);
+        params.putAll(request.getParameterMap());
+
+        outputStream = new ByteArrayOutputStream();
+        try {
+            StreamUtil.toOutputStream(request.getInputStream(), outputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        assert extendParams != null;
-        Iterator entries = extendParams.entrySet().iterator();
-
-        while (entries.hasNext()) {
-
-            Map.Entry entry = (Map.Entry) entries.next();
-
-            Object value = entry.getValue();
-
-            if (value instanceof Page || value instanceof BeanPropertyBindingResult) {
-                entries.remove();
-            }
-        }
-
-        extendParams.putAll(request.getParameterMap());
-        params = extendParams;
     }
 
-    public Map<String, String[]> getForwardParameterMap() {
+    @Override
+    public Map<String, String[]> getParameterMap() {
         return params;
     }
 
@@ -63,5 +56,36 @@ public class RequestWrapper extends HttpServletRequestWrapper {
             params.put(key, ArrayUtil.add(value, o));
         }
         this.params.put(key, new String[]{o});
+    }
+
+    @Override
+    public ServletInputStream getInputStream() {
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        return new ServletInputStream() {
+            @Override
+            public boolean isFinished() {
+                return false;
+            }
+
+            @Override
+            public boolean isReady() {
+                return false;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+            }
+
+            @Override
+            public int read() {
+                return byteArrayInputStream.read();
+            }
+        };
+
+    }
+
+    @Override
+    public BufferedReader getReader() {
+        return new BufferedReader(new InputStreamReader(this.getInputStream()));
     }
 }
