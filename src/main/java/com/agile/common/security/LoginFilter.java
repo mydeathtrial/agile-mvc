@@ -1,6 +1,7 @@
 package com.agile.common.security;
 
 import com.agile.common.base.Constant;
+import com.agile.common.cache.AgileCache;
 import com.agile.common.exception.AuthenticationException;
 import com.agile.common.exception.LoginErrorLockException;
 import com.agile.common.exception.NoCompleteFormSign;
@@ -10,15 +11,17 @@ import com.agile.common.exception.VerificationCodeNon;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
+import com.agile.common.security.provider.LockSignProviderInterface;
 import com.agile.common.util.AesUtil;
 import com.agile.common.util.CacheUtil;
-import com.agile.common.util.DateUtil;
 import com.agile.common.util.ParamUtil;
 import com.agile.common.util.ServletUtil;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +33,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -155,17 +159,37 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
             return;
         }
 
-        String lockObject = lockObject(request, sourceUsername);
+        AgileCache cache = securityProperties.getErrorSign().getCache();
 
-        Integer errorCount = securityProperties.getCache().get(lockObject, Integer.class);
+        //获取锁定标识
+        ErrorSignInfo errorSignInfo = errorSignInfo(request, sourceUsername);
+
+        //计数过期时间
+        Duration countTimeout = securityProperties.getErrorSign().getErrorSignCountTimeout();
+
+        //已失败次数
+        Integer errorCount = cache.get(errorSignInfo.getLockObject(), Integer.class);
         if (errorCount == null) {
-            securityProperties.getCache().put(lockObject, 1, securityProperties.getErrorSign().getErrorSignCountTimeout());
-        } else if (errorCount < securityProperties.maxErrorCount() - 1) {
-            securityProperties.getCache().put(lockObject, ++errorCount, securityProperties.getErrorSign().getErrorSignCountTimeout());
+            cache.put(errorSignInfo.getLockObject(), 1, countTimeout);
+        } else if (errorCount < securityProperties.getErrorSign().getMaxErrorCount()) {
+            cache.put(errorSignInfo.getLockObject(), ++errorCount, countTimeout);
         } else {
-            securityProperties.getCache().put(lockObject, ++errorCount, securityProperties.errorSignLockTime());
-            notice(request, sourceUsername, lockObject);
-            throw new LoginErrorLockException(String.valueOf(securityProperties.errorSignLockTime().toMinutes()));
+            errorSignInfo.setLockTime(new Date());
+
+            //锁定过期时间
+            Duration timeout = securityProperties.getErrorSign().getErrorSignLockTime();
+            boolean alwaysLock = timeout.toMillis() <= 0;
+            if (alwaysLock) {
+                cache.put(errorSignInfo.getLockObject(), ++errorCount);
+            } else {
+                cache.put(errorSignInfo.getLockObject(), ++errorCount, timeout);
+                errorSignInfo.setTimeOut(new Date(errorSignInfo.getLockTime().getTime() + timeout.toMillis()));
+            }
+
+            //通知
+            notice(errorSignInfo);
+
+            throw new LoginErrorLockException(alwaysLock ? "请联系管理员解锁" : securityProperties.getErrorSign().getErrorSignLockTime().toMinutes() + "分钟");
         }
     }
 
@@ -176,39 +200,38 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
      * @param sourceUsername 账户
      * @return 锁定依据
      */
-    private String lockObject(HttpServletRequest request, String sourceUsername) {
+    private ErrorSignInfo errorSignInfo(HttpServletRequest request, String sourceUsername) {
+        ErrorSignInfo.ErrorSignInfoBuilder builder = ErrorSignInfo.builder()
+                .account(sourceUsername);
         StringBuilder lockObject = new StringBuilder();
         SecurityProperties.LockType[] lockTypes = securityProperties.getErrorSign().getLockType();
 
         if (ArrayUtils.contains(lockTypes, SecurityProperties.LockType.IP)) {
             lockObject.append(ServletUtil.getCurrentRequestIP());
+            builder.ip(ServletUtil.getRequestIP(request));
         }
         if (ArrayUtils.contains(lockTypes, SecurityProperties.LockType.SESSION_ID)) {
             lockObject.append(request.getSession().getId());
+            builder.sessionId(request.getSession().getId());
         }
         if (ArrayUtils.contains(lockTypes, SecurityProperties.LockType.ACCOUNT)) {
             lockObject.append(sourceUsername);
         }
-        return lockObject.toString();
+
+        return builder
+                .lockObject(lockObject.toString())
+                .build();
     }
 
+    @Autowired
+    private ObjectProvider<LockSignProviderInterface> lockSignProviders;
+
     /**
-     * 通知持久层
+     * 通知
      */
-    private void notice(HttpServletRequest request, String sourceUsername, String lockObject) {
-        Date lockTime = new Date();
-        Date timeOut = DateUtil.add(securityProperties.errorSignLockTime());
-
-        ErrorSignInfo errorSignInfo = ErrorSignInfo.builder()
-                .account(sourceUsername)
-                .ip(ServletUtil.getRequestIP(request))
-                .sessionId(request.getSession().getId())
-                .lockTime(lockTime)
-                .timeOut(timeOut)
-                .lockObject(lockObject)
-                .build();
-
-        customerUserDetailsService.errorSignLock(errorSignInfo);
+    private void notice(ErrorSignInfo errorSignInfo) {
+        // 调用钩子
+        lockSignProviders.orderedStream().forEach(provider -> provider.lock(errorSignInfo));
     }
 
     /**
@@ -221,8 +244,16 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         private final String ip;
         private final String sessionId;
         private final String account;
-        private final Date lockTime;
-        private final Date timeOut;
+        private Date lockTime;
+        private Date timeOut;
+
+        public void setTimeOut(Date timeOut) {
+            this.timeOut = timeOut;
+        }
+
+        public void setLockTime(Date lockTime) {
+            this.lockTime = lockTime;
+        }
     }
 
 }

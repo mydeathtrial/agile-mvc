@@ -204,6 +204,10 @@ public class SecurityProperties implements Serializable {
      */
     @Data
     public static class ErrorSign implements Serializable {
+        public AgileCache getCache() {
+            return CacheUtil.getCache("ErrorSign");
+        }
+
         private boolean enable = true;
         /**
          * 最大登录失败次数
@@ -225,42 +229,6 @@ public class SecurityProperties implements Serializable {
          * 锁定类型
          */
         private LockType[] lockType = new LockType[]{LockType.SESSION_ID};
-    }
-
-    /**
-     * 取最大失败次数
-     *
-     * @return 次数
-     */
-    public Integer maxErrorCount() {
-        Integer maxErrorCount = getCache().get(maxErrorCountCacheKey, Integer.class);
-        if (maxErrorCount == null) {
-            maxErrorCount = getErrorSign().getMaxErrorCount();
-            getCache().put(maxErrorCountCacheKey, maxErrorCount);
-        }
-        return maxErrorCount;
-    }
-
-    public void maxErrorCount(int maxErrorCount) {
-        getCache().put(maxErrorCountCacheKey, maxErrorCount);
-    }
-
-    /**
-     * 取锁定时长
-     *
-     * @return 时长
-     */
-    public Duration errorSignLockTime() {
-        Duration errorSignLockTime = getCache().get(this.errorSignLockTimeCacheKey, Duration.class);
-        if (errorSignLockTime == null) {
-            errorSignLockTime = getErrorSign().getErrorSignLockTime();
-            getCache().put(this.errorSignLockTimeCacheKey, errorSignLockTime);
-        }
-        return errorSignLockTime;
-    }
-
-    public void errorSignLockTime(Duration errorSignLockTime) {
-        getCache().put(this.errorSignLockTimeCacheKey, errorSignLockTime);
     }
 
     public AgileCache getCache() {
