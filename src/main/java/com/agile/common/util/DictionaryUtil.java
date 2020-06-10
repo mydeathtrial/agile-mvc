@@ -223,9 +223,10 @@ public final class DictionaryUtil {
             if (parentName != null) {
                 DictionaryDataEntity parentEntity = coverDicBeanByChildName(code, parentName);
                 if (parentEntity == null) {
-                    return null;
+                    result = null;
+                } else {
+                    result = coverDicBean(code + Constant.RegularAbout.SPOT + parentEntity.getCode(), name.replaceFirst(parentName + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
                 }
-                result = coverDicBean(code + Constant.RegularAbout.SPOT + parentEntity.getCode(), name.replaceFirst(parentName + Constant.RegularAbout.SPOT, Constant.RegularAbout.BLANK));
             }
             if (result == null) {
                 result = coverDicBeanByChildName(code, name);
