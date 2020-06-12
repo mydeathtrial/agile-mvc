@@ -5,7 +5,9 @@ import com.agile.common.base.Constant;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
 import com.agile.common.util.pattern.PatternUtil;
+import com.google.common.collect.Maps;
 import lombok.Data;
+import org.apache.commons.compress.utils.Lists;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 
@@ -185,7 +187,7 @@ public class DataBaseUtil {
     /**
      * 获取JDBC连接
      */
-    private static Connection getConnection(String url, String username, String password) throws SQLException {
+    public static Connection getConnection(String url, String username, String password) throws SQLException {
         Properties info = new Properties();
         info.put("user", username);
         info.put("password", password);
@@ -387,6 +389,42 @@ public class DataBaseUtil {
          * 主键
          */
         PRIMARY_KEY
+    }
+
+    public static <T> List<T> query(Connection connection, String sql, Class<T> clazz, Object param) {
+        List<T> list = Lists.newArrayList();
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(SqlUtil.parserSQL(sql, param));
+        ) {
+            if (clazz == String.class) {
+                // 展开结果集数据库
+                while (resultSet.next()) {
+                    list.add((T) resultSet.getString(Constant.NumberAbout.ONE));
+                }
+            } else {
+                List<String> columns = Lists.newArrayList();
+                ResultSetMetaData metaData = resultSet.getMetaData();
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    columns.add(metaData.getColumnName(i));
+                }
+
+                // 展开结果集数据库
+                while (resultSet.next()) {
+                    Map<String, Object> map = Maps.newHashMap();
+                    columns.forEach(column -> {
+                        try {
+                            map.put(column, resultSet.getString(column));
+                        } catch (SQLException ignored) {
+                        }
+                    });
+                    list.add(ObjectUtil.to(map, new TypeReference<>(clazz)));
+                }
+            }
+
+        } catch (Exception ignored) {
+        }
+        return list;
     }
 
 }
