@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "spring.datasource.druid.filter.print",
+      "type": "java.lang.Boolean",
+      "description": "SQL日志过滤器",
+      "defaultValue": true
+    }
+  ]
+}

@@ -66,3 +66,5 @@ spring:
           result-set-log-enabled: true
         config:
           enabled: true
+        print:
+          enabled: true

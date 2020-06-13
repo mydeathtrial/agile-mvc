@@ -25,7 +25,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @MapperScan(basePackages = {"com.agile"}, annotationClass = Mapper.class)
-@ConditionalOnClass({SqlSessionFactory.class, MapperScannerConfigurer.class})
+@ConditionalOnClass({SqlSessionFactory.class, MapperScannerConfigurer.class, DataSource.class})
 @AutoConfigureAfter(DaoAutoConfiguration.class)
 public class MyBatisAutoConfiguration {
     @Bean
