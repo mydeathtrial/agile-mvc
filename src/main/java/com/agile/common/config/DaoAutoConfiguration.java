@@ -23,6 +23,9 @@ import javax.sql.DataSource;
 public class DaoAutoConfiguration {
 
     @Bean
+    @ConfigurationProperties("agile.dao")
+    @ConditionalOnProperty(prefix = "agile.dao", name = "enable")
+    @ConditionalOnMissingBean
     public Dao dao() {
         return new Dao();
     }

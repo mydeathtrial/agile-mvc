@@ -110,6 +110,8 @@ agile:
     version: ${project.version}
   dictionary:
     enable: true
+  dao:
+    enable: true
 spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration,org.springframework.boot.autoconfigure.webservices.client.WebServiceTemplateAutoConfiguration,org.springframework.boot.autoconfigure.webservices.WebServicesAutoConfiguration,org.springframework.boot.autoconfigure.jdbc.XADataSourceAutoConfiguration,org.springframework.boot.autoconfigure.groovy.template.GroovyTemplateAutoConfiguration,org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration,org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration,org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration,org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration,org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration,org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration,org.springframework.boot.actuate.autoconfigure.metrics.export.elastic.ElasticMetricsExportAutoConfiguration,org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration,org.springframework.boot.actuate.autoconfigure.elasticsearch.ElasticSearchRestHealthIndicatorAutoConfiguration
