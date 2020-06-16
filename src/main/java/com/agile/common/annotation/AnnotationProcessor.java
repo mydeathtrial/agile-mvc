@@ -16,6 +16,9 @@ import java.util.Map;
  * @since 1.0
  */
 public class AnnotationProcessor {
+    private AnnotationProcessor() {
+    }
+
     /**
      * 方法注解解析器触发器.
      *
@@ -23,7 +26,9 @@ public class AnnotationProcessor {
      * @param beanName           beanName
      * @param annotationClass    注解类型
      */
-    public static void methodAnnotationProcessor(ApplicationContext applicationContext, String beanName, Class annotationClass) {
+    public static void methodAnnotationProcessor(ApplicationContext applicationContext,
+                                                 String beanName,
+                                                 Class annotationClass) {
         String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
         for (String parsingName : annotationParsings) {
             Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
