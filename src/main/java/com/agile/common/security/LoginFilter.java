@@ -201,8 +201,8 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
      * @return 锁定依据
      */
     private ErrorSignInfo errorSignInfo(HttpServletRequest request, String sourceUsername) {
-        ErrorSignInfo.ErrorSignInfoBuilder builder = ErrorSignInfo.builder()
-                .account(sourceUsername);
+        ErrorSignInfo.ErrorSignInfoBuilder builder = ErrorSignInfo.builder();
+
         StringBuilder lockObject = new StringBuilder();
         SecurityProperties.LockType[] lockTypes = securityProperties.getErrorSign().getLockType();
 
@@ -216,6 +216,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         }
         if (ArrayUtils.contains(lockTypes, SecurityProperties.LockType.ACCOUNT)) {
             lockObject.append(sourceUsername);
+            builder.account(sourceUsername);
         }
 
         return builder
