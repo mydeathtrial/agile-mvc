@@ -1,73 +1,28 @@
 package com.agile.common.mvc.service;
 
-import com.agile.common.base.Constant;
-import com.agile.common.base.RETURN;
+import com.agile.common.annotation.AgileService;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.param.AgileParam;
+import com.agile.common.param.AgileReturn;
 import com.agile.common.security.CustomerUserDetails;
 import com.agile.common.util.clazz.TypeReference;
-import com.agile.common.util.object.ObjectUtil;
-import com.alibaba.fastjson.JSONValidator;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author 佟盟 on 2017/1/9
  */
+@AgileService
 public class MainService implements ServiceInterface {
 
-    /**
-     * 入参
-     */
-    private static final ThreadLocal<AgileParam> IN_PARAM = new ThreadLocal<>();
-
-    /**
-     * 输出
-     */
-    private static final ThreadLocal<Map<String, Object>> OUT_PARAM = ThreadLocal.withInitial(LinkedHashMap::new);
     @Autowired(required = false)
     protected Dao dao;
     protected Log logger = LoggerFactory.getServiceLog(this.getClass());
-
-    /**
-     * 根据对象及方法名通过反射执行该对象的指定方法
-     *
-     * @param object 服务子类对象，为解决Hystrix组件无法识别服务子类问题（识别成了父类）
-     * @return 返回执行结果
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Object executeMethod(Object object, Method method, AgileParam agileParam, HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
-
-        setInParam(agileParam);
-        clearOutParam();
-        try {
-            Object returnData = method.invoke(object);
-            if (returnData instanceof RETURN) {
-                //如果是头信息，则交给控制层处理
-                return returnData;
-            } else {
-                //其他类型数据直接放入返回参数
-                if (returnData != null) {
-                    setOutParam(returnData);
-                }
-            }
-            return returnData;
-        } catch (InvocationTargetException e) {
-            throw e.getTargetException();
-        }
-    }
 
     /**
      * 服务中调用该方法获取入参
@@ -77,8 +32,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Object getInParam(String key) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam(key);
+        return AgileParam.getInParam(key);
     }
 
 
@@ -90,8 +44,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(Class<T> clazz) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam(clazz);
+        return AgileParam.getInParam(clazz);
     }
 
     /**
@@ -102,8 +55,7 @@ public class MainService implements ServiceInterface {
      * @return 入参映射对象
      */
     protected <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParamByPrefix(clazz, prefix);
+        return AgileParam.getInParamByPrefix(clazz, prefix);
     }
 
     /**
@@ -115,8 +67,7 @@ public class MainService implements ServiceInterface {
      * @return 入参映射对象
      */
     protected <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParamByPrefixAndSuffix(clazz, prefix, suffix);
+        return AgileParam.getInParamByPrefixAndSuffix(clazz, prefix, suffix);
     }
 
     /**
@@ -126,8 +77,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected String getInParam(String key, String defaultValue) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam(key, defaultValue);
+        return AgileParam.getInParam(key, defaultValue);
     }
 
     /**
@@ -138,8 +88,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public <T> T getInParam(String key, Class<T> clazz) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam(key, clazz);
+        return AgileParam.getInParam(key, clazz);
     }
 
     /**
@@ -151,8 +100,7 @@ public class MainService implements ServiceInterface {
      * @return 转换后的入参
      */
     public <T> T getInParam(String key, TypeReference<T> reference) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam(key, reference);
+        return AgileParam.getInParam(key, reference);
     }
 
     /**
@@ -162,8 +110,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam(key, clazz, defaultValue);
+        return AgileParam.getInParam(key, clazz, defaultValue);
     }
 
     /**
@@ -173,8 +120,7 @@ public class MainService implements ServiceInterface {
      * @return 文件
      */
     protected MultipartFile getInParamOfFile(String key) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParamOfFile(key);
+        return AgileParam.getInParamOfFile(key);
     }
 
     /**
@@ -184,8 +130,7 @@ public class MainService implements ServiceInterface {
      * @return 文件
      */
     protected List<MultipartFile> getInParamOfFiles(String key) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParamOfFiles(key);
+        return AgileParam.getInParamOfFiles(key);
     }
 
     /**
@@ -195,8 +140,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected List<String> getInParamOfArray(String key) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParamOfArray(key);
+        return AgileParam.getInParamOfArray(key);
     }
 
     /**
@@ -206,8 +150,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParamOfArray(key, clazz);
+        return AgileParam.getInParamOfArray(key, clazz);
     }
 
     /**
@@ -217,8 +160,7 @@ public class MainService implements ServiceInterface {
      * @return 入参值
      */
     protected boolean containsKey(String key) {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.containsKey(key);
+        return AgileParam.containsKey(key);
     }
 
     /**
@@ -228,29 +170,7 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public Map<String, Object> getInParam() {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getInParam();
-    }
-
-
-    /**
-     * 控制层中调用该方法设置服务入参
-     *
-     * @param inParam 参数集
-     */
-    @Override
-    public void setInParam(AgileParam inParam) {
-        MainService.IN_PARAM.set(inParam);
-    }
-
-    /**
-     * 控制层中调用该方法获取响应参数
-     *
-     * @return 响应参数集
-     */
-    @Override
-    public Map<String, Object> getOutParam() {
-        return OUT_PARAM.get();
+        return AgileParam.getInParam();
     }
 
     /**
@@ -258,23 +178,7 @@ public class MainService implements ServiceInterface {
      */
     @SuppressWarnings("unchecked")
     public void setOutParam(Object outParam) {
-        if (Map.class.isAssignableFrom(outParam.getClass())) {
-            OUT_PARAM.get().putAll((Map<? extends String, ?>) outParam);
-        } else {
-
-            if (outParam instanceof String && !JSONValidator.from((String) outParam).validate()) {
-                OUT_PARAM.get().put(Constant.ResponseAbout.RESULT, outParam);
-            } else {
-                Map<String, Object> map = ObjectUtil.to(outParam, new TypeReference<Map<String, Object>>() {
-                });
-                if (map == null) {
-                    OUT_PARAM.get().put(Constant.ResponseAbout.RESULT, outParam);
-                } else {
-                    OUT_PARAM.get().putAll(map);
-                }
-            }
-
-        }
+        AgileReturn.add(outParam);
     }
 
     /**
@@ -285,31 +189,14 @@ public class MainService implements ServiceInterface {
      */
     @Override
     public void setOutParam(String key, Object value) {
-        OUT_PARAM.get().put(key, value);
-    }
-
-    /**
-     * 清理
-     */
-    @Override
-    public void clearInParam() {
-        IN_PARAM.remove();
-    }
-
-    /**
-     * 清理
-     */
-    @Override
-    public void clearOutParam() {
-        OUT_PARAM.remove();
+        AgileReturn.add(key, value);
     }
 
     /**
      * 获取当前用户信息
      */
     public CustomerUserDetails getUser() {
-        AgileParam agileParam = IN_PARAM.get();
-        return agileParam.getUser();
+        return AgileParam.getUser();
     }
 
     public Log getLogger() {

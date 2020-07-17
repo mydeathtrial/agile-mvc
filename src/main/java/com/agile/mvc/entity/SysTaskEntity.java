@@ -1,6 +1,7 @@
 package com.agile.mvc.entity;
 
 import com.agile.common.annotation.Remark;
+import com.agile.common.task.Target;
 import com.agile.common.task.Task;
 import com.agile.common.util.PropertiesUtil;
 import lombok.AllArgsConstructor;
@@ -9,25 +10,27 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Update;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Past;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 描述：[系统管理]定时任务
@@ -39,7 +42,6 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@ToString
 @Entity
 @Table(name = "sys_task")
 @Remark("[系统管理]定时任务")
@@ -66,17 +68,17 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     @Builder.Default
     private String application = PropertiesUtil.getProperty("spring.application.name");
 
-    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
-    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
+    private List<SysApiEntity> targets;
+
     @Column(name = "sys_task_id", nullable = false, length = 19)
     @Id
     public Long getSysTaskId() {
         return sysTaskId;
     }
 
+    @Override
     @Column(name = "name", length = 255)
     @Basic
-    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getName() {
         return name;
     }
@@ -95,7 +97,6 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
 
     @Override
     @Column(name = "cron", length = 36)
-    @Length(max = 36, message = "最长为36个字符", groups = {Insert.class, Update.class})
     @Basic
     public String getCron() {
         return cron;
@@ -113,6 +114,23 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     @Override
     public Boolean getEnable() {
         return enable;
+    }
+
+    @Override
+    public List<Target> targets() {
+        return targets == null ? new ArrayList<>() : new ArrayList<>(targets);
+    }
+
+    @Transient
+    @Override
+    public String getArgument() {
+        return getCode().toString();
+    }
+
+    @ManyToMany(cascade = CascadeType.REFRESH, fetch = FetchType.EAGER)
+    @JoinTable(name = "sys_bt_task_api", joinColumns = @JoinColumn(name = "sys_task_id"), inverseJoinColumns = @JoinColumn(name = "sys_api_id"))
+    public List<SysApiEntity> getTargets() {
+        return targets;
     }
 
     @UpdateTimestamp
@@ -134,7 +152,6 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
 
     @Column(name = "application", length = 255)
     @Basic
-    @Length(max = 30, message = "最长为30个字符", groups = {Insert.class, Update.class})
     public String getApplication() {
         return application;
     }

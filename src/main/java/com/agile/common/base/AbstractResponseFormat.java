@@ -52,7 +52,10 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
         return modelAndView;
     }
 
-    public AgileReturn toAgileReturn() {
-        return new AgileReturn(sourceHead, sourceResult);
+    /**
+     * 根据报文模板数据转换为对应得Agile报文
+     */
+    public void initAgileReturn() {
+        AgileReturn.init(sourceHead, sourceResult);
     }
 }

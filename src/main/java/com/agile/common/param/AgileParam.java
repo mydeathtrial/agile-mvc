@@ -7,51 +7,70 @@ import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ParamUtil;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * @author 佟盟
  * 日期 2020/6/1 14:20
- * 描述 TODO
+ * 描述 参数解析器
  * @version 1.0
  * @since 1.0
  */
+@JsonIgnoreProperties(value = "user")
 public class AgileParam {
-    private final Map<String, Object> params;
+    private static final ThreadLocal<Map<String, Object>> PARAMS = ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<CustomerUserDetails> CURRENT_USER = new ThreadLocal<>();
 
-    public AgileParam(Map<String, Object> params) {
-        this.params = params;
+    private AgileParam() {
+    }
+
+    public static void init(Map<String, Object> sourceParam) {
+        PARAMS.set(sourceParam);
+    }
+
+    public static CustomerUserDetails getUser() {
+        return getUser(false);
     }
 
     /**
      * 获取当前用户信息
      */
-    public CustomerUserDetails getUser() {
+    public static CustomerUserDetails getUser(boolean require) {
+        CustomerUserDetails customerUserDetails = CURRENT_USER.get();
+        if(customerUserDetails != null){
+            return customerUserDetails;
+        }
         // 判断模拟配置
         SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
         if (simulation != null && simulation.isEnable()) {
             return ObjectUtil.to(simulation.getUser(),
-                    new com.agile.common.util.clazz.TypeReference<>(simulation.getUserClass()));
+                    new TypeReference<>(simulation.getUserClass()));
         }
         // 非模拟情况
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
-            throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");
+            if (require) {
+                throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");
+            }
         } else {
-            return (CustomerUserDetails) authentication.getDetails();
+            customerUserDetails = (CustomerUserDetails) authentication.getDetails();
+            CURRENT_USER.set(customerUserDetails);
         }
+        return customerUserDetails;
     }
 
-    public Map<String, Object> getInParam() {
-        return params;
+    public static Map<String, Object> getInParam() {
+        return PARAMS.get();
     }
 
-    public boolean containsKey(String key) {
+    public static boolean containsKey(String key) {
         return ParamUtil.containsKey(getInParam(), key);
     }
 
@@ -61,7 +80,7 @@ public class AgileParam {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    public Object getInParam(String key) {
+    public static Object getInParam(String key) {
         return ParamUtil.getInParam(getInParam(), key);
     }
 
@@ -72,7 +91,7 @@ public class AgileParam {
      * @param clazz 参数映射类型
      * @return 入参映射对象
      */
-    public <T> T getInParam(Class<T> clazz) {
+    public static <T> T getInParam(Class<T> clazz) {
         return ParamUtil.getInParam(getInParam(), clazz);
     }
 
@@ -83,8 +102,8 @@ public class AgileParam {
      * @param prefix 筛选参数前缀
      * @return 入参映射对象
      */
-    public <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
-        return ObjectUtil.getObjectFromMap(clazz, this.getInParam(), prefix);
+    public static <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
+        return ObjectUtil.getObjectFromMap(clazz, getInParam(), prefix);
     }
 
     /**
@@ -95,8 +114,8 @@ public class AgileParam {
      * @param suffix 筛选参数后缀
      * @return 入参映射对象
      */
-    public <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
-        return ObjectUtil.getObjectFromMap(clazz, this.getInParam(), prefix, suffix);
+    public static <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
+        return ObjectUtil.getObjectFromMap(clazz, getInParam(), prefix, suffix);
     }
 
     /**
@@ -105,7 +124,7 @@ public class AgileParam {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    public String getInParam(String key, String defaultValue) {
+    public static String getInParam(String key, String defaultValue) {
         return ParamUtil.getInParam(getInParam(), key, defaultValue);
     }
 
@@ -115,7 +134,7 @@ public class AgileParam {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    public <T> T getInParam(String key, Class<T> clazz) {
+    public static <T> T getInParam(String key, Class<T> clazz) {
         return ParamUtil.getInParam(getInParam(), key, clazz);
     }
 
@@ -127,7 +146,7 @@ public class AgileParam {
      * @param <T>       泛型
      * @return 转换后的入参
      */
-    public <T> T getInParam(String key, TypeReference<T> reference) {
+    public static <T> T getInParam(String key, TypeReference<T> reference) {
         return ParamUtil.getInParam(getInParam(), key, reference);
     }
 
@@ -137,7 +156,7 @@ public class AgileParam {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    public <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
+    public static <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
         return ParamUtil.getInParam(getInParam(), key, clazz, defaultValue);
     }
 
@@ -147,7 +166,7 @@ public class AgileParam {
      * @param key key值
      * @return 文件
      */
-    public MultipartFile getInParamOfFile(String key) {
+    public static MultipartFile getInParamOfFile(String key) {
         return ParamUtil.getInParamOfFile(getInParam(), key);
     }
 
@@ -157,7 +176,7 @@ public class AgileParam {
      * @param key key值
      * @return 文件
      */
-    public List<MultipartFile> getInParamOfFiles(String key) {
+    public static List<MultipartFile> getInParamOfFiles(String key) {
         return ParamUtil.getInParamOfFiles(getInParam(), key);
     }
 
@@ -167,7 +186,7 @@ public class AgileParam {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    public List<String> getInParamOfArray(String key) {
+    public static List<String> getInParamOfArray(String key) {
         return getInParamOfArray(key, String.class);
     }
 
@@ -177,7 +196,12 @@ public class AgileParam {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    public <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
+    public static <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
         return ParamUtil.getInParamOfArray(getInParam(), key, clazz);
+    }
+
+    public static void clear() {
+        PARAMS.remove();
+        CURRENT_USER.remove();
     }
 }

@@ -16,6 +16,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties(SecurityProperties.class)
 public class App {
     public static void main(String[] args) {
-        new SpringApplication(App.class).run(args);
+        try {
+            new SpringApplication(App.class).run(args);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

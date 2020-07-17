@@ -25,7 +25,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableCaching
 @EnableScheduling
-@PropertySource(value = {"classpath:**/*.yaml", "classpath:**/*.yml", "classpath:**/*.properties", "classpath:*.yaml", "classpath:*.yml", "classpath:*.properties"}, ignoreResourceNotFound = true)
 @EntityScan("com.agile.**")
 @ComponentScan(basePackages = {"com.agile.**"}, excludeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = ExcludeComponentScan.class)})
 public class AgileAutoConfiguration {

@@ -9,9 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Update;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Basic;
@@ -21,7 +18,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,30 +139,23 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     }
 
     @Column(name = "dictionary_data_id", nullable = false, length = 18)
-    @NotBlank(message = "唯一标识不能为空", groups = {Update.class, Delete.class})
     @Id
-    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getDictionaryDataId() {
         return dictionaryDataId;
     }
 
     @Basic
     @Column(name = "parent_id", length = 18)
-    @Length(max = 18, message = "最长为18个字符", groups = {Insert.class, Update.class})
     public String getParentId() {
         return parentId;
     }
 
-    @NotBlank(message = "显示名称不能为空", groups = {Insert.class, Update.class})
-    @Length(max = 50, message = "最长为50个字符", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "code", nullable = false, length = 50)
     public String getCode() {
         return code;
     }
 
-    @NotBlank(message = "代表值不能为空", groups = {Insert.class, Update.class})
-    @Length(max = 50, message = "最长为50个字符", groups = {Insert.class, Update.class})
     @Basic
     @Column(name = "name", nullable = false, length = 50)
     public String getName() {
@@ -174,7 +163,6 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     }
 
     @Basic
-    @NotNull(message = "字典值是否固定不能为空", groups = {Insert.class, Update.class})
     @Column(name = "is_fixed", nullable = false, length = 1)
     public Boolean getIsFixed() {
         return isFixed;

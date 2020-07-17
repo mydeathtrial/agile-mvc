@@ -8,19 +8,18 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Update;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 描述：[系统管理]目标任务表
@@ -32,7 +31,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@ToString
 @Entity
 @Table(name = "sys_api")
 @Remark("[系统管理]目标任务表")
@@ -52,6 +50,8 @@ public class SysApiEntity implements Serializable, Cloneable, Target {
     @Remark("备注")
     private String remarks;
 
+    private List<SysTaskEntity> tasks;
+
     @Transient
     @Override
     public String getCode() {
@@ -61,8 +61,6 @@ public class SysApiEntity implements Serializable, Cloneable, Target {
         return null;
     }
 
-    @DecimalMax(value = "9223372036854775807", groups = {Insert.class, Update.class})
-    @DecimalMin(value = "0", groups = {Insert.class, Update.class})
     @Column(name = "sys_api_id", nullable = false, length = 19)
     @Id
     public Long getSysApiId() {
@@ -70,7 +68,6 @@ public class SysApiEntity implements Serializable, Cloneable, Target {
     }
 
     @Column(name = "name", length = 65535)
-    @Length(max = 65535, message = "最长为65535个字符", groups = {Insert.class, Update.class})
     @Basic
     public String getName() {
         return name;
@@ -84,25 +81,26 @@ public class SysApiEntity implements Serializable, Cloneable, Target {
 
     @Column(name = "business_name", length = 40)
     @Basic
-    @Length(max = 40, message = "最长为40个字符", groups = {Insert.class, Update.class})
     public String getBusinessName() {
         return businessName;
     }
 
     @Basic
     @Column(name = "business_code", length = 20)
-    @Length(max = 20, message = "最长为20个字符", groups = {Insert.class, Update.class})
     public String getBusinessCode() {
         return businessCode;
     }
 
     @Basic
     @Column(name = "remarks", length = 255)
-    @Length(max = 255, message = "最长为255个字符", groups = {Insert.class, Update.class})
     public String getRemarks() {
         return remarks;
     }
 
+    @ManyToMany(cascade = CascadeType.REFRESH, mappedBy = "targets", fetch = FetchType.EAGER)
+    public List<SysTaskEntity> getTasks() {
+        return tasks;
+    }
 
     @Override
     public SysApiEntity clone() {

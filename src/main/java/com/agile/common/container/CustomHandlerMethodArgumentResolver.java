@@ -1,16 +1,19 @@
 package com.agile.common.container;
 
-import com.agile.common.param.AgileParam;
-import com.agile.common.util.ParamUtil;
+import com.agile.common.exception.NoSignInException;
+import com.agile.common.properties.SimulationProperties;
+import com.agile.common.security.CustomerUserDetails;
+import com.agile.common.util.FactoryUtil;
+import com.agile.common.util.clazz.TypeReference;
+import com.agile.common.util.object.ObjectUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Map;
 
 /**
  * @author 佟盟
@@ -22,13 +25,24 @@ import java.util.Map;
 public class CustomHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return methodParameter.getParameterType().isAssignableFrom(AgileParam.class);
+        return methodParameter.getParameterType().isAssignableFrom(CustomerUserDetails.class);
     }
 
     @Override
     @Nullable
     public Object resolveArgument(@Nullable MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
-        Map<String, Object> params = ParamUtil.handleInParam(nativeWebRequest.getNativeRequest(HttpServletRequest.class));
-        return new AgileParam(params);
+        // 判断模拟配置
+        SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
+        if (simulation != null && simulation.isEnable()) {
+            return ObjectUtil.to(simulation.getUser(),
+                    new TypeReference<>(simulation.getUserClass()));
+        }
+        // 非模拟情况
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");
+        } else {
+            return authentication.getDetails();
+        }
     }
 }

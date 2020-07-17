@@ -8,7 +8,6 @@ com.agile.common.config.EhCacheAutoConfiguration,\
 com.agile.common.config.KaptchaAutoConfiguration,\
 com.agile.common.config.LoggerFactoryConfig,\
 com.agile.common.config.MessageResourceAutoConfiguration,\
-com.agile.common.config.MyBatisAutoConfiguration,\
 com.agile.common.config.SecurityAutoConfiguration,\
 com.agile.common.config.SpringMvcAutoConfiguration,\
 com.agile.common.config.TaskAutoConfiguration,\

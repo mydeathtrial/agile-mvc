@@ -1,16 +1,14 @@
 package com.agile.mvc.service;
 
+import com.agile.common.annotation.AgileService;
+import com.agile.common.annotation.Mapping;
 import com.agile.common.annotation.Validate;
-import com.agile.common.annotation.Validates;
 import com.agile.common.base.RETURN;
 import com.agile.common.exception.NotFoundTaskException;
-import com.agile.common.mvc.service.BusinessService;
-import com.agile.common.mvc.service.TaskService;
+import com.agile.common.task.TaskManager;
 import com.agile.mvc.entity.SysTaskEntity;
-
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import static com.agile.common.base.RETURN.SUCCESS;
 
@@ -21,25 +19,22 @@ import static com.agile.common.base.RETURN.SUCCESS;
  * @version 1.0
  * @since 1.0
  */
-public class TaskRevealService extends BusinessService<SysTaskEntity> {
-    private TaskService taskService;
+@AgileService
+@Mapping("/api/task")
+public class TaskRevealService {
+    @Autowired(required = false)
+    private TaskManager taskManager;
 
-    public TaskRevealService(TaskService taskService) {
-        this.taskService = taskService;
-    }
 
     /**
      * 根据定时任务对象添加定时任务
      *
      * @return 是否添加成功
      */
-    @Validates({
-            @Validate(beanClass = SysTaskEntity.class),
-            @Validate(value = "apiNames", isBlank = false, nullable = false)
-    })
-    public RETURN updateTask() throws NotFoundTaskException, CloneNotSupportedException {
-        List<Method> methods = getInParamOfArray("apiNames", String.class).stream().map(TaskService::getApi).collect(Collectors.toList());
-        taskService.updateTask(getInParam(SysTaskEntity.class), methods);
+    @Validate(beanClass = SysTaskEntity.class)
+    @Mapping(method = RequestMethod.POST)
+    public RETURN updateTask(SysTaskEntity task) throws NotFoundTaskException, NoSuchMethodException {
+        taskManager.updateTask(task);
         return SUCCESS;
     }
 
@@ -48,12 +43,9 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN removeTask() throws NotFoundTaskException {
-        Long id = this.getInParam("id", Long.class);
-        if (id == null) {
-            return RETURN.PARAMETER_ERROR;
-        }
-        taskService.removeTask(id);
+    @Mapping("/delete/{id}")
+    public RETURN removeTask(Long id) throws NotFoundTaskException {
+        taskManager.removeTask(id);
         return SUCCESS;
     }
 
@@ -62,18 +54,10 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN stopTask() throws NotFoundTaskException {
-        Long id = this.getInParam("id", Long.class);
-        if (id == null) {
-            return RETURN.PARAMETER_ERROR;
-        }
-        taskService.stopTask(id);
-
-        //同步状态到数据库
-        SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-        entity.setEnable(false);
-        dao.update(entity);
-
+    @Validate(value = "id", nullable = false, isBlank = false)
+    @Mapping("/stop/{id}")
+    public RETURN stopTask(Long id) throws NotFoundTaskException {
+        taskManager.stopTask(id);
         return SUCCESS;
     }
 
@@ -83,18 +67,19 @@ public class TaskRevealService extends BusinessService<SysTaskEntity> {
      *
      * @return 是否成功
      */
-    public RETURN startTask() throws NotFoundTaskException {
-        Long id = this.getInParam("id", long.class);
-        if (id == null) {
-            return RETURN.PARAMETER_ERROR;
-        }
-        taskService.startTask(id);
-
-        //同步状态到数据库
-        SysTaskEntity entity = dao.findOne(SysTaskEntity.class, id);
-        entity.setEnable(true);
-        dao.update(entity);
-
+    @Validate(value = "id", nullable = false, isBlank = false)
+    @Mapping("/start/{id}")
+    public RETURN startTask(Long id) throws NotFoundTaskException {
+        taskManager.startTask(id);
         return SUCCESS;
+    }
+
+
+    public void test(String id){
+        System.out.println("执行"+id);
+    }
+
+    public static void main(String[] args) throws NoSuchMethodException {
+        System.out.println(TaskRevealService.class.getMethod("test",String.class).toGenericString());
     }
 }

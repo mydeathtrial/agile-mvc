@@ -3,6 +3,7 @@ package com.agile.common.security;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.ServletUtil;
 import com.agile.common.util.TokenUtil;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.RequestMatcher;

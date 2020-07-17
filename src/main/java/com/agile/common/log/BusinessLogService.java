@@ -2,6 +2,7 @@ package com.agile.common.log;
 
 import com.agile.common.annotation.NotAPI;
 import com.agile.common.mvc.service.MainService;
+import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.IdUtil;
 import com.agile.mvc.entity.LogMainEntity;
 import com.agile.mvc.entity.LogTableEntity;
@@ -101,8 +102,8 @@ public class BusinessLogService extends MainService {
                 .inParam(serviceExecutionInfo.getInParamToJson())
                 .outParam(serviceExecutionInfo.getOutParamToJson())
                 .ip(serviceExecutionInfo.getIp())
-                .status(serviceExecutionInfo.isStatus())
-                .userAccountNumber(serviceExecutionInfo.getUserDetails() == null ? "anonymous" : serviceExecutionInfo.getUserDetails().getUsername())
+                .status(serviceExecutionInfo.getE()==null)
+                .userAccountNumber(serviceExecutionInfo.getUserDetails() == null ? "anonymous" : serviceExecutionInfo.getUsername())
                 .createTime(serviceExecutionInfo.getExecutionDate())
                 .timeConsuming(serviceExecutionInfo.getTimeConsuming())
                 .build();
@@ -131,5 +132,18 @@ public class BusinessLogService extends MainService {
                 .operationOrder(getStep())
                 .build();
         dao.save(logTable);
+    }
+
+    /**
+     * 记录操作日志
+     *
+     * @param serviceExecutionInfo 服务执行信息
+     */
+    public static void info(ServiceExecutionInfo serviceExecutionInfo) {
+        BusinessLogService businessLogService = FactoryUtil.getBean(BusinessLogService.class);
+        if (businessLogService != null) {
+            businessLogService.logging(serviceExecutionInfo);
+            businessLogService.clear();
+        }
     }
 }

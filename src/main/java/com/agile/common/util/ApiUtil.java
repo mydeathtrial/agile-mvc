@@ -1,10 +1,12 @@
 package com.agile.common.util;
 
+import com.agile.common.annotation.AgileService;
 import com.agile.common.annotation.NotAPI;
 import com.agile.common.base.ApiInfo;
 import com.agile.common.container.AgileHandlerMapping;
-import com.agile.common.mvc.service.ServiceInterface;
+import com.agile.common.mvc.service.MainService;
 import com.google.common.collect.Maps;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -12,7 +14,9 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,11 +32,24 @@ public class ApiUtil {
             return null;
         }
         try {
+            Map<String, Object> map = Maps.newHashMap();
+            Enumeration<String> keys = request.getAttributeNames();
+            while (keys.hasMoreElements()) {
+                String key = keys.nextElement();
+                map.put(key, request.getAttribute(key));
+            }
+
             HandlerExecutionChain handlerExecutionChain = getMappingHandlerMapping().getHandler(request);
+
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                request.setAttribute(entry.getKey(), entry.getValue());
+            }
+
             if (handlerExecutionChain != null) {
                 HandlerMethod handler = (HandlerMethod) (handlerExecutionChain.getHandler());
                 return getApiInfoCache(handler.getMethod());
             }
+
         } catch (Exception e) {
             return null;
         }
@@ -58,15 +75,20 @@ public class ApiUtil {
         if (realClass == Class.class) {
             realClass = bean.getClass();
         }
-        if (realClass == null || realClass.getAnnotation(NotAPI.class) != null) {
+
+
+        if (realClass == null || realClass == MainService.class || realClass.getAnnotation(NotAPI.class) != null) {
             return;
         }
-        if (!ServiceInterface.class.isAssignableFrom(realClass)) {
+
+        AgileService agileService = AnnotationUtils.findAnnotation(realClass, AgileService.class);
+        if (agileService == null) {
             return;
         }
+
         Method[] methods = realClass.getDeclaredMethods();
         for (Method method : methods) {
-            if (method.getParameters().length > 0 || method.getAnnotation(NotAPI.class) != null) {
+            if (!Modifier.isPublic(method.getModifiers()) || method.getAnnotation(NotAPI.class) != null) {
                 continue;
             }
             registerApiMapping(beanName, bean, method, realClass);

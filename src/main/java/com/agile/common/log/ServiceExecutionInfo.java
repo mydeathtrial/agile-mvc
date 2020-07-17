@@ -1,8 +1,9 @@
 package com.agile.common.log;
 
 import com.agile.common.base.Constant;
-import com.agile.common.util.JSONUtil;
 import com.agile.common.util.MapUtil;
+import com.agile.common.util.object.ObjectUtil;
+import com.alibaba.fastjson.JSON;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.util.ProxyUtils;
@@ -28,8 +29,7 @@ public class ServiceExecutionInfo {
 
     private String ip;
     private String url;
-    private long timeConsuming;
-    private boolean status = true;
+    private long startTime;
     private UserDetails userDetails;
     private Date executionDate;
     private Object bean;
@@ -38,22 +38,8 @@ public class ServiceExecutionInfo {
     private Map<String, Object> outParam;
     private Throwable e;
 
-    public void setTimeConsuming(long startTime) {
-        this.timeConsuming = System.currentTimeMillis() - startTime;
-    }
-
-    public void setBean(Object bean) {
-        if (bean == null) {
-            throw new IllegalArgumentException("bean cannot be set to null");
-        }
-        this.bean = bean;
-    }
-
-    public void setMethod(Method method) {
-        if (bean == null) {
-            throw new IllegalArgumentException("method cannot be set to null");
-        }
-        this.method = method;
+    public long getTimeConsuming() {
+        return System.currentTimeMillis() - this.startTime;
     }
 
     public String getBeanName() {
@@ -72,7 +58,7 @@ public class ServiceExecutionInfo {
     public String getInParamToJson() {
         try {
             Map<String, Object> map = MapUtil.coverCanSerializer(getInParam());
-            return JSONUtil.toStringPretty(map, LOG_TAB);
+            return JSON.toJSONString(map, true);
         } catch (Exception e) {
             return JSON_ERROR;
         }
@@ -81,10 +67,18 @@ public class ServiceExecutionInfo {
     public String getOutParamToJson() {
         try {
             Map<String, Object> map = MapUtil.coverCanSerializer(getOutParam());
-            String outStr = JSONUtil.toStringPretty(map, LOG_TAB);
-            return (outStr != null && outStr.length() > MAX_LENGTH) ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
+            String outStr = JSON.toJSONString(map, true);
+            return outStr.length() > MAX_LENGTH ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
         } catch (Exception e) {
             return JSON_ERROR;
         }
+    }
+
+    public String getUsername() {
+        UserDetails user = getUserDetails();
+        if (user != null) {
+            return user.getUsername();
+        }
+        return "anonymous";
     }
 }

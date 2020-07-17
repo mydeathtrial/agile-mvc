@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
 
@@ -20,24 +21,26 @@ import java.util.Map;
  * HttpServletRequest扩展对象
  */
 public class RequestWrapper extends HttpServletRequestWrapper {
-
+    private final ByteArrayOutputStream body;
     private final Map<String, String[]> params;
-    private final ByteArrayOutputStream outputStream;
 
-    public RequestWrapper(HttpServletRequest request) {
+    public RequestWrapper(HttpServletRequest request) throws IOException {
         super(request);
         this.params = Maps.newHashMap();
         params.remove(Constant.ResponseAbout.SERVICE);
         params.remove(Constant.ResponseAbout.METHOD);
         params.putAll(request.getParameterMap());
 
-        outputStream = new ByteArrayOutputStream();
-        try {
-            StreamUtil.toOutputStream(request.getInputStream(), outputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+        body = new ByteArrayOutputStream();
+        InputStream ins = request.getInputStream();
+        byte[] buffer = new byte[1024];
+        int len;
+        while ((len = ins.read(buffer)) > -1) {
+            body.write(buffer, 0, len);
         }
+        body.flush();
     }
+
 
     @Override
     public Map<String, String[]> getParameterMap() {
@@ -59,8 +62,13 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     }
 
     @Override
+    public BufferedReader getReader() {
+        return new BufferedReader(new InputStreamReader(this.getInputStream()));
+    }
+
+    @Override
     public ServletInputStream getInputStream() {
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.toByteArray());
         return new ServletInputStream() {
             @Override
             public boolean isFinished() {
@@ -81,11 +89,5 @@ public class RequestWrapper extends HttpServletRequestWrapper {
                 return byteArrayInputStream.read();
             }
         };
-
-    }
-
-    @Override
-    public BufferedReader getReader() {
-        return new BufferedReader(new InputStreamReader(this.getInputStream()));
     }
 }

@@ -7,7 +7,6 @@ import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RequestWrapper;
-import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.param.AgileParam;
 import com.agile.common.util.clazz.TypeReference;
 import com.agile.common.util.object.ObjectUtil;
@@ -406,11 +405,10 @@ public class ParamUtil {
     /**
      * 入参验证
      *
-     * @param service 服务实例
      * @param method  方法
      * @return 验证信息集
      */
-    public static List<ValidateMsg> handleInParamValidate(ServiceInterface service, Method method, AgileParam agileParam) {
+    public static List<ValidateMsg> handleInParamValidate(Method method) {
         Optional<Validates> validatesOptional = Optional.ofNullable(method.getAnnotation(Validates.class));
         Optional<Validate> validateOptional = Optional.ofNullable(method.getAnnotation(Validate.class));
 
@@ -418,7 +416,7 @@ public class ParamUtil {
         validatesOptional.ifPresent(validates -> validateList.addAll(Stream.of(validates.value()).collect(Collectors.toList())));
         validateOptional.ifPresent(validateList::add);
 
-        return validateList.stream().map(validate -> handleValidateAnnotation(agileParam, validate)).reduce((all, validateMsgList) -> {
+        return validateList.stream().map(validate -> handleValidateAnnotation(validate)).reduce((all, validateMsgList) -> {
             all.addAll(validateMsgList);
             return all;
         }).orElse(Lists.newArrayList());
@@ -430,7 +428,7 @@ public class ParamUtil {
      * @param v Validate注解
      * @return 验证信息集
      */
-    private static List<ValidateMsg> handleValidateAnnotation(AgileParam agileParam, Validate v) {
+    private static List<ValidateMsg> handleValidateAnnotation(Validate v) {
         List<ValidateMsg> list = new ArrayList<>();
 
         if (v == null) {
@@ -440,9 +438,9 @@ public class ParamUtil {
         String key = v.value().trim();
         Object value;
         if (StringUtil.isBlank(key)) {
-            value = agileParam.getInParam();
+            value = AgileParam.getInParam();
         } else {
-            value = agileParam.getInParam(key);
+            value = AgileParam.getInParam(key);
         }
 
         ValidateType validateType = v.validateType();

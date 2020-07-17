@@ -1,0 +1,30 @@
+agile:
+  kaptcha:
+    enable: true
+    live-time: 60s
+    properties:
+      kaptcha:
+        background:
+          clear:
+            from: 45,45,45
+            to: 45,45,45
+        border: 'no'
+        border.color: 45,45,45
+        image:
+          height: 45
+          width: 125
+        noise:
+          color: white
+        obscurificator:
+          impl: com.google.code.kaptcha.impl.ShadowGimpy
+        textproducer:
+          char:
+            length: 4
+          font:
+            color: white
+            names: '宋体,楷体,微软雅黑'
+            size: 40
+          impl: com.agile.common.kaptcha.AgileTextProducer
+    text: abc123
+    token-header: authCode
+    url: /api/authcode

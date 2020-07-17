@@ -2,30 +2,17 @@ agile:
   version: ${project.version}
   title: ${project.description}
   module-name: 'sys'
-  kaptcha:
-    enable: true
-    token-header: authCode
-    border: 'no'
-    border-color: 45,45,45
-    image-height: 45
-    image-width: 125
-    textproducer-char-length: 4
-    textproducer-font-color: 255,255,255
-    textproducer-font-names: 宋体,楷体,微软雅黑
-    textproducer-font-size: 40
-    live-time: 180
-    url: /api/authcode
-    text:
   log:
     package-uri: ${LOCAL_LOGS_PATH:-logs}/
     trigger-type: size
     trigger-value: 5M
     levels: debug,info,error
-    business-log: true
+    business-log: false
     package-name:
       com.agile: info,error,debug
       org: error
       com: error
+      druid.sql.Statement: info,error,debug
       io: error
       javax: error
       net: error
@@ -33,7 +20,7 @@ agile:
     max-size: 200M
     custom-log: true
   security:
-    enable: true
+    enable: false
     exclude-url: /swagger-ui.html,/webjars/springfox-swagger-ui/*,/v2/api-docs,/swagger-resources/**,/api/password-find
     login-out-url: /api/logout
     login-url: /api/login
@@ -110,7 +97,7 @@ agile:
     version: ${project.version}
   dictionary:
     enable: true
-  dao:
+  jpa:
     enable: true
 spring:
   autoconfigure:
