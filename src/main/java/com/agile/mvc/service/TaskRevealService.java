@@ -1,11 +1,11 @@
 package com.agile.mvc.service;
 
+import cloud.agileframework.task.TaskManager;
+import cloud.agileframework.task.exception.NotFoundTaskException;
+import cloud.agileframework.validate.annotation.Validate;
 import com.agile.common.annotation.AgileService;
 import com.agile.common.annotation.Mapping;
-import com.agile.common.annotation.Validate;
 import com.agile.common.base.RETURN;
-import com.agile.common.exception.NotFoundTaskException;
-import com.agile.common.task.TaskManager;
 import com.agile.mvc.entity.SysTaskEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,7 +33,7 @@ public class TaskRevealService {
      */
     @Validate(beanClass = SysTaskEntity.class)
     @Mapping(method = RequestMethod.POST)
-    public RETURN updateTask(SysTaskEntity task) throws NotFoundTaskException, NoSuchMethodException {
+    public RETURN updateTask(SysTaskEntity task) throws NoSuchMethodException, NotFoundTaskException {
         taskManager.updateTask(task);
         return SUCCESS;
     }

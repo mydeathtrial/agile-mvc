@@ -1,16 +1,20 @@
 package com.agile.common.log;
 
 import com.agile.common.base.Constant;
-import com.agile.common.util.MapUtil;
-import com.agile.common.util.object.ObjectUtil;
+import com.agile.common.base.ResponseFile;
+import com.agile.common.base.poi.ExcelFile;
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,7 +61,7 @@ public class ServiceExecutionInfo {
 
     public String getInParamToJson() {
         try {
-            Map<String, Object> map = MapUtil.coverCanSerializer(getInParam());
+            Map<String, Object> map = coverCanSerializer(getInParam());
             return JSON.toJSONString(map, true);
         } catch (Exception e) {
             return JSON_ERROR;
@@ -66,12 +70,29 @@ public class ServiceExecutionInfo {
 
     public String getOutParamToJson() {
         try {
-            Map<String, Object> map = MapUtil.coverCanSerializer(getOutParam());
+            Map<String, Object> map = coverCanSerializer(getOutParam());
             String outStr = JSON.toJSONString(map, true);
             return outStr.length() > MAX_LENGTH ? outStr.substring(0, MAX_LENGTH) + "...}" : outStr;
         } catch (Exception e) {
             return JSON_ERROR;
         }
+    }
+
+    public static Map<String, Object> coverCanSerializer(Map<String, Object> source) {
+        HashMap<String, Object> map = Maps.newHashMapWithExpectedSize(source.size());
+        source.entrySet().stream().filter(entry -> !(entry.getValue() instanceof BindingResult)).peek(entry -> {
+            Object value = entry.getValue();
+            if (value instanceof MultipartFile) {
+                map.put(entry.getKey(), ((MultipartFile) value).getOriginalFilename());
+            } else if (value instanceof ResponseFile) {
+                map.put(entry.getKey(), ((ResponseFile) value).getFileName());
+            } else if (value instanceof ExcelFile) {
+                map.put(entry.getKey(), ((ExcelFile) value).getFileName());
+            }
+        }).forEach(entry -> {
+            map.put(entry.getKey(), entry.getValue());
+        });
+        return map;
     }
 
     public String getUsername() {

@@ -1,5 +1,7 @@
 package com.agile.common.util;
 
+import cloud.agileframework.common.util.file.FileUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.Head;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -55,7 +57,7 @@ public class ViewUtil {
     public static void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
 
-        ApplicationContext context = FactoryUtil.getApplicationContext();
+        ApplicationContext context = BeanUtil.getApplicationContext();
 
         if (viewUtil.locale == null) {
             initLocaleResolver(context, request);

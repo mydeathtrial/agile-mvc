@@ -1,7 +1,10 @@
 package com.agile.common.config;
 
+import cloud.agileframework.common.util.array.ArrayUtil;
+import cloud.agileframework.jpa.config.DaoAutoConfiguration;
+import cloud.agileframework.kaptcha.properties.KaptchaConfigProperties;
+import cloud.agileframework.spring.util.spring.PropertiesUtil;
 import com.agile.common.base.Constant;
-import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.security.CustomerUserDetailsService;
 import com.agile.common.security.FailureHandler;
@@ -11,8 +14,6 @@ import com.agile.common.security.LogoutHandler;
 import com.agile.common.security.SuccessHandler;
 import com.agile.common.security.TokenFilter;
 import com.agile.common.security.TokenStrategy;
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.PropertiesUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -35,7 +36,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
  * @author 佟盟 on 2017/9/26
  */
 @Configuration
-@EnableConfigurationProperties(value = {SecurityProperties.class, KaptchaConfigProperties.class})
+@EnableConfigurationProperties(value = {SecurityProperties.class})
 @EnableWebSecurity
 @ConditionalOnProperty(name = "enable", prefix = "agile.security", havingValue = "true")
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -46,9 +47,9 @@ public class SecurityAutoConfiguration extends WebSecurityConfigurerAdapter {
 
     private String[] immuneUrl;
 
-    private SecurityProperties securityProperties;
+    private final SecurityProperties securityProperties;
 
-    private KaptchaConfigProperties kaptchaConfigProperties;
+    private final KaptchaConfigProperties kaptchaConfigProperties;
 
     private final CustomerUserDetailsService customerUserDetailsService;
 

@@ -12,6 +12,8 @@ spring:
     static-path-pattern: /static/**
     async:
       request-timeout: 3m
+    locale-resolver: accept_header
+    locale: zh
   messages:
     encoding: UTF-8
     basename: 'message'

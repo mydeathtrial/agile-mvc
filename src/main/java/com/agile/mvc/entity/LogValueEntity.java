@@ -1,6 +1,6 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
+import cloud.agileframework.generator.annotation.Remark;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

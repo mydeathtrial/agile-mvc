@@ -1,8 +1,8 @@
 package com.agile.common.annotation;
 
+import cloud.agileframework.common.util.collection.CollectionsUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.CollectionsUtil;
-import com.agile.common.util.FactoryUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -67,7 +67,7 @@ public class ParsingInit implements ParsingMethodAfter {
         CollectionsUtil.sort(inits, "order");
         for (InitApiInfo initApiInfo : inits) {
             try {
-                parse(FactoryUtil.getBean(initApiInfo.beanName), initApiInfo.method);
+                parse(BeanUtil.getBean(initApiInfo.beanName), initApiInfo.method);
             } catch (Exception ignored) {
             }
         }

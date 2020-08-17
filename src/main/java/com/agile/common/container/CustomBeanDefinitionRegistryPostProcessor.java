@@ -2,7 +2,6 @@ package com.agile.common.container;
 
 import com.agile.common.annotation.AnnotationProcessor;
 import com.agile.common.annotation.ParsingBeanBefore;
-import com.agile.common.util.FactoryUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -26,16 +25,8 @@ public class CustomBeanDefinitionRegistryPostProcessor implements EnvironmentAwa
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
-        this.factoryUtilProcessor();
         this.beanAnnotationProcessor();
 
-    }
-
-    /**
-     * 2：bean工厂工具处理
-     */
-    private void factoryUtilProcessor() {
-        FactoryUtil.setApplicationContext(applicationContext);
     }
 
     /**

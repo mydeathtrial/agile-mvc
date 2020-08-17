@@ -1,7 +1,7 @@
 package com.agile.common.view;
 
-import com.agile.common.util.FileUtil;
-import com.agile.common.util.PropertiesUtil;
+import cloud.agileframework.spring.util.spring.MultipartFileUtil;
+import cloud.agileframework.spring.util.spring.PropertiesUtil;
 import com.agile.common.util.ViewUtil;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -42,7 +42,7 @@ public class JsonView extends MappingJackson2JsonView {
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<Object> files = ViewUtil.extractFiles(model);
         if (files.size() > 0) {
-            FileUtil.downloadFile(files, request, response);
+            MultipartFileUtil.downloadFile(files, request, response);
         } else {
             super.renderMergedOutputModel(model, request, response);
         }

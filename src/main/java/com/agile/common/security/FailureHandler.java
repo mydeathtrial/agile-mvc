@@ -1,8 +1,8 @@
 package com.agile.common.security;
 
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.exception.SpringExceptionHandler;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ViewUtil;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class FailureHandler implements AuthenticationFailureHandler, AccessDeniedHandler {
 
-    private static LogoutHandler logoutHandler = FactoryUtil.getBean(LogoutHandler.class);
+    private static LogoutHandler logoutHandler = BeanUtil.getBean(LogoutHandler.class);
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) {

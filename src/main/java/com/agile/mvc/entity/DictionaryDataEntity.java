@@ -1,15 +1,15 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
+import cloud.agileframework.common.util.pattern.PatternUtil;
+import cloud.agileframework.dictionary.DictionaryData;
+import cloud.agileframework.generator.annotation.Remark;
 import com.agile.common.base.Constant;
-import com.agile.common.util.pattern.PatternUtil;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -17,7 +17,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,11 +37,11 @@ import java.util.Map;
 @Entity
 @Table(name = "dictionary_data")
 @Remark("[系统管理]字典数据表")
-public class DictionaryDataEntity implements Serializable, Cloneable {
+public class DictionaryDataEntity implements DictionaryData, Serializable, Cloneable {
     private static final String SPLIT_CHAR = "[./\\\\]";
     private static final long serialVersionUID = 1L;
     @Remark("主键")
-    private String dictionaryDataId;
+    private String id;
     @Remark("父节点主键")
     private String parentId;
     @Remark("显示名称")
@@ -54,15 +53,16 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
     @Remark("备注")
     private String comment;
 
-    private List<DictionaryDataEntity> children = new ArrayList<>();
+    private List<DictionaryData> children = new ArrayList<>();
 
     @Transient
     public static String getSplitChar() {
         return SPLIT_CHAR;
     }
 
+    @Override
     @Transient
-    public List<DictionaryDataEntity> getChildren() {
+    public List<DictionaryData> getChildren() {
         return children;
     }
 
@@ -75,11 +75,13 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
      */
     private String fullCode;
 
+    @Override
     @Transient
     public String getFullName() {
         return fullName;
     }
 
+    @Override
     @Transient
     public String getFullCode() {
         return fullCode;
@@ -140,8 +142,8 @@ public class DictionaryDataEntity implements Serializable, Cloneable {
 
     @Column(name = "dictionary_data_id", nullable = false, length = 18)
     @Id
-    public String getDictionaryDataId() {
-        return dictionaryDataId;
+    public String getId() {
+        return id;
     }
 
     @Basic

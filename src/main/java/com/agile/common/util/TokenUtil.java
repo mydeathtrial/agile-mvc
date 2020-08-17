@@ -1,5 +1,8 @@
 package com.agile.common.util;
 
+import cloud.agileframework.common.util.date.DateUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.spring.IdUtil;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import com.agile.common.properties.SecurityProperties;
@@ -33,7 +36,7 @@ public class TokenUtil {
 
     private static final String AUTHENTICATION_CREATE_TIME = "created";
 
-    private static SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
+    private static SecurityProperties securityProperties = BeanUtil.getBean(SecurityProperties.class);
 
 
     /**

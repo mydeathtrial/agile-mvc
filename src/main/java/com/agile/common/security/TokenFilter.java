@@ -1,9 +1,9 @@
 package com.agile.common.security;
 
+import cloud.agileframework.spring.util.ServletUtil;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.ServletUtil;
+import com.agile.common.util.ParamUtil;
 import com.agile.common.util.TokenUtil;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -39,7 +39,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 return;
             }
             //获取令牌
-            String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
+            String token = ParamUtil.getInfo(request, securityProperties.getTokenHeader());
 
             //根据令牌---提取当前登录信息
             CurrentLoginInfo currentLoginInfo = LoginCacheInfo.getCurrentLoginInfo(token);

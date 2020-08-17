@@ -1,9 +1,9 @@
 package com.agile.common.container;
 
+import cloud.agileframework.common.util.string.StringUtil;
 import com.agile.common.annotation.Mapping;
 import com.agile.common.base.Constant;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.string.StringUtil;
 import org.slf4j.Logger;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.util.ProxyUtils;

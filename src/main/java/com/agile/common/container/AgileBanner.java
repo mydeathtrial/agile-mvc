@@ -1,6 +1,6 @@
 package com.agile.common.container;
 
-import com.agile.common.util.PropertiesUtil;
+import cloud.agileframework.spring.util.spring.PropertiesUtil;
 import org.springframework.boot.Banner;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;

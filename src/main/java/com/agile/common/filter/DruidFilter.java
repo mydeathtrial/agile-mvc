@@ -1,9 +1,9 @@
 package com.agile.common.filter;
 
+import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.sql.SqlUtil;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.log.BusinessLogService;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.SqlUtil;
 import com.alibaba.druid.filter.FilterEventAdapter;
 import com.alibaba.druid.proxy.jdbc.CallableStatementProxy;
 import com.alibaba.druid.proxy.jdbc.PreparedStatementProxy;
@@ -119,7 +119,7 @@ public class DruidFilter extends FilterEventAdapter {
      * @param sql sql语句
      */
     private void businessLog(String sql) {
-        BusinessLogService businessLogService = FactoryUtil.getBean(BusinessLogService.class);
+        BusinessLogService businessLogService = BeanUtil.getBean(BusinessLogService.class);
         String tableName = SqlUtil.getTableName(sql);
         if (businessLogService != null) {
 

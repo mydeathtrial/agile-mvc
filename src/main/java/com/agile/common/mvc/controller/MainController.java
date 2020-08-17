@@ -1,5 +1,10 @@
 package com.agile.common.mvc.controller;
 
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.validate.ValidateMsg;
+import cloud.agileframework.validate.ValidateUtil;
 import com.agile.common.annotation.ApiMethod;
 import com.agile.common.annotation.Mapping;
 import com.agile.common.base.AbstractResponseFormat;
@@ -12,16 +17,10 @@ import com.agile.common.exception.NoSuchRequestMethodException;
 import com.agile.common.exception.NoSuchRequestServiceException;
 import com.agile.common.exception.SpringExceptionHandler;
 import com.agile.common.exception.UnlawfulRequestException;
-import com.agile.common.mvc.service.ServiceInterface;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
 import com.agile.common.util.ApiUtil;
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ParamUtil;
-import com.agile.common.util.clazz.TypeReference;
-import com.agile.common.util.string.StringUtil;
-import com.agile.common.validate.ValidateMsg;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
@@ -82,8 +81,10 @@ public class MainController {
      */
     @RequestMapping(value = {"/", "/*", "/*/*/*/**"})
     public Object othersProcessor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) {
+        Map<String, Object> params = AgileParam.getInParam();
         return asyncProcessor(() -> {
             try {
+                AgileParam.init(params);
                 //设置当前request
                 REQUEST.set(currentRequest);
 
@@ -99,8 +100,10 @@ public class MainController {
 
     @RequestMapping(value = {"/{resource}"}, method = RequestMethod.GET)
     public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
+        Map<String, Object> params = AgileParam.getInParam();
         return asyncProcessor(() -> {
             try {
+                AgileParam.init(params);
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
@@ -114,8 +117,10 @@ public class MainController {
 
     @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.GET)
     public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
+        Map<String, Object> params = AgileParam.getInParam();
         return asyncProcessor(() -> {
             try {
+                AgileParam.init(params);
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
@@ -131,8 +136,10 @@ public class MainController {
 
     @RequestMapping(value = {"/{resource}/page/{page}/{size}"}, method = RequestMethod.GET)
     public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) {
+        Map<String, Object> params = AgileParam.getInParam();
         return asyncProcessor(() -> {
             try {
+                AgileParam.init(params);
                 REQUEST.set(currentRequest);
                 if (initApiInfoByRequestMapping()) {
                     RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
@@ -286,14 +293,14 @@ public class MainController {
 
     private ModelAndView processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
         //入参验证
-        List<ValidateMsg> validateMessages = ParamUtil.handleInParamValidate(getMethod());
-        Optional<List<ValidateMsg>> optionalValidateMsgList = ParamUtil.aggregation(validateMessages);
+        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(getMethod(), AgileParam.getInParam());
+        Optional<List<ValidateMsg>> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
         if (optionalValidateMsgList.isPresent()) {
             return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
         }
 
         //调用目标方法
-        FactoryUtil.getBean(this.getClass()).invoke();
+        BeanUtil.getBean(this.getClass()).invoke();
 
         //获取出参
         Map<String, Object> outParam = AgileReturn.getBody();
@@ -371,7 +378,7 @@ public class MainController {
      * @return 是/否
      */
     private boolean allowRequestMethod(RequestMethod[] requestMethods, RequestMethod requestMethod) {
-        return requestMethods == null || requestMethods.length <= 0 || !ArrayUtil.contains(requestMethods, requestMethod);
+        return requestMethods == null || requestMethods.length <= 0 || !ArrayUtils.contains(requestMethods, requestMethod);
     }
 
     /**
@@ -406,8 +413,11 @@ public class MainController {
      *
      * @param serviceName 服务名
      */
-    private static void initService(String serviceName) {
-        Object o = FactoryUtil.getBean(serviceName);
+    private static void initService(String serviceName) throws NoSuchRequestServiceException {
+        Object o = BeanUtil.getBean(serviceName);
+        if(o == null){
+            throw new NoSuchRequestServiceException();
+        }
         SERVICE.set(o);
     }
 

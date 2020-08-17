@@ -1,12 +1,12 @@
 package com.agile.common.mvc.service;
 
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.jpa.dao.Dao;
 import com.agile.common.annotation.AgileService;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
 import com.agile.common.security.CustomerUserDetails;
-import com.agile.common.util.clazz.TypeReference;
 import org.apache.commons.logging.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;

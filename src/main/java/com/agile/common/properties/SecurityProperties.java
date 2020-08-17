@@ -1,8 +1,8 @@
 package com.agile.common.properties;
 
+import cloud.agileframework.cache.support.AgileCache;
+import cloud.agileframework.cache.util.CacheUtil;
 import com.agile.common.base.Constant;
-import com.agile.common.cache.AgileCache;
-import com.agile.common.util.CacheUtil;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;

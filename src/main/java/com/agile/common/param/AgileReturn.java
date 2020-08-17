@@ -1,12 +1,12 @@
 package com.agile.common.param;
 
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.object.ObjectUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.clazz.TypeReference;
-import com.agile.common.util.object.ObjectUtil;
 import com.alibaba.fastjson.JSONValidator;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -88,7 +88,7 @@ public class AgileReturn {
 
     public static ModelAndView build() {
         ModelAndView modelAndView = new ModelAndView();
-        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
+        AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
             return abstractResponseFormat.buildResponse(getHead(), getBody());
         } else {

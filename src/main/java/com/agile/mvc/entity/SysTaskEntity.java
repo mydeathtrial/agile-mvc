@@ -1,15 +1,14 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
-import com.agile.common.task.Target;
-import com.agile.common.task.Task;
-import com.agile.common.util.PropertiesUtil;
+import cloud.agileframework.generator.annotation.Remark;
+import cloud.agileframework.spring.util.spring.PropertiesUtil;
+import cloud.agileframework.task.Target;
+import cloud.agileframework.task.Task;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -122,7 +121,6 @@ public class SysTaskEntity implements Serializable, Cloneable, Task {
     }
 
     @Transient
-    @Override
     public String getArgument() {
         return getCode().toString();
     }

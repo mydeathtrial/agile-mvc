@@ -1,13 +1,12 @@
 package com.agile.common.aop;
 
+import cloud.agileframework.spring.util.ServletUtil;
 import com.agile.common.log.BusinessLogService;
 import com.agile.common.log.Constant;
 import com.agile.common.log.ServiceExecutionInfo;
 import com.agile.common.mvc.controller.MainController;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
-import com.agile.common.util.DateUtil;
-import com.agile.common.util.ServletUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -16,6 +15,8 @@ import org.slf4j.Logger;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 /**
  * @author 佟盟 on 2017/9/24
@@ -72,7 +73,7 @@ public class MappingAop {
         return ServiceExecutionInfo.builder()
                 .ip(ServletUtil.getCurrentRequestIP())
                 .url(ServletUtil.getCurrentRequestUrl())
-                .executionDate(DateUtil.getCurrentDate())
+                .executionDate(new Date())
                 .userDetails(AgileParam.getUser())
                 .startTime(System.currentTimeMillis())
                 .bean(MainController.getService())

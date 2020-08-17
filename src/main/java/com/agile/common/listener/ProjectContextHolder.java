@@ -1,7 +1,7 @@
 package com.agile.common.listener;
 
-import com.agile.common.util.DateUtil;
-import com.agile.common.util.PrintUtil;
+import cloud.agileframework.common.util.date.DateUtil;
+import cloud.agileframework.spring.util.spring.PrintUtil;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -33,7 +33,7 @@ public class ProjectContextHolder {
     static void print() {
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "敏捷开发框架 Agile Framework"));
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动状态: ", AnsiColor.BLUE, status.name()));
-        PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动时间: ", AnsiColor.BLUE, DateUtil.convertToString(startedTime, "yyyy年MM月dd日 HH:mm:ss")));
+        PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动时间: ", AnsiColor.BLUE, DateUtil.toFormatByDate(startedTime, "yyyy年MM月dd日 HH:mm:ss")));
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动端口: ", AnsiColor.BLUE, port));
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动耗时: ", AnsiColor.BLUE, consumeTime));
     }

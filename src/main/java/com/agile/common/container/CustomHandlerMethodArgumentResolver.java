@@ -1,11 +1,11 @@
 package com.agile.common.container;
 
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.object.ObjectUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.properties.SimulationProperties;
 import com.agile.common.security.CustomerUserDetails;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.clazz.TypeReference;
-import com.agile.common.util.object.ObjectUtil;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
@@ -32,7 +32,7 @@ public class CustomHandlerMethodArgumentResolver implements HandlerMethodArgumen
     @Nullable
     public Object resolveArgument(@Nullable MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
         // 判断模拟配置
-        SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
+        SimulationProperties simulation = BeanUtil.getBean(SimulationProperties.class);
         if (simulation != null && simulation.isEnable()) {
             return ObjectUtil.to(simulation.getUser(),
                     new TypeReference<>(simulation.getUserClass()));

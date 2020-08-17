@@ -1,13 +1,12 @@
 package com.agile.mvc.entity;
 
-import com.agile.common.annotation.Remark;
-import com.agile.common.task.Target;
+import cloud.agileframework.generator.annotation.Remark;
+import cloud.agileframework.task.Target;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -59,6 +58,18 @@ public class SysApiEntity implements Serializable, Cloneable, Target {
             return name;
         }
         return null;
+    }
+
+    @Transient
+    @Override
+    public String getArgument() {
+        return null;
+    }
+
+    @Transient
+    @Override
+    public int getOrder() {
+        return 0;
     }
 
     @Column(name = "sys_api_id", nullable = false, length = 19)

@@ -1,7 +1,11 @@
 package com.agile.common.security;
 
+import cloud.agileframework.cache.support.AgileCache;
+import cloud.agileframework.cache.util.CacheUtil;
+import cloud.agileframework.common.util.security.AesUtil;
+import cloud.agileframework.kaptcha.properties.KaptchaConfigProperties;
+import cloud.agileframework.spring.util.ServletUtil;
 import com.agile.common.base.Constant;
-import com.agile.common.cache.AgileCache;
 import com.agile.common.exception.AuthenticationException;
 import com.agile.common.exception.LoginErrorLockException;
 import com.agile.common.exception.NoCompleteFormSign;
@@ -9,13 +13,9 @@ import com.agile.common.exception.VerificationCodeException;
 import com.agile.common.exception.VerificationCodeExpire;
 import com.agile.common.exception.VerificationCodeNon;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.properties.KaptchaConfigProperties;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.security.provider.LockSignProviderInterface;
-import com.agile.common.util.AesUtil;
-import com.agile.common.util.CacheUtil;
 import com.agile.common.util.ParamUtil;
-import com.agile.common.util.ServletUtil;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -131,7 +131,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
             failureHandler.render(request, response, new VerificationCodeNon());
             return;
         }
-        String codeToken = ServletUtil.getInfo(request, kaptchaConfigProperties.getTokenHeader());
+        String codeToken = ParamUtil.getInfo(request, kaptchaConfigProperties.getTokenHeader());
         if (codeToken == null) {
             throw new VerificationCodeException();
         }

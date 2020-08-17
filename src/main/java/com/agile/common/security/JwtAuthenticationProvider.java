@@ -1,10 +1,10 @@
 package com.agile.common.security;
 
-import com.agile.common.cache.AgileCache;
+import cloud.agileframework.cache.support.AgileCache;
+import cloud.agileframework.cache.util.CacheUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.exception.RepeatAccount;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.PasswordUtil;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -77,7 +77,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      * 登录策略
      */
     private void loginStrategyHandler(UserDetails user) {
-        SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
+        SecurityProperties securityProperties = BeanUtil.getBean(SecurityProperties.class);
         assert securityProperties != null;
         AgileCache cache = CacheUtil.getCache(securityProperties.getTokenHeader());
 

@@ -1,12 +1,12 @@
 package com.agile.common.security;
 
+import cloud.agileframework.cache.support.AgileCache;
+import cloud.agileframework.cache.util.CacheUtil;
+import cloud.agileframework.common.util.date.DateUtil;
+import cloud.agileframework.spring.util.ServletUtil;
+import cloud.agileframework.spring.util.spring.IdUtil;
 import com.agile.common.base.Constant;
-import com.agile.common.cache.AgileCache;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.DateUtil;
-import com.agile.common.util.IdUtil;
-import com.agile.common.util.ServletUtil;
 import com.agile.common.util.TokenUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,10 +45,10 @@ public class TokenStrategy implements SessionAuthenticationStrategy {
         long sessionToken = IdUtil.generatorId();
 
         //创建token令牌
-        String token = TokenUtil.generateToken(username, sessionToken, DateUtil.addYear(new Date(), Constant.NumberAbout.ONE));
+        String token = TokenUtil.generateToken(username, sessionToken, DateUtil.add(new Date(), Duration.of(1, ChronoUnit.YEARS)));
 
         //创建登录信息
-        LoginCacheInfo loginCacheInfo = LoginCacheInfo.createLoginCacheInfo(username, authentication, sessionToken, token, new Date(), DateUtil.add(securityProperties.getTokenTimeout()));
+        LoginCacheInfo loginCacheInfo = LoginCacheInfo.createLoginCacheInfo(username, authentication, sessionToken, token, new Date(), DateUtil.add(new Date(), securityProperties.getTokenTimeout()));
 
         //放入缓存
         cache.put(username, loginCacheInfo);

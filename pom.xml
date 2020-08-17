@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.agileframework</groupId>
+    <groupId>cloud.agileframework</groupId>
     <artifactId>agile</artifactId>
     <packaging>jar</packaging>
     <version>2.0.8</version>
@@ -19,6 +19,10 @@
         <repository>
             <id>spring</id>
             <url>https://repo.spring.io/milestone/</url>
+        </repository>
+        <repository>
+            <id>cent</id>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
 
@@ -82,11 +86,6 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.agileframework</groupId>
-            <artifactId>agile-sql</artifactId>
-            <version>LATEST</version>
         </dependency>
 
         <dependency>
@@ -301,29 +300,59 @@
         <!--            <scope>test</scope>-->
         <!--        </dependency>-->
         <dependency>
-            <groupId>com.agileframework</groupId>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-sql</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
             <artifactId>common-util</artifactId>
-            <version>LATEST</version>
+            <version>0.1</version>
         </dependency>
         <!--任务调度模块-->
         <dependency>
-            <groupId>com.agileframework</groupId>
+            <groupId>cloud.agileframework</groupId>
             <artifactId>agile-task</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
+            <version>1.0</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
-            <groupId>com.agileframework</groupId>
+            <groupId>cloud.agileframework</groupId>
             <artifactId>agile-jpa</artifactId>
-            <version>LATEST</version>
-            <scope>provided</scope>
+            <version>0.1</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
-            <groupId>com.agileframework</groupId>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-validate</artifactId>
+            <version>0.1</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
             <artifactId>spring-boot-starter-kaptcha</artifactId>
-            <version>LATEST</version>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-generator</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-dictionary</artifactId>
+            <version>0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-validate</artifactId>
+            <version>0.1</version>
         </dependency>
 
 <!--        &lt;!&ndash;引入nacos客户端 &ndash;&gt;-->

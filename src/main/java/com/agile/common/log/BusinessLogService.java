@@ -1,9 +1,9 @@
 package com.agile.common.log;
 
+import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.spring.IdUtil;
 import com.agile.common.annotation.NotAPI;
 import com.agile.common.mvc.service.MainService;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.IdUtil;
 import com.agile.mvc.entity.LogMainEntity;
 import com.agile.mvc.entity.LogTableEntity;
 import lombok.AllArgsConstructor;
@@ -140,7 +140,7 @@ public class BusinessLogService extends MainService {
      * @param serviceExecutionInfo 服务执行信息
      */
     public static void info(ServiceExecutionInfo serviceExecutionInfo) {
-        BusinessLogService businessLogService = FactoryUtil.getBean(BusinessLogService.class);
+        BusinessLogService businessLogService = BeanUtil.getBean(BusinessLogService.class);
         if (businessLogService != null) {
             businessLogService.logging(serviceExecutionInfo);
             businessLogService.clear();

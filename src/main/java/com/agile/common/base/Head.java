@@ -1,6 +1,6 @@
 package com.agile.common.base;
 
-import com.agile.common.util.ServletUtil;
+import cloud.agileframework.spring.util.ServletUtil;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serializable;

@@ -1,14 +1,14 @@
 package com.agile.common.factory;
 
+import cloud.agileframework.cache.util.CacheUtil;
+import cloud.agileframework.common.util.array.ArrayUtil;
+import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.jpa.dao.Dao;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.Constant;
 import com.agile.common.container.WebInitializer;
-import com.agile.common.mvc.model.dao.Dao;
 import com.agile.common.properties.LoggerProperties;
 import com.agile.common.security.TokenFilter;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.string.StringUtil;
-import com.agile.common.util.array.ArrayUtil;
 import com.google.common.collect.Sets;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +52,7 @@ import java.util.stream.Stream;
 public final class LoggerFactory {
     private static LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
     private static Configuration config = ctx.getConfiguration();
-    private static LoggerProperties loggerProperties = FactoryUtil.getBean(LoggerProperties.class);
+    private static LoggerProperties loggerProperties = BeanUtil.getBean(LoggerProperties.class);
     private static Level[] defaultLevels = loggerProperties != null ? loggerProperties.getLevels() : new Level[]{Level.DEBUG, Level.INFO, Level.ERROR};
     private static String path;
     private static final String PATTERN_CONSOLE = "%highlight{%-d{yyyy-MM-dd HH:mm:ss} [ %clr{%5p} ] %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} [ %clr{%-40.40c{1.}}{cyan} ] %m%n%xwEx}" +

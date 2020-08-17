@@ -1,15 +1,13 @@
 package com.agile.mvc.service;
 
+import cloud.agileframework.cache.util.CacheUtil;
+import cloud.agileframework.jpa.dao.Dao;
+import cloud.agileframework.spring.util.spring.IdUtil;
+import cloud.agileframework.task.RunDetail;
+import cloud.agileframework.task.Target;
+import cloud.agileframework.task.Task;
+import cloud.agileframework.task.TaskService;
 import com.agile.common.base.Constant;
-import com.agile.common.mvc.model.dao.Dao;
-import com.agile.common.mvc.service.BusinessService;
-import com.agile.common.task.RunDetail;
-import com.agile.common.task.Target;
-import com.agile.common.task.Task;
-import com.agile.common.task.TaskManager;
-import com.agile.common.task.TaskService;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.IdUtil;
 import com.agile.mvc.entity.SysApiEntity;
 import com.agile.mvc.entity.SysBtTaskApiEntity;
 import com.agile.mvc.entity.SysTaskDetailEntity;
@@ -18,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
@@ -159,7 +156,7 @@ public class TaskMySqlServiceImpl implements TaskService {
 
     @Override
     public void unLock(long lockName) {
-        CacheUtil.evict(lockName);
+        CacheUtil.unlock(lockName);
     }
 
     @Override

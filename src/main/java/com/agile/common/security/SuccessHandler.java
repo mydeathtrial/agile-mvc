@@ -1,7 +1,7 @@
 package com.agile.common.security;
 
+import cloud.agileframework.common.util.json.JSONUtil;
 import com.agile.common.factory.LoggerFactory;
-import com.agile.common.util.JSONUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 

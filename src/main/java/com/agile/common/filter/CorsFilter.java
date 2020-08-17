@@ -1,7 +1,7 @@
 package com.agile.common.filter;
 
+import cloud.agileframework.common.util.string.StringUtil;
 import com.agile.common.base.Constant;
-import com.agile.common.util.string.StringUtil;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.Filter;

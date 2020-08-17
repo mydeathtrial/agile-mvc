@@ -1,14 +1,14 @@
 package com.agile.common.security;
 
+import cloud.agileframework.cache.util.CacheUtil;
+import cloud.agileframework.common.util.date.DateUtil;
+import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.spring.IdUtil;
 import com.agile.common.base.Constant;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.exception.TokenIllegalException;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.CacheUtil;
-import com.agile.common.util.DateUtil;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.IdUtil;
-import com.agile.common.util.string.StringUtil;
 import com.agile.common.util.TokenUtil;
 import io.jsonwebtoken.Claims;
 import lombok.Data;
@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,15 +42,15 @@ public class LoginCacheInfo implements Serializable {
     private String username;
     private Authentication authentication;
     private Map<Long, TokenInfo> sessionTokens = new HashMap<>();
-    private static SecurityProperties securityProperties = FactoryUtil.getBean(SecurityProperties.class);
+    private static SecurityProperties securityProperties = BeanUtil.getBean(SecurityProperties.class);
 
-    private static Cache cache = CacheUtil.getCache(Objects.requireNonNull(FactoryUtil.getBean(SecurityProperties.class)).getTokenHeader());
+    private static Cache cache = CacheUtil.getCache(Objects.requireNonNull(BeanUtil.getBean(SecurityProperties.class)).getTokenHeader());
 
     public static Cache getCache() {
         return cache;
     }
 
-    private static CustomerUserDetailsService customerUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
+    private static CustomerUserDetailsService customerUserDetailsService = BeanUtil.getBean(CustomerUserDetailsService.class);
 
 
     /**
@@ -137,19 +139,19 @@ public class LoginCacheInfo implements Serializable {
         loginCacheInfo.getSessionTokens().remove(oldSessionToken);
 
         //生成新的会话令牌缓存
-        String token = TokenUtil.generateToken(currentLoginInfo.getLoginCacheInfo().getUsername(), newSessionToken, DateUtil.addYear(new Date(), 1));
+        String token = TokenUtil.generateToken(currentLoginInfo.getLoginCacheInfo().getUsername(), newSessionToken, DateUtil.add(new Date(), Duration.of(1, ChronoUnit.YEARS)));
 
         TokenInfo tokenInfo = new TokenInfo();
         tokenInfo.setToken(token);
         tokenInfo.setStart(new Date());
-        tokenInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
+        tokenInfo.setEnd(DateUtil.add(new Date(), securityProperties.getTokenTimeout()));
         loginCacheInfo.getSessionTokens().put(newSessionToken, tokenInfo);
 
         //同步缓存
         cache.put(loginCacheInfo.getUsername(), loginCacheInfo);
 
         //更新数据库登录信息
-        CustomerUserDetailsService securityUserDetailsService = FactoryUtil.getBean(CustomerUserDetailsService.class);
+        CustomerUserDetailsService securityUserDetailsService = BeanUtil.getBean(CustomerUserDetailsService.class);
         assert securityUserDetailsService != null;
         securityUserDetailsService.updateLoginInfo(loginCacheInfo.getUsername(), Long.toString(oldSessionToken), Long.toString(newSessionToken));
 
@@ -185,7 +187,7 @@ public class LoginCacheInfo implements Serializable {
         if (!sessionInfo.getEnd().after(DateUtil.getCurrentDate()) || !claims.getExpiration().after(DateUtil.getCurrentDate())) {
             throw new TokenIllegalException("身份令牌已过期");
         }
-        sessionInfo.setEnd(DateUtil.add(securityProperties.getTokenTimeout()));
+        sessionInfo.setEnd(DateUtil.add(new Date(), securityProperties.getTokenTimeout()));
         cache.put(username, loginCacheInfo);
 
         return new CurrentLoginInfo(sessionToken, loginCacheInfo);

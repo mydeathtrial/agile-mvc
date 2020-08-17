@@ -1,10 +1,10 @@
 package com.agile.common.exception;
 
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
-import com.agile.common.util.FactoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -55,7 +55,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
 
         Head head = new Head(r);
 
-        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
+        AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
             modelAndView = abstractResponseFormat.buildResponse(head, null);
         } else {

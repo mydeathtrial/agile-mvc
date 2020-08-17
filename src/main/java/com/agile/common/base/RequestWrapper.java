@@ -1,8 +1,7 @@
 package com.agile.common.base;
 
-import com.agile.common.util.ArrayUtil;
-import com.agile.common.util.stream.StreamUtil;
 import com.google.common.collect.Maps;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
@@ -56,7 +55,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     public void addParameter(String key, String o) {
         if (this.params.containsKey(key)) {
             String[] value = params.get(key);
-            params.put(key, ArrayUtil.add(value, o));
+            params.put(key, ArrayUtils.add(value, o));
         }
         this.params.put(key, new String[]{o});
     }

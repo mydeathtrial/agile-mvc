@@ -1,8 +1,7 @@
 package com.agile.common.view;
 
+import cloud.agileframework.common.util.clazz.ClassUtil;
 import com.agile.common.base.Constant;
-import com.agile.common.util.ClassUtil;
-import com.agile.common.util.MapUtil;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +27,7 @@ public class PlainView extends AbstractView {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(byteSize);
         if (model.containsKey(Constant.ResponseAbout.RESULT)) {
             Object r = model.get(Constant.ResponseAbout.RESULT);
-            if (MapUtil.isMap(r)) {
+            if (r instanceof Map) {
                 for (Object value : ((Map<String, Object>) r).values()) {
                     if (ClassUtil.isPrimitiveOrWrapper(value.getClass()) || value instanceof String) {
                         baos.write(value.toString().getBytes(response.getCharacterEncoding()));

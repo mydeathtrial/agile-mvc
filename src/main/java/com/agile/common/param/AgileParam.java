@@ -1,12 +1,12 @@
 package com.agile.common.param;
 
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.object.ObjectUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.properties.SimulationProperties;
 import com.agile.common.security.CustomerUserDetails;
-import com.agile.common.util.FactoryUtil;
 import com.agile.common.util.ParamUtil;
-import com.agile.common.util.clazz.TypeReference;
-import com.agile.common.util.object.ObjectUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,7 +48,7 @@ public class AgileParam {
             return customerUserDetails;
         }
         // 判断模拟配置
-        SimulationProperties simulation = FactoryUtil.getBean(SimulationProperties.class);
+        SimulationProperties simulation = BeanUtil.getBean(SimulationProperties.class);
         if (simulation != null && simulation.isEnable()) {
             return ObjectUtil.to(simulation.getUser(),
                     new TypeReference<>(simulation.getUserClass()));

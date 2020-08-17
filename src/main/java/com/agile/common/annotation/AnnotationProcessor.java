@@ -1,7 +1,8 @@
 package com.agile.common.annotation;
 
-import com.agile.common.util.FactoryUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.util.ProxyUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -28,7 +29,7 @@ public class AnnotationProcessor {
      */
     public static void methodAnnotationProcessor(ApplicationContext applicationContext,
                                                  String beanName,
-                                                 Class annotationClass) {
+                                                 Class<?> annotationClass) {
         String[] annotationParsings = applicationContext.getBeanNamesForType(annotationClass);
         for (String parsingName : annotationParsings) {
             Parsing parsing = (Parsing) applicationContext.getBean(parsingName);
@@ -36,8 +37,9 @@ public class AnnotationProcessor {
             if (annotation == null) {
                 continue;
             }
-            Class beanClass = FactoryUtil.getBeanClass(beanName);
+            Class<?> beanClass = BeanUtil.getApplicationContext().getType(beanName);
             if (beanClass != null) {
+                beanClass = ProxyUtils.getUserClass(beanClass);
                 methodAnnotationProcessor(beanName, beanClass, parsing);
             }
         }

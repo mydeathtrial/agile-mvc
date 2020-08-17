@@ -1,6 +1,6 @@
 package com.agile.common.base;
 
-import com.agile.common.util.PropertiesUtil;
+import cloud.agileframework.spring.util.spring.MessageUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.http.HttpStatus;
@@ -43,7 +43,7 @@ public final class RETURN {
     }
 
     public static RETURN getReturn(String key, Object... params) {
-        String message = PropertiesUtil.getMessage(key, params);
+        String message = MessageUtil.message(key, params);
         if (message != null && message.contains(Constant.RegularAbout.COLON)) {
             int splitIndex = message.indexOf(Constant.RegularAbout.COLON);
             return new RETURN(message.substring(0, splitIndex), message.substring(splitIndex + 1));

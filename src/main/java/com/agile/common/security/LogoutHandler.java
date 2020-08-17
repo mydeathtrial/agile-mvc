@@ -1,12 +1,12 @@
 package com.agile.common.security;
 
+import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.FactoryUtil;
-import com.agile.common.util.ServletUtil;
+import com.agile.common.util.ParamUtil;
 import com.agile.common.util.ViewUtil;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
      */
     public void processingExit(HttpServletRequest request, HttpServletResponse response) {
         //获取令牌
-        String token = ServletUtil.getInfo(request, securityProperties.getTokenHeader());
+        String token = ParamUtil.getInfo(request, securityProperties.getTokenHeader());
         if (token == null) {
             return;
         }
@@ -97,7 +97,7 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
     }
 
     private void before(String token) {
-        ObjectProvider<LoginOutProcessor> observers = FactoryUtil.getApplicationContext().getBeanProvider(LoginOutProcessor.class);
+        ObjectProvider<LoginOutProcessor> observers = BeanUtil.getApplicationContext().getBeanProvider(LoginOutProcessor.class);
         observers.stream().forEach(node -> {
                     try {
                         node.before(token);
@@ -108,7 +108,7 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
     }
 
     private void after(String token) {
-        ObjectProvider<LoginOutProcessor> observers = FactoryUtil.getApplicationContext().getBeanProvider(LoginOutProcessor.class);
+        ObjectProvider<LoginOutProcessor> observers = BeanUtil.getApplicationContext().getBeanProvider(LoginOutProcessor.class);
         observers.stream().forEach(node -> {
             try {
                 node.after(token);

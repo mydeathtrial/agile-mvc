@@ -1,43 +1,37 @@
 package com.agile.common.util;
 
-import com.agile.common.annotation.Validate;
-import com.agile.common.annotation.Validates;
+import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.json.JSONUtil;
+import cloud.agileframework.common.util.object.ObjectUtil;
+import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.spring.util.ServletUtil;
+import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.spring.MultipartFileUtil;
 import com.agile.common.base.AbstractResponseFormat;
 import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RequestWrapper;
-import com.agile.common.param.AgileParam;
-import com.agile.common.util.clazz.TypeReference;
-import com.agile.common.util.object.ObjectUtil;
-import com.agile.common.util.string.StringUtil;
-import com.agile.common.validate.ValidateMsg;
-import com.agile.common.validate.ValidateType;
 import com.agile.common.view.ForwardView;
 import com.google.common.collect.Maps;
-import org.apache.commons.compress.utils.Lists;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
-import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author 佟盟
@@ -121,7 +115,7 @@ public class ParamUtil {
         //判断是否存在文件上传
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(currentRequest.getSession().getServletContext());
         if (multipartResolver.isMultipart(currentRequest)) {
-            Map<String, Object> formData = FileUtil.getFileFormRequest(currentRequest);
+            Map<String, Object> formData = MultipartFileUtil.getFileFormRequest(currentRequest);
 
             for (Map.Entry<String, Object> entry : formData.entrySet()) {
                 if (inParam.containsKey(entry.getKey())) {
@@ -192,7 +186,7 @@ public class ParamUtil {
      * @return 参数
      */
     public static Object getInParam(Map<String, Object> map, String key) {
-        return com.agile.common.util.json.JSONUtil.pathGet(key, map);
+        return JSONUtil.pathGet(key, map);
     }
 
     /**
@@ -315,7 +309,7 @@ public class ParamUtil {
 
         Object body = map.get(Constant.ResponseAbout.BODY);
         if (body != null) {
-            Object json = JSONUtil.jsonCover(JSONUtil.toJSON(body.toString()));
+            Object json = JSONUtil.toMapOrList(JSONUtil.toJSON(body.toString()));
             if (json == null) {
                 return null;
             }
@@ -340,7 +334,7 @@ public class ParamUtil {
      * @return 参数集和转换后的对象
      */
     public static <T> T getInParam(Map<String, Object> map, Class<T> clazz) {
-        T result = ObjectUtil.to(map, new com.agile.common.util.clazz.TypeReference<T>(clazz) {
+        T result = ObjectUtil.to(map, new TypeReference<T>(clazz) {
         });
 
         if (result == null || ObjectUtil.isAllNullValidity(result)) {
@@ -349,7 +343,7 @@ public class ParamUtil {
         return result;
     }
 
-    public static <T> T getInParam(Map<String, Object> map, com.agile.common.util.clazz.TypeReference<T> typeReference) {
+    public static <T> T getInParam(Map<String, Object> map, TypeReference<T> typeReference) {
         T result = ObjectUtil.to(map, typeReference);
 
         if (result == null || ObjectUtil.isAllNullValidity(result)) {
@@ -359,22 +353,13 @@ public class ParamUtil {
     }
 
     public static <T> T getInParam(Map<String, Object> map, String key, Class<T> clazz) {
-        return (T) ObjectUtil.to(com.agile.common.util.json.JSONUtil.pathGet(key, map), new com.agile.common.util.clazz.TypeReference<>(clazz));
+        return (T) ObjectUtil.to(JSONUtil.pathGet(key, map), new TypeReference<>(clazz));
     }
 
     public static <T> List<T> getInParamOfArray(Map<String, Object> map, String key, Class<T> clazz) {
         List<T> result;
-        Object value = com.agile.common.util.json.JSONUtil.pathGet(key, map);
-        if (value != null && Iterable.class.isAssignableFrom(value.getClass())) {
-            result = ArrayUtil.cast(clazz, (Iterable) value);
-        } else if (value != null && value.getClass().isArray()) {
-            result = ArrayUtil.cast(clazz, ArrayUtil.asList((Object[]) value));
-        } else {
-            result = ArrayUtil.cast(clazz, new ArrayList<Object>() {{
-                add(value);
-            }});
-        }
-        return result;
+        Object value = JSONUtil.pathGet(key, map);
+        return ObjectUtil.to(value,new TypeReference<>(clazz));
     }
 
     /**
@@ -386,7 +371,7 @@ public class ParamUtil {
      */
     public static ModelAndView getResponseFormatData(Head head, Object result) {
         ModelAndView modelAndView = new ModelAndView();
-        AbstractResponseFormat abstractResponseFormat = FactoryUtil.getBean(AbstractResponseFormat.class);
+        AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
             modelAndView = abstractResponseFormat.buildResponse(head, result);
         } else {
@@ -403,78 +388,46 @@ public class ParamUtil {
     }
 
     /**
-     * 入参验证
+     * 请求中获取header或cookies中的信息
      *
-     * @param method  方法
-     * @return 验证信息集
+     * @param request 请求 请求
+     * @param key     索引
+     * @return 信息
      */
-    public static List<ValidateMsg> handleInParamValidate(Method method) {
-        Optional<Validates> validatesOptional = Optional.ofNullable(method.getAnnotation(Validates.class));
-        Optional<Validate> validateOptional = Optional.ofNullable(method.getAnnotation(Validate.class));
+    public static String getInfo(HttpServletRequest request, String key) {
+        String token = request.getHeader(key);
 
-        List<Validate> validateList = Lists.newArrayList();
-        validatesOptional.ifPresent(validates -> validateList.addAll(Stream.of(validates.value()).collect(Collectors.toList())));
-        validateOptional.ifPresent(validateList::add);
+        if (StringUtil.isBlank(token)) {
+            token = getCookie(request, key);
 
-        return validateList.stream().map(validate -> handleValidateAnnotation(validate)).reduce((all, validateMsgList) -> {
-            all.addAll(validateMsgList);
-            return all;
-        }).orElse(Lists.newArrayList());
-    }
-
-    /**
-     * 根据参数验证注解取验证信息集
-     *
-     * @param v Validate注解
-     * @return 验证信息集
-     */
-    private static List<ValidateMsg> handleValidateAnnotation(Validate v) {
-        List<ValidateMsg> list = new ArrayList<>();
-
-        if (v == null) {
-            return list;
-        }
-
-        String key = v.value().trim();
-        Object value;
-        if (StringUtil.isBlank(key)) {
-            value = AgileParam.getInParam();
-        } else {
-            value = AgileParam.getInParam(key);
-        }
-
-        ValidateType validateType = v.validateType();
-        if (value != null && List.class.isAssignableFrom(value.getClass())) {
-            list.addAll(validateType.validateArray(key, (List) value, v));
-        } else {
-            list.addAll(validateType.validateParam(key, value, v));
-        }
-        return list;
-    }
-
-    /**
-     * 参数校验信息根据相同参数聚合错误信息
-     *
-     * @param list 聚合之前的错误信息
-     * @return 聚合后的信息
-     */
-    public static Optional<List<ValidateMsg>> aggregation(List<ValidateMsg> list) {
-
-        List<ValidateMsg> errors = list.parallelStream().filter(validateMsg -> !validateMsg.isState()).collect(Collectors.toList());
-
-        Map<String, ValidateMsg> cache = Maps.newHashMapWithExpectedSize(errors.size());
-
-        errors.forEach(validateMsg -> {
-            String key = validateMsg.getItem();
-            if (cache.containsKey(key)) {
-                cache.get(key).addMessage(validateMsg.getMessage());
-            } else {
-                cache.put(key, validateMsg);
+            if (token == null) {
+                Map<String, Object> map = ParamUtil.handleInParam(request);
+                Object tokenValue = map.get(key);
+                if (tokenValue != null) {
+                    return tokenValue.toString();
+                }
             }
-        });
-        if (cache.size() > 0) {
-            return Optional.of(new ArrayList<>(cache.values()));
         }
-        return Optional.empty();
+        return token;
+    }
+
+    /**
+     * 获取cookies信息
+     *
+     * @param request 请求
+     * @param key     索引
+     * @return 值
+     */
+    public static String getCookie(HttpServletRequest request, String key) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (key.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }
