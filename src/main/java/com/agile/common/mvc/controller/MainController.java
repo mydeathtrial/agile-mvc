@@ -20,7 +20,7 @@ import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
 import com.agile.common.util.ApiUtil;
-import com.agile.common.util.ParamUtil;
+import com.agile.common.util.ViewUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
@@ -296,7 +296,7 @@ public class MainController {
         List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(getMethod(), AgileParam.getInParam());
         Optional<List<ValidateMsg>> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
         if (optionalValidateMsgList.isPresent()) {
-            return ParamUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
+            return ViewUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
         }
 
         //调用目标方法

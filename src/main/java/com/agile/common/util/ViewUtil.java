@@ -2,6 +2,8 @@ package com.agile.common.util;
 
 import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.spring.util.spring.BeanUtil;
+import com.agile.common.base.AbstractResponseFormat;
+import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -51,7 +53,32 @@ public class ViewUtil {
 
 
     public static void render(Head head, Object result, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        render(ParamUtil.getResponseFormatData(head, result), request, response);
+        render(getResponseFormatData(head, result), request, response);
+    }
+
+    /**
+     * 格式化响应报文
+     *
+     * @param head   头信息
+     * @param result 体信息
+     * @return 格式化后的ModelAndView
+     */
+    public static ModelAndView getResponseFormatData(Head head, Object result) {
+        ModelAndView modelAndView = new ModelAndView();
+        AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
+        if (abstractResponseFormat != null) {
+            modelAndView = abstractResponseFormat.buildResponse(head, result);
+        } else {
+            if (head != null) {
+                modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
+            }
+            if (result != null && Map.class.isAssignableFrom(result.getClass())) {
+                modelAndView.addAllObjects((Map<String, ?>) result);
+            } else {
+                modelAndView.addObject(Constant.ResponseAbout.RESULT, result);
+            }
+        }
+        return modelAndView;
     }
 
     public static void render(ModelAndView mv, HttpServletRequest request, HttpServletResponse response) throws Exception {

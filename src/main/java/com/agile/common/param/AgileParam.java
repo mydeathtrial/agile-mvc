@@ -2,11 +2,11 @@ package com.agile.common.param;
 
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
+import cloud.agileframework.spring.util.ParamUtil;
 import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.exception.NoSignInException;
 import com.agile.common.properties.SimulationProperties;
 import com.agile.common.security.CustomerUserDetails;
-import com.agile.common.util.ParamUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

@@ -37,9 +37,9 @@ public class Test2Service {
      * @date 2020/7/13 16:22
     */
     @Validate(value = "a",nullable = false)
-    @Mapping(path = "/test2")
-    public RETURN test(int a) {
-        AgileReturn.add("params",a);
+    @Mapping(path = "/test2/{id}")
+    public RETURN test(int a,String id) {
+//        AgileReturn.add("params",a);
         return SUCCESS;
     }
 

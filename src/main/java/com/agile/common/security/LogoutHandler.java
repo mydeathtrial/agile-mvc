@@ -1,12 +1,12 @@
 package com.agile.common.security;
 
+import cloud.agileframework.spring.util.ParamUtil;
 import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.ParamUtil;
 import com.agile.common.util.ViewUtil;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;

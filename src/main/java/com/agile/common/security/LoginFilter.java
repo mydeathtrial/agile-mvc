@@ -4,6 +4,7 @@ import cloud.agileframework.cache.support.AgileCache;
 import cloud.agileframework.cache.util.CacheUtil;
 import cloud.agileframework.common.util.security.AesUtil;
 import cloud.agileframework.kaptcha.properties.KaptchaConfigProperties;
+import cloud.agileframework.spring.util.ParamUtil;
 import cloud.agileframework.spring.util.ServletUtil;
 import com.agile.common.base.Constant;
 import com.agile.common.exception.AuthenticationException;
@@ -15,7 +16,6 @@ import com.agile.common.exception.VerificationCodeNon;
 import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.security.provider.LockSignProviderInterface;
-import com.agile.common.util.ParamUtil;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.lang3.ArrayUtils;
@@ -90,10 +90,9 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws LoginErrorLockException, NoCompleteFormSign, VerificationCodeException, VerificationCodeExpire, AuthenticationException {
         //获取用户名密码
         Map<String, Object> params = ParamUtil.handleInParam(request);
-        Map<String, Object> map = ParamUtil.coverToMap(params);
-        String sourceUsername = ParamUtil.getInParam(map, this.username, String.class);
-        String sourcePassword = ParamUtil.getInParam(map, this.password, String.class);
-        String validateCode = ParamUtil.getInParam(map, this.code, String.class);
+        String sourceUsername = ParamUtil.getInParam(params, this.username, String.class);
+        String sourcePassword = ParamUtil.getInParam(params, this.password, String.class);
+        String validateCode = ParamUtil.getInParam(params, this.code, String.class);
 
         LoggerFactory.AUTHORITY_LOG.info(String.format("正在登陆...[账号：%s][密码：%s][验证码：%s]", sourceUsername, sourcePassword, validateCode));
 

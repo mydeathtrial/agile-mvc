@@ -1,8 +1,8 @@
 package com.agile.common.security;
 
+import cloud.agileframework.spring.util.ParamUtil;
 import cloud.agileframework.spring.util.ServletUtil;
 import com.agile.common.properties.SecurityProperties;
-import com.agile.common.util.ParamUtil;
 import com.agile.common.util.TokenUtil;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
