@@ -1,7 +1,13 @@
 package com.agile.common.filter;
 
-import com.agile.common.base.RequestWrapper;
+import cloud.agileframework.spring.util.MappingUtil;
+import cloud.agileframework.spring.util.RequestWrapper;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.handler.MatchableHandlerMapping;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -9,6 +15,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author 佟盟
@@ -20,6 +27,13 @@ import java.io.IOException;
 public class RequestWrapperFilter extends OncePerRequestFilter implements Filter {
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        filterChain.doFilter(new RequestWrapper(httpServletRequest), httpServletResponse);
+        HttpServletRequest toUseRequest = httpServletRequest;
+        if (!isAsyncDispatch(httpServletRequest) && httpServletRequest instanceof RequestWrapper) {
+            toUseRequest = new RequestWrapper(httpServletRequest);
+        }
+
+        filterChain.doFilter(toUseRequest, httpServletResponse);
     }
+
+
 }

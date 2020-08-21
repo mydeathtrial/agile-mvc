@@ -1,16 +1,4 @@
 {
   "properties": [
-    {
-      "name": "spring.datasource.druid.filter.print.enabled",
-      "type": "java.lang.Boolean",
-      "description": "SQL日志过滤器",
-      "defaultValue": true
-    },
-    {
-      "name": "agile.dao.enable",
-      "type": "java.lang.Boolean",
-      "description": "Agile-Dao支持",
-      "defaultValue": true
-    }
   ]
 }

@@ -73,6 +73,10 @@ public class Test2Service {
         return CacheUtil.get(codeToken(ServletUtil.getCurrentRequest()));
     }
 
+    public Object test4(){
+        return SUCCESS;
+    }
+
     private String codeToken(HttpServletRequest req) {
         String codeToken;
 

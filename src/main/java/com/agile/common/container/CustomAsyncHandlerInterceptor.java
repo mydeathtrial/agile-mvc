@@ -1,7 +1,7 @@
 package com.agile.common.container;
 
 import cloud.agileframework.spring.util.ParamUtil;
-import com.agile.common.base.ApiInfo;
+import cloud.agileframework.spring.util.RequestWrapper;
 import com.agile.common.mvc.controller.MainController;
 import com.agile.common.param.AgileParam;
 import com.agile.common.util.ApiUtil;
@@ -15,9 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author 佟盟
@@ -34,7 +32,13 @@ public class CustomAsyncHandlerInterceptor implements AsyncHandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        Map<String, Object> params = ParamUtil.handleInParam(request);
+        Map<String, Object> params;
+        if (request instanceof RequestWrapper) {
+            params = ((RequestWrapper) request).getInParam();
+        } else {
+            params = ParamUtil.handleInParam(request);
+        }
+
         params.putAll(parseUriVariable(request));
         AgileParam.init(params);
         return true;
@@ -60,25 +64,18 @@ public class CustomAsyncHandlerInterceptor implements AsyncHandlerInterceptor {
             uri = URLDecoder.decode(uri, "UTF-8");
         } catch (UnsupportedEncodingException ignored) {
         }
-        ApiInfo info = ApiUtil.getApiCache(currentRequest);
+        RequestMappingInfo requestMappingInfo = ApiUtil.getApiCache(currentRequest);
+
+
+        if (requestMappingInfo == null) {
+            return uriVariables;
+        }
 
         //处理路径入参
-        if (info != null) {
-            Set<RequestMappingInfo> requestMappingInfos = info.getRequestMappingInfos();
-            if (requestMappingInfos != null) {
-                Set<String> mappingCache = new HashSet<>();
-                for (RequestMappingInfo requestMappingInfo : requestMappingInfos) {
-                    PatternsRequestCondition patternsCondition = requestMappingInfo.getPatternsCondition();
-                    if (patternsCondition != null) {
-                        mappingCache.addAll(patternsCondition.getPatterns());
-                    }
-                }
-                for (String mapping : mappingCache) {
-                    try {
-                        uriVariables.putAll(new AntPathMatcher().extractUriTemplateVariables(mapping, uri));
-                    } catch (Exception ignored) {
-                    }
-                }
+        PatternsRequestCondition patternsCondition = requestMappingInfo.getPatternsCondition();
+        if (patternsCondition != null) {
+            for (String mapping : patternsCondition.getPatterns()) {
+                uriVariables.putAll(new AntPathMatcher().extractUriTemplateVariables(mapping, uri));
             }
         }
 

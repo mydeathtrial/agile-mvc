@@ -2,24 +2,22 @@ package com.agile.common.mvc.controller;
 
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.string.StringUtil;
+import cloud.agileframework.spring.util.MappingUtil;
+import cloud.agileframework.spring.util.ServletUtil;
 import cloud.agileframework.spring.util.spring.BeanUtil;
 import cloud.agileframework.validate.ValidateMsg;
 import cloud.agileframework.validate.ValidateUtil;
 import com.agile.common.annotation.ApiMethod;
 import com.agile.common.annotation.Mapping;
 import com.agile.common.base.AbstractResponseFormat;
-import com.agile.common.base.ApiInfo;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
-import com.agile.common.base.RequestWrapper;
 import com.agile.common.exception.NoSuchRequestMethodException;
 import com.agile.common.exception.NoSuchRequestServiceException;
 import com.agile.common.exception.SpringExceptionHandler;
-import com.agile.common.exception.UnlawfulRequestException;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
-import com.agile.common.util.ApiUtil;
 import com.agile.common.util.ViewUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +29,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.async.WebAsyncTask;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 /**
  * 主控制层
@@ -62,11 +60,6 @@ public class MainController {
      */
     private static final ThreadLocal<Method> METHOD = new ThreadLocal<>();
 
-    /**
-     * request缓存变量
-     */
-    private static final ThreadLocal<HttpServletRequest> REQUEST = new ThreadLocal<>();
-
     private final LocalVariableTableParameterNameDiscoverer localVariableTableParameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
     @Autowired
@@ -75,211 +68,51 @@ public class MainController {
     /**
      * 非法请求处理器
      *
-     * @param currentRequest  请求
-     * @param currentResponse 响应
      * @return 视图
      */
     @RequestMapping(value = {"/", "/*", "/*/*/*/**"})
-    public Object othersProcessor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) {
+    public Object othersProcessor(HttpServletRequest request) throws NoSuchRequestServiceException {
+        if (initApiInfoByRequestMapping(request)) {
+            throw new NoSuchRequestServiceException();
+        }
+        return getModelAndViewWebAsyncTask();
+    }
+
+    private WebAsyncTask<ModelAndView> getModelAndViewWebAsyncTask() {
         Map<String, Object> params = AgileParam.getInParam();
+        Object bean = getService();
+        Method method = getMethod();
         return asyncProcessor(() -> {
             try {
                 AgileParam.init(params);
-                //设置当前request
-                REQUEST.set(currentRequest);
-
-                if (initApiInfoByRequestMapping()) {
-                    throw new UnlawfulRequestException();
-                }
-                return processor(currentRequest, currentResponse);
+                return processor(bean, method);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
         });
     }
 
-    @RequestMapping(value = {"/{resource}"}, method = RequestMethod.GET)
-    public Object processorOfGET0(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                AgileParam.init(params);
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "query");
-                }
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
-    }
-
-    @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.GET)
-    public Object processorOfGET1(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                AgileParam.init(params);
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-                    requestWrapper.addParameter("id", id);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "queryById");
-                }
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
-    }
-
-    @RequestMapping(value = {"/{resource}/page/{page}/{size}"}, method = RequestMethod.GET)
-    public Object processorOfGET2(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String page, @PathVariable String size) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                AgileParam.init(params);
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-                    requestWrapper.addParameter("page", page);
-                    requestWrapper.addParameter("size", size);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "pageQuery");
-                }
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
-    }
-
-    @RequestMapping(value = {"/{resource}"}, method = RequestMethod.POST)
-    public Object processorOfPOST(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "save");
-                }
-                AgileParam.init(params);
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
-    }
-
-    @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.PUT)
-    public Object processorOfPUT(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-                    requestWrapper.addParameter("id", id);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "update");
-                }
-                AgileParam.init(params);
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
-    }
-
-    @RequestMapping(value = {"/{resource}"}, method = RequestMethod.DELETE)
-    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    return processor(currentRequest, currentResponse, StringUtil.removeExtension(resource), "delete");
-                }
-                AgileParam.init(params);
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
-    }
-
-    @RequestMapping(value = {"/{resource}/{id}"}, method = RequestMethod.DELETE)
-    public Object processorOfDELETE(HttpServletRequest currentRequest, HttpServletResponse currentResponse, @PathVariable String resource, @PathVariable String id) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                AgileParam.init(params);
-                REQUEST.set(currentRequest);
-                if (initApiInfoByRequestMapping()) {
-                    RequestWrapper requestWrapper = new RequestWrapper(currentRequest);
-                    requestWrapper.addParameter("id", id);
-                    return processor(requestWrapper, currentResponse, StringUtil.removeExtension(resource), "delete");
-                }
-                return processor(currentRequest, currentResponse);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
-        });
+    private Object processor(HttpServletRequest request, String service, String method, Consumer<Map<String, Object>> parseParams) throws NoSuchRequestServiceException, NoSuchRequestMethodException {
+        initApiInfoByRequestMapping(request, service, method);
+        parseParams.accept(AgileParam.getInParam());
+        return getModelAndViewWebAsyncTask();
     }
 
     /**
      * agile框架处理器
      *
-     * @param service         服务名
-     * @param method          方法名
-     * @param currentRequest  request信息
-     * @param currentResponse response信息
+     * @param service 服务名
+     * @param method  方法名
      * @return 响应试图数据
      */
     @RequestMapping(value = {"/api/{service}/{method}", "/api/{service}/{method}/**", "/{service}/{method}"})
     public Object proxyProcessor(
-            HttpServletRequest currentRequest,
-            HttpServletResponse currentResponse,
+            HttpServletRequest request,
             @PathVariable("service") String service,
             @PathVariable("method") String method
-    ) {
-        Map<String, Object> params = AgileParam.getInParam();
-        return asyncProcessor(() -> {
-            try {
-                AgileParam.init(params);
-                return processor(currentRequest, currentResponse, service, method);
-            } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
-            }
+    ) throws NoSuchRequestServiceException, NoSuchRequestMethodException {
+        return processor(request, service, method, o -> {
         });
-
-    }
-
-    /**
-     * agile框架处理器
-     *
-     * @param service         服务名
-     * @param method          方法名
-     * @param currentRequest  request信息
-     * @param currentResponse response信息
-     * @return 响应试图数据
-     * @throws Throwable 所有异常
-     */
-    public ModelAndView processor(
-            HttpServletRequest currentRequest,
-            HttpServletResponse currentResponse,
-            String service,
-            String method
-    ) throws Throwable {
-        //设置当前request
-        REQUEST.set(currentRequest);
-
-        //处理目标API
-        if (initApiInfoByRequestMapping()) {
-            initService(StringUtil.toLowerName(service));
-            initMethod(StringUtil.toLowerName(method));
-        }
-
-        return processor(currentRequest, currentResponse);
     }
 
     private WebAsyncTask<ModelAndView> asyncProcessor(Callable<ModelAndView> callable) {
@@ -291,16 +124,16 @@ public class MainController {
         return asyncTask;
     }
 
-    private ModelAndView processor(HttpServletRequest currentRequest, HttpServletResponse currentResponse) throws Throwable {
+    private ModelAndView processor(Object bean, Method method) throws Throwable {
         //入参验证
-        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(getMethod(), AgileParam.getInParam());
-        Optional<List<ValidateMsg>> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
-        if (optionalValidateMsgList.isPresent()) {
-            return ViewUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList.get());
+        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, AgileParam.getInParam());
+        List<ValidateMsg> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
+        if (!optionalValidateMsgList.isEmpty()) {
+            return ViewUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), optionalValidateMsgList);
         }
 
         //调用目标方法
-        BeanUtil.getBean(this.getClass()).invoke();
+        BeanUtil.getBean(this.getClass()).invoke(bean, method);
 
         //获取出参
         Map<String, Object> outParam = AgileReturn.getBody();
@@ -327,7 +160,6 @@ public class MainController {
     public static void clear() {
         SERVICE.remove();
         METHOD.remove();
-        REQUEST.remove();
         AgileParam.clear();
     }
 
@@ -386,14 +218,26 @@ public class MainController {
      *
      * @return 成功/失败
      */
-    private boolean initApiInfoByRequestMapping() {
-        HttpServletRequest currentRequest = REQUEST.get();
-        ApiInfo info = ApiUtil.getApiCache(currentRequest);
-        if (info != null) {
-            Object bean = info.getBean();
-            Method targetMethod = info.getMethod();
+    private boolean initApiInfoByRequestMapping(HttpServletRequest currentRequest) {
+
+        HandlerMethod handlerMethod = MappingUtil.matching(currentRequest);
+
+        if (handlerMethod != null && !(handlerMethod.getBean() instanceof MainController)) {
+            Object bean = handlerMethod.getBean();
+            Method targetMethod = handlerMethod.getMethod();
             initServiceByObject(bean);
             initMethodByObject(targetMethod);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean initApiInfoByRequestMapping(HttpServletRequest request, String service, String method) throws NoSuchRequestServiceException, NoSuchRequestMethodException {
+
+        //处理目标API
+        if (initApiInfoByRequestMapping(request)) {
+            initService(StringUtil.toLowerName(service));
+            initMethod(StringUtil.toLowerName(method));
             return false;
         }
         return true;
@@ -415,7 +259,7 @@ public class MainController {
      */
     private static void initService(String serviceName) throws NoSuchRequestServiceException {
         Object o = BeanUtil.getBean(serviceName);
-        if(o == null){
+        if (o == null) {
             throw new NoSuchRequestServiceException();
         }
         SERVICE.set(o);
@@ -446,7 +290,7 @@ public class MainController {
         if (!Modifier.isPublic(methodCache.getModifiers())) {
             throw new NoSuchRequestMethodException();
         }
-        RequestMethod currentRequestMethod = RequestMethod.valueOf(REQUEST.get().getMethod());
+        RequestMethod currentRequestMethod = RequestMethod.valueOf(ServletUtil.getCurrentRequest().getMethod());
         Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
         if (requestMapping != null && allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
@@ -468,19 +312,19 @@ public class MainController {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void invoke() throws Throwable {
+    public void invoke(Object bean, Method method) throws Throwable {
         try {
-            Class<?>[] types = getMethod().getParameterTypes();
-            String[] names = localVariableTableParameterNameDiscoverer.getParameterNames(getMethod());
+            Class<?>[] types = method.getParameterTypes();
+            String[] names = localVariableTableParameterNameDiscoverer.getParameterNames(method);
             Object returnData;
             if (types.length > 0 && ArrayUtils.isSameLength(types, names)) {
                 Object[] args = new Object[types.length];
                 for (int i = 0; i < types.length; i++) {
                     args[i] = AgileParam.getInParam(names[i], new TypeReference<>(types[i]));
                 }
-                returnData = getMethod().invoke(getService(), args);
+                returnData = method.invoke(bean, args);
             } else {
-                returnData = getMethod().invoke(getService());
+                returnData = method.invoke(bean);
             }
 
             if (returnData instanceof RETURN) {

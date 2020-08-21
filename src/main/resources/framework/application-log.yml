@@ -1,0 +1,11 @@
+agile:
+  log:
+    enabled: true
+    operation:
+      enabled: true
+logging:
+  file:
+    name: log
+  level:
+    cloud.agileframework.log: debug
+    org.springframework: trace

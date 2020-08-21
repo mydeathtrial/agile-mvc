@@ -1,10 +1,8 @@
 package com.agile.common.listener;
 
 import cloud.agileframework.spring.util.spring.PropertiesUtil;
-import com.agile.common.config.LoggerFactoryConfig;
 import com.agile.common.container.AgileBanner;
 import com.agile.common.listener.event.ListenerTest;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.hibernate.cfg.AvailableSettings;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
@@ -36,7 +34,6 @@ public class ListenerSpringApplicationRun implements SpringApplicationRunListene
         application.setBanner(new AgileBanner());
         application.addListeners(new ListenerTest());
         application.setDefaultProperties(PropertiesUtil.getProperties());
-        ConfigurationFactory.setConfigurationFactory(new LoggerFactoryConfig());
     }
 
     @Override

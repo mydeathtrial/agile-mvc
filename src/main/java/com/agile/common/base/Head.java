@@ -37,4 +37,14 @@ public class Head implements Serializable {
     public String getMsg() {
         return msg;
     }
+
+    @Override
+    public String toString() {
+        return "Head{" +
+                "ip='" + ip + '\'' +
+                ", code='" + code + '\'' +
+                ", msg='" + msg + '\'' +
+                ", status=" + status +
+                '}';
+    }
 }

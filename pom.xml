@@ -84,11 +84,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
-            <artifactId>hibernate-validator</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
             <version>LATEST</version>
@@ -101,11 +96,6 @@
             <optional>true</optional>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-
         <!--kafka-->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -116,34 +106,16 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
         </dependency>
-        <!-- mvc支持 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- 启动支持 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-logging</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <!-- log4j2支持 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
+<!--        &lt;!&ndash; log4j2支持 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-log4j2</artifactId>-->
+<!--        </dependency>-->
         <!--web-socket支持-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -203,21 +175,12 @@
             <artifactId>disruptor</artifactId>
             <version>${disruptor.version}</version>
         </dependency>
-        <!--#log4j2日志-->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-web</artifactId>
-        </dependency>
+<!--        &lt;!&ndash;#log4j2日志&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.logging.log4j</groupId>-->
+<!--            <artifactId>log4j-web</artifactId>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>
         <!--JWT-->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -271,12 +234,6 @@
             </exclusions>
         </dependency>
 
-        <!--#面向切面编程-->
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-        </dependency>
-
         <!--程序监控-->
         <dependency>
             <groupId>org.jolokia</groupId>
@@ -299,16 +256,6 @@
         <!--            <version>LATEST</version>-->
         <!--            <scope>test</scope>-->
         <!--        </dependency>-->
-        <dependency>
-            <groupId>cloud.agileframework</groupId>
-            <artifactId>agile-sql</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>cloud.agileframework</groupId>
-            <artifactId>common-util</artifactId>
-            <version>0.1</version>
-        </dependency>
         <!--任务调度模块-->
         <dependency>
             <groupId>cloud.agileframework</groupId>
@@ -322,6 +269,12 @@
             <artifactId>agile-jpa</artifactId>
             <version>0.1</version>
             <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba</groupId>
+                    <artifactId>druid</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -345,14 +298,20 @@
 
         <dependency>
             <groupId>cloud.agileframework</groupId>
-            <artifactId>agile-dictionary</artifactId>
+            <artifactId>agile-validate</artifactId>
             <version>0.1</version>
         </dependency>
 
         <dependency>
             <groupId>cloud.agileframework</groupId>
-            <artifactId>agile-validate</artifactId>
+            <artifactId>agile-log</artifactId>
             <version>0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-fileupload</groupId>
+                    <artifactId>commons-fileupload</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 <!--        &lt;!&ndash;引入nacos客户端 &ndash;&gt;-->

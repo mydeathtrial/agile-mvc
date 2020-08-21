@@ -5,7 +5,6 @@ import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.base.Constant;
 import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.properties.SecurityProperties;
 import com.agile.common.util.ViewUtil;
 import org.springframework.beans.factory.ObjectProvider;
@@ -34,7 +33,7 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
             processingExit(request, response);
             ViewUtil.render(new Head(RETURN.LOGOUT_SUCCESS), null, request, response);
         } catch (Exception e) {
-            LoggerFactory.AUTHORITY_LOG.debug(e);
+            logger.debug(e);
         }
 
     }
@@ -72,7 +71,7 @@ public class LogoutHandler extends AbstractAuthenticationTargetUrlRequestHandler
         //执行后钩子
         after(token);
 
-        LoggerFactory.AUTHORITY_LOG.info(String.format("账号退出[username:%s][token：%s]", username, sessionToken));
+        logger.info(String.format("账号退出[username:%s][token：%s]", username, sessionToken));
     }
 
 

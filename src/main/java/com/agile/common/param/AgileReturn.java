@@ -60,16 +60,17 @@ public class AgileReturn {
         }
     }
 
-    public static void setHead(RETURN r){
+    public static void setHead(RETURN r) {
         setHead(new Head(r));
     }
 
-    private static void setHead(Head head){
+    private static void setHead(Head head) {
         HEAD.set(head);
     }
 
     /**
      * 重置出参
+     *
      * @param object 出参
      */
     private static void setBody(Object object) {
@@ -78,7 +79,12 @@ public class AgileReturn {
     }
 
     public static Head getHead() {
-        return HEAD.get();
+        Head head = HEAD.get();
+        if (head == null) {
+            setHead(RETURN.SUCCESS);
+            return HEAD.get();
+        }
+        return head;
     }
 
     public static Map<String, Object> getBody() {

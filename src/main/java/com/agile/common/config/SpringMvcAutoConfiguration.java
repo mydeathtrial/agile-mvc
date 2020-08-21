@@ -1,16 +1,20 @@
 package com.agile.common.config;
 
-import com.agile.common.factory.LoggerFactory;
+import com.agile.common.container.AgileHandlerMapping;
 import com.agile.common.filter.CorsFilter;
 import com.agile.common.filter.RequestWrapperFilter;
 import com.agile.common.properties.CorsFilterProperties;
 import org.jolokia.http.AgentServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -21,6 +25,7 @@ import javax.servlet.http.HttpServlet;
  */
 @Configuration
 public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final CorsFilterProperties corsFilterProperties;
 
@@ -39,7 +44,7 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         corsFilter.addInitParameter("allowMethods", corsFilterProperties.getAllowMethods());
         corsFilter.addInitParameter("allowCredentials", Boolean.toString(corsFilterProperties.isAllowCredentials()));
         corsFilter.addInitParameter("allowHeaders", corsFilterProperties.getAllowHeaders());
-        LoggerFactory.COMMON_LOG.debug("完成初始化跨域过滤器");
+        logger.debug("完成初始化跨域过滤器");
         return corsFilter;
     }
 
@@ -49,7 +54,7 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         FilterRegistrationBean<RequestWrapperFilter> requestFilter = new FilterRegistrationBean<>();
         requestFilter.setFilter(new RequestWrapperFilter());
         requestFilter.addUrlPatterns("/*");
-        LoggerFactory.COMMON_LOG.debug("完成初始化Request包装过滤器");
+        logger.debug("完成初始化Request包装过滤器");
         return requestFilter;
     }
 
@@ -59,8 +64,14 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         ServletRegistrationBean<HttpServlet> reg = new ServletRegistrationBean<>();
         reg.setServlet(new AgentServlet());
         reg.addUrlMappings("/jolokia/*");
-        LoggerFactory.COMMON_LOG.debug("完成初始化Jolokia");
+        logger.debug("完成初始化Jolokia");
         return reg;
+    }
+
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public AgileHandlerMapping agileHandlerMapping(){
+        return new AgileHandlerMapping();
     }
 
 

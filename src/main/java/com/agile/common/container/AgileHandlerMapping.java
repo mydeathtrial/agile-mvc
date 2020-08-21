@@ -1,10 +1,7 @@
 package com.agile.common.container;
 
-import cloud.agileframework.common.util.string.StringUtil;
+import com.agile.common.annotation.AgileService;
 import com.agile.common.annotation.Mapping;
-import com.agile.common.base.Constant;
-import com.agile.common.factory.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.data.util.ProxyUtils;
 import org.springframework.lang.Nullable;
@@ -14,6 +11,7 @@ import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -24,14 +22,7 @@ import java.util.Set;
  * @author 佟盟 on 2018/11/4
  */
 public class AgileHandlerMapping extends RequestMappingHandlerMapping {
-    private final Logger logger = org.slf4j.LoggerFactory.getLogger(AgileHandlerMapping.class);
-
-    private final boolean useSuffixPatternMatch = true;
-    private final boolean useRegisteredSuffixPatternMatch = false;
-    private final boolean useTrailingSlashMatch = true;
     private final Map<String, RequestMappingInfo> cache = new HashMap<>();
-
-    private RequestMappingInfo.BuilderConfiguration config = new RequestMappingInfo.BuilderConfiguration();
 
     private RequestMappingInfo createMappingInfo(Mapping mapping, RequestCondition<?> condition) {
         RequestMappingInfo.Builder builder = RequestMappingInfo
@@ -45,7 +36,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
         if (condition != null) {
             builder.customCondition(condition);
         }
-        return builder.options(this.config).build();
+        return builder.build();
     }
 
     @Nullable
@@ -58,59 +49,67 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     @Override
     public RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
         RequestMappingInfo info = this.createMappingInfo(method);
+
+        String path = "/" + handlerType.getSimpleName() + "/" + method.getName();
         if (info != null) {
             RequestMappingInfo typeInfo = this.createMappingInfo(handlerType);
             if (typeInfo != null) {
                 info = typeInfo.combine(info);
             }
+        } else {
+            AgileService agileService = handlerType.getAnnotation(AgileService.class);
+            if (agileService == null) {
+                return null;
+            }
+            createMappingInfo(new Mapping() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Mapping.class;
+                }
+
+                @Override
+                public String name() {
+                    return "";
+                }
+
+                @Override
+                public String[] value() {
+
+                    return new String[]{path};
+                }
+
+                @Override
+                public String[] path() {
+                    return new String[0];
+                }
+
+                @Override
+                public RequestMethod[] method() {
+                    return new RequestMethod[]{RequestMethod.POST, RequestMethod.GET};
+                }
+
+                @Override
+                public String[] params() {
+                    return new String[0];
+                }
+
+                @Override
+                public String[] headers() {
+                    return new String[0];
+                }
+
+                @Override
+                public String[] consumes() {
+                    return new String[0];
+                }
+
+                @Override
+                public String[] produces() {
+                    return new String[0];
+                }
+            }, null);
         }
         return info;
-    }
-
-    private String createDefaultMappingPath(AnnotatedElement element) {
-        StringBuilder path = new StringBuilder();
-        if (element instanceof Class) {
-            path.append(String.format("/api/%s",
-                    StringUtil.toCamel(((Class<?>) element).getSimpleName())
-                            .replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS)));
-        } else if (element instanceof Method) {
-            path.append(String.format("/%s",
-                    StringUtil.toCamel(((Method) element).getName())
-                            .replace(Constant.RegularAbout.UNDER_LINE, Constant.RegularAbout.MINUS)));
-        }
-        return path.toString();
-    }
-
-    private RequestMappingInfo createDefaultMappingInfo(AnnotatedElement element, RequestCondition<?> condition) {
-        RequestMappingInfo.Builder builder = RequestMappingInfo.paths(this.resolveEmbeddedValuesInPatterns(new String[]{createDefaultMappingPath(element)})).methods().params().headers().consumes().produces().mappingName("");
-        if (condition != null) {
-            builder.customCondition(condition);
-        }
-        return builder.options(this.config).build();
-    }
-
-    private RequestMappingInfo createDefaultMappingInfo(AnnotatedElement element) {
-        RequestCondition<?> condition = element instanceof Class ? this.getCustomTypeCondition((Class<?>) element) : this.getCustomMethodCondition((Method) element);
-        return this.createDefaultMappingInfo(element, condition);
-    }
-
-    public RequestMappingInfo getDefaultFroMethod(Method method, Class<?> handlerType) {
-
-        RequestMappingInfo defaultMappingInfo = this.createDefaultMappingInfo(method);
-        RequestMappingInfo defaultTypeInfo = this.createDefaultMappingInfo(handlerType);
-        defaultMappingInfo = defaultTypeInfo.combine(defaultMappingInfo);
-        return defaultMappingInfo;
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        this.config = new RequestMappingInfo.BuilderConfiguration();
-        this.config.setUrlPathHelper(this.getUrlPathHelper());
-        this.config.setPathMatcher(this.getPathMatcher());
-        this.config.setSuffixPatternMatch(this.useSuffixPatternMatch);
-        this.config.setTrailingSlashMatch(this.useTrailingSlashMatch);
-        this.config.setRegisteredSuffixPatternMatch(this.useRegisteredSuffixPatternMatch);
-        this.config.setContentNegotiationManager(this.getContentNegotiationManager());
     }
 
     @Override
@@ -122,7 +121,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
                 Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
                 for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
                     if (methods.contains(requestMethod)) {
-                        LoggerFactory.COMMON_LOG.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
+                        logger.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", ProxyUtils.getUserClass(handler).getName(), method.getName()));
                         throw new IllegalStateException();
                     }
                 }

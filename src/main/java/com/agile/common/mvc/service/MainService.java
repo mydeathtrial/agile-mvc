@@ -3,11 +3,11 @@ package com.agile.common.mvc.service;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.jpa.dao.Dao;
 import com.agile.common.annotation.AgileService;
-import com.agile.common.factory.LoggerFactory;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
 import com.agile.common.security.CustomerUserDetails;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,11 +18,11 @@ import java.util.Map;
  * @author 佟盟 on 2017/1/9
  */
 @AgileService
-public class MainService implements ServiceInterface {
+public class MainService {
 
     @Autowired(required = false)
     protected Dao dao;
-    protected Log logger = LoggerFactory.getServiceLog(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * 服务中调用该方法获取入参
@@ -30,7 +30,6 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    @Override
     public Object getInParam(String key) {
         return AgileParam.getInParam(key);
     }
@@ -42,7 +41,6 @@ public class MainService implements ServiceInterface {
      * @param clazz 参数映射类型
      * @return 入参映射对象
      */
-    @Override
     public <T> T getInParam(Class<T> clazz) {
         return AgileParam.getInParam(clazz);
     }
@@ -86,7 +84,6 @@ public class MainService implements ServiceInterface {
      * @param key 入参索引字符串
      * @return 入参值
      */
-    @Override
     public <T> T getInParam(String key, Class<T> clazz) {
         return AgileParam.getInParam(key, clazz);
     }
@@ -168,7 +165,6 @@ public class MainService implements ServiceInterface {
      *
      * @return 入参集合
      */
-    @Override
     public Map<String, Object> getInParam() {
         return AgileParam.getInParam();
     }
@@ -187,7 +183,6 @@ public class MainService implements ServiceInterface {
      * @param key   参数索引字符串
      * @param value 参数值
      */
-    @Override
     public void setOutParam(String key, Object value) {
         AgileReturn.add(key, value);
     }
@@ -197,9 +192,5 @@ public class MainService implements ServiceInterface {
      */
     public CustomerUserDetails getUser() {
         return AgileParam.getUser();
-    }
-
-    public Log getLogger() {
-        return logger;
     }
 }

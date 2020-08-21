@@ -2,9 +2,10 @@ package com.agile.common.annotation;
 
 import cloud.agileframework.common.util.collection.CollectionsUtil;
 import cloud.agileframework.spring.util.spring.BeanUtil;
-import com.agile.common.factory.LoggerFactory;
 import lombok.Builder;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -25,6 +26,7 @@ import java.util.List;
  */
 @Component
 public class ParsingInit implements ParsingMethodAfter {
+    private Logger logger = LoggerFactory.getLogger(getClass());
     private List<InitApiInfo> inits = new ArrayList<>();
 
     @Override
@@ -53,7 +55,7 @@ public class ParsingInit implements ParsingMethodAfter {
         Init init = (Init) method.getAnnotation(getAnnotation());
         if (!ObjectUtils.isEmpty(init)) {
             try {
-                LoggerFactory.COMMON_LOG.info(String.format("启动初始化方法:%s\n", method.toGenericString()));
+                logger.info("启动初始化方法:{}", method.toGenericString());
                 method.invoke(bean);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
