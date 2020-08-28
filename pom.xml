@@ -106,10 +106,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
 
 <!--        &lt;!&ndash; log4j2支持 &ndash;&gt;-->
 <!--        <dependency>-->
@@ -181,22 +177,22 @@
 <!--            <artifactId>log4j-web</artifactId>-->
 <!--        </dependency>-->
 
-        <!--JWT-->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>${jwt.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-annotations</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--        &lt;!&ndash;JWT&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.jsonwebtoken</groupId>-->
+<!--            <artifactId>jjwt</artifactId>-->
+<!--            <version>${jwt.version}</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                    <artifactId>jackson-annotations</artifactId>-->
+<!--                </exclusion>-->
+<!--                <exclusion>-->
+<!--                    <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--                    <artifactId>jackson-databind</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
 
         <!--#文件上传-->
         <dependency>
@@ -279,19 +275,6 @@
 
         <dependency>
             <groupId>cloud.agileframework</groupId>
-            <artifactId>agile-validate</artifactId>
-            <version>0.1</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>cloud.agileframework</groupId>
-            <artifactId>spring-boot-starter-kaptcha</artifactId>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cloud.agileframework</groupId>
             <artifactId>agile-generator</artifactId>
             <version>0.1</version>
         </dependency>
@@ -312,6 +295,12 @@
                     <artifactId>commons-fileupload</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>agile-security</artifactId>
+            <version>0.1</version>
         </dependency>
 
 <!--        &lt;!&ndash;引入nacos客户端 &ndash;&gt;-->

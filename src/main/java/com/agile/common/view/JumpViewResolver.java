@@ -1,4 +1,4 @@
-package com.agile.common.viewResolver;
+package com.agile.common.view;
 
 import com.agile.common.view.ForwardView;
 import org.springframework.context.ApplicationContext;

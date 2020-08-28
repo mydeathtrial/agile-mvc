@@ -7,7 +7,9 @@ import com.agile.common.base.Head;
 import com.agile.common.base.RETURN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,13 +22,10 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author 佟盟 on 2018/6/25
  */
-@Order(0)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class SpringExceptionHandler implements HandlerExceptionResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(SpringExceptionHandler.class);
-
-    private static final String EXCEPTION_MESSAGE_PREFIX = "agile.exception.%s";
-    private static final String ERROR_MESSAGE_PREFIX = "agile.error.%s";
     private static final String MESSAGE_HEAD = "统一异常捕捉";
 
     @ExceptionHandler(Throwable.class)
@@ -45,13 +44,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
             LOGGER.error(MESSAGE_HEAD, e);
         }
 
-        RETURN r = get(e, ERROR_MESSAGE_PREFIX);
-        if (r == null) {
-            r = get(e, EXCEPTION_MESSAGE_PREFIX);
-        }
-        if (r == null) {
-            r = RETURN.EXPRESSION;
-        }
+        RETURN r = to(e);
 
         Head head = new Head(r);
 
@@ -70,16 +63,17 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
     /**
      * 提取国际化响应文
      *
-     * @param e      异常
-     * @param prefix 国际化key前缀
+     * @param e 异常
      * @return RETURN
      */
-    private static RETURN get(Throwable e, String prefix) {
+    private static RETURN to(Throwable e) {
         RETURN r;
         if (e instanceof AbstractCustomException) {
-            r = RETURN.getReturn(String.format(prefix, e.getClass().getSimpleName()), ((AbstractCustomException) e).getParams());
+            r = RETURN.byMessage(HttpStatus.INTERNAL_SERVER_ERROR, e.getClass().getName(), ((AbstractCustomException) e).getParams());
+        } else if (e instanceof RuntimeException) {
+            r = RETURN.byMessage(HttpStatus.INTERNAL_SERVER_ERROR, e.getClass().getName(), e.getMessage());
         } else {
-            r = RETURN.getReturn(String.format(prefix, e.getClass().getSimpleName()), e.getMessage());
+            r = RETURN.byMessage(HttpStatus.OK, e.getClass().getName(), e.getMessage());
         }
         return r;
     }

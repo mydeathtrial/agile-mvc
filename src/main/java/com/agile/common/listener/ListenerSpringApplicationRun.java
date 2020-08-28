@@ -21,7 +21,7 @@ import java.util.Properties;
  * @since 1.0
  */
 public class ListenerSpringApplicationRun implements SpringApplicationRunListener {
-    private SpringApplication application;
+    private final SpringApplication application;
     private static Long startTime;
 
     public ListenerSpringApplicationRun(SpringApplication application, String[] args) {
@@ -38,7 +38,6 @@ public class ListenerSpringApplicationRun implements SpringApplicationRunListene
 
     @Override
     public void environmentPrepared(ConfigurableEnvironment environment) {
-        mergeAgile(environment);
         PropertiesUtil.setEnvironment(environment);
     }
 
@@ -65,26 +64,6 @@ public class ListenerSpringApplicationRun implements SpringApplicationRunListene
     @Override
     public void failed(ConfigurableApplicationContext context, Throwable exception) {
 
-    }
-
-    /**
-     * 1：配置变量处理
-     */
-    private void mergeAgile(ConfigurableEnvironment environment) {
-        final String cacheName = "spring.cache.type";
-        final String redisName = "redis";
-        final String propertySourceName = "dynamicConfig";
-
-        Properties properties = new Properties();
-        if (redisName.equals(environment.getProperty(cacheName))) {
-            properties.put(String.format("spring.jpa.properties.%s", AvailableSettings.CACHE_REGION_FACTORY), "com.agile.common.cache.redis.RedisRegionFactory");
-        } else {
-            properties.put(String.format("spring.jpa.properties.%s", AvailableSettings.CACHE_REGION_FACTORY), "com.agile.common.cache.ehcache.EhCacheRegionFactory");
-            properties.put("spring.autoconfigure.exclude", environment.getProperty("spring.autoconfigure.exclude") + "org.springframework.boot.actuate.autoconfigure.redis.RedisHealthIndicatorAutoConfiguration");
-        }
-
-        PropertySource<?> localPropertySource = new PropertiesPropertySource(propertySourceName, properties);
-        environment.getPropertySources().addLast(localPropertySource);
     }
 
     public static long getConsume() {

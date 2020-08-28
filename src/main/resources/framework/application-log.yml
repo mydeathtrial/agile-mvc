@@ -8,4 +8,5 @@ logging:
     name: log
   level:
     cloud.agileframework.log: debug
+    cloud.agileframework.common.util.properties: debug
     org.springframework: trace

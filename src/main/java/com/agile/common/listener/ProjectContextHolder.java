@@ -18,7 +18,7 @@ import java.util.Date;
  */
 public class ProjectContextHolder {
     private static STATUS status;
-    private static Date startedTime = new Date();
+    private static final Date startedTime = new Date();
     private static int port;
     private static Duration consumeTime;
 

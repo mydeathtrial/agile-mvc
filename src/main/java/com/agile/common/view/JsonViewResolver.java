@@ -1,6 +1,5 @@
-package com.agile.common.viewResolver;
+package com.agile.common.view;
 
-import com.agile.common.view.JsonView;
 import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.AbstractCachingViewResolver;
 

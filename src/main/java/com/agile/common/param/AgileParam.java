@@ -3,13 +3,11 @@ package com.agile.common.param;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.spring.util.ParamUtil;
-import cloud.agileframework.spring.util.spring.BeanUtil;
 import com.agile.common.exception.NoSignInException;
-import com.agile.common.properties.SimulationProperties;
-import com.agile.common.security.CustomerUserDetails;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
@@ -26,7 +24,7 @@ import java.util.Map;
 @JsonIgnoreProperties(value = "user")
 public class AgileParam {
     private static final ThreadLocal<Map<String, Object>> PARAMS = ThreadLocal.withInitial(HashMap::new);
-    private static final ThreadLocal<CustomerUserDetails> CURRENT_USER = new ThreadLocal<>();
+    private static final ThreadLocal<UserDetails> CURRENT_USER = new ThreadLocal<>();
 
     private AgileParam() {
     }
@@ -35,24 +33,19 @@ public class AgileParam {
         PARAMS.set(sourceParam);
     }
 
-    public static CustomerUserDetails getUser() {
+    public static UserDetails getUser() {
         return getUser(false);
     }
 
     /**
      * 获取当前用户信息
      */
-    public static CustomerUserDetails getUser(boolean require) {
-        CustomerUserDetails customerUserDetails = CURRENT_USER.get();
-        if(customerUserDetails != null){
+    public static UserDetails getUser(boolean require) {
+        UserDetails customerUserDetails = CURRENT_USER.get();
+        if (customerUserDetails != null) {
             return customerUserDetails;
         }
-        // 判断模拟配置
-        SimulationProperties simulation = BeanUtil.getBean(SimulationProperties.class);
-        if (simulation != null && simulation.isEnable()) {
-            return ObjectUtil.to(simulation.getUser(),
-                    new TypeReference<>(simulation.getUserClass()));
-        }
+
         // 非模拟情况
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
@@ -60,7 +53,7 @@ public class AgileParam {
                 throw new NoSignInException("账号尚未登录，服务中无法获取登录信息");
             }
         } else {
-            customerUserDetails = (CustomerUserDetails) authentication.getDetails();
+            customerUserDetails = (UserDetails) authentication.getDetails();
             CURRENT_USER.set(customerUserDetails);
         }
         return customerUserDetails;

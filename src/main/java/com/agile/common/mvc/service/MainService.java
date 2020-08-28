@@ -5,10 +5,10 @@ import cloud.agileframework.jpa.dao.Dao;
 import com.agile.common.annotation.AgileService;
 import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
-import com.agile.common.security.CustomerUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -190,7 +190,7 @@ public class MainService {
     /**
      * 获取当前用户信息
      */
-    public CustomerUserDetails getUser() {
+    public UserDetails getUser() {
         return AgileParam.getUser();
     }
 }

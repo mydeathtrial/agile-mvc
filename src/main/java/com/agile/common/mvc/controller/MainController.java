@@ -1,6 +1,5 @@
 package com.agile.common.mvc.controller;
 
-import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.spring.util.MappingUtil;
 import cloud.agileframework.spring.util.ServletUtil;
@@ -20,9 +19,11 @@ import com.agile.common.param.AgileParam;
 import com.agile.common.param.AgileReturn;
 import com.agile.common.util.ViewUtil;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.request.async.WebAsyncTask;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,8 +41,10 @@ import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 /**
  * 主控制层
@@ -307,21 +311,38 @@ public class MainController {
      *
      * @return 服务
      */
-    public static Object getService() {
+    private static Object getService() {
         return SERVICE.get();
     }
 
+    @Autowired
+    private ObjectProvider<HandlerMethodArgumentResolver> handlerMethodArgumentResolvers;
+
     @Transactional(rollbackFor = Exception.class)
     public void invoke(Object bean, Method method) throws Throwable {
+
         try {
-            Class<?>[] types = method.getParameterTypes();
-            String[] names = localVariableTableParameterNameDiscoverer.getParameterNames(method);
+            int count = method.getParameterCount();
+
             Object returnData;
-            if (types.length > 0 && ArrayUtils.isSameLength(types, names)) {
-                Object[] args = new Object[types.length];
-                for (int i = 0; i < types.length; i++) {
-                    args[i] = AgileParam.getInParam(names[i], new TypeReference<>(types[i]));
-                }
+            if (count > 0) {
+                Object[] args = new Object[count];
+                IntStream.range(0, count).forEach(index -> {
+                    MethodParameter methodParameter = new MethodParameter(method, index);
+                    methodParameter.initParameterNameDiscovery(localVariableTableParameterNameDiscoverer);
+                    args[index] = handlerMethodArgumentResolvers.orderedStream()
+                            .filter(resolver -> resolver.supportsParameter(methodParameter))
+                            .map(resolver -> {
+                                try {
+                                    return resolver.resolveArgument(methodParameter, null, null, null);
+                                } catch (Exception e) {
+                                    return null;
+                                }
+                            })
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .orElse(null);
+                });
                 returnData = method.invoke(bean, args);
             } else {
                 returnData = method.invoke(bean);
@@ -349,7 +370,7 @@ public class MainController {
      *
      * @return 方法
      */
-    public static Method getMethod() {
+    private static Method getMethod() {
         return METHOD.get();
     }
 }

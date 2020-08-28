@@ -1,8 +1,9 @@
 package com.agile.common.container;
 
-import com.agile.common.viewResolver.JsonViewResolver;
-import com.agile.common.viewResolver.JumpViewResolver;
-import com.agile.common.viewResolver.PlainViewResolver;
+import com.agile.common.view.JsonViewResolver;
+import com.agile.common.view.JumpViewResolver;
+import com.agile.common.view.PlainViewResolver;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
@@ -23,7 +24,7 @@ import java.util.List;
 public class CustomWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(new CustomHandlerMethodArgumentResolver());
+        resolvers.add(agileHandlerMethodArgumentResolver());
     }
 
     @Override
@@ -32,6 +33,11 @@ public class CustomWebMvcConfigurer implements WebMvcConfigurer {
         registry.viewResolver(new PlainViewResolver());
         registry.viewResolver(new JumpViewResolver());
         registry.enableContentNegotiation();
+    }
+
+    @Bean
+    AgileHandlerMethodArgumentResolver agileHandlerMethodArgumentResolver() {
+        return new AgileHandlerMethodArgumentResolver();
     }
 
     @Override

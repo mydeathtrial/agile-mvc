@@ -1,4 +1,4 @@
-package com.agile.common.viewResolver;
+package com.agile.common.view;
 
 import com.agile.common.view.PlainView;
 import org.springframework.web.servlet.View;

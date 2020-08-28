@@ -1,9 +1,7 @@
 spring:
   mvc:
-    date-format: 'yyyy-MM-dd HH:mm:ss'
     contentnegotiation:
       favor-parameter: true
-      favor-path-extension: false
       media-types:
         plain: text/plain
         xml: application/xml
@@ -14,6 +12,9 @@ spring:
       request-timeout: 3m
     locale-resolver: accept_header
     locale: zh
+    format:
+      date: yyyy-MM-dd
+      date-time: yyyy-MM-dd HH:mm:ss
   messages:
     encoding: UTF-8
     basename: 'message'
@@ -26,11 +27,6 @@ spring:
       enabled: true
       file-size-threshold: 100KB
       location: 'temp'
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
   task:
     execution:
       pool:
@@ -44,3 +40,8 @@ spring:
     static-locations: classpath:com/agile/static/
 server:
   port: 18081
+  servlet:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true

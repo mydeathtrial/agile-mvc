@@ -1,10 +1,8 @@
-package com.agile.mvc;
+package com.agile;
 
 import com.agile.common.annotation.EnableAgile;
-import com.agile.common.properties.SecurityProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
  * 入口工程
@@ -13,7 +11,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
  */
 @EnableAgile
 @SpringBootApplication
-@EnableConfigurationProperties(SecurityProperties.class)
 public class App {
     public static void main(String[] args) {
         try {

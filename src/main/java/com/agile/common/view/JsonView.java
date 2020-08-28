@@ -41,7 +41,7 @@ public class JsonView extends MappingJackson2JsonView {
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         List<Object> files = ViewUtil.extractFiles(model);
-        if (files.size() > 0) {
+        if (!files.isEmpty()) {
             MultipartFileUtil.downloadFile(files, request, response);
         } else {
             super.renderMergedOutputModel(model, request, response);
