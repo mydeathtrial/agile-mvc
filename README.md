@@ -1,36 +1,50 @@
 
 <img src="https://images.gitee.com/uploads/images/2019/0912/201757_6d887de5_451899.jpeg" width="20%" height="20%" />
 
-# Spring-Agile
-[![](https://img.shields.io/badge/Spring-LATEST-green)](https://img.shields.io/badge/spring-LATEST-green)
+# agile-mvc
+[![](https://img.shields.io/badge/Spring--mvc-LATEST-green)](https://img.shields.io/badge/Spring--mvc-LATEST-green)
 [![CircleCI](https://circleci.com/gh/mydeathtrial/agile/tree/master.svg?style=svg)](https://circleci.com/gh/mydeathtrial/agile/tree/master)
-[![Maven Central](https://img.shields.io/maven-central/v/com.alibaba.cloud/spring-cloud-alibaba-dependencies.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:com.alibaba.cloud%20AND%20a:spring-cloud-alibaba-dependencies)
-[![Codecov](https://codecov.io/gh/alibaba/spring-cloud-alibaba/branch/master/graph/badge.svg)](https://codecov.io/gh/alibaba/spring-cloud-alibaba)
+[![Maven Central](https://img.shields.io/badge/maven-build-green)](https://img.shields.io/badge/maven-build-green)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Gitter](https://badges.gitter.im/alibaba/nacos.svg)](https://gitter.im/alibaba/nacos?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)   [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Gitter](https://travis-ci.org/alibaba/nacos.svg?branch=master)](https://travis-ci.org/alibaba/nacos)
 
 -------
-Agile-Framework 系列脚手架致力于帮助开发人员从繁重的代码当中解脱出来，用最简单的代码勾画出最美的艺术。Spring-Agile提供Web开发一站式解决方案。此项目包含Web开发相关的各种必要组件及辅助工具集，方便开发者通过 Agile 编程模型轻松使用这些组件来开发单体应用及分布式应用。
+Agile-Framework 系列脚手架致力于帮助开发人员从繁重的代码当中解脱出来，致力于”用最简单的代码勾画出最美的艺术“这一不变的理念。Spring-Agile提供Web开发一站式解决方案。此项目包含Web开发相关的各种必要组件及辅助工具集，方便开发者通过 Agile 编程模型轻松使用这些组件来开发单体应用及分布式应用。
+agile-mvc作为agileframework系列框架最初的发展根基，不断开枝散叶，目前已成功衍生出十几个独立、特色化功能开发组件，`cloud.agileframework`值得您的期待。
 
-参考文档 请查看 [WIKI](https://gitee.com/mydeathtrial/agile/wikis) 。
+参考文档 请查看 [WIKI](https://gitee.com/mydeathtrial/agile/wikis)正在编写中 。
 
 ## 主要功能
-* **自动化API地址映射**：。
-* **自动化统一参数解析**：。
-* **统一报文模板**：。
-* **通用持久层工具**：。
-* **动态SQL解析**：。
-* **认证链**：。
-* **代码生成器**：。
-* **动态日志**：。
-* **动态任务调度**：。
-* **参数验证控件**：。
-* **动态逻辑层**：。
-* **自动化配置掃描**：。
-* **自动化国际化配置掃描**：。
-* **统一异常处理**：。
-* **...**
+* **几乎为零的代码入侵**
+agile-mvc组件几乎做到了零规范要求，甚至无感知的开发效果，除声明@AgileService注解（Agile服务层托管）、@Mapping注解（地址映射，也可省略）几乎不需要在我们的代码中出现特殊的Agile代码痕迹，保证了用最原生的java方法，去实现传统mvc三层的所有能力。
+
+* **抽象化控制层**
+从传统mvc三层模式中，agile-mvc最突出的特点是提供了抽象控制器`MainController`，解决了参数判断、请求跳转、视图组装三部分的功能。省略了大部分控制层代码的冗余，达到一个原生JAVA方法，实现一个API服务的目的。同时由于
+0代码入侵的设计理念，也保留了复杂业务逻辑场景下对自定义控制器及服务层复用的支持。所以该功能大大降低了Web项目开发的代码量，以及让其学习成本降至最低，基本达到了
+会写java方法，就会编写规范化API的效果。
+
+* **自动化API地址映射**
+在spring-mvc中往往需要大量应用诸如RequestMapping、GetMapping之类的地址映射注释，agile-mvc则提供了对@AgileService服务默认的（类名+方法名+模糊化）地址映射规则，所以在非Restful风格api设计的项目当中，甚至可以省略了所有地址映射声明。同时agile-mvc提供了
+@Mapping注解，通过Agile内置的AgileMappingHandlerMapping实现在传统Service层中实现@RequestMapping的效果。使用方式无任何差别，确保开发人员零学习成本。
+
+* **强大的参数解析器**：
+参数解析器由agile系列套件common-util提供参数解析，为spring-mvc扩展了超乎想象的参数解析能力，注入逗号分隔字符串转集合、下划线属性json转pojo对象、多层对象嵌套、不同类型集合数据参数识别、字符串时间语句分析、文件上传、文件输入流等等能力。
+将开发人员对参数的复杂类型转换直接省略掉，进一步缩减非业务代码量。
+
+* **可定制化统一响应模板**：
+agile-mvc提供可自定义响应模板入口，在不同项目中可以定义个性化的统一响应格式，响应头、体信息均可定制。
+
+* **集成agile-validate参数验证控件**：
+借助agile系列套件agile-validate方法参数验证组件，实现对springmvc原生控制层方法、@AgileService服务层方法的参数验证注解解析，弥补原生springmvc在参数验证注解方面能力的不足，其中包括了自定义逻辑的业务参数验证的支持。
+
+* **自动化配置文件掃描**：
+借助common-util的PropertiesUtil工具实现对环境内的任意配置文件扫描，避免了硬编码方式指定配置文件，并在功能初始化阶段以由低到高的优先级对扫描到的配置文件进行打印。该功能解开了在多模块开发过程中配置文件规范的限制，确保模块的扩展过程可携带默认配置。
+且配置扫描原则为外层>内层 同层按照命名顺序排列优先级。
+
+* **统一异常处理**：
+对全局任何异常均做了统一拦截、格式化响应、日志打印
+
+* **异常、国际化响应报文关联**：
+所有异常均支持国际化配置文件关联，当拦截到异常时，优先获取国际化配置，组装响应报文，以此种方式省略了开发人员对异常情况的处理。可以在程序任何位置直接将业务错误提示以java throw的方式直接返回给前端。
 
 # 思想
 ### 精简

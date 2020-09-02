@@ -1,7 +1,0 @@
-org.springframework.boot.SpringApplicationRunListener=\
-com.agile.common.listener.ListenerSpringApplicationRun
-
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.agile.common.config.AgileAutoConfiguration,\
-com.agile.common.config.SpringMvcAutoConfiguration,\
-com.agile.common.config.WebSocketAutoConfiguration

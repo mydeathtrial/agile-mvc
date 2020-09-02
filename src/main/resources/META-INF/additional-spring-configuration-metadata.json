@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "spring.mvc.static-path-pattern",
+      "type": "java.lang.String",
+      "description": "静态资源访问地址",
+      "defaultValue": "/static/**"
+    }
+  ]
+}
