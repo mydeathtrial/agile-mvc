@@ -1,5 +1,7 @@
 package com.agile.mvc.controller;
 
+import cloud.agileframework.validate.ValidateCustomBusiness;
+import cloud.agileframework.validate.ValidateMsg;
 import cloud.agileframework.validate.annotation.Validate;
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
@@ -28,10 +30,19 @@ public class Test2Service {
      * @date 2020/7/13 16:22
      */
     @Validate(value = "a", nullable = false)
+    @Validate(value = "a", customBusiness = {MyValidate.class})
     @Mapping(path = "/test2/{id}")
-    public RETURN test(int a, String id, MultipartFile[] file) {
+    public RETURN test(int a, String id_d, MultipartFile[] file) {
 //        AgileReturn.add("params",a);
         return SUCCESS;
+    }
+
+    public static class MyValidate implements ValidateCustomBusiness {
+
+        @Override
+        public List<ValidateMsg> validate(Object params) {
+            return null;
+        }
     }
 
     public Object test4() {

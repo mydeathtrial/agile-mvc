@@ -27,12 +27,16 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        String parameterName = parameter.getParameterName();
+        if (parameterName == null) {
+            return null;
+        }
         Class<?> type = parameter.getParameterType();
         if (MultipartFile.class.isAssignableFrom(type)) {
             return AgileParam.getInParamOfFile(parameter.getParameterName());
         } else if (InputStream.class.isAssignableFrom(type)) {
             return AgileParam.getInParamOfFile(parameter.getParameterName()).getInputStream();
         }
-        return AgileParam.getInParam(parameter.getParameterName(), new TypeReference<>(type));
+        return AgileParam.getInParam(parameterName.replace("_", "."), new TypeReference<>(type));
     }
 }

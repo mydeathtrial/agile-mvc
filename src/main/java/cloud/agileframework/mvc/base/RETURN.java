@@ -92,6 +92,10 @@ public final class RETURN {
         return byMessage(defaultValue, null, key);
     }
 
+    public static RETURN byMessage(String key, Object... params) {
+        return byMessage(null, null, key, params);
+    }
+
     public String getCode() {
         return code;
     }
