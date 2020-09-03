@@ -67,7 +67,7 @@ AgileService代理服务全部使用异步请求处理，开发人员只需编�
 您可以从[最新稳定版本]下载包(https://github.com/mydeathtrial/agile-mvc/releases).
 该包已上传至maven中央仓库，可在pom中直接声明引用
 
-以版本agile-mvc-0.1.jar为例。
+以版本agile-mvc-2.0.0.jar为例。
 #### 步骤 2: 添加maven依赖
 ```xml
 <!--声明中央仓库-->
@@ -82,7 +82,7 @@ AgileService代理服务全部使用异步请求处理，开发人员只需编�
 <dependency>
     <groupId>cloud.agileframework</groupId>
     <artifactId>agile-mvc</artifactId>
-    <version>0.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 #### 步骤 3: 开箱即用
