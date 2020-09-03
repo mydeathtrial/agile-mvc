@@ -1,6 +1,6 @@
 package cloud.agileframework.mvc.annotation;
 
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 

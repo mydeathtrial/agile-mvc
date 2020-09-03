@@ -1,7 +1,6 @@
 package cloud.agileframework.mvc.annotation;
 
 import cloud.agileframework.mvc.config.AgileAutoConfiguration;
-import cloud.agileframework.mvc.listener.ListenerSpringApplicationRun;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.Documented;

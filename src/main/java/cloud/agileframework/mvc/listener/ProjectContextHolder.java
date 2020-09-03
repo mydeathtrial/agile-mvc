@@ -1,7 +1,7 @@
 package cloud.agileframework.mvc.listener;
 
 import cloud.agileframework.common.util.date.DateUtil;
-import cloud.agileframework.spring.util.spring.PrintUtil;
+import cloud.agileframework.spring.util.PrintUtil;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.web.context.WebServerInitializedEvent;

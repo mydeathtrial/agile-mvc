@@ -4,7 +4,7 @@ import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
 import cloud.agileframework.mvc.base.Constant;
 import cloud.agileframework.mvc.base.Head;
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;

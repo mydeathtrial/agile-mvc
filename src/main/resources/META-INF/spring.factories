@@ -1,6 +1,5 @@
 org.springframework.boot.SpringApplicationRunListener=\
 cloud.agileframework.mvc.listener.ListenerSpringApplicationRun
-
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 cloud.agileframework.mvc.config.AgileAutoConfiguration,\
 cloud.agileframework.mvc.config.SpringMvcAutoConfiguration

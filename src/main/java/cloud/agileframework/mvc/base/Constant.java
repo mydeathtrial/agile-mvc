@@ -145,7 +145,7 @@ public class Constant {
         public static final String SYBASE = "jdbc:sybase:Tds:(?<ip>[0-9.]+):(?<port>[0-9]+)/(?<name>[\\w]+)";
     }
 
-    public static class RequestAttributeAbout{
+    public static class RequestAttributeAbout {
         public static final String ATTRIBUTE_ERROR = "$cloud.agileframework.attributeError";
 
     }

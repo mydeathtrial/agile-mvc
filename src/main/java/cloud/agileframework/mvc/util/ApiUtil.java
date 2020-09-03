@@ -1,10 +1,10 @@
 package cloud.agileframework.mvc.util;
 
 import cloud.agileframework.mvc.annotation.AgileService;
-import cloud.agileframework.spring.util.MappingUtil;
-import cloud.agileframework.spring.util.spring.BeanUtil;
 import cloud.agileframework.mvc.annotation.NotAPI;
 import cloud.agileframework.mvc.container.AgileHandlerMapping;
+import cloud.agileframework.spring.util.BeanUtil;
+import cloud.agileframework.spring.util.MappingUtil;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.method.HandlerMethod;

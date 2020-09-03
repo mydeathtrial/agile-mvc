@@ -1,6 +1,6 @@
 package cloud.agileframework.mvc.container;
 
-import cloud.agileframework.spring.util.spring.PropertiesUtil;
+import cloud.agileframework.spring.util.PropertiesUtil;
 import org.springframework.boot.Banner;
 import org.springframework.boot.ansi.AnsiColor;
 import org.springframework.boot.ansi.AnsiOutput;
@@ -43,7 +43,7 @@ public class AgileBanner implements Banner {
             printStream.println();
         }
         printStream.println();
-        String version = PropertiesUtil.getProperty("agile.version","1.0");
+        String version = PropertiesUtil.getProperty("agile.version", "1.0");
         version = (version != null) ? " (version:" + version + ")" : "";
         StringBuilder padding = new StringBuilder();
         while (padding.length() < STRAP_LINE_SIZE

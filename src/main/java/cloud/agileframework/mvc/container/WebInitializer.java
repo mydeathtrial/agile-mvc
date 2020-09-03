@@ -13,6 +13,7 @@ import javax.servlet.ServletContext;
  */
 public class WebInitializer implements WebApplicationInitializer, ServletContextInitializer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+
     @Override
     public void onStartup(ServletContext servletContext) {
         servletContext.addListener(IntrospectorCleanupListener.class);

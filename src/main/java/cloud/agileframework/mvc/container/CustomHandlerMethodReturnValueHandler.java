@@ -33,7 +33,7 @@ public class CustomHandlerMethodReturnValueHandler implements HandlerMethodRetur
         modelAndViewContainer.setStatus(modelAndView.getStatus());
         modelAndViewContainer.addAllAttributes(modelAndView.getModel());
         if (logger.isDebugEnabled()) {
-            logger.debug("返回参数已完成处理：{}",modelAndView);
+            logger.debug("返回参数已完成处理：{}", modelAndView);
         }
     }
 }

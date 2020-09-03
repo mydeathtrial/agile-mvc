@@ -1,7 +1,7 @@
 package cloud.agileframework.mvc.annotation;
 
 import cloud.agileframework.common.util.collection.CollectionsUtil;
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import lombok.Builder;
 import lombok.Data;
 import org.slf4j.Logger;

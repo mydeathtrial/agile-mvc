@@ -7,5 +7,5 @@ package cloud.agileframework.mvc.provider;
  * @version 1.0
  * @since 1.0
  */
-public interface ValidationHandlerProvider extends HandlerProvider{
+public interface ValidationHandlerProvider extends HandlerProvider {
 }

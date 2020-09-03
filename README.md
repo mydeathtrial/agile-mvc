@@ -223,6 +223,26 @@ public class MyService {
     }
 }
 ```
+文件上传参数
+```java
+public class MyService {
+    //file为前端传递的文件key值
+    public Object myBusinessMethod(MultipartFile file){
+    }
+
+    //直接以流方式声明
+    public Object myBusinessMethod(InputStream file){
+    }
+
+    //多文件
+    public Object myBusinessMethod(MultipartFile[] file){
+    }
+
+    //可以是MultipartFile的任意集合类型
+    public Object myBusinessMethod(Set<MultipartFile> file){
+    }
+}
+```
 警告：
 1. `AgileService代理服务`中，未增加对原生springmvc中的参数类注解如`@PathVariabale`、`@RequestHeader`、`@Validated`等等一类的注解解析。后续会根据
 用户反馈考虑增加该部分能力。

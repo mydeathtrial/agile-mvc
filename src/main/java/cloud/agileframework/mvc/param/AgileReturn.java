@@ -6,7 +6,7 @@ import cloud.agileframework.mvc.base.AbstractResponseFormat;
 import cloud.agileframework.mvc.base.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
-import cloud.agileframework.spring.util.spring.BeanUtil;
+import cloud.agileframework.spring.util.BeanUtil;
 import com.alibaba.fastjson.JSONValidator;
 import org.springframework.web.servlet.ModelAndView;
 
