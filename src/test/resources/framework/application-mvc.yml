@@ -37,7 +37,7 @@ spring:
       cachecontrol:
         no-cache: true
       period: 604800
-    static-locations: classpath:com/agile/static/
+    static-locations: classpath:static/
 server:
   port: 18081
   servlet:

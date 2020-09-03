@@ -159,7 +159,13 @@ public class MyService {
     }
 }
 ```
-
+警告：默认情况下组件会拦截除静态资源以外的所有请求路径，所以需要静态资源地址头应该与正常的API地址区分开，默认使用`/static/**`作为静态资源访问头。
+更改配置方式如下：
+```yaml
+spring:
+  mvc:
+    static-path-pattern: /static/**
+```
 #### 步骤 6: 参数解析
 组件为`控制层`与`AgileService代理服务`提供统一的参数解析能力，该参数解析方案弥补了spring-mvc中对复杂参数方面解析能力的不足
 参数解析分`声明式`、`直调式`两种，`声明式`优点是无代码入侵，`直调式`优点则是更加灵活。
@@ -223,7 +229,7 @@ public class MyService {
 2. AgileParam与请求线程绑定，无法跨线程访问，多线程场景需要先提取参数再自行使用
 3. TypeReference由common-util提供，包为`cloud.agileframework.common.util.clazz`，使用时一般为匿名内部类方式，具体方式请参照`common-util`组件
 
-#### 步骤 6: 参数验证
+#### 步骤 7: 参数验证
 该参数验证适用于`传统控制层`与`AgileService代理服务`，API方式访问时会调用参数验证注解，实现请求拦截。
 注解支持声明业务代码方式参数验证，例：
 ```java
@@ -244,7 +250,26 @@ public static class MyValidate implements ValidateCustomBusiness {
     }
 } 
 ```
-#### 步骤 7: 统一响应视图
+响应报文
+```
+{
+    "head": {
+        "ip": "192.168.101.42",
+        "code": "100002",
+        "msg": "参数错误",
+        "status": "OK"
+    },
+    "result": [
+        {
+            "message": "不允许为空值",
+            "state": false,
+            "item": "file",
+            "itemValue": null
+        }
+    ]
+}
+```
+#### 步骤 8: 统一响应视图
 默认统一响应视图分为头（head）体（result）两部分组成，组件对全局异常以及超范围请求均做了拦截，
 并且将最终的拦截结果与国际化配置结合组装成统一响应视图
 ```
@@ -327,7 +352,7 @@ public class MyService {
     }
 
     //通过异常声明响应头
-    //统一一场拦截器捕捉到异常后，会根据异常类引用名去国际化配置文件中获取响应文与响应编码信息，可阅读步骤10统一异常处理
+    //统一一场拦截器捕捉到异常后，会根据异常类引用名去国际化配置文件中获取响应文与响应编码信息，可阅读步骤11统一异常处理
     public void myBusinessMethod(String param) throws YourException{
         //业务代码...
         //设置响应体result
@@ -336,7 +361,7 @@ public class MyService {
     }
 }
 ```
-#### 步骤 8: 自动配置
+#### 步骤 9: 自动配置
 借助agile系列套件common-util中PropertiesUtil的配置加载能力，实现在工程启动阶段自动扫描应用类所在包下以及编译路径下配置文件。
 避免杂乱的配置文件位置声明。
 + 重点：配置文件加载优先级从编译路径开始计算，`层级越深，优先级越低，同层级则按照配置文件名顺序排列`。application配置文件保留最高优先级，优先级越高约被最后加载，覆盖低优先级配置
@@ -373,7 +398,7 @@ public class MyService {
 配置加载过程不依赖spring，加载后会回填至spring容器，后续PropertiesUtil配置参数提取则优先使用spring容器中有效的environment，
 所以该加载过程不影响微服务情况下动态配置管理的使用
 
-#### 步骤 9: 国际化配置
+#### 步骤 10: 国际化配置
 借助Agile套件spring-util工具包中的MessageUtil，为spring的国际化配置文件扫描增加了Ant风格配置文件路径在家支持，并兼容原生配置方式。
 原生spring中不支持spring.messages.basename不支持`*`匹配，agile为其扩展了该功能，并
 保留对英文逗号`,`的多basename拆分。以message.properties作为国际化配置文件举例，该配置情况下组件将加载任意多层级路径下的message_x_x.properties
@@ -385,7 +410,7 @@ spring:
     basename: '**/message'
 ```
 
-#### 步骤 10: 统一异常处理
+#### 步骤 11: 统一异常处理
 组件通过@ControllerAdvice与HandlerExceptionResolver实现统一异常处理，会将捕获到的任何异常
 加工为响应视图，开发者可以针对不同的异常类，定义不同的国际化响应信息。以自定义异常类`com.agile.YourException`
 为例配置方式如下：
