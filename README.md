@@ -228,6 +228,7 @@ public class MyService {
 用户反馈考虑增加该部分能力。
 2. AgileParam与请求线程绑定，无法跨线程访问，多线程场景需要先提取参数再自行使用
 3. TypeReference由common-util提供，包为`cloud.agileframework.common.util.clazz`，使用时一般为匿名内部类方式，具体方式请参照`common-util`组件
+4. @Mapping注解是由Agile提供，`cloud.agileframework.mvc.annotation.Mapping`
 
 #### 步骤 7: 参数验证
 该参数验证适用于`传统控制层`与`AgileService代理服务`，API方式访问时会调用参数验证注解，实现请求拦截。
