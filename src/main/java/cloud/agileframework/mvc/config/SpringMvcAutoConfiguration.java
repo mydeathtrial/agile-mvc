@@ -81,15 +81,6 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         return new ArgumentInitHandlerProvider();
     }
 
-    @Autowired
-    private ResourceProperties resourceProperties;
-
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.setOrder(-1);
-        registry.addResourceHandler("/favicon.ico").addResourceLocations(resourceProperties.getStaticLocations());
-    }
-
     @Bean
     ArgumentValidationHandlerProvider argumentValidationHandlerProvider() {
         return new ArgumentValidationHandlerProvider();

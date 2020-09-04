@@ -1,13 +1,6 @@
 spring:
-  mvc:
-    static-path-pattern: /static/**
   messages:
     basename: '**/message'
-  resources:
-    static-locations: classpath:static/
 agile:
   version: ${project.version}
   title: ${project.description}
-#logging:
-#  level:
-#    cloud.agileframework: error
