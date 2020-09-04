@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.container;
 
+import cloud.agileframework.mvc.base.AbstractResponseFormat;
 import cloud.agileframework.mvc.param.AgileReturn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +22,12 @@ public class CustomHandlerMethodReturnValueHandler implements HandlerMethodRetur
 
     @Override
     public boolean supportsReturnType(MethodParameter methodParameter) {
-        return AgileReturn.class.isAssignableFrom(methodParameter.getParameterType());
+        return AbstractResponseFormat.class.isAssignableFrom(methodParameter.getParameterType());
     }
 
     @Override
     public void handleReturnValue(Object o, MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest) throws Exception {
-        ModelAndView modelAndView = AgileReturn.build();
-
+        ModelAndView modelAndView = ((AbstractResponseFormat) o).buildResponse(AgileReturn.getHead(), AgileReturn.getBody());
         modelAndViewContainer.setView(modelAndView.getView());
         modelAndViewContainer.setViewName(modelAndView.getViewName());
         modelAndViewContainer.setStatus(modelAndView.getStatus());
