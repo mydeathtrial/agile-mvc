@@ -101,6 +101,17 @@ _____/\\\\\\\\\________/\\\\\\\\\\\\__/\\\\\\\\\\\__/\\\______________/\\\\\\\\\
 
  :: 敏捷开发框架 Agile Framework ::  (version:1.0)
 ```
+<font color="#FF0000">警告：由于首次于中央仓库发包，忙中出错，默认配置文件加载功能存在设计不足，默认的配置文件加载仅扫描以springboot应用类所在包为根目录
+开始扫描，所以自定义包名情况下未能包含框架默认配置包cloud.agileframework.conf，导致默认配置未能加载。所以中央仓库2.0.0版本
+使用过程中需增加springmvc对静态资源访问的默认配置，防止静态资源HandlerMapping优先拦截请求：</font>
+```
+spring:
+  mvc:
+    static-path-pattern: /static/**
+  resources:
+    static-locations: classpath:static/
+```
+
 #### 步骤 4: 声明AgileService代理服务
 `AgileService代理服务`是对`传统Service层`的功能增强，为传统Service层扩展了直接通过抽象控制器暴漏服务的能力，提高参数验证
 控制跳转、组装视图部分的复用程度。并保留传统Service层的能力。以改造前后对比的方式举例：
