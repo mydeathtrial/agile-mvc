@@ -31,6 +31,8 @@ public class ListenerSpringApplicationRun implements SpringApplicationRunListene
     public void starting() {
         startTime = System.currentTimeMillis();
         application.setBanner(new AgileBanner());
+        //增加默认配置读取
+        PropertiesUtil.readJar("cloud.agileframework.conf");
         application.setDefaultProperties(PropertiesUtil.getProperties());
     }
 

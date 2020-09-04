@@ -4,6 +4,8 @@ import cloud.agileframework.spring.util.MessageUtil;
 import cloud.agileframework.spring.util.ServletUtil;
 import org.springframework.http.HttpStatus;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author 佟盟 on 2017/1/9
  */
@@ -38,7 +40,10 @@ public final class RETURN {
         this.code = code.trim();
         this.msg = msg.trim();
         this.status = status == null ? HttpStatus.OK : status;
-        ServletUtil.getCurrentResponse().setStatus(this.status.value());
+        HttpServletResponse response = ServletUtil.getCurrentResponse();
+        if(response!=null){
+            response.setStatus(this.status.value());
+        }
     }
 
     public static RETURN of(String code, String msg) {
