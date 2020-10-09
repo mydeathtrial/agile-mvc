@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.mvc.controller;
 
+import cloud.agileframework.common.util.clazz.ClassInfo;
 import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.mvc.annotation.ApiMethod;
 import cloud.agileframework.mvc.annotation.Mapping;
@@ -290,13 +291,15 @@ public class MainController {
      * @throws NoSuchRequestMethodException 请求方法不存在
      */
     private void initMethod(String methodName) throws NoSuchRequestMethodException {
-        Method methodCache;
-        try {
-            methodCache = getService().getClass().getDeclaredMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            throw new NoSuchRequestMethodException();
-        }
-        if (!Modifier.isPublic(methodCache.getModifiers())) {
+        Method methodCache = ClassInfo.getCache(getService().getClass())
+                .getAllMethod()
+                .stream()
+                .filter(m -> methodName.endsWith(m.getName()))
+                .findFirst()
+                .orElse(null);
+
+
+        if (methodCache == null || !Modifier.isPublic(methodCache.getModifiers())) {
             throw new NoSuchRequestMethodException();
         }
         RequestMethod currentRequestMethod = RequestMethod.valueOf(ServletUtil.getCurrentRequest().getMethod());

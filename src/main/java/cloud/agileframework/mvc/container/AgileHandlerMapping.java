@@ -2,6 +2,7 @@ package cloud.agileframework.mvc.container;
 
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
+import cloud.agileframework.mvc.base.Constant;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.Nullable;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +52,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     public RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
         RequestMappingInfo info = this.createMappingInfo(method);
 
-        String path = "/" + handlerType.getSimpleName() + "/" + method.getName();
+
         if (info != null) {
             RequestMappingInfo typeInfo = this.createMappingInfo(handlerType);
             if (typeInfo != null) {
@@ -61,7 +63,13 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
             if (agileService == null) {
                 return null;
             }
-            createMappingInfo(new Mapping() {
+
+            if (!Modifier.isPublic(method.getModifiers())) {
+                return null;
+            }
+            info = createMappingInfo(new Mapping() {
+                final String path = Constant.RegularAbout.SLASH + handlerType.getSimpleName() + Constant.RegularAbout.SLASH + method.getName();
+
                 @Override
                 public Class<? extends Annotation> annotationType() {
                     return Mapping.class;
@@ -74,13 +82,12 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
 
                 @Override
                 public String[] value() {
-
                     return new String[]{path};
                 }
 
                 @Override
                 public String[] path() {
-                    return new String[0];
+                    return new String[]{path};
                 }
 
                 @Override

@@ -1,8 +1,10 @@
 package com.agile.mvc.controller;
 
+import cloud.agileframework.common.util.generator.IDUtil;
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.mvc.base.RETURN;
+import cloud.agileframework.mvc.param.AgileReturn;
 import cloud.agileframework.validate.ValidateCustomBusiness;
 import cloud.agileframework.validate.ValidateMsg;
 import cloud.agileframework.validate.annotation.Validate;
@@ -31,7 +33,7 @@ public class Test2Service {
     @Validate(value = "a", customBusiness = {MyValidate.class})
     @Mapping(path = "/test2/{id}")
     public RETURN test(int a, String id_d, MultipartFile[] file) {
-//        AgileReturn.add("params",a);
+        AgileReturn.add("params", IDUtil.generatorId());
         return SUCCESS;
     }
 

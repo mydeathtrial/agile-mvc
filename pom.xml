@@ -110,6 +110,12 @@
         </dependency>
 
         <dependency>
+            <groupId>cloud.agileframework</groupId>
+            <artifactId>common-util</artifactId>
+            <version>LATEST</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
