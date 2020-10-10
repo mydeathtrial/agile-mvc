@@ -110,7 +110,7 @@ public class MainController {
      * @param method  方法名
      * @return 响应试图数据
      */
-    @RequestMapping(value = {"/api/{service}/{method}", "/api/{service}/{method}/**", "/{service}/{method}"})
+    @RequestMapping(value = {"/${agile.module-name:api}/{service}/{method}", "/${agile.module-name:api}/{service}/{method}/**", "/{service}/{method}"})
     public Object proxyProcessor(
             HttpServletRequest request,
             @PathVariable("service") String service,
@@ -126,8 +126,10 @@ public class MainController {
             timeout = Duration.ofSeconds(3);
         }
         WebAsyncTask<ModelAndView> asyncTask = new WebAsyncTask<>(timeout.toMillis(), callable);
+        Duration finalTimeout = timeout;
         asyncTask.onTimeout(
-                () -> SpringExceptionHandler.createModelAndView(new InterruptedException())
+                () -> SpringExceptionHandler.createModelAndView(
+                        new InterruptedException(String.format("请求超时，最长过期时间%s", finalTimeout.toString())))
         );
         return asyncTask;
     }
@@ -294,12 +296,12 @@ public class MainController {
         Method methodCache = ClassInfo.getCache(getService().getClass())
                 .getAllMethod()
                 .stream()
-                .filter(m -> methodName.endsWith(m.getName()))
+                .filter(m -> methodName.endsWith(m.getName()) && Modifier.isPublic(m.getModifiers()))
                 .findFirst()
                 .orElse(null);
 
 
-        if (methodCache == null || !Modifier.isPublic(methodCache.getModifiers())) {
+        if (methodCache == null) {
             throw new NoSuchRequestMethodException();
         }
         RequestMethod currentRequestMethod = RequestMethod.valueOf(ServletUtil.getCurrentRequest().getMethod());

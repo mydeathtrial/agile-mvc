@@ -128,8 +128,18 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
                 Set<RequestMethod> methods = mapping.getMethodsCondition().getMethods();
                 for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
                     if (methods.contains(requestMethod)) {
-                        logger.error(String.format("Mapping映射重复，重复类:%s,重复方法:%s", AopProxyUtils.ultimateTargetClass(handler).getName(), method.getName()));
-                        throw new IllegalStateException();
+                        final String message;
+                        if(method.getAnnotation(Mapping.class) == null){
+                            message = String.format("Mapping映射重复，AgileService层在生成默认映射地址时，需要确保仅有一个public重载方法，否则可以声明Mapping或修改可见性避免问题发生，重复类:%s,重复方法:%s",
+                                    AopProxyUtils.ultimateTargetClass(handler).getName(),
+                                    method.getName());
+                        }else{
+                            message = String.format("Mapping映射重复，重复类:%s,重复方法:%s", AopProxyUtils.ultimateTargetClass(handler).getName(), method.getName());
+                        }
+                        if(logger.isErrorEnabled()){
+                            logger.error(message);
+                        }
+                        throw new IllegalStateException(message);
                     }
                 }
             }

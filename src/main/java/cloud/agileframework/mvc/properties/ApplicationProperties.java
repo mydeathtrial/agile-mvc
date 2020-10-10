@@ -28,7 +28,7 @@ public class ApplicationProperties {
     /**
      * 模块标签
      */
-    private String moduleName = "sys";
+    private String moduleName = "api";
     /**
      * 工作ID (0~31)
      */

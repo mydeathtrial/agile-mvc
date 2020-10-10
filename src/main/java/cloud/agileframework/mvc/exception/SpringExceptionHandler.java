@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.exception;
 
+import cloud.agileframework.common.util.pattern.PatternUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
 import cloud.agileframework.mvc.base.Constant;
 import cloud.agileframework.mvc.base.Head;
@@ -88,11 +89,11 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
         if (StringUtils.isEmpty(message)) {
             return RETURN.of(RETURN.FAIL.getCode(), RETURN.FAIL.getMsg(), HttpStatus.INTERNAL_SERVER_ERROR);
         } else {
-            final String prefix = "2";
-            if (message.startsWith(prefix)) {
-                return RETURN.byMessage(HttpStatus.INTERNAL_SERVER_ERROR, message);
+            final String codePrefix = "^[\\d]{6}";
+            if (PatternUtil.find(codePrefix, message) && !message.startsWith(Constant.NumberAbout.TWO + "")) {
+                return RETURN.byMessage(HttpStatus.OK, message);
             }
-            return RETURN.byMessage(HttpStatus.OK, message);
+            return RETURN.byMessage(HttpStatus.INTERNAL_SERVER_ERROR, message);
         }
     }
 

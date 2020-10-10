@@ -5,6 +5,7 @@ import cloud.agileframework.mvc.util.ApiUtil;
 import cloud.agileframework.spring.util.RequestWrapper;
 import com.google.common.collect.Maps;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -53,6 +55,10 @@ public class ArgumentInitHandlerProvider implements HandlerProvider {
 
 
         if (requestMappingInfo == null) {
+            HashMap<String, Object> map = (HashMap<String, Object>) currentRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+            if (map != null) {
+                return map;
+            }
             return uriVariables;
         }
 

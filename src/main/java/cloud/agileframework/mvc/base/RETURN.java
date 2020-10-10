@@ -41,7 +41,7 @@ public final class RETURN {
         this.msg = msg.trim();
         this.status = status == null ? HttpStatus.OK : status;
         HttpServletResponse response = ServletUtil.getCurrentResponse();
-        if(response!=null){
+        if (response != null) {
             response.setStatus(this.status.value());
         }
     }
@@ -63,10 +63,17 @@ public final class RETURN {
      */
     public static RETURN byMessage(String defaultValue, HttpStatus status, String key, Object... params) {
         String message = MessageUtil.message(key, params);
-        if (message == null) {
-            message = defaultValue;
+        if (defaultValue == null && message == null) {
+            throw new RuntimeException(String.format("defaultValue and message cannot both be null,message %s not found", key));
         }
-        return byMessage(status, message);
+        if (message != null) {
+            try {
+                return byMessage(status, message);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return byMessage(status, defaultValue);
     }
 
     /**
