@@ -23,6 +23,7 @@ import java.util.Map;
 public class AgileReturn {
     private static final ThreadLocal<Head> HEAD = new ThreadLocal<>();
     private static final ThreadLocal<Map<String, Object>> OBJECT = ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<Boolean> IS_INIT =  ThreadLocal.withInitial(()-> Boolean.FALSE);
 
     private AgileReturn() {
     }
@@ -37,11 +38,17 @@ public class AgileReturn {
         setBody(object);
     }
 
+    public static boolean isInit(){
+        return IS_INIT.get();
+    }
+
     public static void add(String key, Object value) {
+        IS_INIT.set(true);
         OBJECT.get().put(key, value);
     }
 
     public static void add(Object value) {
+        IS_INIT.set(true);
         if (Map.class.isAssignableFrom(value.getClass())) {
             OBJECT.get().putAll((Map<? extends String, ?>) value);
         } else {
@@ -61,10 +68,12 @@ public class AgileReturn {
     }
 
     public static void setHead(RETURN r) {
+        IS_INIT.set(true);
         setHead(new Head(r));
     }
 
     private static void setHead(Head head) {
+        IS_INIT.set(true);
         HEAD.set(head);
     }
 
@@ -114,5 +123,6 @@ public class AgileReturn {
     public static void clear() {
         HEAD.remove();
         OBJECT.remove();
+        IS_INIT.remove();
     }
 }

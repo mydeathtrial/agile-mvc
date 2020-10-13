@@ -365,8 +365,8 @@ public class MainController {
                 //如果直接返回模板类，则调用模板类的初始化返回数据方法
                 ((AbstractResponseFormat) returnData).initAgileReturn();
             } else {
-                //其他类型数据直接放入返回参数
-                if (returnData != null) {
+                //如果未显示调用初始化返回值，则将返回数据直接放入返回参数
+                if (!AgileReturn.isInit() && returnData != null) {
                     AgileReturn.add(returnData);
                 }
             }

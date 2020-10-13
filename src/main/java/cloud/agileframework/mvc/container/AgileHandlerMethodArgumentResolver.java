@@ -10,6 +10,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.lang.reflect.Type;
 
 /**
  * @author 佟盟
@@ -31,10 +32,10 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
         if (parameterName == null) {
             return null;
         }
-        Class<?> type = parameter.getParameterType();
-        if (MultipartFile.class.isAssignableFrom(type)) {
+        Type type = parameter.getGenericParameterType();
+        if (type instanceof Class && MultipartFile.class.isAssignableFrom((Class) type)) {
             return AgileParam.getInParamOfFile(parameter.getParameterName());
-        } else if (InputStream.class.isAssignableFrom(type)) {
+        } else if (type instanceof Class && InputStream.class.isAssignableFrom((Class) type)) {
             return AgileParam.getInParamOfFile(parameter.getParameterName()).getInputStream();
         }
         return AgileParam.getInParam(parameterName.replace("_", "."), new TypeReference<>(type));
