@@ -22,7 +22,7 @@ import java.util.Map;
 public class ArgumentValidationHandlerProvider implements ValidationHandlerProvider {
     @Override
     public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
-        RequestWrapper requestWrapper = (RequestWrapper) RequestWrapper.of(request);
+        RequestWrapper requestWrapper = RequestWrapper.of(request);
         Map<String, Object> params = requestWrapper.getInParamWithFile();
         //入参验证
         List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, params);

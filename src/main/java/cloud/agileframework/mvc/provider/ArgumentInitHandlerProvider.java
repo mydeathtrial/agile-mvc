@@ -28,7 +28,7 @@ public class ArgumentInitHandlerProvider implements HandlerProvider {
     @Override
     public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
 
-        RequestWrapper requestWrapper = (RequestWrapper) RequestWrapper.of(request);
+        RequestWrapper requestWrapper = RequestWrapper.of(request);
         Map<String, Object> params = requestWrapper.getInParamWithFile();
         params.putAll(parseUriVariable(request));
 

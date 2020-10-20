@@ -67,6 +67,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
             modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
             modelAndView.addObject(Constant.ResponseAbout.RESULT, null);
         }
+        modelAndView.setStatus(head.getStatus());
 
         return modelAndView;
     }

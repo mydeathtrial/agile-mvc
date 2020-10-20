@@ -11,14 +11,14 @@ import javax.servlet.http.HttpServletResponse;
  */
 public final class RETURN {
 
-    public static final RETURN SUCCESS = byMessage("000000:服务执行成功", "agile.success.success");
-    public static final RETURN LOGOUT_SUCCESS = byMessage("000001:退出成功", "agile.success.logout");
+    public static final RETURN SUCCESS = byMessageWithDefault("000000:服务执行成功", "agile.success.success");
+    public static final RETURN LOGOUT_SUCCESS = byMessageWithDefault("000001:退出成功", "agile.success.logout");
 
-    public static final RETURN FAIL = byMessage("100000:操作失败", "agile.error.fail");
-    public static final RETURN NOT_FOUND = byMessage("100001:请求服务不存在", "agile.error.not-found");
-    public static final RETURN PARAMETER_ERROR = byMessage("100002:参数错误", "agile.error.paramError");
+    public static final RETURN FAIL = byMessageWithDefault("100000:操作失败", "agile.error.fail");
+    public static final RETURN NOT_FOUND = byMessage("100001:请求服务不存在", HttpStatus.NOT_FOUND, "agile.error.not-found");
+    public static final RETURN PARAMETER_ERROR = byMessageWithDefault("100002:参数错误", "agile.error.paramError");
 
-    public static final RETURN EXPRESSION = byMessage("200001:程序异常", "agile.exception.expression");
+    public static final RETURN EXPRESSION = byMessageWithDefault("200001:程序异常", "agile.exception.expression");
 
 
     /**
@@ -100,7 +100,7 @@ public final class RETURN {
         return of(code, message, status);
     }
 
-    public static RETURN byMessage(String defaultValue, String key) {
+    public static RETURN byMessageWithDefault(String defaultValue, String key) {
         return byMessage(defaultValue, null, key);
     }
 
