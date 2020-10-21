@@ -10,7 +10,7 @@ import cloud.agileframework.spring.util.BeanUtil;
 import com.alibaba.fastjson.JSONValidator;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class AgileReturn {
     private static final ThreadLocal<Head> HEAD = new ThreadLocal<>();
-    private static final ThreadLocal<Map<String, Object>> OBJECT = ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<Map<String, Object>> OBJECT = ThreadLocal.withInitial(LinkedHashMap::new);
     private static final ThreadLocal<Boolean> IS_INIT =  ThreadLocal.withInitial(()-> Boolean.FALSE);
 
     private AgileReturn() {
