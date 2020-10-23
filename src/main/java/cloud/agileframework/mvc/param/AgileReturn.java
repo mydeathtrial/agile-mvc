@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.param;
 
+import cloud.agileframework.common.util.clazz.ClassUtil;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
@@ -7,7 +8,6 @@ import cloud.agileframework.mvc.base.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.spring.util.BeanUtil;
-import com.alibaba.fastjson.JSONValidator;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.LinkedHashMap;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class AgileReturn {
     private static final ThreadLocal<Head> HEAD = new ThreadLocal<>();
     private static final ThreadLocal<Map<String, Object>> OBJECT = ThreadLocal.withInitial(LinkedHashMap::new);
-    private static final ThreadLocal<Boolean> IS_INIT =  ThreadLocal.withInitial(()-> Boolean.FALSE);
+    private static final ThreadLocal<Boolean> IS_INIT = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private AgileReturn() {
     }
@@ -38,7 +38,7 @@ public class AgileReturn {
         setBody(object);
     }
 
-    public static boolean isInit(){
+    public static boolean isInit() {
         return IS_INIT.get();
     }
 
@@ -51,18 +51,15 @@ public class AgileReturn {
         IS_INIT.set(true);
         if (Map.class.isAssignableFrom(value.getClass())) {
             OBJECT.get().putAll((Map<? extends String, ?>) value);
+        } else if (value instanceof String || ClassUtil.isWrapOrPrimitive(value.getClass())) {
+            OBJECT.get().put(Constant.ResponseAbout.RESULT, value);
         } else {
-
-            if (value instanceof String && !JSONValidator.from((String) value).validate()) {
+            Map<String, Object> map = ObjectUtil.to(value, new TypeReference<Map<String, Object>>() {
+            });
+            if (map == null) {
                 OBJECT.get().put(Constant.ResponseAbout.RESULT, value);
             } else {
-                Map<String, Object> map = ObjectUtil.to(value, new TypeReference<Map<String, Object>>() {
-                });
-                if (map == null) {
-                    OBJECT.get().put(Constant.ResponseAbout.RESULT, value);
-                } else {
-                    OBJECT.get().putAll(map);
-                }
+                OBJECT.get().putAll(map);
             }
         }
     }

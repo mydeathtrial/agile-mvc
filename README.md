@@ -55,6 +55,7 @@ AgileService代理服务全部使用异步请求处理，开发人员只需编�
 -------
 ## 快速入门
 开始你的第一个项目是非常容易的。
+简单样例工程地址：`https://gitee.com/agile-framework/agile-mvc-demo`
 
 #### 步骤 1: 下载包
 您可以从[最新稳定版本]下载包(https://github.com/mydeathtrial/agile-mvc/releases).
