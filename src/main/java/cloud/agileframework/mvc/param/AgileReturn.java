@@ -102,7 +102,7 @@ public class AgileReturn {
         ModelAndView modelAndView = new ModelAndView();
         AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
-            return abstractResponseFormat.buildResponse(getHead(), getBody());
+            modelAndView = abstractResponseFormat.buildResponse(getHead(), getBody());
         } else {
             if (getHead() != null) {
                 modelAndView.addObject(Constant.ResponseAbout.HEAD, getHead());
