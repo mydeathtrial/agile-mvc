@@ -5,6 +5,7 @@ import cloud.agileframework.mvc.container.AgileHandlerMethodArgumentResolver;
 import cloud.agileframework.mvc.container.CustomAsyncHandlerInterceptor;
 import cloud.agileframework.mvc.container.CustomHandlerInterceptor;
 import cloud.agileframework.mvc.container.CustomHandlerMethodReturnValueHandler;
+import cloud.agileframework.mvc.container.RETURNHandlerMethodReturnValueHandler;
 import cloud.agileframework.mvc.filter.CorsFilter;
 import cloud.agileframework.mvc.filter.RequestWrapperFilter;
 import cloud.agileframework.mvc.properties.CorsFilterProperties;
@@ -107,6 +108,7 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
     @Override
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
         handlers.add(new CustomHandlerMethodReturnValueHandler());
+        handlers.add(new RETURNHandlerMethodReturnValueHandler());
     }
 
     @Override

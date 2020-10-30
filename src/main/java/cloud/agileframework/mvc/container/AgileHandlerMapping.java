@@ -3,6 +3,7 @@ package cloud.agileframework.mvc.container;
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.spring.util.AopUtil;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.Nullable;
@@ -150,7 +151,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("[class:%s][method:%s][url:%s]",
-                    AopProxyUtils.ultimateTargetClass(handler.getClass()).getCanonicalName(),
+                    AopUtil.isAopProxy(handler.getClass())?AopProxyUtils.ultimateTargetClass(handler.getClass()).getCanonicalName():handler.getClass().getCanonicalName(),
                     method.getName(),
                     String.join(",", mapping.getPatternsCondition().getPatterns())));
         }

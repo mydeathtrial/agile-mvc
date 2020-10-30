@@ -123,7 +123,7 @@ public class MyService {
 //AgileService代理服务，该注解声明类，仍会被在ComponentScan扫描范围内加载到spring容器中
 @AgileService
 public class MyService {
-    //该方法默认生成API http://host:port/my-service/my-business-method
+    //该方法默认生成API http://host:port/api/MyService/myBusinessMethod
     //该映射地址可以通过@Mapping注解覆盖定义，其用法步骤5中讲解
     //该方法入参将由抽象控制器直接提供请求参数解析装配，并提供@Validation注解校验
     //该方法默认提供spring事务包裹

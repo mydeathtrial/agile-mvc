@@ -106,6 +106,7 @@ public class AgileReturn {
         } else {
             if (getHead() != null) {
                 modelAndView.addObject(Constant.ResponseAbout.HEAD, getHead());
+                modelAndView.setStatus(getHead().getStatus());
             }
             if (getBody() != null) {
                 modelAndView.addAllObjects(getBody());
