@@ -1,7 +1,6 @@
 package cloud.agileframework.mvc.annotation;
 
 import cloud.agileframework.spring.util.BeanUtil;
-import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.lang.annotation.Annotation;
@@ -37,11 +36,9 @@ public class AnnotationProcessor {
             if (annotation == null) {
                 continue;
             }
-            Class<?> beanClass = BeanUtil.getApplicationContext().getType(beanName);
-            if (beanClass != null) {
-                beanClass = AopProxyUtils.ultimateTargetClass(beanClass);
-                methodAnnotationProcessor(beanName, beanClass, parsing);
-            }
+            Object bean = BeanUtil.getApplicationContext().getBean(beanName);
+            Class<?> beanClass = BeanUtil.getBeanClass(bean);
+            methodAnnotationProcessor(beanName, beanClass, parsing);
         }
 
     }

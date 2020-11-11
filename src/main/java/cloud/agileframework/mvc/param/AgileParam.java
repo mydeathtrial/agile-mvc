@@ -60,6 +60,16 @@ public class AgileParam {
     /**
      * 服务中调用该方法获取映射对象
      *
+     * @param typeReference 参数映射类型
+     * @return 入参映射对象
+     */
+    public static <T> T getInParam(TypeReference<T> typeReference) {
+        return ParamUtil.getInParam(getInParam(), typeReference);
+    }
+
+    /**
+     * 服务中调用该方法获取映射对象
+     *
      * @param clazz  参数映射类型
      * @param prefix 筛选参数前缀
      * @return 入参映射对象

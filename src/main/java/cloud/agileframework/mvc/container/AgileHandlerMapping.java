@@ -3,8 +3,7 @@ package cloud.agileframework.mvc.container;
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.mvc.base.Constant;
-import cloud.agileframework.spring.util.AopUtil;
-import org.springframework.aop.framework.AopProxyUtils;
+import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
@@ -132,10 +131,10 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
                         final String message;
                         if(method.getAnnotation(Mapping.class) == null){
                             message = String.format("Mapping映射重复，AgileService层在生成默认映射地址时，需要确保仅有一个public重载方法，否则可以声明Mapping或修改可见性避免问题发生，重复类:%s,重复方法:%s",
-                                    AopProxyUtils.ultimateTargetClass(handler).getName(),
+                                    BeanUtil.getBeanClass(handler).getName(),
                                     method.getName());
                         }else{
-                            message = String.format("Mapping映射重复，重复类:%s,重复方法:%s", AopProxyUtils.ultimateTargetClass(handler).getName(), method.getName());
+                            message = String.format("Mapping映射重复，重复类:%s,重复方法:%s", BeanUtil.getBeanClass(handler).getName(), method.getName());
                         }
                         if(logger.isErrorEnabled()){
                             logger.error(message);
@@ -151,7 +150,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
 
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("[class:%s][method:%s][url:%s]",
-                    AopUtil.isAopProxy(handler.getClass())?AopProxyUtils.ultimateTargetClass(handler.getClass()).getCanonicalName():handler.getClass().getCanonicalName(),
+                    BeanUtil.getBeanClass(handler).getCanonicalName(),
                     method.getName(),
                     String.join(",", mapping.getPatternsCondition().getPatterns())));
         }

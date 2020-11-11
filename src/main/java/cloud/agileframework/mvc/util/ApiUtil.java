@@ -5,7 +5,6 @@ import cloud.agileframework.mvc.annotation.NotAPI;
 import cloud.agileframework.mvc.container.AgileHandlerMapping;
 import cloud.agileframework.spring.util.BeanUtil;
 import cloud.agileframework.spring.util.MappingUtil;
-import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -34,7 +33,7 @@ public class ApiUtil {
      * @param bean     bean
      */
     public static void registerApiMapping(String beanName, Object bean) {
-        Class<?> realClass = AopProxyUtils.ultimateTargetClass(bean);
+        Class<?> realClass = BeanUtil.getBeanClass(bean);
         if (realClass == Class.class) {
             realClass = bean.getClass();
         }
