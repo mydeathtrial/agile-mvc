@@ -1,6 +1,6 @@
 package cloud.agileframework.mvc.properties;
 
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;

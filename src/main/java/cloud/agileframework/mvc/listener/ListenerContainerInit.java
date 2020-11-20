@@ -2,7 +2,6 @@ package cloud.agileframework.mvc.listener;
 
 import cloud.agileframework.mvc.annotation.AnnotationProcessor;
 import cloud.agileframework.mvc.annotation.ParsingBeanAfter;
-import cloud.agileframework.mvc.annotation.ParsingInit;
 import cloud.agileframework.mvc.annotation.ParsingMethodAfter;
 import org.springframework.beans.BeansException;
 import org.springframework.boot.web.context.WebServerInitializedEvent;
@@ -20,7 +19,6 @@ public class ListenerContainerInit implements ApplicationListener<WebServerIniti
     @Override
     public void onApplicationEvent(WebServerInitializedEvent event) {
         annotationHandler();
-        applicationContext.getBean(ParsingInit.class).parse();
         ProjectContextHolder.event(event);
     }
 

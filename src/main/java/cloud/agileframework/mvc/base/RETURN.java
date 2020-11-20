@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.base;
 
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.spring.util.MessageUtil;
 import cloud.agileframework.spring.util.ServletUtil;
 import org.springframework.http.HttpStatus;

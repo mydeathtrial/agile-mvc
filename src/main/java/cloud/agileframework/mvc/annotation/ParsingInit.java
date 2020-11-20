@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -23,7 +26,8 @@ import java.util.List;
  * @version 1.0
  * @since 1.0
  */
-public class ParsingInit implements ParsingMethodAfter {
+@Order
+public class ParsingInit implements ParsingMethodAfter, ApplicationRunner {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final List<InitApiInfo> inits = new ArrayList<>();
 
@@ -63,12 +67,18 @@ public class ParsingInit implements ParsingMethodAfter {
         }
     }
 
-    public void parse() {
+    @Override
+    public void run(ApplicationArguments args) {
+        ParsingInit parsingInit = BeanUtil.getBean(ParsingInit.class);
+        if (parsingInit == null) {
+            return;
+        }
         CollectionsUtil.sort(inits, "order");
         for (InitApiInfo initApiInfo : inits) {
             try {
-                parse(BeanUtil.getBean(initApiInfo.beanName), initApiInfo.method);
-            } catch (Exception ignored) {
+                parsingInit.parse(BeanUtil.getBean(initApiInfo.beanName), initApiInfo.method);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

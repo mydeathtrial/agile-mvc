@@ -65,7 +65,7 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
             return AgileParam.getInParamOfFile(parameterName);
         } else if (type instanceof Class && InputStream.class.isAssignableFrom((Class<?>) type)) {
             return AgileParam.getInParamOfFile(parameterName).getInputStream();
-        } else if (parameterName.equalsIgnoreCase(Constant.ResponseAbout.BODY)) {
+        } else if (parameterName.equalsIgnoreCase(Constant.RequestAbout.BODY)) {
             return AgileParam.getInParam(new TypeReference<>(type));
         } else {
             return AgileParam.getInParam(parameterName, new TypeReference<>(type));

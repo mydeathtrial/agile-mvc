@@ -2,7 +2,7 @@ package cloud.agileframework.mvc.container;
 
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.Nullable;

@@ -5,7 +5,7 @@ import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.mvc.annotation.ApiMethod;
 import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.exception.NoSuchRequestMethodException;
 import cloud.agileframework.mvc.exception.NoSuchRequestServiceException;
@@ -110,11 +110,11 @@ public class MainController {
      * @param method  方法名
      * @return 响应试图数据
      */
-    @RequestMapping(value = {"/${agile.module-name:api}/{service}/{method}", "/${agile.module-name:api}/{service}/{method}/**", "/{service}/{method}"})
+    @RequestMapping(value = {"/${agile.module-name:api}/{agileInParamService}/{agileInParamMethod}", "/${agile.module-name:api}/{agileInParamService}/{agileInParamMethod}/**", "/{agileInParamService}/{agileInParamMethod}"})
     public Object proxyProcessor(
             HttpServletRequest request,
-            @PathVariable("service") String service,
-            @PathVariable("method") String method
+            @PathVariable("agileInParamService") String service,
+            @PathVariable("agileInParamMethod") String method
     ) throws NoSuchRequestServiceException, NoSuchRequestMethodException {
         return processor(request, service, method, o -> {
         });

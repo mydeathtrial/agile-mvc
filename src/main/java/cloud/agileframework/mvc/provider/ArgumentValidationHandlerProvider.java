@@ -1,6 +1,6 @@
 package cloud.agileframework.mvc.provider;
 
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.exception.AgileArgumentException;
 import cloud.agileframework.spring.util.RequestWrapper;
 import cloud.agileframework.validate.ValidateMsg;

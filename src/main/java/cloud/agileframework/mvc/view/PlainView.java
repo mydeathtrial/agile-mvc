@@ -1,7 +1,7 @@
 package cloud.agileframework.mvc.view;
 
 import cloud.agileframework.common.util.clazz.ClassUtil;
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;

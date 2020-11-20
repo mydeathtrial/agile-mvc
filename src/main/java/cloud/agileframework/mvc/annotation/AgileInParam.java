@@ -19,5 +19,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface AgileInParam {
-    String value() default Constant.ResponseAbout.BODY;
+    String value() default Constant.RequestAbout.BODY;
 }

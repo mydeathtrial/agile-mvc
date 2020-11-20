@@ -1,8 +1,8 @@
 package cloud.agileframework.mvc.exception;
 
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.pattern.PatternUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.util.ViewUtil;

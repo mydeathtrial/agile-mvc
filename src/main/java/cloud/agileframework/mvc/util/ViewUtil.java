@@ -2,7 +2,7 @@ package cloud.agileframework.mvc.util;
 
 import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.beans.factory.BeanFactoryUtils;

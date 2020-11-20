@@ -4,7 +4,7 @@ import cloud.agileframework.common.util.clazz.ClassUtil;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Constant;
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.spring.util.BeanUtil;
