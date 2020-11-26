@@ -31,37 +31,11 @@ public class ListenerSpringApplicationRun implements SpringApplicationRunListene
     public void starting() {
         startTime = System.currentTimeMillis();
         application.setBanner(new AgileBanner());
-        application.setDefaultProperties(PropertiesUtil.getProperties());
-    }
-
-    @Override
-    public void environmentPrepared(ConfigurableEnvironment environment) {
-        PropertiesUtil.setEnvironment(environment);
-    }
-
-    @Override
-    public void contextPrepared(ConfigurableApplicationContext context) {
-
-    }
-
-    @Override
-    public void contextLoaded(ConfigurableApplicationContext context) {
-
-    }
-
-    @Override
-    public void started(ConfigurableApplicationContext context) {
-
-    }
-
-    @Override
-    public void running(ConfigurableApplicationContext context) {
-
     }
 
     @Override
     public void failed(ConfigurableApplicationContext context, Throwable exception) {
-
+        exception.printStackTrace();
     }
 
     public static long getConsume() {

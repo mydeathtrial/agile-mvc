@@ -5,6 +5,12 @@
       "type": "java.lang.String",
       "description": "静态资源访问地址",
       "defaultValue": "/static/**"
+    },
+    {
+      "name": "agile.mvc.auto.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否开启自动寻址",
+      "defaultValue": false
     }
   ]
 }

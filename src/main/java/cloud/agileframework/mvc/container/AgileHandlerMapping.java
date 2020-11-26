@@ -1,13 +1,17 @@
 package cloud.agileframework.mvc.container;
 
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
-import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.spring.util.BeanUtil;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.mvc.condition.PatternsRequestCondition;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -23,8 +27,12 @@ import java.util.Set;
 /**
  * @author 佟盟 on 2018/11/4
  */
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     private final Map<String, RequestMappingInfo> cache = new HashMap<>();
+
+    @Value("${agile.mvc.auto.enable:false}")
+    private boolean autoEnable;
 
     private RequestMappingInfo createMappingInfo(Mapping mapping, RequestCondition<?> condition) {
         RequestMappingInfo.Builder builder = RequestMappingInfo
@@ -58,7 +66,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
             if (typeInfo != null) {
                 info = typeInfo.combine(info);
             }
-        } else {
+        } else if (autoEnable) {
             AgileService agileService = handlerType.getAnnotation(AgileService.class);
             if (agileService == null) {
                 return null;
@@ -121,7 +129,11 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
 
     @Override
     public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
-        for (String path : mapping.getPatternsCondition().getPatterns()) {
+        final PatternsRequestCondition patternsCondition = mapping.getPatternsCondition();
+        if(patternsCondition == null){
+            return;
+        }
+        for (String path : patternsCondition.getPatterns()) {
             RequestMappingInfo cacheMapping = cache.get(path);
 
             if (!ObjectUtils.isEmpty(cacheMapping)) {
@@ -129,14 +141,14 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
                 for (RequestMethod requestMethod : cacheMapping.getMethodsCondition().getMethods()) {
                     if (methods.contains(requestMethod)) {
                         final String message;
-                        if(method.getAnnotation(Mapping.class) == null){
+                        if (method.getAnnotation(Mapping.class) == null) {
                             message = String.format("Mapping映射重复，AgileService层在生成默认映射地址时，需要确保仅有一个public重载方法，否则可以声明Mapping或修改可见性避免问题发生，重复类:%s,重复方法:%s",
                                     BeanUtil.getBeanClass(handler).getName(),
                                     method.getName());
-                        }else{
+                        } else {
                             message = String.format("Mapping映射重复，重复类:%s,重复方法:%s", BeanUtil.getBeanClass(handler).getName(), method.getName());
                         }
-                        if(logger.isErrorEnabled()){
+                        if (logger.isErrorEnabled()) {
                             logger.error(message);
                         }
                         throw new IllegalStateException(message);
@@ -152,7 +164,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
             logger.debug(String.format("[class:%s][method:%s][url:%s]",
                     BeanUtil.getBeanClass(handler).getCanonicalName(),
                     method.getName(),
-                    String.join(",", mapping.getPatternsCondition().getPatterns())));
+                    String.join(",", patternsCondition.getPatterns())));
         }
     }
 }

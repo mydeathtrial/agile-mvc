@@ -1,6 +1,5 @@
 package cloud.agileframework.mvc.config;
 
-import cloud.agileframework.mvc.annotation.ParsingInit;
 import cloud.agileframework.mvc.container.CustomBeanDefinitionRegistryPostProcessor;
 import cloud.agileframework.mvc.container.CustomBeanPostProcessor;
 import cloud.agileframework.mvc.container.ResetService;
@@ -63,11 +62,6 @@ public class AgileAutoConfiguration {
     @ConditionalOnMissingBean(MainController.class)
     MainController mainController() {
         return new MainController();
-    }
-
-    @Bean
-    ParsingInit parsingInit() {
-        return new ParsingInit();
     }
 
     @Bean
