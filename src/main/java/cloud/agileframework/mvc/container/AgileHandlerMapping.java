@@ -27,7 +27,6 @@ import java.util.Set;
 /**
  * @author 佟盟 on 2018/11/4
  */
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     private final Map<String, RequestMappingInfo> cache = new HashMap<>();
 
