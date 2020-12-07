@@ -1,6 +1,5 @@
 package cloud.agileframework.mvc.provider;
 
-import cloud.agileframework.mvc.param.AgileParam;
 import cloud.agileframework.mvc.util.ApiUtil;
 import cloud.agileframework.spring.util.RequestWrapper;
 import com.google.common.collect.Maps;
@@ -20,19 +19,15 @@ import java.util.Map;
 /**
  * @author 佟盟
  * 日期 2020/8/00031 18:03
- * 描述 参数处理
+ * 描述 处理路径参数
  * @version 1.0
  * @since 1.0
  */
 public class ArgumentInitHandlerProvider implements HandlerProvider {
     @Override
     public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
-
-        RequestWrapper requestWrapper = RequestWrapper.of(request);
-        Map<String, Object> params = requestWrapper.getInParamWithFile();
-        params.putAll(parseUriVariable(request));
-
-        AgileParam.init(params);
+        RequestWrapper requestWrapper = RequestWrapper.extract(request);
+        requestWrapper.extendInParam(parseUriVariable(request));
     }
 
     /**

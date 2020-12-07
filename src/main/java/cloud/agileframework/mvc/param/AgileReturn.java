@@ -1,16 +1,21 @@
 package cloud.agileframework.mvc.param;
 
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.clazz.ClassUtil;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
+import cloud.agileframework.mvc.util.ViewUtil;
+import cloud.agileframework.mvc.view.FileView;
+import cloud.agileframework.mvc.view.FileViewResolver;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.View;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,8 +27,10 @@ import java.util.Map;
  */
 public class AgileReturn {
     private static final ThreadLocal<Head> HEAD = new ThreadLocal<>();
-    private static final ThreadLocal<Map<String, Object>> OBJECT = ThreadLocal.withInitial(LinkedHashMap::new);
-    private static final ThreadLocal<Boolean> IS_INIT = ThreadLocal.withInitial(() -> Boolean.FALSE);
+    private static final ThreadLocal<Map<String, Object>> BODY = ThreadLocal.withInitial(LinkedHashMap::new);
+    private static final ThreadLocal<Map<String, Object>> OTHER = ThreadLocal.withInitial(LinkedHashMap::new);
+    private static final ThreadLocal<String> VIEW_NAME = new ThreadLocal<>();
+    private static final ThreadLocal<View> VIEW = new ThreadLocal<>();
 
     private AgileReturn() {
     }
@@ -38,40 +45,33 @@ public class AgileReturn {
         setBody(object);
     }
 
-    public static boolean isInit() {
-        return IS_INIT.get();
-    }
-
     public static void add(String key, Object value) {
-        IS_INIT.set(true);
-        OBJECT.get().put(key, value);
+        BODY.get().put(key, value);
     }
 
     public static void add(Object value) {
-        IS_INIT.set(true);
-        if (Map.class.isAssignableFrom(value.getClass())) {
-            OBJECT.get().putAll((Map<? extends String, ?>) value);
+        List<Object> files = ViewUtil.extractFiles(value);
+
+        if (!files.isEmpty()) {
+            VIEW_NAME.set(FileViewResolver.DEFAULT_VIEW_NAME);
+            OTHER.get().put(FileView.FILE_ATTRIBUTE_NAME, files);
+        } else if (Map.class.isAssignableFrom(value.getClass())) {
+            BODY.get().putAll((Map<? extends String, ?>) value);
         } else if (value instanceof String || ClassUtil.isWrapOrPrimitive(value.getClass())) {
-            OBJECT.get().put(Constant.ResponseAbout.RESULT, value);
+            BODY.get().put(Constant.ResponseAbout.RESULT, value);
         } else {
             Map<String, Object> map = ObjectUtil.to(value, new TypeReference<Map<String, Object>>() {
             });
             if (map == null) {
-                OBJECT.get().put(Constant.ResponseAbout.RESULT, value);
+                BODY.get().put(Constant.ResponseAbout.RESULT, value);
             } else {
-                OBJECT.get().putAll(map);
+                BODY.get().putAll(map);
             }
         }
     }
 
     public static void setHead(RETURN r) {
-        IS_INIT.set(true);
-        setHead(new Head(r));
-    }
-
-    private static void setHead(Head head) {
-        IS_INIT.set(true);
-        HEAD.set(head);
+        HEAD.set(new Head(r));
     }
 
     /**
@@ -80,7 +80,7 @@ public class AgileReturn {
      * @param object 出参
      */
     private static void setBody(Object object) {
-        OBJECT.get().clear();
+        BODY.get().clear();
         add(object);
     }
 
@@ -94,9 +94,25 @@ public class AgileReturn {
     }
 
     public static Map<String, Object> getBody() {
-        return OBJECT.get();
+        return BODY.get();
     }
 
+
+    public static void setViewName(String viewName) {
+        VIEW_NAME.set(viewName);
+    }
+
+    public static String getViewName() {
+        return VIEW_NAME.get();
+    }
+
+    public static void setView(View view) {
+        VIEW.set(view);
+    }
+
+    public static View getView() {
+        return VIEW.get();
+    }
 
     public static ModelAndView build() {
         ModelAndView modelAndView = new ModelAndView();
@@ -114,13 +130,26 @@ public class AgileReturn {
                 modelAndView.addObject(Constant.ResponseAbout.RESULT, getBody());
             }
         }
-        AgileReturn.clear();
+        String viewName = getViewName();
+        if (viewName != null) {
+            modelAndView.setViewName(viewName);
+        }
+        View view = getView();
+        if (view != null) {
+            modelAndView.setView(view);
+        }
+        final Map<String, Object> otherModel = OTHER.get();
+        if(otherModel !=null){
+            modelAndView.addAllObjects(otherModel);
+        }
+
         return modelAndView;
     }
 
     public static void clear() {
         HEAD.remove();
-        OBJECT.remove();
-        IS_INIT.remove();
+        BODY.remove();
+        VIEW_NAME.remove();
+        VIEW.remove();
     }
 }

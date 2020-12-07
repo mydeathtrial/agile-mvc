@@ -5,12 +5,10 @@ import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.mvc.annotation.ApiMethod;
 import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.exception.NoSuchRequestMethodException;
 import cloud.agileframework.mvc.exception.NoSuchRequestServiceException;
 import cloud.agileframework.mvc.exception.SpringExceptionHandler;
-import cloud.agileframework.mvc.param.AgileParam;
 import cloud.agileframework.mvc.param.AgileReturn;
 import cloud.agileframework.mvc.provider.ValidationHandlerProvider;
 import cloud.agileframework.spring.util.BeanUtil;
@@ -39,10 +37,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -84,23 +80,15 @@ public class MainController {
     }
 
     private WebAsyncTask<ModelAndView> getModelAndViewWebAsyncTask() {
-        Map<String, Object> params = AgileParam.getInParam();
         Object bean = getService();
         Method method = getMethod();
         return asyncProcessor(() -> {
             try {
-                AgileParam.init(params);
                 return processor(bean, method);
             } catch (Throwable e) {
                 return SpringExceptionHandler.createModelAndView(e);
             }
         });
-    }
-
-    private Object processor(HttpServletRequest request, String service, String method, Consumer<Map<String, Object>> parseParams) throws NoSuchRequestServiceException, NoSuchRequestMethodException {
-        initApiInfoByRequestMapping(request, service, method);
-        parseParams.accept(AgileParam.getInParam());
-        return getModelAndViewWebAsyncTask();
     }
 
     /**
@@ -116,8 +104,8 @@ public class MainController {
             @PathVariable("agileInParamService") String service,
             @PathVariable("agileInParamMethod") String method
     ) throws NoSuchRequestServiceException, NoSuchRequestMethodException {
-        return processor(request, service, method, o -> {
-        });
+        initApiInfoByRequestMapping(request, service, method);
+        return getModelAndViewWebAsyncTask();
     }
 
     private WebAsyncTask<ModelAndView> asyncProcessor(Callable<ModelAndView> callable) {
@@ -147,23 +135,13 @@ public class MainController {
         //调用目标方法
         BeanUtil.getBean(this.getClass()).invoke(bean, method);
 
-        //获取出参
-        Map<String, Object> outParam = AgileReturn.getBody();
+        //提取响应信息
+        ModelAndView modelAndView = AgileReturn.build();
 
-        //判断是否跳转
-        if (outParam.containsKey(Constant.RegularAbout.FORWARD)) {
-            return jump(Constant.RegularAbout.FORWARD);
-        }
-        if (outParam.containsKey(Constant.RegularAbout.REDIRECT)) {
-            return jump(Constant.RegularAbout.REDIRECT);
-        }
-
-        /**
-         * 异步线程时要清空异步线程缓存
-         */
+        //清空线程缓存
         clear();
 
-        return AgileReturn.build();
+        return modelAndView;
     }
 
     /**
@@ -172,46 +150,7 @@ public class MainController {
     public static void clear() {
         SERVICE.remove();
         METHOD.remove();
-        AgileParam.clear();
-    }
-
-    /**
-     * 转发
-     *
-     * @param jumpMethod 跳转方式
-     * @return 视图
-     */
-    private ModelAndView jump(String jumpMethod) {
-        ModelAndView model = new ModelAndView(exposeJumpUrl(jumpMethod, AgileReturn.getBody()));
-        model.addAllObjects(AgileReturn.getBody());
-        model.addAllObjects(AgileParam.getInParam());
-        return model;
-    }
-
-    /**
-     * 处理跳转地址及参数
-     *
-     * @param jumpMethod 跳转方式
-     * @param outParam   跳转之前的输出参数
-     * @return 用于跳转的目标地址
-     */
-    private String exposeJumpUrl(String jumpMethod, Map<String, Object> outParam) {
-        //获取跳转地址
-        String resourceUrl = outParam.get(jumpMethod).toString();
-
-        StringBuilder url = new StringBuilder(jumpMethod + Constant.RegularAbout.COLON);
-        //补充斜杠
-        if (!resourceUrl.startsWith(Constant.RegularAbout.HTTP) && !resourceUrl.startsWith(Constant.RegularAbout.SLASH)) {
-            url.append(Constant.RegularAbout.SLASH);
-        }
-        url.append(resourceUrl);
-        //补充问号
-        if (!resourceUrl.contains(Constant.RegularAbout.QUESTION_MARK)) {
-            url.append(Constant.RegularAbout.QUESTION_MARK);
-        }
-        //移除本跳转防止死循环
-        outParam.remove(jumpMethod);
-        return url.toString();
+        AgileReturn.clear();
     }
 
     /**
@@ -366,7 +305,7 @@ public class MainController {
                 ((AbstractResponseFormat) returnData).initAgileReturn();
             } else {
                 //如果未显示调用初始化返回值，则将返回数据直接放入返回参数
-                if (!AgileReturn.isInit() && returnData != null) {
+                if (returnData != null) {
                     AgileReturn.add(returnData);
                 }
             }

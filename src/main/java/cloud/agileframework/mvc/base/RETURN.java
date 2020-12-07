@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * @author 佟盟 on 2017/1/9
  */
-public final class RETURN {
+public class RETURN {
 
     public static final RETURN SUCCESS = byMessageWithDefault("000000:服务执行成功", "agile.success.success");
     public static final RETURN LOGOUT_SUCCESS = byMessageWithDefault("000001:退出成功", "agile.success.logout");
@@ -37,7 +37,7 @@ public final class RETURN {
      */
     private final HttpStatus status;
 
-    private RETURN(String code, String msg, HttpStatus status) {
+    public RETURN(String code, String msg, HttpStatus status) {
         this.code = code.trim();
         this.msg = msg.trim();
         this.status = status == null ? HttpStatus.OK : status;

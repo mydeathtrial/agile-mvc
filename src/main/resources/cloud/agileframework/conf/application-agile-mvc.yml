@@ -3,9 +3,9 @@ spring:
     contentnegotiation:
       favor-parameter: true
       media-types:
-        plain: text/plain
-        xml: application/xml
-        json: application/json
+        plain: "text/plain"
+        xml: "application/xml"
+        json: "application/json;charset=UTF-8"
       parameter-name: 'response-format'
     static-path-pattern: /static/**
     async:

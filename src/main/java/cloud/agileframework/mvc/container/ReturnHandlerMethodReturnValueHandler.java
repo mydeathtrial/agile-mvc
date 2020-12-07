@@ -1,13 +1,12 @@
 package cloud.agileframework.mvc.container;
 
-import cloud.agileframework.mvc.base.AbstractResponseFormat;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.param.AgileReturn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.method.support.AsyncHandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -18,7 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @version 1.0
  * @since 1.0
  */
-public class RETURNHandlerMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
+public class ReturnHandlerMethodReturnValueHandler implements AsyncHandlerMethodReturnValueHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -30,6 +29,7 @@ public class RETURNHandlerMethodReturnValueHandler implements HandlerMethodRetur
     public void handleReturnValue(Object o, MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest) throws Exception {
         AgileReturn.setHead((RETURN) o);
         ModelAndView modelAndView = AgileReturn.build();
+
         if (logger.isDebugEnabled()) {
             logger.debug("返回参数已完成处理：{}", modelAndView);
         }
@@ -37,5 +37,10 @@ public class RETURNHandlerMethodReturnValueHandler implements HandlerMethodRetur
         modelAndViewContainer.setViewName(modelAndView.getViewName());
         modelAndViewContainer.addAllAttributes(modelAndView.getModel());
         modelAndViewContainer.setStatus(modelAndView.getStatus());
+    }
+
+    @Override
+    public boolean isAsyncReturnValue(Object returnValue, MethodParameter returnType) {
+        return false;
     }
 }

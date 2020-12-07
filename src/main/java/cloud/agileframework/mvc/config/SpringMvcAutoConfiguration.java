@@ -5,19 +5,22 @@ import cloud.agileframework.mvc.container.AgileHandlerMethodArgumentResolver;
 import cloud.agileframework.mvc.container.CustomAsyncHandlerInterceptor;
 import cloud.agileframework.mvc.container.CustomHandlerInterceptor;
 import cloud.agileframework.mvc.container.CustomHandlerMethodReturnValueHandler;
-import cloud.agileframework.mvc.container.RETURNHandlerMethodReturnValueHandler;
+import cloud.agileframework.mvc.container.FileHandlerMethodReturnValueHandler;
+import cloud.agileframework.mvc.container.ReturnHandlerMethodReturnValueHandler;
 import cloud.agileframework.mvc.filter.CorsFilter;
 import cloud.agileframework.mvc.filter.RequestWrapperFilter;
 import cloud.agileframework.mvc.properties.CorsFilterProperties;
 import cloud.agileframework.mvc.provider.ArgumentInitHandlerProvider;
 import cloud.agileframework.mvc.provider.ArgumentValidationHandlerProvider;
-import cloud.agileframework.mvc.view.JsonViewResolver;
-import cloud.agileframework.mvc.view.JumpViewResolver;
-import cloud.agileframework.mvc.view.PlainViewResolver;
+import cloud.agileframework.mvc.view.FileViewResolver;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,10 +42,12 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final CorsFilterProperties corsFilterProperties;
+    private final WebMvcProperties webMvcProperties;
 
     @Autowired
-    public SpringMvcAutoConfiguration(CorsFilterProperties corsFilterProperties) {
+    public SpringMvcAutoConfiguration(CorsFilterProperties corsFilterProperties, WebMvcProperties webMvcProperties) {
         this.corsFilterProperties = corsFilterProperties;
+        this.webMvcProperties = webMvcProperties;
     }
 
     @Bean
@@ -92,10 +97,22 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
-        registry.viewResolver(new JsonViewResolver());
-        registry.viewResolver(new PlainViewResolver());
-        registry.viewResolver(new JumpViewResolver());
-        registry.enableContentNegotiation();
+        registry.viewResolver(new FileViewResolver());
+        registry.enableContentNegotiation(fastJsonView());
+    }
+
+    private FastJsonJsonView fastJsonView() {
+        FastJsonJsonView fastJsonView = new FastJsonJsonView();
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue,
+                SerializerFeature.WriteNullListAsEmpty,
+                SerializerFeature.PrettyFormat,
+                SerializerFeature.WriteDateUseDateFormat,
+                SerializerFeature.DisableCircularReferenceDetect);
+
+        fastJsonConfig.setDateFormat(webMvcProperties.getFormat().getDateTime());
+        fastJsonView.setFastJsonConfig(fastJsonConfig);
+        return fastJsonView;
     }
 
     @Bean
@@ -105,8 +122,10 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
+
         handlers.add(new CustomHandlerMethodReturnValueHandler());
-        handlers.add(new RETURNHandlerMethodReturnValueHandler());
+        handlers.add(new ReturnHandlerMethodReturnValueHandler());
+        handlers.add(new FileHandlerMethodReturnValueHandler());
     }
 
     @Override

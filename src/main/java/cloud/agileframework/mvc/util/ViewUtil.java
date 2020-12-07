@@ -1,8 +1,8 @@
 package cloud.agileframework.mvc.util;
 
+import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.file.FileUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -198,18 +199,24 @@ public class ViewUtil {
         return viewUtil.viewNameTranslator != null ? viewUtil.viewNameTranslator.getViewName(request) : null;
     }
 
+    /**
+     * 提取model对象中的文件数据
+     *
+     * @param model 容器
+     * @return 容器中包含的所有文件
+     */
     @SuppressWarnings("unchecked")
-    public static List<Object> extractFiles(Map<String, Object> model) {
+    public static List<Object> extractFiles(Object model) {
         List<Object> result = new ArrayList<>();
 
-        for (Map.Entry<String, Object> entry : model.entrySet()) {
-            Object value = entry.getValue();
-            if (FileUtil.isFile(value)) {
-                result.add(value);
-            } else if (value != null && Map.class.isAssignableFrom(value.getClass())) {
-                result.addAll(extractFiles((Map<String, Object>) value));
-            }
+        if (FileUtil.isFile(model)) {
+            result.add(model);
+        } else if (model != null && Map.class.isAssignableFrom(model.getClass())) {
+            ((Map<String, Object>) model).values().forEach(v -> result.addAll(extractFiles(v)));
+        } else if (model != null && Collection.class.isAssignableFrom(model.getClass())) {
+            ((Collection<?>) model).forEach(v -> result.addAll(extractFiles(v)));
         }
+
         return result;
     }
 

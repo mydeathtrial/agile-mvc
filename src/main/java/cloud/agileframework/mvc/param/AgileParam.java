@@ -3,10 +3,14 @@ package cloud.agileframework.mvc.param;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.spring.util.ParamUtil;
+import cloud.agileframework.spring.util.RequestWrapper;
+import cloud.agileframework.spring.util.ServletUtil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.google.common.collect.Maps;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.WebUtils;
 
-import java.util.HashMap;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -18,18 +22,21 @@ import java.util.Map;
  * @since 1.0
  */
 @JsonIgnoreProperties(value = "user")
-public class AgileParam {
-    private static final ThreadLocal<Map<String, Object>> PARAMS = ThreadLocal.withInitial(HashMap::new);
+public final class AgileParam {
 
     private AgileParam() {
     }
 
-    public static void init(Map<String, Object> sourceParam) {
-        PARAMS.set(sourceParam);
-    }
-
     public static Map<String, Object> getInParam() {
-        return PARAMS.get();
+        final HttpServletRequest currentRequest = ServletUtil.getCurrentRequest();
+        if (currentRequest == null) {
+            return Maps.newHashMap();
+        }
+        RequestWrapper wrapper = WebUtils.getNativeRequest(currentRequest, RequestWrapper.class);
+        if (wrapper == null) {
+            return Maps.newHashMap();
+        }
+        return wrapper.getInParam();
     }
 
     public static boolean containsKey(String key) {
@@ -170,9 +177,5 @@ public class AgileParam {
      */
     public static <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
         return ParamUtil.getInParamOfArray(getInParam(), key, clazz);
-    }
-
-    public static void clear() {
-        PARAMS.remove();
     }
 }

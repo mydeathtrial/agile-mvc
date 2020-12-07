@@ -20,7 +20,6 @@ public class CustomHandlerInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        AgileParam.clear();
         if (logger.isDebugEnabled()) {
             logger.debug("参数处理器已清理");
         }
