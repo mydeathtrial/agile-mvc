@@ -26,9 +26,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.async.WebAsyncTask;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -283,7 +285,7 @@ public class MainController {
                             .filter(resolver -> resolver.supportsParameter(methodParameter))
                             .map(resolver -> {
                                 try {
-                                    return resolver.resolveArgument(methodParameter, null, null, null);
+                                    return resolver.resolveArgument(methodParameter, new ModelAndViewContainer(), new ServletWebRequest(ServletUtil.getCurrentRequest(), ServletUtil.getCurrentResponse()), null);
                                 } catch (Exception e) {
                                     return null;
                                 }

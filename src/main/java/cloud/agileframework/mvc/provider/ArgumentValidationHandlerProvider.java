@@ -2,6 +2,7 @@ package cloud.agileframework.mvc.provider;
 
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.exception.AgileArgumentException;
+import cloud.agileframework.mvc.param.AgileParam;
 import cloud.agileframework.spring.util.RequestWrapper;
 import cloud.agileframework.validate.ValidateMsg;
 import cloud.agileframework.validate.ValidateUtil;
@@ -22,10 +23,8 @@ import java.util.Map;
 public class ArgumentValidationHandlerProvider implements ValidationHandlerProvider {
     @Override
     public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
-        RequestWrapper requestWrapper = RequestWrapper.extract(request);
-        Map<String, Object> params = requestWrapper.getInParam();
         //入参验证
-        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, params);
+        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, AgileParam.getInParam());
         List<ValidateMsg> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
         if (!optionalValidateMsgList.isEmpty()) {
             request.setAttribute(Constant.RequestAttributeAbout.ATTRIBUTE_ERROR, optionalValidateMsgList);

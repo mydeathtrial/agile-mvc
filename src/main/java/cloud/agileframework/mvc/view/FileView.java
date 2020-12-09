@@ -17,6 +17,10 @@ import java.util.Map;
 public class FileView extends AbstractView {
     public static final String FILE_ATTRIBUTE_NAME = "$AGILE_FILE_ATTRIBUTE_NAME";
 
+    public FileView() {
+        setContentType("*/*");
+    }
+
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
         Object files = model.get(FILE_ATTRIBUTE_NAME);

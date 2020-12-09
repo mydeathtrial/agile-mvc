@@ -21,26 +21,27 @@ import java.util.Map;
  * @version 1.0
  * @since 1.0
  */
-@JsonIgnoreProperties(value = "user")
 public final class AgileParam {
 
     private AgileParam() {
     }
 
     public static Map<String, Object> getInParam() {
-        final HttpServletRequest currentRequest = ServletUtil.getCurrentRequest();
-        if (currentRequest == null) {
-            return Maps.newHashMap();
-        }
-        RequestWrapper wrapper = WebUtils.getNativeRequest(currentRequest, RequestWrapper.class);
-        if (wrapper == null) {
-            return Maps.newHashMap();
-        }
+        RequestWrapper wrapper = getRequestWrapper();
         return wrapper.getInParam();
     }
 
+    /**
+     * 取当前的请求
+     * @return 当前的包装后的请求
+     */
+    private static RequestWrapper getRequestWrapper() {
+        final HttpServletRequest currentRequest = ServletUtil.getCurrentRequest();
+        return RequestWrapper.extract(currentRequest);
+    }
+
     public static boolean containsKey(String key) {
-        return ParamUtil.containsKey(getInParam(), key);
+        return getRequestWrapper().containsKey(key);
     }
 
     /**
@@ -50,7 +51,7 @@ public final class AgileParam {
      * @return 入参值
      */
     public static Object getInParam(String key) {
-        return ParamUtil.getInParam(getInParam(), key);
+        return getRequestWrapper().getInParam(key);
     }
 
 
@@ -61,7 +62,7 @@ public final class AgileParam {
      * @return 入参映射对象
      */
     public static <T> T getInParam(Class<T> clazz) {
-        return ParamUtil.getInParam(getInParam(), clazz);
+        return getRequestWrapper().getInParam(clazz);
     }
 
     /**
@@ -71,7 +72,7 @@ public final class AgileParam {
      * @return 入参映射对象
      */
     public static <T> T getInParam(TypeReference<T> typeReference) {
-        return ParamUtil.getInParam(getInParam(), typeReference);
+        return getRequestWrapper().getInParam(typeReference);
     }
 
     /**
@@ -82,7 +83,7 @@ public final class AgileParam {
      * @return 入参映射对象
      */
     public static <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
-        return ObjectUtil.getObjectFromMap(clazz, getInParam(), prefix);
+        return getRequestWrapper().getInParamByPrefix(clazz,prefix);
     }
 
     /**
@@ -94,7 +95,7 @@ public final class AgileParam {
      * @return 入参映射对象
      */
     public static <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
-        return ObjectUtil.getObjectFromMap(clazz, getInParam(), prefix, suffix);
+        return getRequestWrapper().getInParamByPrefixAndSuffix(clazz,prefix,suffix);
     }
 
     /**
@@ -104,7 +105,7 @@ public final class AgileParam {
      * @return 入参值
      */
     public static String getInParam(String key, String defaultValue) {
-        return ParamUtil.getInParam(getInParam(), key, defaultValue);
+        return getRequestWrapper().getInParam(key, defaultValue);
     }
 
     /**
@@ -114,7 +115,7 @@ public final class AgileParam {
      * @return 入参值
      */
     public static <T> T getInParam(String key, Class<T> clazz) {
-        return ParamUtil.getInParam(getInParam(), key, clazz);
+        return getRequestWrapper().getInParam(key, clazz);
     }
 
     /**
@@ -126,7 +127,7 @@ public final class AgileParam {
      * @return 转换后的入参
      */
     public static <T> T getInParam(String key, TypeReference<T> reference) {
-        return ParamUtil.getInParam(getInParam(), key, reference);
+        return getRequestWrapper().getInParam(key, reference);
     }
 
     /**
@@ -136,7 +137,7 @@ public final class AgileParam {
      * @return 入参值
      */
     public static <T> T getInParam(String key, Class<T> clazz, T defaultValue) {
-        return ParamUtil.getInParam(getInParam(), key, clazz, defaultValue);
+        return getRequestWrapper().getInParam(key, clazz, defaultValue);
     }
 
     /**
@@ -146,7 +147,7 @@ public final class AgileParam {
      * @return 文件
      */
     public static MultipartFile getInParamOfFile(String key) {
-        return ParamUtil.getInParamOfFile(getInParam(), key);
+        return getRequestWrapper().getInParamOfFile(key);
     }
 
     /**
@@ -156,7 +157,7 @@ public final class AgileParam {
      * @return 文件
      */
     public static List<MultipartFile> getInParamOfFiles(String key) {
-        return ParamUtil.getInParamOfFiles(getInParam(), key);
+        return getRequestWrapper().getInParamOfFiles(key);
     }
 
     /**
@@ -166,7 +167,7 @@ public final class AgileParam {
      * @return 入参值
      */
     public static List<String> getInParamOfArray(String key) {
-        return getInParamOfArray(key, String.class);
+        return getRequestWrapper().getInParamOfArray(key);
     }
 
     /**
@@ -176,6 +177,6 @@ public final class AgileParam {
      * @return 入参值
      */
     public static <T> List<T> getInParamOfArray(String key, Class<T> clazz) {
-        return ParamUtil.getInParamOfArray(getInParam(), key, clazz);
+        return getRequestWrapper().getInParamOfArray(key, clazz);
     }
 }

@@ -2,8 +2,10 @@ package cloud.agileframework.mvc.container;
 
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.clazz.TypeReference;
+import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.mvc.annotation.AgileInParam;
 import cloud.agileframework.mvc.param.AgileParam;
+import cloud.agileframework.spring.util.RequestWrapper;
 import org.springframework.core.MethodParameter;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -37,6 +39,7 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        final RequestWrapper requestWrapper = webRequest.getNativeRequest(RequestWrapper.class);
         // 如果存在默认model，则清理
         if (mavContainer != null) {
             ModelMap defaultModel = mavContainer.getDefaultModel();
@@ -47,7 +50,7 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
         Type type = parameter.getGenericParameterType();
         AgileInParam agileInParam = parameter.getParameterAnnotation(AgileInParam.class);
         if (agileInParam != null) {
-            result = parsing(type, agileInParam.value());
+            result = parsing(type, agileInParam.value(), requestWrapper);
         }
 
         if (result == null) {
@@ -55,18 +58,27 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
             if (parameterName == null) {
                 return null;
             }
-            result = parsing(type, parameterName);
+
+            result = parsing(type, parameterName, requestWrapper);
         }
         return result;
     }
 
-    private Object parsing(Type type, String parameterName) throws IOException {
+    private Object parsing(Type type, String parameterName, RequestWrapper requestWrapper) throws IOException {
         if (type instanceof Class && MultipartFile.class.isAssignableFrom((Class<?>) type)) {
             return AgileParam.getInParamOfFile(parameterName);
         } else if (type instanceof Class && InputStream.class.isAssignableFrom((Class<?>) type)) {
             return AgileParam.getInParamOfFile(parameterName).getInputStream();
         } else if (parameterName.equalsIgnoreCase(Constant.RequestAbout.BODY)) {
-            return AgileParam.getInParam(new TypeReference<>(type));
+            if (requestWrapper == null) {
+                return AgileParam.getInParam(new TypeReference<>(type));
+            }
+            Object bodyData = requestWrapper.getAttribute(Constant.RequestAbout.BODY);
+            if (Constant.RequestAbout.BODY_REF.equals(bodyData)) {
+                return AgileParam.getInParam(new TypeReference<>(type));
+            } else {
+                return ObjectUtil.to(bodyData, new TypeReference<>(type));
+            }
         } else {
             return AgileParam.getInParam(parameterName, new TypeReference<>(type));
         }
