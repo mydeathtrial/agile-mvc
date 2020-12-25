@@ -163,7 +163,10 @@ public class MainController {
      * @return 是/否
      */
     private boolean allowRequestMethod(RequestMethod[] requestMethods, RequestMethod requestMethod) {
-        return requestMethods == null || requestMethods.length <= 0 || !ArrayUtils.contains(requestMethods, requestMethod);
+        if (requestMethod == null) {
+            return false;
+        }
+        return requestMethods == null || requestMethods.length == 0 || ArrayUtils.contains(requestMethods, requestMethod);
     }
 
     /**
@@ -247,11 +250,11 @@ public class MainController {
         }
         RequestMethod currentRequestMethod = RequestMethod.valueOf(ServletUtil.getCurrentRequest().getMethod());
         Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
-        if (requestMapping != null && allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
+        if (requestMapping != null && !allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
         }
         ApiMethod apiMethod = methodCache.getAnnotation(ApiMethod.class);
-        if (apiMethod != null && allowRequestMethod(apiMethod.value(), currentRequestMethod)) {
+        if (apiMethod != null && !allowRequestMethod(apiMethod.value(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
         }
         METHOD.set(methodCache);

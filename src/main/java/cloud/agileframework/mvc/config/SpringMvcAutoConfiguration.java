@@ -108,6 +108,7 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
                 SerializerFeature.WriteNullListAsEmpty,
                 SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteDateUseDateFormat,
+                SerializerFeature.WriteNonStringValueAsString,
                 SerializerFeature.DisableCircularReferenceDetect);
 
         fastJsonConfig.setDateFormat(webMvcProperties.getFormat().getDateTime());

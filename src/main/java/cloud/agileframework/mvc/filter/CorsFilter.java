@@ -1,7 +1,8 @@
 package cloud.agileframework.mvc.filter;
 
-import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.common.constant.Constant;
+import cloud.agileframework.common.util.string.StringUtil;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.Filter;
@@ -54,6 +55,10 @@ public class CorsFilter extends OncePerRequestFilter implements Filter {
         }
         if (StringUtil.isNotEmpty(exposeHeaders)) {
             httpServletResponse.setHeader(ACCESS_CONTROL_EXPOSE_HEADERS, exposeHeaders.replaceAll("\\s", Constant.RegularAbout.BLANK));
+        }
+        if (RequestMethod.OPTIONS.name().equalsIgnoreCase(httpServletRequest.getMethod())) {
+            httpServletResponse.setStatus(HttpServletResponse.SC_OK);
+            return;
         }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
