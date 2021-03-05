@@ -17,16 +17,16 @@ public class App {
     public static void main(String[] args) {
         new SpringApplication(App.class).run(args);
     }
-    
+
     /**
-     * 描述：TODO: 
-     * 
+     * 描述：TODO:
+     *
      * @author 佟盟
      * @date 2020-10-30 9:56
-    */
+     */
     @RequestMapping("/")
     public RETURN method() {
-        
+
         return RETURN.SUCCESS;
     }
 }

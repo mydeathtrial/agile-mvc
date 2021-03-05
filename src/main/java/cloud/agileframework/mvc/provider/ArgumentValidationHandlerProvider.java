@@ -3,15 +3,15 @@ package cloud.agileframework.mvc.provider;
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.mvc.exception.AgileArgumentException;
 import cloud.agileframework.mvc.param.AgileParam;
-import cloud.agileframework.spring.util.RequestWrapper;
 import cloud.agileframework.validate.ValidateMsg;
 import cloud.agileframework.validate.ValidateUtil;
+import com.google.common.collect.Maps;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 佟盟
@@ -24,7 +24,15 @@ public class ArgumentValidationHandlerProvider implements ValidationHandlerProvi
     @Override
     public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
         //入参验证
-        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, AgileParam.getInParam());
+        HashMap<String, Object> paramsClone = Maps.newHashMap(AgileParam.getInParam());
+        paramsClone.remove(Constant.RequestAbout.SERVICE);
+        paramsClone.remove(Constant.RequestAbout.METHOD);
+
+        if (paramsClone.isEmpty()) {
+            paramsClone = null;
+        }
+
+        List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, paramsClone);
         List<ValidateMsg> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
         if (!optionalValidateMsgList.isEmpty()) {
             request.setAttribute(Constant.RequestAttributeAbout.ATTRIBUTE_ERROR, optionalValidateMsgList);

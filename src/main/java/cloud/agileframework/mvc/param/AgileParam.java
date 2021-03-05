@@ -1,14 +1,9 @@
 package cloud.agileframework.mvc.param;
 
 import cloud.agileframework.common.util.clazz.TypeReference;
-import cloud.agileframework.common.util.object.ObjectUtil;
-import cloud.agileframework.spring.util.ParamUtil;
 import cloud.agileframework.spring.util.RequestWrapper;
 import cloud.agileframework.spring.util.ServletUtil;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Maps;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -33,6 +28,7 @@ public final class AgileParam {
 
     /**
      * 取当前的请求
+     *
      * @return 当前的包装后的请求
      */
     private static RequestWrapper getRequestWrapper() {
@@ -83,7 +79,7 @@ public final class AgileParam {
      * @return 入参映射对象
      */
     public static <T> T getInParamByPrefix(Class<T> clazz, String prefix) {
-        return getRequestWrapper().getInParamByPrefix(clazz,prefix);
+        return getRequestWrapper().getInParamByPrefix(clazz, prefix);
     }
 
     /**
@@ -95,7 +91,7 @@ public final class AgileParam {
      * @return 入参映射对象
      */
     public static <T> T getInParamByPrefixAndSuffix(Class<T> clazz, String prefix, String suffix) {
-        return getRequestWrapper().getInParamByPrefixAndSuffix(clazz,prefix,suffix);
+        return getRequestWrapper().getInParamByPrefixAndSuffix(clazz, prefix, suffix);
     }
 
     /**

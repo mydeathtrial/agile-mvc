@@ -16,11 +16,11 @@ public class RETURN {
     public static final RETURN LOGOUT_SUCCESS = byMessageWithDefault("000001:退出成功", "agile.success.logout");
 
     public static final RETURN FAIL = byMessageWithDefault("100000:操作失败", "agile.error.fail");
-    public static final RETURN NOT_FOUND = byMessage("100001:请求服务不存在", HttpStatus.NOT_FOUND, "agile.error.not-found");
-    public static final RETURN PARAMETER_ERROR = byMessageWithDefault("100002:参数错误", "agile.error.paramError");
+    public static final RETURN NOT_FOUND = byMessage("100002:请求服务不存在", HttpStatus.NOT_FOUND, "agile.error.not-found");
+    public static final RETURN PARAMETER_ERROR = byMessageWithDefault("100013:参数错误", "agile.error.paramError");
 
-    public static final RETURN EXPRESSION = byMessageWithDefault("200001:程序异常", "agile.exception.expression");
-
+    public static final RETURN EXPRESSION = byMessageWithDefault("200000:程序异常", "agile.exception.expression");
+    public static final RETURN EXCEPTION = byMessage("200000:程序异常", HttpStatus.INTERNAL_SERVER_ERROR, "agile.exception.expression");
 
     /**
      * 响应状态码
@@ -63,7 +63,7 @@ public class RETURN {
      * @return 返回RETURN结果
      */
     public static RETURN byMessage(String defaultValue, HttpStatus status, String key, Object... params) {
-        String message = MessageUtil.message(key, params);
+        String message = MessageUtil.message(key, defaultValue, params);
         if (defaultValue == null && message == null) {
             throw new RuntimeException(String.format("defaultValue and message cannot both be null,message %s not found", key));
         }

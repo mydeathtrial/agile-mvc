@@ -40,6 +40,6 @@ public class TestController {
 
     @RequestMapping("/test5")
     public ModelAndView test5(String a) throws AbstractCustomException {
-        throw new MyException("1", "2");
+        throw new MyException(a);
     }
 }

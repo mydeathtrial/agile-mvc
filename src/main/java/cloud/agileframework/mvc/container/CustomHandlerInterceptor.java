@@ -1,6 +1,5 @@
 package cloud.agileframework.mvc.container;
 
-import cloud.agileframework.mvc.param.AgileParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;

@@ -5,9 +5,7 @@ import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -129,7 +127,7 @@ public class AgileHandlerMapping extends RequestMappingHandlerMapping {
     @Override
     public void registerHandlerMethod(Object handler, Method method, RequestMappingInfo mapping) {
         final PatternsRequestCondition patternsCondition = mapping.getPatternsCondition();
-        if(patternsCondition == null){
+        if (patternsCondition == null) {
             return;
         }
         for (String path : patternsCondition.getPatterns()) {

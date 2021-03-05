@@ -13,8 +13,12 @@ import cloud.agileframework.mvc.properties.CorsFilterProperties;
 import cloud.agileframework.mvc.provider.ArgumentInitHandlerProvider;
 import cloud.agileframework.mvc.provider.ArgumentValidationHandlerProvider;
 import cloud.agileframework.mvc.view.FileViewResolver;
+import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
+import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +30,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -101,6 +114,57 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         registry.enableContentNegotiation(fastJsonView());
     }
 
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
+        FastJsonConfig config = new FastJsonConfig();
+        //Long类型转String类型
+        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+        // ToStringSerializer 是这个包 com.alibaba.fastjson.serializer.ToStringSerializer
+        serializeConfig.put(BigInteger.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
+
+        config.setSerializeConfig(serializeConfig);
+        config.setSerializerFeatures(
+                // 保留map空的字段
+                SerializerFeature.WriteMapNullValue,
+                // 将String类型的null转成""
+                SerializerFeature.WriteNullStringAsEmpty,
+                // 将Number类型的null转成0
+                SerializerFeature.WriteNullNumberAsZero,
+                // 将List类型的null转成[]
+                SerializerFeature.WriteNullListAsEmpty,
+                // 将Boolean类型的null转成false
+                SerializerFeature.WriteNullBooleanAsFalse,
+                //日期格式转换
+                SerializerFeature.WriteDateUseDateFormat,
+                // 避免循环引用
+                SerializerFeature.DisableCircularReferenceDetect
+        );
+        config.setSerializeFilters(VALUE_FILTER);
+        converter.setFastJsonConfig(config);
+        converter.setDefaultCharset(StandardCharsets.UTF_8);
+        // 解决中文乱码问题，相当于在Controller上的@RequestMapping中加了个属性produces = "application/json"
+        List<MediaType> mediaTypeList = new ArrayList<>();
+        mediaTypeList.add(MediaType.APPLICATION_JSON);
+        converter.setSupportedMediaTypes(mediaTypeList);
+
+        converters.add(new ByteArrayHttpMessageConverter());
+        // @ResponseBody 解决乱码
+        converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        converters.add(new ResourceHttpMessageConverter());
+        converters.add(new AllEncompassingFormHttpMessageConverter());
+        converters.add(converter);
+    }
+
+    public static final ValueFilter VALUE_FILTER = (obj, s, v) -> {
+        if (v == null) {
+            return "";
+        }
+        return v;
+    };
+
     private FastJsonJsonView fastJsonView() {
         FastJsonJsonView fastJsonView = new FastJsonJsonView();
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
@@ -108,11 +172,15 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
                 SerializerFeature.WriteNullListAsEmpty,
                 SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteDateUseDateFormat,
-                SerializerFeature.WriteNonStringValueAsString,
                 SerializerFeature.DisableCircularReferenceDetect);
 
+        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+        serializeConfig.put(Long.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
+        fastJsonConfig.setSerializeConfig(serializeConfig);
         fastJsonConfig.setDateFormat(webMvcProperties.getFormat().getDateTime());
         fastJsonView.setFastJsonConfig(fastJsonConfig);
+
         return fastJsonView;
     }
 

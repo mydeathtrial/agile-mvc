@@ -1,11 +1,9 @@
 package cloud.agileframework.mvc.listener;
 
 import cloud.agileframework.mvc.container.AgileBanner;
-import cloud.agileframework.spring.util.PropertiesUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Properties;
 

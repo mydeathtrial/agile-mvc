@@ -4,6 +4,7 @@ import cloud.agileframework.common.util.clazz.ClassInfo;
 import cloud.agileframework.common.util.string.StringUtil;
 import cloud.agileframework.mvc.annotation.ApiMethod;
 import cloud.agileframework.mvc.annotation.Mapping;
+import cloud.agileframework.mvc.annotation.NotAPI;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.exception.NoSuchRequestMethodException;
@@ -162,11 +163,11 @@ public class MainController {
      * @param requestMethod  请求方法
      * @return 是/否
      */
-    private boolean allowRequestMethod(RequestMethod[] requestMethods, RequestMethod requestMethod) {
+    private boolean dontAllowRequestMethod(RequestMethod[] requestMethods, RequestMethod requestMethod) {
         if (requestMethod == null) {
-            return false;
+            return true;
         }
-        return requestMethods == null || requestMethods.length == 0 || ArrayUtils.contains(requestMethods, requestMethod);
+        return requestMethods != null && requestMethods.length != 0 && !ArrayUtils.contains(requestMethods, requestMethod);
     }
 
     /**
@@ -248,13 +249,17 @@ public class MainController {
         if (methodCache == null) {
             throw new NoSuchRequestMethodException();
         }
+
+        if (methodCache.getDeclaringClass().getAnnotation(NotAPI.class) != null || methodCache.getAnnotation(NotAPI.class) != null) {
+            throw new NoSuchRequestMethodException();
+        }
         RequestMethod currentRequestMethod = RequestMethod.valueOf(ServletUtil.getCurrentRequest().getMethod());
         Mapping requestMapping = methodCache.getAnnotation(Mapping.class);
-        if (requestMapping != null && !allowRequestMethod(requestMapping.method(), currentRequestMethod)) {
+        if (requestMapping != null && dontAllowRequestMethod(requestMapping.method(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
         }
         ApiMethod apiMethod = methodCache.getAnnotation(ApiMethod.class);
-        if (apiMethod != null && !allowRequestMethod(apiMethod.value(), currentRequestMethod)) {
+        if (apiMethod != null && dontAllowRequestMethod(apiMethod.value(), currentRequestMethod)) {
             throw new NoSuchRequestMethodException();
         }
         METHOD.set(methodCache);

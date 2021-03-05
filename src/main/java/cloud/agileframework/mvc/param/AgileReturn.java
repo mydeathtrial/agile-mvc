@@ -139,7 +139,7 @@ public class AgileReturn {
             modelAndView.setView(view);
         }
         final Map<String, Object> otherModel = OTHER.get();
-        if(otherModel !=null){
+        if (otherModel != null) {
             modelAndView.addAllObjects(otherModel);
         }
 
@@ -148,6 +148,7 @@ public class AgileReturn {
 
     public static void clear() {
         HEAD.remove();
+        OTHER.remove();
         BODY.remove();
         VIEW_NAME.remove();
         VIEW.remove();

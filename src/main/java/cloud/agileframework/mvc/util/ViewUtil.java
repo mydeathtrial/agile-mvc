@@ -105,15 +105,11 @@ public class ViewUtil {
         }
         View view = resolveViewName(viewName, mv.getModel(), viewUtil.locale, request);
 
-        try {
-            if (mv.getStatus() != null) {
-                response.setStatus(mv.getStatus().value());
-            }
-
-            view.render(mv.getModel(), request, response);
-        } catch (Exception var8) {
-            throw var8;
+        if (mv.getStatus() != null) {
+            response.setStatus(mv.getStatus().value());
         }
+
+        view.render(mv.getModel(), request, response);
     }
 
     @Nullable
@@ -172,11 +168,10 @@ public class ViewUtil {
 
             String[] classNames = StringUtils.commaDelimitedListToStringArray(value);
             List<T> strategies = new ArrayList<>(classNames.length);
-            String[] var7 = classNames;
             int var8 = classNames.length;
 
             for (int var9 = 0; var9 < var8; ++var9) {
-                String className = var7[var9];
+                String className = classNames[var9];
 
                 try {
                     Class<?> clazz = ClassUtils.forName(className, DispatcherServlet.class.getClassLoader());

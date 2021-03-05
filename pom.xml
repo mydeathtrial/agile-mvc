@@ -6,7 +6,7 @@
     <groupId>cloud.agileframework</groupId>
     <artifactId>agile-mvc</artifactId>
     <packaging>jar</packaging>
-    <version>2.0.9</version>
+    <version>2.0.10</version>
     <description>MVC extend for Spring Boot</description>
     <url>https://github.com/mydeathtrial/agile-mvc</url>
 
@@ -106,19 +106,19 @@
         <dependency>
             <groupId>cloud.agileframework</groupId>
             <artifactId>agile-validate</artifactId>
-            <version>2.0.9</version>
+            <version>2.0.10</version>
         </dependency>
 
         <dependency>
             <groupId>cloud.agileframework</groupId>
             <artifactId>common-util</artifactId>
-            <version>2.0.9</version>
+            <version>2.0.10</version>
         </dependency>
 
         <dependency>
             <groupId>cloud.agileframework</groupId>
             <artifactId>spring-util</artifactId>
-            <version>2.0.9</version>
+            <version>2.0.10</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -128,7 +128,7 @@
         <dependency>
             <groupId>cloud.agileframework</groupId>
             <artifactId>agile-context</artifactId>
-            <version>2.0.9</version>
+            <version>2.0.10</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -241,28 +241,28 @@
                 </executions>
             </plugin>
 
-<!--            <plugin>-->
-<!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
-<!--                <version>3.0.0</version>-->
-<!--                <executions>-->
-<!--                    <execution> &lt;!&ndash; 绑定pmd:pmd到validate生命周期，在validate时会自动进行代码规范检查 &ndash;&gt;-->
-<!--                        <id>validate</id>-->
-<!--                        <phase>validate</phase>-->
-<!--                        <configuration> &lt;!&ndash; 配置文件的路径，在style文件夹下 &ndash;&gt;-->
-<!--                            <configLocation>-->
-<!--                                checkstyle-ali.xml-->
-<!--                            </configLocation>-->
-<!--                            <encoding>UTF-8</encoding>-->
-<!--                            <consoleOutput>true</consoleOutput>-->
-<!--                            <failsOnError>true</failsOnError>-->
-<!--                            <includeTestSourceDirectory>false</includeTestSourceDirectory>-->
-<!--                        </configuration>-->
-<!--                        <goals>-->
-<!--                            <goal>check</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <artifactId>maven-checkstyle-plugin</artifactId>-->
+            <!--                <version>3.0.0</version>-->
+            <!--                <executions>-->
+            <!--                    <execution> &lt;!&ndash; 绑定pmd:pmd到validate生命周期，在validate时会自动进行代码规范检查 &ndash;&gt;-->
+            <!--                        <id>validate</id>-->
+            <!--                        <phase>validate</phase>-->
+            <!--                        <configuration> &lt;!&ndash; 配置文件的路径，在style文件夹下 &ndash;&gt;-->
+            <!--                            <configLocation>-->
+            <!--                                checkstyle-ali.xml-->
+            <!--                            </configLocation>-->
+            <!--                            <encoding>UTF-8</encoding>-->
+            <!--                            <consoleOutput>true</consoleOutput>-->
+            <!--                            <failsOnError>true</failsOnError>-->
+            <!--                            <includeTestSourceDirectory>false</includeTestSourceDirectory>-->
+            <!--                        </configuration>-->
+            <!--                        <goals>-->
+            <!--                            <goal>check</goal>-->
+            <!--                        </goals>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
         </plugins>
         <resources>
             <resource>

@@ -8,18 +8,15 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.core.env.Environment;
 
 /**
  * @author 佟盟 on 2018/1/19
  * bean定义过程
  */
-public class CustomBeanDefinitionRegistryPostProcessor implements EnvironmentAware, PriorityOrdered, BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
+public class CustomBeanDefinitionRegistryPostProcessor implements PriorityOrdered, BeanDefinitionRegistryPostProcessor, ApplicationContextAware {
     private ApplicationContext applicationContext;
-    private Environment environment;
 
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry) throws BeansException {
@@ -46,10 +43,5 @@ public class CustomBeanDefinitionRegistryPostProcessor implements EnvironmentAwa
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE;
-    }
-
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 }

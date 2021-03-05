@@ -38,6 +38,10 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
     }
 
     public static ModelAndView createModelAndView(Throwable e) {
+        //在请求中记录
+        HttpServletRequest request = ServletUtil.getCurrentRequest();
+        request.setAttribute(Constant.RequestAttributeAbout.ERROR_EXCEPTION, e);
+
         ModelAndView modelAndView;
 
         if (e instanceof AgileArgumentException) {
@@ -80,11 +84,11 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
     private static RETURN to(Throwable e) {
         String message;
         if (e instanceof AbstractCustomException) {
-            message = MessageUtil.message(e.getClass().getName(), ((AbstractCustomException) e).getParams());
+            message = MessageUtil.message(e.getClass().getName(), null, ((AbstractCustomException) e).getParams());
         } else if (e instanceof NoSuchRequestServiceException || e instanceof NoSuchRequestMethodException) {
             return RETURN.NOT_FOUND;
         } else {
-            message = MessageUtil.message(e.getClass().getName(), e.getMessage());
+            message = MessageUtil.message(e.getClass().getName(), null, e.getMessage());
         }
         if (StringUtils.isEmpty(message)) {
             return RETURN.of(RETURN.FAIL.getCode(), RETURN.FAIL.getMsg(), HttpStatus.INTERNAL_SERVER_ERROR);

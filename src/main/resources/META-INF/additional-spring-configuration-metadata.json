@@ -3,13 +3,13 @@
     {
       "name": "spring.mvc.static-path-pattern",
       "type": "java.lang.String",
-      "description": "静态资源访问地址",
+      "description": "静态资源访问地址.",
       "defaultValue": "/static/**"
     },
     {
       "name": "agile.mvc.auto.enable",
       "type": "java.lang.Boolean",
-      "description": "是否开启自动寻址",
+      "description": "是否开启AgileService默认地址.",
       "defaultValue": false
     }
   ]

@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 /**
  * @author 佟盟
@@ -48,6 +49,9 @@ public class AgileHandlerMethodArgumentResolver implements HandlerMethodArgument
 
         Object result = null;
         Type type = parameter.getGenericParameterType();
+        if (TypeVariable.class.isAssignableFrom(type.getClass())) {
+            type = parameter.getParameterType();
+        }
         AgileInParam agileInParam = parameter.getParameterAnnotation(AgileInParam.class);
         if (agileInParam != null) {
             result = parsing(type, agileInParam.value(), requestWrapper);

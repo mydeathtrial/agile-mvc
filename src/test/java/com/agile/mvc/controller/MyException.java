@@ -10,7 +10,7 @@ import cloud.agileframework.mvc.exception.AbstractCustomException;
  * @since 1.0
  */
 public class MyException extends AbstractCustomException {
-    public MyException(Object... params) {
+    public MyException(String... params) {
         super(params);
     }
 }

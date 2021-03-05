@@ -11,17 +11,17 @@ import java.io.Serializable;
 
 public class Head extends RETURN implements Serializable {
     private static final long serialVersionUID = 97555324631150979L;
-    private final String ip = ServletUtil.getLocalIP();;
+    private final String ip = ServletUtil.getLocalIP();
 
     public Head(String code, String msg, HttpStatus status) {
         super(code, msg, status);
     }
 
     public Head(RETURN r) {
-        super(r.getCode(),r.getMsg(),r.getStatus());
+        super(r.getCode(), r.getMsg(), r.getStatus());
     }
 
-    public Head(){
+    public Head() {
         this(RETURN.SUCCESS);
     }
 

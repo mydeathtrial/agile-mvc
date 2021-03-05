@@ -18,7 +18,7 @@ import java.util.Date;
  */
 public class ProjectContextHolder {
     private static STATUS status;
-    private static final Date startedTime = new Date();
+    private static final Date STARTED_TIME = new Date();
     private static int port;
     private static Duration consumeTime;
 
@@ -33,7 +33,7 @@ public class ProjectContextHolder {
     static void print() {
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "敏捷开发框架 Agile Framework"));
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动状态: ", AnsiColor.BLUE, status.name()));
-        PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动时间: ", AnsiColor.BLUE, DateUtil.toFormatByDate(startedTime, "yyyy年MM月dd日 HH:mm:ss")));
+        PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动时间: ", AnsiColor.BLUE, DateUtil.toFormatByDate(STARTED_TIME, "yyyy年MM月dd日 HH:mm:ss")));
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动端口: ", AnsiColor.BLUE, port));
         PrintUtil.println(AnsiOutput.toString(AnsiColor.GREEN, "启动耗时: ", AnsiColor.BLUE, consumeTime));
     }
