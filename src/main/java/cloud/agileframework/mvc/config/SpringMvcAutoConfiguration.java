@@ -13,6 +13,7 @@ import cloud.agileframework.mvc.properties.CorsFilterProperties;
 import cloud.agileframework.mvc.provider.ArgumentInitHandlerProvider;
 import cloud.agileframework.mvc.provider.ArgumentValidationHandlerProvider;
 import cloud.agileframework.mvc.view.FileViewResolver;
+import cloud.agileframework.spring.util.BeanUtil;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
@@ -24,7 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.task.TaskExecutionProperties;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,14 +40,19 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.context.request.async.CallableProcessingInterceptor;
+import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,16 +60,21 @@ import java.util.List;
  * @author 佟盟 on 2017/8/22
  */
 @Configuration
+@EnableConfigurationProperties(TaskExecutionProperties.class)
 public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final CorsFilterProperties corsFilterProperties;
     private final WebMvcProperties webMvcProperties;
+    private final TaskExecutionProperties taskExecutionProperties;
 
     @Autowired
-    public SpringMvcAutoConfiguration(CorsFilterProperties corsFilterProperties, WebMvcProperties webMvcProperties) {
+    public SpringMvcAutoConfiguration(CorsFilterProperties corsFilterProperties,
+                                      WebMvcProperties webMvcProperties,
+                                      TaskExecutionProperties taskExecutionProperties) {
         this.corsFilterProperties = corsFilterProperties;
         this.webMvcProperties = webMvcProperties;
+        this.taskExecutionProperties = taskExecutionProperties;
     }
 
     @Bean
@@ -208,4 +222,35 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         return new CustomAsyncHandlerInterceptor();
     }
 
+    @Override
+    public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
+        Duration timeout = webMvcProperties.getAsync().getRequestTimeout();
+        if (timeout == null) {
+            timeout = Duration.ofSeconds(3);
+        }
+        configurer.setDefaultTimeout(timeout.toMillis());
+
+        CallableProcessingInterceptor timeoutInterceptor = BeanUtil.getBean(CallableProcessingInterceptor.class);
+        configurer.registerCallableInterceptors(timeoutInterceptor);
+
+        ThreadPoolTaskExecutor threadPoolTaskExecutor = BeanUtil.getBean(ThreadPoolTaskExecutor.class);
+        configurer.setTaskExecutor(threadPoolTaskExecutor);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(CallableProcessingInterceptor.class)
+    public TimeoutCallableProcessingInterceptor timeoutInterceptor() {
+        return new TimeoutCallableProcessingInterceptor();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ThreadPoolTaskExecutor.class)
+    public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor t = new ThreadPoolTaskExecutor();
+        t.setCorePoolSize(taskExecutionProperties.getPool().getCoreSize());
+        t.setMaxPoolSize(taskExecutionProperties.getPool().getMaxSize());
+        t.setQueueCapacity(taskExecutionProperties.getPool().getQueueCapacity());
+        t.setThreadNamePrefix(taskExecutionProperties.getThreadNamePrefix());
+        return t;
+    }
 }

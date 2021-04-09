@@ -3,6 +3,8 @@ package cloud.agileframework.mvc.param;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.spring.util.RequestWrapper;
 import cloud.agileframework.spring.util.ServletUtil;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +25,7 @@ public final class AgileParam {
 
     public static Map<String, Object> getInParam() {
         RequestWrapper wrapper = getRequestWrapper();
-        return wrapper.getInParam();
+        return SerializationUtils.clone(Maps.newHashMap(wrapper.getInParam()));
     }
 
     /**
