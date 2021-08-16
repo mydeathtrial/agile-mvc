@@ -51,11 +51,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
             }
         }
 
-        if (e.getCause() != null) {
-            e = e.getCause();
-        }
-
-        RETURN r = to(e);
+        RETURN r = to(message(e));
         if (r.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR) {
             e.printStackTrace();
             logger.error(MESSAGE_HEAD, e);
@@ -81,15 +77,31 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
      * @param e 异常
      * @return RETURN
      */
-    private static RETURN to(Throwable e) {
+    private static String message(Throwable e) {
+        Throwable cause = e.getCause();
+        if(cause!=null && cause.getClass() != e.getClass()){
+            String causeMessage = message(cause);
+            if(!StringUtils.isEmpty(causeMessage)){
+                return causeMessage;
+            }
+        }
         String message;
         if (e instanceof AbstractCustomException) {
             message = MessageUtil.message(e.getClass().getName(), null, ((AbstractCustomException) e).getParams());
-        } else if (e instanceof NoSuchRequestServiceException || e instanceof NoSuchRequestMethodException) {
-            return RETURN.NOT_FOUND;
         } else {
             message = MessageUtil.message(e.getClass().getName(), null, e.getMessage());
         }
+        return message;
+    }
+
+    /**
+     * 提取国际化响应文
+     *
+     * @param message 异常信息
+     * @return RETURN
+     */
+    private static RETURN to(String message) {
+
         if (StringUtils.isEmpty(message)) {
             return RETURN.of(RETURN.FAIL.getCode(), RETURN.FAIL.getMsg(), HttpStatus.INTERNAL_SERVER_ERROR);
         } else {

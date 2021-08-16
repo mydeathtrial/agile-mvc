@@ -16,7 +16,6 @@ public class RETURN {
     public static final RETURN LOGOUT_SUCCESS = byMessageWithDefault("000001:退出成功", "agile.success.logout");
 
     public static final RETURN FAIL = byMessageWithDefault("100000:操作失败", "agile.error.fail");
-    public static final RETURN NOT_FOUND = byMessage("100002:请求服务不存在", HttpStatus.NOT_FOUND, "agile.error.not-found");
     public static final RETURN PARAMETER_ERROR = byMessageWithDefault("100013:参数错误", "agile.error.paramError");
 
     public static final RETURN EXPRESSION = byMessageWithDefault("200000:程序异常", "agile.exception.expression");
