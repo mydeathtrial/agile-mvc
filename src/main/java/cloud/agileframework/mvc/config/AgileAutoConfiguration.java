@@ -24,12 +24,12 @@ import org.springframework.context.annotation.Configuration;
 public class AgileAutoConfiguration {
 
     @Bean
-    CustomBeanDefinitionRegistryPostProcessor customBeanDefinitionRegistryPostProcessor() {
+    static CustomBeanDefinitionRegistryPostProcessor customBeanDefinitionRegistryPostProcessor() {
         return new CustomBeanDefinitionRegistryPostProcessor();
     }
 
     @Bean
-    CustomBeanPostProcessor customBeanPostProcessor() {
+    static CustomBeanPostProcessor customBeanPostProcessor() {
         return new CustomBeanPostProcessor();
     }
 
