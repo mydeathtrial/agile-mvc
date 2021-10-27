@@ -1,8 +1,10 @@
 package com.agile.mvc.controller;
 
+import cloud.agileframework.mvc.annotation.AgileInParam;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.exception.AbstractCustomException;
 import cloud.agileframework.mvc.exception.AgileArgumentException;
+import cloud.agileframework.mvc.exception.NoSuchRequestMethodException;
 import cloud.agileframework.mvc.param.AgileParam;
 import cloud.agileframework.mvc.param.AgileReturn;
 import cloud.agileframework.validate.annotation.Validate;
@@ -20,17 +22,20 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 public class TestController {
-    @Validate(value = "a", nullable = false)
+    @Validate(value = "name", nullable = false)
     @RequestMapping("/test")
-    public ModelAndView test(String a) {
+    public ModelAndView test(@AgileInParam("name") String a) {
         AgileReturn.setHead(RETURN.SUCCESS);
         AgileReturn.add(AgileParam.getInParam());
+        AgileReturn.add("a",a);
         return AgileReturn.build();
     }
 
     @RequestMapping("/test3")
-    public ModelAndView test3(String a, MultipartFile[] file) {
-        throw new RuntimeException("错了");
+    public RETURN test3(String a, MultipartFile[] file) throws NoSuchRequestMethodException {
+        AgileReturn.add("a",a);
+        AgileReturn.add("file",file);
+        throw new NoSuchRequestMethodException();
     }
 
     @RequestMapping("/test4")

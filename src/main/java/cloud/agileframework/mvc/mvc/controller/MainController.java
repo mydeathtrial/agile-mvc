@@ -114,7 +114,7 @@ public class MainController {
     private WebAsyncTask<ModelAndView> asyncProcessor(Callable<ModelAndView> callable) {
         Duration timeout = webMvcProperties.getAsync().getRequestTimeout();
         if (timeout == null) {
-            timeout = Duration.ofSeconds(3);
+            timeout = Duration.ofSeconds(15);
         }
         WebAsyncTask<ModelAndView> asyncTask = new WebAsyncTask<>(timeout.toMillis(), callable);
         Duration finalTimeout = timeout;

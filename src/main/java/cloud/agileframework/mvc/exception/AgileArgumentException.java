@@ -9,6 +9,10 @@ package cloud.agileframework.mvc.exception;
  */
 public class AgileArgumentException extends Exception {
     public AgileArgumentException() {
-        super("参数验证失败");
+        this("100013:请求参数有误");
+    }
+
+    private AgileArgumentException(String message) {
+        super(message);
     }
 }

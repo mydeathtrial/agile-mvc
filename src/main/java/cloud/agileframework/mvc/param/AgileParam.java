@@ -25,7 +25,7 @@ public final class AgileParam {
 
     public static Map<String, Object> getInParam() {
         RequestWrapper wrapper = getRequestWrapper();
-        return SerializationUtils.clone(Maps.newHashMap(wrapper.getInParam()));
+        return Maps.newHashMap(wrapper.getInParam());
     }
 
     /**

@@ -91,6 +91,9 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
         } else {
             message = MessageUtil.message(e.getClass().getName(), null, e.getMessage());
         }
+        if(message == null){
+            message = e.getMessage();
+        }
         return message;
     }
 

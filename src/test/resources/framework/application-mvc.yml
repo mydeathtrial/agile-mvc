@@ -10,8 +10,6 @@ spring:
     static-path-pattern: /static/**
     async:
       request-timeout: 3m
-    locale-resolver: accept_header
-    locale: zh
     format:
       date: yyyy-MM-dd
       date-time: yyyy-MM-dd HH:mm:ss
@@ -32,12 +30,15 @@ spring:
       pool:
         core-size: 8
       thread-name-prefix: '线程池-'
-  resources:
-    cache:
-      cachecontrol:
-        no-cache: true
-      period: 604800
-    static-locations: classpath:static/
+  web:
+    locale-resolver: accept_header
+    locale: zh
+    resources:
+      cache:
+        cachecontrol:
+          no-cache: true
+        period: 604800
+      static-locations: classpath:static/
 server:
   port: 18081
   servlet:
