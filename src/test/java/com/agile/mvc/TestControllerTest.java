@@ -45,7 +45,6 @@ public class TestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8")
                         .content("{\"name\":\"BeJson\",\"url\":\"http://www.bejson.com\",\"page\":88,\"isNonProfit\":true,\"address\":{\"street\":\"科技园路.\",\"city\":\"江苏苏州\",\"country\":\"中国\"},\"links\":[{\"name\":\"Google\",\"url\":\"http://www.google.com\"},{\"name\":\"Baidu\",\"url\":\"http://www.baidu.com\"},{\"name\":\"SoSo\",\"url\":\"http://www.SoSo.com\"}]}"))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("head").exists())
                 .andExpect(jsonPath("head.code").value("000000"))
                 .andExpect(jsonPath("name").value("BeJson"))
@@ -62,7 +61,6 @@ public class TestControllerTest {
                         .file(file2)
                         .contentType(MediaType.APPLICATION_OCTET_STREAM)
                         .characterEncoding("UTF-8"))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("head").exists())
                 .andExpect(jsonPath("head.code").value("100003"))
                 .andExpect(jsonPath("file").doesNotExist())
@@ -75,7 +73,6 @@ public class TestControllerTest {
         mockMvc.perform(post("/test4?a=12")
                         .contentType(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8"))
-                .andExpect(status().isOk())
                 .andExpect(jsonPath("head").exists())
                 .andExpect(jsonPath("head.code").value("100013"))
                 .andReturn();
