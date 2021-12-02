@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,12 +23,6 @@ import java.util.Map;
  * @since 1.0
  */
 public class ArgumentInitHandlerProvider implements HandlerProvider {
-    @Override
-    public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
-        RequestWrapper requestWrapper = RequestWrapper.extract(request);
-        requestWrapper.extendInParam(parseUriVariable(request));
-    }
-
     /**
      * 处理路径变量
      *
@@ -50,7 +43,7 @@ public class ArgumentInitHandlerProvider implements HandlerProvider {
 
 
         if (requestMappingInfo == null) {
-            HashMap<String, Object> map = (HashMap<String, Object>) currentRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+            Map<String, Object> map = (Map<String, Object>) currentRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
             if (map != null) {
                 return map;
             }
@@ -69,5 +62,11 @@ public class ArgumentInitHandlerProvider implements HandlerProvider {
         }
 
         return uriVariables;
+    }
+
+    @Override
+    public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
+        RequestWrapper requestWrapper = RequestWrapper.extract(request);
+        requestWrapper.extendInParam(parseUriVariable(request));
     }
 }

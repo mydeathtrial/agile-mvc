@@ -1,6 +1,7 @@
 package cloud.agileframework.mvc.listener;
 
 import cloud.agileframework.mvc.container.AgileBanner;
+import org.springframework.boot.ConfigurableBootstrapContext;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -26,7 +27,8 @@ public class ListenerSpringApplicationRun implements SpringApplicationRunListene
     }
 
     @Override
-    public void starting() {
+    public void starting(ConfigurableBootstrapContext bootstrapContext) {
+        SpringApplicationRunListener.super.starting(bootstrapContext);
         startTime = System.currentTimeMillis();
         application.setBanner(new AgileBanner());
     }

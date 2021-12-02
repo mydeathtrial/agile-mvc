@@ -45,8 +45,8 @@ public class Test2Service {
 
         @Override
         public List<ValidateMsg> validate(String key, Object params) {
-            if(!"true".equals(params)){
-                return Lists.newArrayList(new ValidateMsg("业务验证",key,params));
+            if (!"true".equals(params)) {
+                return Lists.newArrayList(new ValidateMsg("业务验证", key, params));
             }
             return null;
         }
