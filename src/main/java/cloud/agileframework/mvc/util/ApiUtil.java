@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.util;
 
+import cloud.agileframework.common.util.clazz.ClassUtil;
 import cloud.agileframework.mvc.annotation.AgileService;
 import cloud.agileframework.mvc.annotation.NotAPI;
 import cloud.agileframework.mvc.container.AgileHandlerMapping;
@@ -14,6 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author 佟盟 on 2018/8/23
@@ -47,7 +49,7 @@ public class ApiUtil {
             return;
         }
 
-        Method[] methods = realClass.getDeclaredMethods();
+        Set<Method> methods = ClassUtil.getAllMethod(realClass);
         for (Method method : methods) {
             if (!Modifier.isPublic(method.getModifiers()) || method.getAnnotation(NotAPI.class) != null) {
                 continue;
