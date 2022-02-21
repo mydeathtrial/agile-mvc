@@ -45,10 +45,7 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
 import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -60,10 +57,15 @@ import java.util.List;
  * @author 佟盟 on 2017/8/22
  */
 @Configuration
-@EnableConfigurationProperties(TaskExecutionProperties.class)
+@EnableConfigurationProperties({TaskExecutionProperties.class, CorsFilterProperties.class, WebMvcProperties.class})
 public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
+    public static final ValueFilter VALUE_FILTER = (obj, s, v) -> {
+        if (v == null) {
+            return "";
+        }
+        return v;
+    };
     private final Logger logger = LoggerFactory.getLogger(getClass());
-
     private final CorsFilterProperties corsFilterProperties;
     private final WebMvcProperties webMvcProperties;
     private final TaskExecutionProperties taskExecutionProperties;
@@ -172,13 +174,6 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         converters.add(converter);
     }
 
-    public static final ValueFilter VALUE_FILTER = (obj, s, v) -> {
-        if (v == null) {
-            return "";
-        }
-        return v;
-    };
-
     private FastJsonJsonView fastJsonView() {
         FastJsonJsonView fastJsonView = new FastJsonJsonView();
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
@@ -252,5 +247,10 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         t.setQueueCapacity(taskExecutionProperties.getPool().getQueueCapacity());
         t.setThreadNamePrefix(taskExecutionProperties.getThreadNamePrefix());
         return t;
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }
 }
