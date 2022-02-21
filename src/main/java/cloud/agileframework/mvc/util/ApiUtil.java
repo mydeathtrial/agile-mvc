@@ -23,9 +23,19 @@ import java.util.Set;
 public class ApiUtil {
     private static final Map<String, RequestMappingInfo> API_INFO_CACHE = new HashMap<>();
 
+    private static String toCacheKey(HandlerMethod handlerMethod) {
+        return toCacheKey(handlerMethod.getBean(), handlerMethod.getMethod());
+    }
+
+    private static String toCacheKey(Object bean, Method method) {
+        String className = bean.getClass().getName();
+        String methodName = method.toGenericString();
+        return String.format("%s_%s", className, methodName);
+    }
+
     public static RequestMappingInfo getApiCache(HttpServletRequest request) {
         HandlerMethod handlerMethod = MappingUtil.matching(request);
-        return API_INFO_CACHE.get(handlerMethod.getMethod().toGenericString());
+        return API_INFO_CACHE.get(toCacheKey(handlerMethod));
     }
 
     /**
@@ -71,7 +81,7 @@ public class ApiUtil {
         RequestMappingInfo requestMappingInfo = agileHandlerMapping.getMappingForMethod(method, clazz);
         if (requestMappingInfo != null) {
             agileHandlerMapping.registerHandlerMethod(bean, method, requestMappingInfo);
-            API_INFO_CACHE.put(method.toGenericString(), requestMappingInfo);
+            API_INFO_CACHE.put(toCacheKey(bean, method), requestMappingInfo);
         }
     }
 }
