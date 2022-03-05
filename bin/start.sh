@@ -39,7 +39,9 @@ function run()
     JAVA_OPTS="$JAVA_OPTS -Djava.ext.dirs=$LOCAL_LIB_PATH -Djava.library.path=$LOCAL_LIB_PATH -Xbootclasspath/a:$LOCAL_CONF_PATH"
 
     JAVA_OPTS="$JAVA_OPTS -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=4001,suspend=n"
-
+    #使用ipv4
+    JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true"
+    
     #开启jmx远程
     JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote"
     JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote=true"

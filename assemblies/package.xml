@@ -9,17 +9,9 @@
             <directory>bin</directory>
             <outputDirectory>bin</outputDirectory>
             <fileMode>0755</fileMode>
-            <includes>
-                <include>**.sh</include>
-            </includes>
         </fileSet>
         <fileSet>
             <directory>lib</directory>
-            <outputDirectory>lib</outputDirectory>
-            <directoryMode>0755</directoryMode>
-        </fileSet>
-        <fileSet>
-            <directory>${project.build.directory}/package/lib</directory>
             <outputDirectory>lib</outputDirectory>
             <directoryMode>0755</directoryMode>
         </fileSet>
@@ -29,13 +21,18 @@
             <directoryMode>0755</directoryMode>
         </fileSet>
         <fileSet>
-            <directory>${project.build.outputDirectory}/com/agile/conf</directory>
+            <directory>${project.build.directory}/package/lib</directory>
+            <outputDirectory>lib</outputDirectory>
+            <directoryMode>0755</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/package/conf</directory>
             <outputDirectory>conf</outputDirectory>
             <directoryMode>0755</directoryMode>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/src/main/resources</directory>
-            <outputDirectory>conf</outputDirectory>
+            <directory>${project.build.directory}/package/bin</directory>
+            <outputDirectory>bin</outputDirectory>
             <directoryMode>0755</directoryMode>
         </fileSet>
     </fileSets>
