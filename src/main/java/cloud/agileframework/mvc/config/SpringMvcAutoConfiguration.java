@@ -133,10 +133,32 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
-        
-        
+        FastJsonConfig config = new FastJsonConfig();
+        //Long类型转String类型
+        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+        // ToStringSerializer 是这个包 com.alibaba.fastjson.serializer.ToStringSerializer
+        serializeConfig.put(BigInteger.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
 
-        FastJsonConfig config = getFastJsonConfig();
+        config.setSerializeConfig(serializeConfig);
+        config.setSerializerFeatures(
+                // 保留map空的字段
+                SerializerFeature.WriteMapNullValue,
+                // 将String类型的null转成""
+                SerializerFeature.WriteNullStringAsEmpty,
+                // 将Number类型的null转成0
+                SerializerFeature.WriteNullNumberAsZero,
+                // 将List类型的null转成[]
+                SerializerFeature.WriteNullListAsEmpty,
+                // 将Boolean类型的null转成false
+                SerializerFeature.WriteNullBooleanAsFalse,
+                //日期格式转换
+                SerializerFeature.WriteDateUseDateFormat,
+                // 避免循环引用
+                SerializerFeature.DisableCircularReferenceDetect
+        );
+        config.setSerializeFilters(VALUE_FILTER);
         converter.setFastJsonConfig(config);
         converter.setDefaultCharset(StandardCharsets.UTF_8);
         // 解决中文乱码问题，相当于在Controller上的@RequestMapping中加了个属性produces = "application/json"
@@ -152,31 +174,22 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         converters.add(converter);
     }
 
-    private FastJsonConfig getFastJsonConfig() {
-        FastJsonConfig config = new FastJsonConfig();
-        //Long类型转String类型
-        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
-        // ToStringSerializer 是这个包 com.alibaba.fastjson.serializer.ToStringSerializer
-        serializeConfig.put(BigInteger.class, ToStringSerializer.instance);
-        serializeConfig.put(Long.class, ToStringSerializer.instance);
-        serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
-        config.setSerializeConfig(serializeConfig);
-        config.setSerializerFeatures(
-                SerializerFeature.WriteMapNullValue,
+    private FastJsonJsonView fastJsonView() {
+        FastJsonJsonView fastJsonView = new FastJsonJsonView();
+        FastJsonConfig fastJsonConfig = new FastJsonConfig();
+        fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteMapNullValue,
                 SerializerFeature.WriteNullListAsEmpty,
                 SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteDateUseDateFormat,
-                SerializerFeature.DisableCircularReferenceDetect
-        );
-        config.setSerializeFilters(VALUE_FILTER);
-        config.setDateFormat(webMvcProperties.getFormat().getDateTime());
-        return config;
-    }
+                SerializerFeature.DisableCircularReferenceDetect);
 
-    private FastJsonJsonView fastJsonView() {
-        FastJsonJsonView fastJsonView = new FastJsonJsonView();
-        FastJsonConfig fastJsonConfig = getFastJsonConfig();
+        SerializeConfig serializeConfig = SerializeConfig.globalInstance;
+        serializeConfig.put(Long.class, ToStringSerializer.instance);
+        serializeConfig.put(Long.TYPE, ToStringSerializer.instance);
+        fastJsonConfig.setSerializeConfig(serializeConfig);
+        fastJsonConfig.setDateFormat(webMvcProperties.getFormat().getDateTime());
         fastJsonView.setFastJsonConfig(fastJsonConfig);
+
         return fastJsonView;
     }
 
