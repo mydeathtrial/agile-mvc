@@ -59,12 +59,7 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties({TaskExecutionProperties.class, CorsFilterProperties.class, WebMvcProperties.class})
 public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
-    public static final ValueFilter VALUE_FILTER = (obj, s, v) -> {
-        if (v == null) {
-            return "";
-        }
-        return v;
-    };
+    
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final CorsFilterProperties corsFilterProperties;
     private final WebMvcProperties webMvcProperties;
@@ -168,7 +163,6 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
                 SerializerFeature.WriteDateUseDateFormat,
                 SerializerFeature.DisableCircularReferenceDetect
         );
-        config.setSerializeFilters(VALUE_FILTER);
         config.setDateFormat(webMvcProperties.getFormat().getDateTime());
         return config;
     }

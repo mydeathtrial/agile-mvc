@@ -61,7 +61,9 @@ public class ApiUtil {
 
         Set<Method> methods = ClassUtil.getAllMethod(realClass);
         for (Method method : methods) {
-            if (!Modifier.isPublic(method.getModifiers()) || method.getAnnotation(NotAPI.class) != null) {
+            if (!Modifier.isPublic(method.getModifiers())
+                    || method.getAnnotation(NotAPI.class) != null
+                    || method.isBridge()) {
                 continue;
             }
             registerApiMapping(bean, method, realClass);
