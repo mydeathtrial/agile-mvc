@@ -84,6 +84,7 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
         corsFilter.addInitParameter("allowMethods", corsFilterProperties.getAllowMethods());
         corsFilter.addInitParameter("allowCredentials", Boolean.toString(corsFilterProperties.isAllowCredentials()));
         corsFilter.addInitParameter("allowHeaders", corsFilterProperties.getAllowHeaders());
+        corsFilter.addInitParameter("exposeHeaders", corsFilterProperties.getExposeHeaders());
         logger.debug("完成初始化跨域过滤器");
         return corsFilter;
     }
