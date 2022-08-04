@@ -31,6 +31,6 @@ public class CorsFilterProperties {
      * header中的allowOrigin,设置为允许访问的域名,*为允许任何域名访问
      */
     private String allowOrigin = "*";
-    
+
     private String exposeHeaders = "*";
 }

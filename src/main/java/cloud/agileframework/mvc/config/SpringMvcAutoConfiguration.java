@@ -17,7 +17,6 @@ import cloud.agileframework.spring.util.BeanUtil;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
-import com.alibaba.fastjson.serializer.ValueFilter;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
 import com.alibaba.fastjson.support.spring.FastJsonJsonView;
@@ -45,7 +44,11 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
 import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -59,7 +62,7 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties({TaskExecutionProperties.class, CorsFilterProperties.class, WebMvcProperties.class})
 public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
-    
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final CorsFilterProperties corsFilterProperties;
     private final WebMvcProperties webMvcProperties;
@@ -129,8 +132,7 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         FastJsonHttpMessageConverter converter = new FastJsonHttpMessageConverter();
-        
-        
+
 
         FastJsonConfig config = getFastJsonConfig();
         converter.setFastJsonConfig(config);

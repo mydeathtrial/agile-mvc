@@ -27,14 +27,14 @@ public class TestController {
     public ModelAndView test(@AgileInParam("name") String a) {
         AgileReturn.setHead(RETURN.SUCCESS);
         AgileReturn.add(AgileParam.getInParam());
-        AgileReturn.add("a",a);
+        AgileReturn.add("a", a);
         return AgileReturn.build();
     }
 
     @RequestMapping("/test3")
     public RETURN test3(String a, MultipartFile[] file) throws NoSuchRequestMethodException {
-        AgileReturn.add("a",a);
-        AgileReturn.add("file",file);
+        AgileReturn.add("a", a);
+        AgileReturn.add("file", file);
         throw new NoSuchRequestMethodException();
     }
 

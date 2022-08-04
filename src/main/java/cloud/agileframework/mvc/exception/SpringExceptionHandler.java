@@ -79,9 +79,9 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
      */
     private static String message(Throwable e) {
         Throwable cause = e.getCause();
-        if(cause!=null && cause.getClass() != e.getClass()){
+        if (cause != null && cause.getClass() != e.getClass()) {
             String causeMessage = message(cause);
-            if(!StringUtils.isEmpty(causeMessage)){
+            if (!StringUtils.isEmpty(causeMessage)) {
                 return causeMessage;
             }
         }
@@ -91,7 +91,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
         } else {
             message = MessageUtil.message(e.getClass().getName(), null, e.getMessage());
         }
-        if(message == null){
+        if (message == null) {
             message = e.getMessage();
         }
         return message;

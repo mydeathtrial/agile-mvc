@@ -13,6 +13,6 @@ public class AgileArgumentException extends Exception {
     }
 
     public AgileArgumentException(String message) {
-        super("100013:"+message);
+        super("100013:" + message);
     }
 }
