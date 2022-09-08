@@ -35,8 +35,7 @@ public class ArgumentValidationHandlerProvider implements ValidationHandlerProvi
         List<ValidateMsg> validateMessages = ValidateUtil.handleInParamValidate(method, paramsClone);
         List<ValidateMsg> optionalValidateMsgList = ValidateUtil.aggregation(validateMessages);
         if (!optionalValidateMsgList.isEmpty()) {
-            request.setAttribute(Constant.RequestAttributeAbout.ATTRIBUTE_ERROR, optionalValidateMsgList);
-            throw new AgileArgumentException();
+            throw new AgileArgumentException(optionalValidateMsgList);
         }
     }
 
