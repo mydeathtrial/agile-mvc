@@ -9,6 +9,7 @@ import cloud.agileframework.mvc.listener.ListenerContainerRefreshed;
 import cloud.agileframework.mvc.listener.ListenerSpringApplicationFailed;
 import cloud.agileframework.mvc.listener.ListenerSpringApplicationStarted;
 import cloud.agileframework.mvc.mvc.controller.MainController;
+import cloud.agileframework.mvc.mvc.controller.AgileServiceProxy;
 import cloud.agileframework.mvc.properties.CorsFilterProperties;
 import cloud.agileframework.spring.properties.ApplicationProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -62,6 +63,11 @@ public class AgileAutoConfiguration {
     @ConditionalOnMissingBean(MainController.class)
     MainController mainController() {
         return new MainController();
+    }
+    
+    @Bean
+    AgileServiceProxy methodHandler(){
+        return new AgileServiceProxy();
     }
 
     @Bean

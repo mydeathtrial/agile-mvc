@@ -1,6 +1,5 @@
 package cloud.agileframework.mvc.container;
 
-import cloud.agileframework.mvc.mvc.controller.MainController;
 import cloud.agileframework.mvc.param.AgileReturn;
 import cloud.agileframework.mvc.provider.HandlerProvider;
 import org.springframework.beans.factory.ObjectProvider;
@@ -42,7 +41,6 @@ public class CustomAsyncHandlerInterceptor implements AsyncHandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        MainController.clear();
         AgileReturn.clear();
     }
 

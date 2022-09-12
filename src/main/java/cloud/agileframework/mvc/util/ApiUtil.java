@@ -2,10 +2,11 @@ package cloud.agileframework.mvc.util;
 
 import cloud.agileframework.common.util.clazz.ClassUtil;
 import cloud.agileframework.mvc.annotation.AgileService;
-import cloud.agileframework.mvc.annotation.NotAPI;
+import cloud.agileframework.mvc.annotation.Mapping;
 import cloud.agileframework.mvc.container.AgileHandlerMapping;
 import cloud.agileframework.spring.util.BeanUtil;
 import cloud.agileframework.spring.util.MappingUtil;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -41,17 +42,12 @@ public class ApiUtil {
     /**
      * 注册API
      *
-     * @param beanName bean名
      * @param bean     bean
      */
-    public static void registerApiMapping(String beanName, Object bean) {
+    public static void registerApiMapping(Object bean) {
         Class<?> realClass = BeanUtil.getBeanClass(bean);
         if (realClass == Class.class) {
             realClass = bean.getClass();
-        }
-
-        if (realClass == null || realClass.getAnnotation(NotAPI.class) != null) {
-            return;
         }
 
         AgileService agileService = AnnotationUtils.findAnnotation(realClass, AgileService.class);
@@ -61,8 +57,7 @@ public class ApiUtil {
 
         Set<Method> methods = ClassUtil.getAllMethod(realClass);
         for (Method method : methods) {
-            if (!Modifier.isPublic(method.getModifiers())
-                    || method.getAnnotation(NotAPI.class) != null
+            if (AnnotatedElementUtils.findMergedAnnotation(method, Mapping.class) == null || !Modifier.isPublic(method.getModifiers())
                     || method.isBridge()) {
                 continue;
             }

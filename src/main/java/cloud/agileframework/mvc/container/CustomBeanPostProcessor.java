@@ -24,7 +24,7 @@ public class CustomBeanPostProcessor implements BeanPostProcessor, ApplicationCo
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         AnnotationProcessor.methodAnnotationProcessor(applicationContext, beanName, ParsingMethodBefore.class);
-        ApiUtil.registerApiMapping(beanName, bean);
+        ApiUtil.registerApiMapping(bean);
         return bean;
     }
 
