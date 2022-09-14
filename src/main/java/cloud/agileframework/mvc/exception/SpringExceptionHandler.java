@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 @ControllerAdvice
 public class SpringExceptionHandler implements HandlerExceptionResolver {
     private static final Logger logger = LoggerFactory.getLogger(SpringExceptionHandler.class);
-    private static final String MESSAGE_HEAD = "统一异常捕捉";
+    private static final String MESSAGE_HEAD = "异常捕捉";
 
     @ExceptionHandler(Throwable.class)
     public ModelAndView allExceptionHandler(Throwable e) {
@@ -53,8 +53,9 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
 
         RETURN r = to(message(e));
         if (r.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR) {
-            e.printStackTrace();
             logger.error(MESSAGE_HEAD, e);
+        } else {
+            logger.warn(MESSAGE_HEAD, e);
         }
 
         Head head = new Head(r);
