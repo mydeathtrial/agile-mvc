@@ -91,6 +91,12 @@ public class MainController {
         methodHandler.invoke(bean, method);
 
         //提取响应信息
-        return AgileReturn.build();
+        ModelAndView modelAndView = AgileReturn.build();
+        /**
+         * 异步线程时要清空异步线程缓存
+         */
+        AgileReturn.clear();
+        //提取响应信息
+        return modelAndView;
     }
 }
