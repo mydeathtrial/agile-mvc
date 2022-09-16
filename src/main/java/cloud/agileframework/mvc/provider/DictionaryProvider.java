@@ -1,6 +1,6 @@
 package cloud.agileframework.mvc.provider;
 
-import cloud.agileframework.dictionary.util.DictionaryUtil;
+import cloud.agileframework.dictionary.util.ConvertDicAnnotation;
 
 /**
  * @author 佟盟
@@ -12,6 +12,6 @@ import cloud.agileframework.dictionary.util.DictionaryUtil;
 public class DictionaryProvider implements DataExtendManager {
     @Override
     public void cover(Object o) {
-        DictionaryUtil.cover(o);
+        ConvertDicAnnotation.cover(o);
     }
 }
