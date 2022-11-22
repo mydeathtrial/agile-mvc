@@ -12,7 +12,6 @@ import cloud.agileframework.mvc.filter.RequestWrapperFilter;
 import cloud.agileframework.mvc.properties.CorsFilterProperties;
 import cloud.agileframework.mvc.provider.ArgumentInitHandlerProvider;
 import cloud.agileframework.mvc.provider.ArgumentValidationHandlerProvider;
-import cloud.agileframework.mvc.view.FileViewResolver;
 import cloud.agileframework.spring.util.BeanUtil;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -44,11 +43,13 @@ import org.springframework.web.context.request.async.CallableProcessingIntercept
 import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitterReturnValueHandler;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -125,7 +126,6 @@ public class SpringMvcAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
-        registry.viewResolver(new FileViewResolver());
         registry.enableContentNegotiation(fastJsonView());
     }
 

@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 /**
  * @author 佟盟 on 2017/9/26
@@ -66,8 +67,8 @@ public class AgileAutoConfiguration {
     }
     
     @Bean
-    AgileServiceProxy methodHandler(){
-        return new AgileServiceProxy();
+    AgileServiceProxy methodHandler(RequestMappingHandlerAdapter requestMappingHandlerAdapter){
+        return new AgileServiceProxy(requestMappingHandlerAdapter.getArgumentResolvers());
     }
 
     @Bean

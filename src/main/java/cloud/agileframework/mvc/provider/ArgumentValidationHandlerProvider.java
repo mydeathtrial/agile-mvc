@@ -25,8 +25,6 @@ public class ArgumentValidationHandlerProvider implements ValidationHandlerProvi
     public void before(HttpServletRequest request, HttpServletResponse response, Method method) throws Exception {
         //入参验证
         HashMap<String, Object> paramsClone = Maps.newHashMap(AgileParam.getInParam());
-        paramsClone.remove(Constant.RequestAbout.SERVICE);
-        paramsClone.remove(Constant.RequestAbout.METHOD);
 
         if (paramsClone.isEmpty()) {
             paramsClone = null;

@@ -11,7 +11,7 @@ import java.util.Map;
  * @author 佟盟 on 2018/11/2
  */
 public abstract class AbstractResponseFormat extends LinkedHashMap<String, Object> {
-    private Head sourceHead;
+    private RETURN sourceHead;
     private Object sourceResult;
 
     /**
@@ -21,7 +21,7 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
      * @param result 体
      * @return 格式化信息
      */
-    public abstract Map<String, Object> buildResponseData(Head head, Object result);
+    public abstract Map<String, Object> buildResponseData(RETURN head, Object result);
 
     /**
      * 构建响应报文体
@@ -30,9 +30,9 @@ public abstract class AbstractResponseFormat extends LinkedHashMap<String, Objec
      * @param result 体信息
      * @return 返回ModelAndView
      */
-    public ModelAndView buildResponse(Head head, Object result) {
+    public ModelAndView buildResponse(RETURN head, Object result) {
         if (head == null) {
-            head = new Head(RETURN.SUCCESS);
+            head = RETURN.SUCCESS;
         }
         sourceHead = head;
         sourceResult = result;

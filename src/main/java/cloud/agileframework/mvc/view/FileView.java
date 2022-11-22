@@ -1,10 +1,15 @@
 package cloud.agileframework.mvc.view;
 
-import cloud.agileframework.spring.util.MultipartFileUtil;
+import cloud.agileframework.common.util.file.FileUtil;
+import cloud.agileframework.common.util.file.ResponseFile;
+import cloud.agileframework.common.util.stream.ThrowingConsumer;
+import org.apache.commons.io.IOUtils;
 import org.springframework.web.servlet.view.AbstractView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -15,17 +20,21 @@ import java.util.Map;
  * @since 1.0
  */
 public class FileView extends AbstractView {
-    public static final String FILE_ATTRIBUTE_NAME = "$AGILE_FILE_ATTRIBUTE_NAME";
+    private final String fileName;
+    private final ThrowingConsumer<HttpServletResponse> write;
 
-    public FileView() {
-        setContentType("*/*");
+    public FileView(File file) {
+        this.fileName = file.getName();
+        write = response -> IOUtils.copy(Files.newInputStream(file.toPath()), response.getOutputStream());
+    }
+
+    public FileView(ResponseFile file) {
+        this.fileName = file.getFileName();
+        write = file::write;
     }
 
     @Override
     protected void renderMergedOutputModel(Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Object files = model.get(FILE_ATTRIBUTE_NAME);
-        if (files != null) {
-            MultipartFileUtil.downloadFile(files, request, response);
-        }
+        FileUtil.downloadFile(fileName, write, request, response);
     }
 }

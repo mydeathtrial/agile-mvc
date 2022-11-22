@@ -1,5 +1,6 @@
 package cloud.agileframework.mvc.mvc.controller;
 
+import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.exception.NoSuchRequestServiceException;
 import cloud.agileframework.mvc.exception.SpringExceptionHandler;
 import cloud.agileframework.mvc.param.AgileReturn;
@@ -11,13 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.async.WebAsyncTask;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
+import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -33,7 +33,7 @@ public class MainController {
 
 
     @Autowired
-    private AgileServiceProxy methodHandler;
+    private AgileServiceProxy proxyService;
     @Autowired
     private WebMvcProperties webMvcProperties;
     @Autowired
@@ -44,59 +44,57 @@ public class MainController {
      *
      * @return 视图
      */
-    @ResponseBody
     @RequestMapping(value = {"/", "/**"})
-    public Object othersProcessor(HttpServletRequest request) throws NoSuchRequestServiceException {
+    public Object othersProcessor(HttpServletRequest request, HttpServletResponse response) throws NoSuchRequestServiceException {
         HandlerMethod handlerMethod = MappingUtil.matching(request);
         if (handlerMethod == null || handlerMethod.getBean() instanceof MainController) {
             throw new NoSuchRequestServiceException();
         }
-        return getModelAndViewWebAsyncTask(handlerMethod);
+        return getModelAndViewWebAsyncTask(request, response, handlerMethod);
     }
 
-    private WebAsyncTask<ModelAndView> getModelAndViewWebAsyncTask(HandlerMethod handlerMethod) {
-        Object bean = handlerMethod.getBean();
-        Method method = handlerMethod.getMethod();
-        return asyncProcessor(() -> {
+    private WebAsyncTask<Object> getModelAndViewWebAsyncTask(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod) {
+        return asyncProcessor(request, response, () -> {
             try {
-                return processor(bean, method);
+                return processor(request, response, handlerMethod);
             } catch (Throwable e) {
-                return SpringExceptionHandler.createModelAndView(e);
+                return SpringExceptionHandler.createModelAndView(request, response, e);
             }
         });
     }
 
-    private WebAsyncTask<ModelAndView> asyncProcessor(Callable<ModelAndView> callable) {
+    private WebAsyncTask<Object> asyncProcessor(HttpServletRequest request, HttpServletResponse response, Callable<Object> callable) {
         Duration timeout = webMvcProperties.getAsync().getRequestTimeout();
         if (timeout == null) {
             timeout = Duration.ofSeconds(15);
         }
-        WebAsyncTask<ModelAndView> asyncTask = new WebAsyncTask<>(timeout.toMillis(), callable);
+        WebAsyncTask<Object> asyncTask = new WebAsyncTask<>(timeout.toMillis(), callable);
         Duration finalTimeout = timeout;
         asyncTask.onTimeout(
-                () -> SpringExceptionHandler.createModelAndView(
+                () -> SpringExceptionHandler.createModelAndView(request, response,
                         new InterruptedException(String.format("请求超时，最长过期时间%s", finalTimeout)))
         );
         return asyncTask;
     }
 
-    private ModelAndView processor(Object bean, Method method) throws Throwable {
+    private Object processor(HttpServletRequest request, HttpServletResponse response, HandlerMethod handlerMethod) throws Throwable {
         //入参验证
         List<ValidationHandlerProvider> validationHandlerProviderList = validationHandlerProviders.orderedStream().collect(Collectors.toList());
         for (ValidationHandlerProvider validationHandlerProvider : validationHandlerProviderList) {
-            validationHandlerProvider.before(ServletUtil.getCurrentRequest(), ServletUtil.getCurrentResponse(), method);
+            validationHandlerProvider.before(ServletUtil.getCurrentRequest(), ServletUtil.getCurrentResponse(), handlerMethod.getMethod());
         }
 
         //调用目标方法
-        methodHandler.invoke(bean, method);
+        Object returnData = proxyService.invoke(request, response, handlerMethod);
+
+        Class<?> parameterType = handlerMethod.getReturnType().getParameterType();
+        if (parameterType == RETURN.class || parameterType == void.class) {
+            ModelAndView modelAndView = AgileReturn.build();
+            AgileReturn.clear();
+            return modelAndView;
+        }
 
         //提取响应信息
-        ModelAndView modelAndView = AgileReturn.build();
-        /**
-         * 异步线程时要清空异步线程缓存
-         */
-        AgileReturn.clear();
-        //提取响应信息
-        return modelAndView;
+        return returnData;
     }
 }

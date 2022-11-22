@@ -3,7 +3,6 @@ package cloud.agileframework.mvc.exception;
 import cloud.agileframework.common.constant.Constant;
 import cloud.agileframework.common.util.pattern.PatternUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.mvc.util.ViewUtil;
 import cloud.agileframework.spring.util.BeanUtil;
@@ -33,13 +32,12 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
     private static final String MESSAGE_HEAD = "异常捕捉";
 
     @ExceptionHandler(Throwable.class)
-    public ModelAndView allExceptionHandler(Throwable e) {
-        return createModelAndView(e);
+    public ModelAndView allExceptionHandler(HttpServletRequest request, HttpServletResponse response, Throwable e) {
+        return createModelAndView(request, response,e);
     }
 
-    public static ModelAndView createModelAndView(Throwable e) {
+    public static ModelAndView createModelAndView(HttpServletRequest request,HttpServletResponse response,  Throwable e) {
         //在请求中记录
-        HttpServletRequest request = ServletUtil.getCurrentRequest();
         request.setAttribute(Constant.RequestAttributeAbout.ERROR_EXCEPTION, e);
 
         ModelAndView modelAndView;
@@ -47,7 +45,7 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
         if (e instanceof AgileArgumentException) {
             Object attributeErrors = ServletUtil.getCurrentRequest().getAttribute(Constant.RequestAttributeAbout.ATTRIBUTE_ERROR);
             if (attributeErrors != null) {
-                return ViewUtil.getResponseFormatData(new Head(RETURN.PARAMETER_ERROR), attributeErrors);
+                return ViewUtil.getResponseFormatData(RETURN.PARAMETER_ERROR, attributeErrors);
             }
         }
 
@@ -58,16 +56,14 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
             logger.warn(MESSAGE_HEAD, e);
         }
 
-        Head head = new Head(r);
-
         AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
-            modelAndView = abstractResponseFormat.buildResponse(head, null);
+            modelAndView = abstractResponseFormat.buildResponse(r, null);
         } else {
             modelAndView = new ModelAndView();
-            modelAndView.addObject(Constant.ResponseAbout.HEAD, head);
+            modelAndView.addObject(Constant.ResponseAbout.HEAD, r);
         }
-        modelAndView.setStatus(head.getStatus());
+        modelAndView.setStatus(r.getStatus());
 
         return modelAndView;
     }
@@ -119,6 +115,6 @@ public class SpringExceptionHandler implements HandlerExceptionResolver {
 
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-        return createModelAndView(ex);
+        return createModelAndView(request,response, ex);
     }
 }

@@ -5,17 +5,12 @@ import cloud.agileframework.common.util.clazz.ClassUtil;
 import cloud.agileframework.common.util.clazz.TypeReference;
 import cloud.agileframework.common.util.object.ObjectUtil;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Head;
 import cloud.agileframework.mvc.base.RETURN;
-import cloud.agileframework.mvc.util.ViewUtil;
-import cloud.agileframework.mvc.view.FileView;
-import cloud.agileframework.mvc.view.FileViewResolver;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +21,7 @@ import java.util.Map;
  * @since 1.0
  */
 public class AgileReturn {
-    private static final ThreadLocal<Head> HEAD = new ThreadLocal<>();
+    private static final ThreadLocal<RETURN> HEAD = new ThreadLocal<>();
     private static final ThreadLocal<Map<String, Object>> BODY = ThreadLocal.withInitial(LinkedHashMap::new);
     private static final ThreadLocal<Map<String, Object>> OTHER = ThreadLocal.withInitial(LinkedHashMap::new);
     private static final ThreadLocal<String> VIEW_NAME = new ThreadLocal<>();
@@ -35,11 +30,7 @@ public class AgileReturn {
     private AgileReturn() {
     }
 
-    public static void init(RETURN r, Object object) {
-        init(new Head(r), object);
-    }
-
-    public static void init(Head head, Object object) {
+    public static void init(RETURN head, Object object) {
         AgileReturn.clear();
         HEAD.set(head);
         setBody(object);
@@ -50,12 +41,7 @@ public class AgileReturn {
     }
 
     public static void add(Object value) {
-        List<Object> files = ViewUtil.extractFiles(value);
-
-        if (!files.isEmpty()) {
-            VIEW_NAME.set(FileViewResolver.DEFAULT_VIEW_NAME);
-            OTHER.get().put(FileView.FILE_ATTRIBUTE_NAME, files);
-        } else if (Map.class.isAssignableFrom(value.getClass())) {
+        if (Map.class.isAssignableFrom(value.getClass())) {
             BODY.get().putAll((Map<? extends String, ?>) value);
         } else if (value instanceof String || ClassUtil.isWrapOrPrimitive(value.getClass())) {
             BODY.get().put(Constant.ResponseAbout.RESULT, value);
@@ -71,7 +57,7 @@ public class AgileReturn {
     }
 
     public static void setHead(RETURN r) {
-        HEAD.set(new Head(r));
+        HEAD.set(r);
     }
 
     /**
@@ -84,8 +70,8 @@ public class AgileReturn {
         add(object);
     }
 
-    public static Head getHead() {
-        Head head = HEAD.get();
+    public static RETURN getHead() {
+        RETURN head = HEAD.get();
         if (head == null) {
             setHead(RETURN.SUCCESS);
             return HEAD.get();

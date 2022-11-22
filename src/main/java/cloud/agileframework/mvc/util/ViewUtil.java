@@ -1,9 +1,9 @@
 package cloud.agileframework.mvc.util;
 
 import cloud.agileframework.common.constant.Constant;
-import cloud.agileframework.common.util.file.FileUtil;
+import cloud.agileframework.common.util.file.ResponseFile;
 import cloud.agileframework.mvc.base.AbstractResponseFormat;
-import cloud.agileframework.mvc.base.Head;
+import cloud.agileframework.mvc.base.RETURN;
 import cloud.agileframework.spring.util.BeanUtil;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -28,6 +28,7 @@ import org.springframework.web.servlet.ViewResolver;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class ViewUtil {
     private RequestToViewNameTranslator viewNameTranslator;
 
 
-    public static void render(Head head, Object result, HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public static void render(RETURN head, Object result, HttpServletRequest request, HttpServletResponse response) throws Exception {
         render(getResponseFormatData(head, result), request, response);
     }
 
@@ -64,7 +65,7 @@ public class ViewUtil {
      * @param result 体信息
      * @return 格式化后的ModelAndView
      */
-    public static ModelAndView getResponseFormatData(Head head, Object result) {
+    public static ModelAndView getResponseFormatData(RETURN head, Object result) {
         ModelAndView modelAndView = new ModelAndView();
         AbstractResponseFormat abstractResponseFormat = BeanUtil.getBean(AbstractResponseFormat.class);
         if (abstractResponseFormat != null) {
@@ -201,14 +202,39 @@ public class ViewUtil {
      * @return 容器中包含的所有文件
      */
     @SuppressWarnings("unchecked")
-    public static List<Object> extractFiles(Object model) {
-        List<Object> result = new ArrayList<>();
+    public static List<ResponseFile> extractResponseFiles(Object model) {
+        List<ResponseFile> result = new ArrayList<>();
 
-        if (FileUtil.isFile(model)) {
-            result.add(model);
-        } else if (model != null && Map.class.isAssignableFrom(model.getClass())) {
+        if (model == null) {
+            return result;
+        } else if (ResponseFile.class.isAssignableFrom(model.getClass())) {
+            result.add((ResponseFile) model);
+        } else if (Map.class.isAssignableFrom(model.getClass())) {
+            ((Map<String, Object>) model).values().forEach(v -> result.addAll(extractResponseFiles(v)));
+        } else if (Collection.class.isAssignableFrom(model.getClass())) {
+            ((Collection<?>) model).forEach(v -> result.addAll(extractResponseFiles(v)));
+        }
+
+        return result;
+    }
+
+    /**
+     * 提取model对象中的文件数据
+     *
+     * @param model 容器
+     * @return 容器中包含的所有文件
+     */
+    @SuppressWarnings("unchecked")
+    public static List<File> extractFiles(Object model) {
+        List<File> result = new ArrayList<>();
+
+        if (model == null) {
+            return result;
+        } else if (File.class.isAssignableFrom(model.getClass())) {
+            result.add((File) model);
+        } else if (Map.class.isAssignableFrom(model.getClass())) {
             ((Map<String, Object>) model).values().forEach(v -> result.addAll(extractFiles(v)));
-        } else if (model != null && Collection.class.isAssignableFrom(model.getClass())) {
+        } else if (Collection.class.isAssignableFrom(model.getClass())) {
             ((Collection<?>) model).forEach(v -> result.addAll(extractFiles(v)));
         }
 

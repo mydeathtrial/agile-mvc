@@ -1,17 +1,13 @@
 package cloud.agileframework.mvc.container;
 
 import cloud.agileframework.common.util.file.ResponseFile;
-import cloud.agileframework.common.util.file.poi.ExcelFile;
-import cloud.agileframework.mvc.util.ViewUtil;
 import cloud.agileframework.mvc.view.FileView;
-import cloud.agileframework.mvc.view.FileViewResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * @author 佟盟
@@ -24,18 +20,17 @@ public class FileHandlerMethodReturnValueHandler implements HandlerMethodReturnV
 
     @Override
     public boolean supportsReturnType(MethodParameter returnType) {
-        return ExcelFile.class.isAssignableFrom(returnType.getParameterType())
-                || ResponseFile.class.isAssignableFrom(returnType.getParameterType())
+        return ResponseFile.class.isAssignableFrom(returnType.getParameterType())
                 || File.class.isAssignableFrom(returnType.getParameterType());
     }
 
 
     @Override
     public void handleReturnValue(Object returnValue, MethodParameter returnType, ModelAndViewContainer mavContainer, NativeWebRequest webRequest) {
-        List<Object> files = ViewUtil.extractFiles(returnValue);
-        if (!files.isEmpty()) {
-            mavContainer.setViewName(FileViewResolver.DEFAULT_VIEW_NAME);
-            mavContainer.addAttribute(FileView.FILE_ATTRIBUTE_NAME, files);
+        if (returnValue instanceof ResponseFile) {
+            mavContainer.setView(new FileView((ResponseFile) returnValue));
+        } else if (returnValue instanceof File) {
+            mavContainer.setView(new FileView((File) returnValue));
         }
     }
 }

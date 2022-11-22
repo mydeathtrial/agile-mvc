@@ -5,8 +5,6 @@ import cloud.agileframework.spring.util.MessageUtil;
 import cloud.agileframework.spring.util.ServletUtil;
 import org.springframework.http.HttpStatus;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * @author 佟盟 on 2017/1/9
  */
@@ -36,14 +34,13 @@ public class RETURN {
      */
     private final HttpStatus status;
 
-    public RETURN(String code, String msg, HttpStatus status) {
+    private final String ip = ServletUtil.getLocalIP();
+
+
+    private RETURN(String code, String msg, HttpStatus status) {
         this.code = code.trim();
         this.msg = msg.trim();
         this.status = status == null ? HttpStatus.OK : status;
-        HttpServletResponse response = ServletUtil.getCurrentResponse();
-        if (response != null) {
-            response.setStatus(this.status.value());
-        }
     }
 
     public static RETURN of(String code, String msg) {
@@ -61,7 +58,7 @@ public class RETURN {
      * @param params 占位参数
      * @return 返回RETURN结果
      */
-    public static RETURN byMessage(String defaultValue, HttpStatus status, String key, Object... params) {
+    public static RETURN byMessage(String defaultValue, HttpStatus status, String key, String... params) {
         String message = MessageUtil.message(key, defaultValue, params);
         if (defaultValue == null && message == null) {
             throw new RuntimeException(String.format("defaultValue and message cannot both be null,message %s not found", key));
@@ -118,5 +115,9 @@ public class RETURN {
 
     public HttpStatus getStatus() {
         return status;
+    }
+
+    public String getIp() {
+        return ip;
     }
 }
